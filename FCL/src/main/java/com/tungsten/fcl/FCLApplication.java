@@ -27,7 +27,7 @@ public class FCLApplication extends Application implements Application.ActivityL
          * 解决那些频繁分配内存对象导致程序崩溃问题比如Handler...
         **/
         appConfig = new PropertiesFileParse("config.properties", getApplicationContext()).getProperties();
-        appDataSave = getSharedPreferences("config", Context.MODE_PRIVATE);
+        appDataSave = getSharedPreferences("launcher", MODE_PRIVATE);
         this.registerActivityLifecycleCallbacks(this);
     }
 
