@@ -9,10 +9,10 @@
 
 <h1 align="center">应用功能如下</h1>
 
+- [x] 支持服务器客户端直装！
 - [x] 支持运行绝大部分版本
 - [x] 支持Forge, LiteLoader, OptiFine, Fabric, Quilt等API
 - [x] 内置Java8/Java17运行环境
-- [x] Mouse Virtual
 - [x] 可在线下载Mods，地图，纹理包，整合包等
 - [x] 支持部分光影 (可使用vgpu/VirGL渲染器运行光影)
 - [x] 支持自定义按键
