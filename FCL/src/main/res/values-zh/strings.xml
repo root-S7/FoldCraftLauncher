@@ -16,6 +16,8 @@
     <string name="multiplayer">多人联机</string>
     <string name="setting">全局设置</string>
 
+    <string name="splash_runtime_game_packages" translatable="true">游戏客户端数据</string>
+
     <string name="about">关于</string>
     <string name="about_sponsor">赞助</string>
     <string name="about_source">开源</string>

@@ -6,7 +6,9 @@ plugins {
 android {
     namespace 'com.tungsten.fcl'
     compileSdk 33
-
+    aaptOptions{
+        ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
+    }
     defaultConfig {
         applicationId "com.tungsten.fcl"
         minSdk 26

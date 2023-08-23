@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.SplashActivity;
 import com.tungsten.fcl.util.RuntimeUtils;
@@ -33,18 +34,21 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
     boolean cacio17 = false;
     boolean java8 = false;
     boolean java17 = false;
+    boolean gamePackages = false;
 
     private ProgressBar lwjglProgress;
     private ProgressBar cacioProgress;
     private ProgressBar cacio17Progress;
     private ProgressBar java8Progress;
     private ProgressBar java17Progress;
+    private ProgressBar gamePackagesProgress;
 
     private FCLImageView lwjglState;
     private FCLImageView cacioState;
     private FCLImageView cacio17State;
     private FCLImageView java8State;
     private FCLImageView java17State;
+    private FCLImageView gamePackagesState;
 
     private FCLButton install;
 
@@ -58,12 +62,14 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
         cacio17Progress = findViewById(view, R.id.cacio17_progress);
         java8Progress = findViewById(view, R.id.java8_progress);
         java17Progress = findViewById(view, R.id.java17_progress);
+        gamePackagesProgress = findViewById(view, R.id.game_packages_progress);
 
         lwjglState = findViewById(view, R.id.lwjgl_state);
         cacioState = findViewById(view, R.id.cacio_state);
         cacio17State = findViewById(view, R.id.cacio17_state);
         java8State = findViewById(view, R.id.java8_state);
         java17State = findViewById(view, R.id.java17_state);
+        gamePackagesState = findViewById(view, R.id.game_packages_state);
 
         initState();
 
@@ -103,6 +109,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
         } catch (IOException e) {
             e.printStackTrace();
         }
+        gamePackages = FCLApplication.appDataSave.getBoolean("gameDataExportSuccessful",false);
     }
 
     private void refreshDrawables() {
@@ -118,11 +125,12 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             cacio17State.setBackgroundDrawable(cacio17 ? stateDone : stateUpdate);
             java8State.setBackgroundDrawable(java8 ? stateDone : stateUpdate);
             java17State.setBackgroundDrawable(java17 ? stateDone : stateUpdate);
+            gamePackagesState.setBackgroundDrawable(gamePackages ? stateDone : stateUpdate);
         }
     }
 
     private boolean isLatest() {
-        return lwjgl && cacio && cacio17 && java8 && java17;
+        return lwjgl && cacio && cacio17 && java8 && java17 && gamePackages;
     }
 
     private void check() {
@@ -243,6 +251,13 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                         check();
                     });
                 }
+            }).start();
+        }
+        if (!gamePackages) {
+            gamePackagesState.setVisibility(View.GONE);
+            gamePackagesProgress.setVisibility(View.VISIBLE);
+            new Thread(() -> {
+
             }).start();
         }
     }
