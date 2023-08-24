@@ -119,9 +119,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             @SuppressLint("UseCompatLoadingForDrawables") Drawable stateUpdate = getContext().getDrawable(R.drawable.ic_baseline_update_24);
             @SuppressLint("UseCompatLoadingForDrawables") Drawable stateDone = getContext().getDrawable(R.drawable.ic_baseline_done_24);
 
-            stateUpdate.setTint(Color.GRAY);
-            stateDone.setTint(Color.GRAY);
-
             lwjglState.setBackgroundDrawable(lwjgl ? stateDone : stateUpdate);
             cacioState.setBackgroundDrawable(cacio ? stateDone : stateUpdate);
             cacio17State.setBackgroundDrawable(cacio17 ? stateDone : stateUpdate);
