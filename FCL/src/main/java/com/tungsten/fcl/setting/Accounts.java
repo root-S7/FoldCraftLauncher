@@ -7,53 +7,22 @@ import static com.tungsten.fclcore.util.Lang.immutableListOf;
 import static com.tungsten.fclcore.util.Lang.mapOf;
 import static com.tungsten.fclcore.util.Logging.LOG;
 import static com.tungsten.fclcore.util.Pair.pair;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
 import java.util.logging.Level;
-
 import static java.util.stream.Collectors.toList;
-
 import android.content.Context;
-
 import com.google.gson.reflect.TypeToken;
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.game.OAuthServer;
 import com.tungsten.fclauncher.utils.FCLPath;
-import com.tungsten.fclcore.auth.Account;
-import com.tungsten.fclcore.auth.AccountFactory;
-import com.tungsten.fclcore.auth.AuthenticationException;
-import com.tungsten.fclcore.auth.CharacterDeletedException;
-import com.tungsten.fclcore.auth.NoCharacterException;
-import com.tungsten.fclcore.auth.OAuthAccount;
-import com.tungsten.fclcore.auth.ServerDisconnectException;
-import com.tungsten.fclcore.auth.ServerResponseMalformedException;
-import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorAccount;
-import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorAccountFactory;
-import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorArtifactInfo;
-import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorArtifactProvider;
-import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorDownloadException;
-import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorDownloader;
-import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorServer;
-import com.tungsten.fclcore.auth.authlibinjector.BoundAuthlibInjectorAccountFactory;
-import com.tungsten.fclcore.auth.authlibinjector.SimpleAuthlibInjectorArtifactProvider;
-import com.tungsten.fclcore.auth.microsoft.MicrosoftAccount;
-import com.tungsten.fclcore.auth.microsoft.MicrosoftAccountFactory;
-import com.tungsten.fclcore.auth.microsoft.MicrosoftService;
-import com.tungsten.fclcore.auth.offline.OfflineAccount;
-import com.tungsten.fclcore.auth.offline.OfflineAccountFactory;
-import com.tungsten.fclcore.auth.yggdrasil.RemoteAuthenticationException;
-import com.tungsten.fclcore.auth.yggdrasil.YggdrasilAccount;
-import com.tungsten.fclcore.auth.yggdrasil.YggdrasilAccountFactory;
+import com.tungsten.fclcore.auth.*;
+import com.tungsten.fclcore.auth.authlibinjector.*;
+import com.tungsten.fclcore.auth.microsoft.*;
+import com.tungsten.fclcore.auth.offline.*;
+import com.tungsten.fclcore.auth.yggdrasil.*;
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener;
 import com.tungsten.fclcore.fakefx.beans.Observable;
 import com.tungsten.fclcore.fakefx.beans.property.ObjectProperty;
@@ -324,7 +293,9 @@ public final class Accounts {
             });
         }
 
-        triggerAuthlibInjectorUpdateCheck();
+        if("true".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))){
+            triggerAuthlibInjectorUpdateCheck();
+        }
 
         for (AuthlibInjectorServer server : config().getAuthlibInjectorServers()) {
             if (selected instanceof AuthlibInjectorAccount && ((AuthlibInjectorAccount) selected).getServer() == server)
@@ -358,7 +329,7 @@ public final class Accounts {
     // ==== authlib-injector ====
     private static AuthlibInjectorArtifactProvider createAuthlibInjectorArtifactProvider() {
         String authlibinjectorLocation = FCLPath.AUTHLIB_INJECTOR_PATH;
-        if (!new File(authlibinjectorLocation).exists()) {
+        if ((!new File(authlibinjectorLocation).exists()) && ("true".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online")))) {
             return new AuthlibInjectorDownloader(new File(authlibinjectorLocation).toPath(), DownloadProviders::getDownloadProvider) {
                 @Override
                 public Optional<AuthlibInjectorArtifactInfo> getArtifactInfoImmediately() {
