@@ -1,6 +1,7 @@
 package com.tungsten.fcl.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -52,6 +53,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
 
     private FCLButton install;
 
+    SharedPreferences.Editor edit = FCLApplication.appDataSave.edit();
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -257,7 +259,18 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             gamePackagesState.setVisibility(View.GONE);
             gamePackagesProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
-
+                RuntimeUtils.copyFilesFromAssets(getContext(), ".minecraft", FCLPath.SHARED_COMMON_DIR);
+                gamePackages = true;
+                edit.putBoolean("gameDataExportSuccessful",true);
+                edit.apply();
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        gamePackagesState.setVisibility(View.VISIBLE);
+                        gamePackagesProgress.setVisibility(View.GONE);
+                        refreshDrawables();
+                        check();
+                    });
+                }
             }).start();
         }
     }
