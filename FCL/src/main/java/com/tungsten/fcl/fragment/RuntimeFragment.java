@@ -259,6 +259,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             gamePackagesState.setVisibility(View.GONE);
             gamePackagesProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
+                RuntimeUtils.delete(FCLPath.SHARED_COMMON_DIR);
                 RuntimeUtils.copyFilesFromAssets(getContext(), ".minecraft", FCLPath.SHARED_COMMON_DIR);
                 gamePackages = true;
                 edit.putBoolean("gameDataExportSuccessful",true);
