@@ -33,11 +33,17 @@ public class MemoryUtils {
         if (totalDeviceMemory <= 1024) {
             return 512;
         } else if (totalDeviceMemory <= 6144) {
-            return Architecture.is32BitsDevice() ? 768 : 1024;
+            return Architecture.is32BitsDevice() ? 1024 : 2048;
+        } else if (totalDeviceMemory <= 8192) {
+            return Architecture.is32BitsDevice() ? 1024 : 2688;
         } else if (totalDeviceMemory <= 12288) {
-            return Architecture.is32BitsDevice() ? 768 : 2048;
+            return Architecture.is32BitsDevice() ? 1024 : 3712;
+        } else if (totalDeviceMemory <= 16384) {
+            return Architecture.is32BitsDevice() ? 1024 : 4096;
+        } else if (totalDeviceMemory <= 24576) {
+            return Architecture.is32BitsDevice() ? 1024 : 5120;
         } else {
-            return Architecture.is32BitsDevice() ? 768 : 4096;
+            return Architecture.is32BitsDevice() ? 1024 : 6912;
         }
     }
 

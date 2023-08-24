@@ -68,7 +68,7 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
                     Handler handler = new Handler();
                     handler.postDelayed(() -> {
                         next.setEnabled(true); // 启用按钮
-                    }, 1888);
+                    }, 1500);
                 });
             }
         }).start();
