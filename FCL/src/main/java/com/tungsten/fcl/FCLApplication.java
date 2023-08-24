@@ -5,10 +5,13 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.StrictMode;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.tungsten.fcl.util.PropertiesFileParse;
+import com.tungsten.fclauncher.utils.FCLPath;
+
 import java.lang.ref.WeakReference;
 import java.util.Properties;
 
@@ -28,6 +31,12 @@ public class FCLApplication extends Application implements Application.ActivityL
         **/
         appConfig = new PropertiesFileParse("config.properties", getApplicationContext()).getProperties();
         appDataSave = getSharedPreferences("launcher", MODE_PRIVATE);
+        FCLPath.loadPaths(this);
+        if("true".equals(appConfig.getProperty("enable-private-directory-mode","false"))){
+            FCLPath.SHARED_COMMON_DIR = FCLPath.PRIVATE_COMMON_DIR;
+        }else{
+            FCLPath.SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + appConfig.getProperty("put-directory","FCL-Server") + "/.minecraft";
+        }
         this.registerActivityLifecycleCallbacks(this);
     }
 

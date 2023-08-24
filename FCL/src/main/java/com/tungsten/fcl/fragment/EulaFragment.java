@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.SplashActivity;
 import com.tungsten.fclcore.util.io.NetworkUtils;
@@ -23,7 +24,7 @@ import java.io.IOException;
 
 public class EulaFragment extends FCLFragment implements View.OnClickListener {
 
-    public static final String EULA_URL = "https://gitcode.net/fcl-team/fold-craft-launcher/-/raw/master/res/eula.txt?inline=false";
+    public static final String EULA_URL = FCLApplication.appConfig.getProperty("eula-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.0/eula.txt");
 
     private FCLProgressBar progressBar;
     private FCLTextView eula;

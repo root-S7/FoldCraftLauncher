@@ -74,7 +74,7 @@ public class FCLPath {
         init(BACKGROUND_DIR);
         init(CONTROLLER_DIR);
         init(PRIVATE_COMMON_DIR);
-        init(SHARED_COMMON_DIR);
+        //init(SHARED_COMMON_DIR);
     }
 
     private static boolean init(String path) {

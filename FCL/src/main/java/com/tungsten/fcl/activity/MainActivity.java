@@ -15,6 +15,7 @@ import android.widget.ScrollView;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.game.TexturesLoader;
 import com.tungsten.fcl.setting.Accounts;
@@ -193,7 +194,9 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
                 setupAccountDisplay();
                 setupVersionDisplay();
 
-                UpdateChecker.getInstance().checkAuto(this).start();
+                if(FCLApplication.appConfig.getProperty("check-update","true").equals("true")){
+                    UpdateChecker.getInstance().checkAuto(this).start();
+                }
             });
         });
     }
