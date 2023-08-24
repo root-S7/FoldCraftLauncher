@@ -147,6 +147,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             return;
 
         installing = true;
+        install.setEnabled(false);
         if (!lwjgl) {
             lwjglState.setVisibility(View.GONE);
             lwjglProgress.setVisibility(View.VISIBLE);

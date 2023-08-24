@@ -3,7 +3,7 @@
     <string name="splash_permission_msg">没有存储权限，请授予 Fold Craft Launcher 权限。</string>
 
     <string name="splash_title">欢迎使用 Fold Craft Launcher</string>
-    <string name="splash_eula_error">无法获取用户协议，请检查网络。</string>
+    <string name="splash_eula_error">无法获取用户协议，请检查网络。\n无法获取用户协议，请检查网络。\n无法获取用户协议，请检查网络。</string>
     <string name="splash_eula_next">同意并继续</string>
     <string name="splash_runtime_title">安装或更新运行环境</string>
     <string name="splash_runtime_install">安装 / 更新</string>
@@ -20,6 +20,8 @@
     <string name="splash_runtime_others" translatable="true">其它</string>
 
     <string name="about">关于</string>
+    <string name="official_website">官网</string>
+    <string name="about_developer">作者</string>
     <string name="about_sponsor">赞助</string>
     <string name="about_source">开源</string>
     <string name="about_desc">Fold Craft Launcher 是一个 Android Minecraft 启动器，让用户能够在 Android 设备上启动 Minecraft: Java Edition。\n\nFold Craft Launcher 由 FCL-Team 开发。\n\nFold Craft Launcher 的主要功能是基于 HMCLCore 修改而成的。\n\n该应用借鉴和引用了一些 PojavLauncher 和 Boat 的源码，所以如果你要传播分发该软件，请遵循 GPL-v3 协议。</string>
@@ -107,8 +109,8 @@
     <string name="button_reset">重置</string>
 
     <string name="community">社区</string>
-    <string name="community_hint">加入社区以获取最新版本，反馈 bug 等。如果你要加入社区，请遵守社区规定。\n注：由于 QQ 群聊人数有限，加入 QQ 群需先赞助10元或以上金额，赞助方式见关于页面。</string>
-    <string name="community_qq">QQ 群</string>
+    <string name="community_hint">加入社区以获取最新版本，反馈 bug 等。如果你要加入社区，请遵守社区规定。\n注：该启动器为服务器直装版，非官方分支！</string>
+    <string name="community_qq">非官方QQ 群</string>
 
     <string name="control_create">创建新布局</string>
     <string name="control_delete">你确定要删除该布局吗？</string>

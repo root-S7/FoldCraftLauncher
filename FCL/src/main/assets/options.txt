@@ -1,4 +1,4 @@
-lang:zh_cn
+lang:zh_CN
 biomeBlendRadius:0
 fancyGraphics:false
 renderDistance:2
@@ -21,3 +21,4 @@ glintStrength:0.0
 skipMultiplayerWarning:true
 realmsNotifications:false
 forceUnicodeFont:true
+bobView:false

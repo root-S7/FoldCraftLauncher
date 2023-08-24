@@ -3,7 +3,9 @@ package com.tungsten.fcl.fragment;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,8 +33,6 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
 
     private FCLButton next;
 
-    private boolean load = false;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,7 +54,6 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
             String str;
             try {
                 str = NetworkUtils.doGet(NetworkUtils.toURL(EULA_URL));
-                load = true;
             } catch (IOException e) {
                 e.printStackTrace();
                 str = getString(R.string.splash_eula_error);
@@ -62,11 +61,14 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
             final String s = str;
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    if (load) {
-                        next.setEnabled(true);
-                    }
                     progressBar.setVisibility(View.GONE);
                     eula.setText(s);
+                    eula.setTextSize(16.5F);
+                    eula.setTextColor(Color.BLACK);
+                    Handler handler = new Handler();
+                    handler.postDelayed(() -> {
+                        next.setEnabled(true); // 启用按钮
+                    }, 1888);
                 });
             }
         }).start();
