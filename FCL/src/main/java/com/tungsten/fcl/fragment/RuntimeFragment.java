@@ -271,7 +271,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             othersState.setVisibility(View.GONE);
             othersProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
-                if(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true").equals("false")){
+                if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","false"))){
                     RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
                 }
                 RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/version", FCLPath.OTHERS_DIR + "/version");

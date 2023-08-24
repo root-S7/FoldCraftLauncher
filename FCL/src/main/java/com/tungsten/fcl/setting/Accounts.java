@@ -329,7 +329,7 @@ public final class Accounts {
     // ==== authlib-injector ====
     private static AuthlibInjectorArtifactProvider createAuthlibInjectorArtifactProvider() {
         String authlibinjectorLocation = FCLPath.AUTHLIB_INJECTOR_PATH;
-        if ((!new File(authlibinjectorLocation).exists()) && ("true".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online")))) {
+        if ((!new File(authlibinjectorLocation).exists()) && ("true".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true")))) {
             return new AuthlibInjectorDownloader(new File(authlibinjectorLocation).toPath(), DownloadProviders::getDownloadProvider) {
                 @Override
                 public Optional<AuthlibInjectorArtifactInfo> getArtifactInfoImmediately() {
