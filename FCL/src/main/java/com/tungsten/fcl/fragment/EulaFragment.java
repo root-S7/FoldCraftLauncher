@@ -45,7 +45,10 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
         next.setOnClickListener(this);
 
         loadEula();
-
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            next.setEnabled(true); // 启用按钮
+        }, 1500);
         return view;
     }
 
@@ -65,10 +68,6 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
                     eula.setText(s);
                     eula.setTextSize(16.5F);
                     eula.setTextColor(Color.BLACK);
-                    Handler handler = new Handler();
-                    handler.postDelayed(() -> {
-                        next.setEnabled(true); // 启用按钮
-                    }, 1500);
                 });
             }
         }).start();

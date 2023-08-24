@@ -130,7 +130,7 @@ public final class VersionSetting implements Cloneable {
         minMemoryProperty.set(minMemory);
     }
 
-    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", true);
+    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", false);
 
     public boolean isAutoMemory() {
         return autoMemory.get();
@@ -420,7 +420,7 @@ public final class VersionSetting implements Cloneable {
             vs.setMinecraftArgs(Optional.ofNullable(obj.get("minecraftArgs")).map(JsonElement::getAsString).orElse(""));
             vs.setMaxMemory(maxMemoryN);
             vs.setMinMemory(Optional.ofNullable(obj.get("minMemory")).map(JsonElement::getAsInt).orElse(null));
-            vs.setAutoMemory(Optional.ofNullable(obj.get("autoMemory")).map(JsonElement::getAsBoolean).orElse(true));
+            vs.setAutoMemory(Optional.ofNullable(obj.get("autoMemory")).map(JsonElement::getAsBoolean).orElse(false));
             vs.setPermSize(Optional.ofNullable(obj.get("permSize")).map(JsonElement::getAsString).orElse(""));
             vs.setServerIp(Optional.ofNullable(obj.get("serverIp")).map(JsonElement::getAsString).orElse(""));
             vs.setJava(Optional.ofNullable(obj.get("java")).map(JsonElement::getAsInt).orElse(0));

@@ -706,7 +706,7 @@
     <string name="settings_memory_allocate_auto_exceeded">最低分配 %1$.1f GB / 实际分配 %2$.1f GB (%3$.1f GB 可用)</string>
     <string name="settings_memory_allocate_manual">游戏分配 %1$.1f GB</string>
     <string name="settings_memory_allocate_manual_exceeded">游戏分配 %1$.1f GB (设备仅 %3$.1f GB 可用)</string>
-    <string name="settings_memory_auto_allocate">自动分配内存</string>
+    <string name="settings_memory_auto_allocate">自动分配内存（开启后游戏内存不可调整且只能分配2048MB）</string>
     <string name="settings_memory_lower_bound">最低内存分配</string>
     <string name="settings_memory_used_per_total">设备中已使用 %1$.1f GB / 设备总内存 %2$.1f GB</string>
     <string name="settings_physical_memory">物理内存大小</string>

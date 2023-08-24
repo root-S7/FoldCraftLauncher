@@ -731,7 +731,7 @@
     <string name="settings_memory_allocate_auto_exceeded">%1$.1f GB Minimum / %2$.1f GB Allocated (%3$.1f GB Available)</string>
     <string name="settings_memory_allocate_manual">%1$.1f GB Allocated</string>
     <string name="settings_memory_allocate_manual_exceeded">%1$.1f GB Allocated (%3$.1f GB Available)</string>
-    <string name="settings_memory_auto_allocate">Automatically allocate</string>
+    <string name="settings_memory_auto_allocate">Automatically allocate(After checking, memory allocation can not be adjusted)</string>
     <string name="settings_memory_lower_bound">Minimum Memory</string>
     <string name="settings_memory_used_per_total">%1$.1f GB Used / %2$.1f GB Total</string>
     <string name="settings_physical_memory">Physical Memory Size</string>
