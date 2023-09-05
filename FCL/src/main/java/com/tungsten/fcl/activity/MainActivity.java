@@ -268,8 +268,10 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
         if (view == home) {
             titleView.setTextWithAnim(getString(R.string.app_name));
             uiManager.switchUI(uiManager.getMainUI());
+            announcementContainer.setVisibility(View.VISIBLE);
         }
         if (view == manage) {
+            announcementContainer.setVisibility(View.GONE);
             String version = Profiles.getSelectedVersion();
             if (version == null) {
                 refreshMenuView(null);
@@ -282,18 +284,22 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             }
         }
         if (view == download) {
+            announcementContainer.setVisibility(View.GONE);
             titleView.setTextWithAnim(getString(R.string.download));
             uiManager.switchUI(uiManager.getDownloadUI());
         }
         if (view == controller) {
+            announcementContainer.setVisibility(View.GONE);
             titleView.setTextWithAnim(getString(R.string.controller));
             uiManager.switchUI(uiManager.getControllerUI());
         }
         if (view == multiplayer) {
+            announcementContainer.setVisibility(View.GONE);
             titleView.setTextWithAnim(getString(R.string.multiplayer));
             uiManager.switchUI(uiManager.getMultiplayerUI());
         }
         if (view == setting) {
+            announcementContainer.setVisibility(View.GONE);
             titleView.setTextWithAnim(getString(R.string.setting));
             uiManager.switchUI(uiManager.getSettingUI());
         }
@@ -317,6 +323,7 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
 
     @Override
     public void onClick(View view) {
+        announcementContainer.setVisibility(View.GONE);
         if (view == account && uiManager.getCurrentUI() != uiManager.getAccountUI()) {
             refreshMenuView(null);
             titleView.setTextWithAnim(getString(R.string.account));
