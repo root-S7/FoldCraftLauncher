@@ -7,6 +7,7 @@ import static com.tungsten.fclcore.fakefx.beans.binding.Bindings.createStringBin
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
@@ -43,6 +44,7 @@ import com.tungsten.fclcore.mod.RemoteModRepository;
 import com.tungsten.fclcore.task.Schedulers;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.fakefx.BindingMapping;
+import com.tungsten.fclcore.util.io.NetworkUtils;
 import com.tungsten.fcllibrary.component.FCLActivity;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 import com.tungsten.fcllibrary.component.view.FCLButton;
@@ -66,9 +68,11 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
 
     public ConstraintLayout background;
     public FCLDynamicIsland titleView;
+    public FCLTextView onlineAnnouncement;
 
     private UIManager uiManager;
     public FCLUILayout uiLayout;
+    public ScrollView announcementContainer;
 
     private ScrollView leftMenu;
     public FCLMenuView home;
@@ -108,6 +112,26 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
         background.setBackground(ThemeEngine.getInstance().getTheme().getBackground(this));
 
         titleView = findViewById(R.id.title);
+
+        announcementContainer = findViewById(R.id.announcement_container);
+        onlineAnnouncement = findViewById(R.id.online_announcement);
+        new Thread(() -> {
+            String str;
+            try {
+                str = NetworkUtils.doGet(NetworkUtils.toURL(FCLApplication.appConfig.getProperty("announcement-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.0/announcement.txt")));
+            } catch (IOException e) {
+                e.printStackTrace();
+                str = "无法获取公告";
+            }
+            final String s = str;
+            if(onlineAnnouncement != null){
+                runOnUiThread(() -> {
+                    onlineAnnouncement.setText(s);
+                    onlineAnnouncement.setTextSize(15.5F);
+                    onlineAnnouncement.setTextColor(Color.BLACK);
+                });
+            }
+        }).start();
 
         Skin.registerDefaultSkinLoader((type) -> {
             switch (type) {
@@ -200,6 +224,8 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             });
         });
     }
+
+
 
     public Runnable backToMainUI = () -> {
         if (uiManager.getCurrentUI() == uiManager.getMainUI()) {
