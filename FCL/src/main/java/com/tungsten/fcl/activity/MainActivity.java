@@ -119,7 +119,7 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             String str;
             try {
                 str = NetworkUtils.doGet(NetworkUtils.toURL(FCLApplication.appConfig.getProperty("announcement-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.0/announcement.txt")));
-            } catch (IOException e) {
+            } catch (IOException | IllegalArgumentException e) {
                 e.printStackTrace();
                 str = "无法获取公告";
             }
