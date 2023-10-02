@@ -89,7 +89,7 @@
             android:enabled="true"/>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="@string/file_browser_provider"
+            android:authorities="com.tungsten.fcl.provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths"/>
