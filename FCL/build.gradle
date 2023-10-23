@@ -10,6 +10,9 @@ android {
         ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
     }
     defaultConfig {
+        ndk{
+            abiFilter "arm64-v8a"
+        }
         //包名建议使用"个人域名反写+服务器名称取每个字第一个字母"
         /**
          * 比如我有个域名是"mcbbs.ren",我的服务器名称叫"猫窝"
