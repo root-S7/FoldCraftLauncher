@@ -5,9 +5,14 @@ plugins {
 
 android {
     namespace 'com.tungsten.fcl'
+    compileSdk 34
+
     defaultConfig {
         ndk{
             abiFilter "arm64-v8a"
+        }
+        aaptOptions{
+            ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
         }
         //包名建议使用"个人域名反写+服务器名称取每个字第一个字母"
         /**
