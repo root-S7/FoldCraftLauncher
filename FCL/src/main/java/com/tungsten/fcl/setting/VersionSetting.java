@@ -2,6 +2,7 @@ package com.tungsten.fcl.setting;
 
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fclauncher.FCLConfig;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener;
@@ -254,7 +255,7 @@ public final class VersionSetting implements Cloneable {
      * 0 - .minecraft<br/>
      * 1 - .minecraft/versions/&lt;version&gt;/<br/>
      */
-    private final BooleanProperty isolateGameDirProperty = new SimpleBooleanProperty(this, "isolateGameDir", false);
+    private final BooleanProperty isolateGameDirProperty = new SimpleBooleanProperty(this, "isolateGameDir", FCLApplication.appConfig.getProperty("enable-isolate-working-directory","false").equals("true"));
 
     public BooleanProperty isolateGameDirProperty() {
         return isolateGameDirProperty;
