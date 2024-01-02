@@ -97,7 +97,7 @@ public final class VersionSetting implements Cloneable {
         permSizeProperty.set(permSize);
     }
 
-    private final IntegerProperty maxMemoryProperty = new SimpleIntegerProperty(this, "maxMemory", MemoryUtils.findBestRAMAllocation(FCLPath.CONTEXT));
+    private final IntegerProperty maxMemoryProperty = new SimpleIntegerProperty(this, "maxMemory", FCLApplication.appConfig.getProperty("set-memory") != null && FCLApplication.appConfig.getProperty("set-memory").matches("\\d+") && Integer.parseInt(FCLApplication.appConfig.getProperty("set-memory")) >= 1536 ? Integer.parseInt(FCLApplication.appConfig.getProperty("set-memory")) : MemoryUtils.findBestRAMAllocation(FCLPath.CONTEXT));
 
     public IntegerProperty maxMemoryProperty() {
         return maxMemoryProperty;

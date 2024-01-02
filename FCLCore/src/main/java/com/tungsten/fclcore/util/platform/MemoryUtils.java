@@ -41,9 +41,9 @@ public class MemoryUtils {
         } else if (totalDeviceMemory <= 16384) {
             return Architecture.is32BitsDevice() ? 1024 : 4096;
         } else if (totalDeviceMemory <= 24576) {
-            return Architecture.is32BitsDevice() ? 1024 : 5120;
+            return Architecture.is32BitsDevice() ? 1024 : 5632;
         } else {
-            return Architecture.is32BitsDevice() ? 1024 : 6912;
+            return Architecture.is32BitsDevice() ? 1024 : 7168;
         }
     }
 
