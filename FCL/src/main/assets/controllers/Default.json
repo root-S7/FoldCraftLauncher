@@ -13,7 +13,7 @@
         "buttonList": [
           {
             "id": "f93bfc52-e745-4277-a4db-5c85829fb35e",
-            "text": "×",
+            "text": "左键",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -31,18 +31,18 @@
             },
             "baseInfo": {
               "visibilityType": "ALWAYS",
-              "xPosition": 800,
-              "yPosition": 750,
+              "xPosition": 839,
+              "yPosition": 662,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 155
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 155
               }
             },
             "event": {
@@ -98,7 +98,7 @@
           },
           {
             "id": "37f97e88-efe1-4052-a2d6-55f82d0f8be6",
-            "text": "■",
+            "text": "跳跃",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -116,18 +116,18 @@
             },
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 875,
-              "yPosition": 750,
+              "xPosition": 928,
+              "yPosition": 663,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 155
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 155
               }
             },
             "event": {
@@ -183,7 +183,7 @@
           },
           {
             "id": "4881cb4c-6eb4-4183-8cd3-ba56ac969543",
-            "text": "○",
+            "text": "右键",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -200,19 +200,19 @@
               "fillColorPressed": -3355444
             },
             "baseInfo": {
-              "visibilityType": "ALWAYS",
-              "xPosition": 875,
-              "yPosition": 565,
+              "visibilityType": "IN_GAME",
+              "xPosition": 925,
+              "yPosition": 455,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 155
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 155
               }
             },
             "event": {
@@ -268,7 +268,7 @@
           },
           {
             "id": "5aafb6b5-e4e8-42bd-baf6-3385a06a5825",
-            "text": "E",
+            "text": "背包",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -285,19 +285,19 @@
               "fillColorPressed": -3355444
             },
             "baseInfo": {
-              "visibilityType": "ALWAYS",
-              "xPosition": 720,
-              "yPosition": 1000,
+              "visibilityType": "IN_GAME",
+              "xPosition": 304,
+              "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 100
+                "size": 120
               },
               "percentageHeight": {
                 "reference": "SCREEN_WIDTH",
-                "size": 100
+                "size": 120
               }
             },
             "event": {
@@ -353,7 +353,7 @@
           },
           {
             "id": "bbd7a36c-fcc5-46d8-a927-180ed08a035f",
-            "text": "▼",
+            "text": "蹲下",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -370,19 +370,19 @@
               "fillColorPressed": -3355444
             },
             "baseInfo": {
-              "visibilityType": "ALWAYS",
-              "xPosition": 950,
-              "yPosition": 935,
+              "visibilityType": "IN_GAME",
+              "xPosition": 931,
+              "yPosition": 878,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 155
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 155
               }
             },
             "event": {
@@ -438,7 +438,7 @@
           },
           {
             "id": "049b35dd-999c-4de1-af52-53304659addf",
-            "text": "Q",
+            "text": "丢物品",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -456,8 +456,8 @@
             },
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 1000,
-              "yPosition": 400,
+              "xPosition": 247,
+              "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
@@ -523,7 +523,7 @@
           },
           {
             "id": "3bc32d1b-30ca-44d1-b1ab-f27561ca7edf",
-            "text": "Esc",
+            "text": "返回",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -548,7 +548,7 @@
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 130
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
@@ -608,7 +608,7 @@
           },
           {
             "id": "cb02a199-990a-4a3b-9cad-aadcfa5ae046",
-            "text": "F3",
+            "text": "调试",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -626,14 +626,14 @@
             },
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 100,
+              "xPosition": 62,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 130
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
@@ -693,7 +693,7 @@
           },
           {
             "id": "68d941b2-ff89-4914-bfea-cb95942ccab5",
-            "text": "T",
+            "text": "聊天",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -711,14 +711,14 @@
             },
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 200,
+              "xPosition": 124,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 130
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
@@ -778,7 +778,7 @@
           },
           {
             "id": "ed3c2149-7c48-46ae-86c9-5f931251c308",
-            "text": "Input",
+            "text": "输入法",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -803,11 +803,11 @@
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 140
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 100
               }
             },
             "event": {
@@ -861,7 +861,7 @@
           },
           {
             "id": "43606f98-b410-44de-b7d0-b36a17e54089",
-            "text": "Enter",
+            "text": "回车",
             "style": {
               "name": "Default",
               "textColor": -1,
@@ -878,15 +878,15 @@
               "fillColorPressed": -3355444
             },
             "baseInfo": {
-              "visibilityType": "ALWAYS",
-              "xPosition": 900,
+              "visibilityType": "IN_GAME",
+              "xPosition": 186,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 130
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
@@ -906,91 +906,6 @@
                 "outputText": "",
                 "outputKeycodes": [
                   28
-                ],
-                "bindViewGroup": []
-              },
-              "longPressEvent": {
-                "autoKeep": false,
-                "autoClick": false,
-                "openMenu": false,
-                "switchTouchMode": false,
-                "input": false,
-                "quickInput": false,
-                "outputText": "",
-                "outputKeycodes": [],
-                "bindViewGroup": []
-              },
-              "clickEvent": {
-                "autoKeep": false,
-                "autoClick": false,
-                "openMenu": false,
-                "switchTouchMode": false,
-                "input": false,
-                "quickInput": false,
-                "outputText": "",
-                "outputKeycodes": [],
-                "bindViewGroup": []
-              },
-              "doubleClickEvent": {
-                "autoKeep": false,
-                "autoClick": false,
-                "openMenu": false,
-                "switchTouchMode": false,
-                "input": false,
-                "quickInput": false,
-                "outputText": "",
-                "outputKeycodes": [],
-                "bindViewGroup": []
-              }
-            }
-          },
-          {
-            "id": "9a4a8307-35fb-46bd-ab55-1e28538f0cd1",
-            "text": "BackSp",
-            "style": {
-              "name": "Default",
-              "textColor": -1,
-              "textSize": 12,
-              "strokeColor": -12303292,
-              "strokeWidth": 10,
-              "cornerRadius": 100,
-              "fillColor": 0,
-              "textColorPressed": -1,
-              "textSizePressed": 12,
-              "strokeColorPressed": -12303292,
-              "strokeWidthPressed": 10,
-              "cornerRadiusPressed": 100,
-              "fillColorPressed": -3355444
-            },
-            "baseInfo": {
-              "visibilityType": "ALWAYS",
-              "xPosition": 1000,
-              "yPosition": 0,
-              "sizeType": "PERCENTAGE",
-              "absoluteWidth": 50,
-              "absoluteHeight": 50,
-              "percentageWidth": {
-                "reference": "SCREEN_HEIGHT",
-                "size": 160
-              },
-              "percentageHeight": {
-                "reference": "SCREEN_HEIGHT",
-                "size": 120
-              }
-            },
-            "event": {
-              "pointerFollow": false,
-              "Movable": false,
-              "pressEvent": {
-                "autoKeep": false,
-                "autoClick": false,
-                "openMenu": false,
-                "switchTouchMode": false,
-                "input": false,
-                "quickInput": false,
-                "outputText": "",
-                "outputKeycodes": [
-                  14
                 ],
                 "bindViewGroup": []
               },
@@ -1065,18 +980,18 @@
             },
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 50,
-              "yPosition": 900,
+              "xPosition": 25,
+              "yPosition": 923,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 450
+                "size": 525
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 450
+                "size": 525
               }
             },
             "event": {

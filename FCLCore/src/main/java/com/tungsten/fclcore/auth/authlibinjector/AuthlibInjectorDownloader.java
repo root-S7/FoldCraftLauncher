@@ -18,13 +18,13 @@
 package com.tungsten.fclcore.auth.authlibinjector;
 
 import static com.tungsten.fclcore.util.Logging.LOG;
-
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 import com.tungsten.fclcore.download.DownloadProvider;
 import com.tungsten.fclcore.task.FileDownloadTask;
 import com.tungsten.fclcore.util.io.HttpRequest;
-
+import com.tungsten.fclcore.util.gson.JsonUtils;
+import com.tungsten.fclcore.util.io.NetworkUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -37,7 +37,7 @@ import java.util.logging.Level;
 
 public class AuthlibInjectorDownloader implements AuthlibInjectorArtifactProvider {
 
-    private static final String LATEST_BUILD_URL = "https://authlib-injector.yushi.moe/artifact/latest.json";
+    private static final String LATEST_BUILD_URL = "https://download.mcbbs.net/mirrors/authlib-injector/artifact/latest.json";
 
     private final Path artifactLocation;
     private final Supplier<DownloadProvider> downloadProvider;
@@ -93,11 +93,6 @@ public class AuthlibInjectorDownloader implements AuthlibInjectorArtifactProvide
         }
 
         try {
-            new FileDownloadTask(new URL(downloadProvider.get().injectURL(latest.downloadUrl)), artifactLocation.toFile(),
-                    Optional.ofNullable(latest.checksums.get("sha256"))
-                            .map(checksum -> new FileDownloadTask.IntegrityCheck("SHA-256", checksum))
-                            .orElse(null))
-                    .run();
         } catch (Exception e) {
             throw new IOException("Failed to download authlib-injector", e);
         }
@@ -107,7 +102,6 @@ public class AuthlibInjectorDownloader implements AuthlibInjectorArtifactProvide
 
     private AuthlibInjectorVersionInfo getLatestArtifactInfo() throws IOException {
         try {
-            return HttpRequest.GET(downloadProvider.get().injectURL(LATEST_BUILD_URL)).getJson(AuthlibInjectorVersionInfo.class);
         } catch (JsonParseException e) {
             throw new IOException("Malformed response", e);
         }
