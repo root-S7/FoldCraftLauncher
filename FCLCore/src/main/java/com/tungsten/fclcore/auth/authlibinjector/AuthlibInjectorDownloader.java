@@ -22,6 +22,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 import com.tungsten.fclcore.download.DownloadProvider;
 import com.tungsten.fclcore.task.FileDownloadTask;
+import com.tungsten.fclcore.util.io.HttpRequest;
 import com.tungsten.fclcore.util.gson.JsonUtils;
 import com.tungsten.fclcore.util.io.NetworkUtils;
 import java.io.IOException;
@@ -92,7 +93,6 @@ public class AuthlibInjectorDownloader implements AuthlibInjectorArtifactProvide
         }
 
         try {
-            new FileDownloadTask(new URL(downloadProvider.get().injectURL(latest.downloadUrl)), artifactLocation.toFile(), Optional.ofNullable(latest.checksums.get("sha256")).map(checksum -> new FileDownloadTask.IntegrityCheck("SHA-256", checksum)).orElse(null)).run();
         } catch (Exception e) {
             throw new IOException("Failed to download authlib-injector", e);
         }
@@ -102,7 +102,6 @@ public class AuthlibInjectorDownloader implements AuthlibInjectorArtifactProvide
 
     private AuthlibInjectorVersionInfo getLatestArtifactInfo() throws IOException {
         try {
-            return JsonUtils.fromNonNullJson(NetworkUtils.doGet(new URL(downloadProvider.get().injectURL(LATEST_BUILD_URL))), AuthlibInjectorVersionInfo.class);
         } catch (JsonParseException e) {
             throw new IOException("Malformed response", e);
         }

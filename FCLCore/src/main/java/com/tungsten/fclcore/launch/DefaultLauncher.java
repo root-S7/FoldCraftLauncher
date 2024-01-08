@@ -387,7 +387,6 @@ public class DefaultLauncher extends Launcher {
     public FCLBridge launch() throws IOException, InterruptedException {
         final CommandBuilder command = generateCommandLine();
 
-        // To guarantee that when failed to generate launch command line, we will not call pre-launch command
         List<String> rawCommandLine = command.asList();
 
         if (rawCommandLine.stream().anyMatch(StringUtils::isBlank)) {
@@ -401,12 +400,14 @@ public class DefaultLauncher extends Launcher {
         String[] finalArgs = rawCommandLine.toArray(new String[0]);
 
         FCLConfig.Renderer renderer = options.getRenderer();
-        FCLConfig config = new FCLConfig(context,
+        FCLConfig config = new FCLConfig(
+                context,
                 FCLPath.LOG_DIR,
                 options.getJava().getVersion() == 8 ? FCLPath.JAVA_8_PATH : FCLPath.JAVA_17_PATH,
                 repository.getRunDirectory(version.getId()).getAbsolutePath(),
                 renderer,
-                finalArgs);
+                finalArgs
+        );
         return FCLauncher.launchMinecraft(config);
     }
 }
