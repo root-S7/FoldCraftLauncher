@@ -9,6 +9,9 @@ import android.widget.ProgressBar;
 import androidx.annotation.*;
 import com.tungsten.fcl.*;
 import com.tungsten.fcl.activity.SplashActivity;
+import com.tungsten.fcl.setting.Config;
+import com.tungsten.fcl.setting.ConfigHolder;
+import com.tungsten.fcl.util.ParseAuthlibInjectorServerFile;
 import com.tungsten.fcl.util.RuntimeUtils;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.io.FileUtils;
@@ -272,6 +275,9 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             othersState.setVisibility(View.GONE);
             othersProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
+
+                new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
+
                 if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))){
                     RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
                 }
