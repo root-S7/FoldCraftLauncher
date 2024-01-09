@@ -108,10 +108,14 @@
 
     <string name="button_back">Back</string>
     <string name="button_cancel">Cancel</string>
+    <string name="button_copy">Copy</string>
     <string name="button_download">Download</string>
     <string name="button_export">Export</string>
     <string name="button_install">Install</string>
+    <string name="button_mouse_left">Mouse Left</string>
+    <string name="button_mouse_right">Mouse Right</string>
     <string name="button_next">Next</string>
+    <string name="button_paste">Paste</string>
     <string name="button_prev">Prev</string>
     <string name="button_remove">Remove</string>
     <string name="button_remove_confirm">Are you sure you want to permanently remove it? This action cannot be undone!</string>
@@ -119,6 +123,10 @@
     <string name="button_select_all">Select All</string>
     <string name="button_set">Set</string>
     <string name="button_reset">Reset</string>
+    <string name="button_up" translatable="false">▲</string>
+    <string name="button_down" translatable="false">▼</string>
+    <string name="button_left" translatable="false">◀</string>
+    <string name="button_right" translatable="false">▶</string>
 
     <string name="community">Community</string>
     <string name="community_hint">Join our community to get latest version, report bugs, etc. Please follow the community rules if you join.</string>
@@ -408,9 +416,11 @@
     <string name="install_installer_fabric_api" translatable="false">Fabric API</string>
     <string name="install_installer_fabric_api_warning">Warning: Fabric API is a mod, and will be installed into the mod directory of the game instance. Please do not change the working directory of the game, or the Fabric API will not work. If you do want to change these settings, you should reinstall it.</string>
     <string name="install_installer_forge" translatable="false">Forge</string>
+    <string name="install_installer_neoforge" translatable="false">NeoForge</string>
     <string name="install_installer_game" translatable="false">Minecraft</string>
     <string name="install_installer_incompatible">Incompatible with %s</string>
     <string name="install_installer_install">Install %s</string>
+    <string name="install_installer_install_jar">Execute Jar File</string>
     <string name="install_installer_install_offline">Install/Update from Local File</string>
     <string name="install_installer_install_offline_extension">Forge/OptiFine installer</string>
     <string name="install_installer_liteloader" translatable="false">LiteLoader</string>
@@ -423,6 +433,9 @@
     <string name="install_new_game_already_exists">This instance already exists. Please use another name.</string>
     <string name="install_new_game_malformed">Invalid Name</string>
     <string name="install_success">Installed successfully.</string>
+
+    <string name="jar_executor_crash_title">Jar Executor Crashed</string>
+    <string name="jar_executor_crash_reason">Jar Executor crash reason analyse is not supported now.</string>
 
     <string name="launch">Launch</string>
     <string name="launch_error_java">Wrong Java Version</string>
@@ -602,6 +615,7 @@
     <string name="modrinth_category_mobs">Mobs</string>
     <string name="modrinth_category_modloader">Modloader</string>
     <string name="modrinth_category_multiplayer">Multiplayer</string>
+    <string name="modrinth_category_neoforge">NeoForge</string>
     <string name="modrinth_category_optimization">Optimization</string>
     <string name="modrinth_category_paper">Paper</string>
     <string name="modrinth_category_purpur">Purpur</string>
