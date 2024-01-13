@@ -11,8 +11,11 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
@@ -50,6 +53,7 @@ import com.tungsten.fcllibrary.component.FCLActivity;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 import com.tungsten.fcllibrary.component.view.FCLButton;
 import com.tungsten.fcllibrary.component.view.FCLDynamicIsland;
+import com.tungsten.fcllibrary.component.view.FCLEditText;
 import com.tungsten.fcllibrary.component.view.FCLImageView;
 import com.tungsten.fcllibrary.component.view.FCLMenuView;
 import com.tungsten.fcllibrary.component.view.FCLTextView;
@@ -197,6 +201,27 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             account.setOnClickListener(this);
             version.setOnClickListener(this);
             executeJar.setOnClickListener(this);
+            executeJar.setOnLongClickListener(V -> {
+                int padding = ConvertUtils.dip2px(MainActivity.this, 15);
+                FCLEditText editText = new FCLEditText(MainActivity.this);
+                RelativeLayout layout = new RelativeLayout(MainActivity.this);
+                editText.setHint("-jar xxx");
+                editText.setLines(1);
+                editText.setMaxLines(1);
+                layout.setPadding(padding, padding, padding, padding);
+                layout.addView(editText);
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.jar_execute_custom_args)
+                        .setView(layout)
+                        .setPositiveButton(com.tungsten.fcllibrary.R.string.dialog_positive, (dialog1, which) -> JarExecutorHelper.exec(MainActivity.this, null, 8, editText.getText().toString()))
+                        .setNegativeButton(com.tungsten.fcllibrary.R.string.dialog_negative, null)
+                        .create();
+                layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                editText.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                ThemeEngine.getInstance().applyFullscreen(dialog.getWindow(), ThemeEngine.getInstance().getTheme().isFullscreen());
+                dialog.show();
+                return true;
+            });
             launch.setOnClickListener(this);
             launch.setOnLongClickListener(view -> {
                 startActivity(new Intent(MainActivity.this, ShellActivity.class));
@@ -240,8 +265,7 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addCategory(Intent.CATEGORY_HOME);
             startActivity(i);
-        }
-        else {
+        } else {
             home.setSelected(true);
         }
     };

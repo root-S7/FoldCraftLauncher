@@ -434,6 +434,7 @@
     <string name="install_success">Installed successfully.</string>
 
     <string name="jar_execute">Execute Jar</string>
+    <string name="jar_execute_custom_args">Execute with custom args</string>
     <string name="jar_executor_crash_title">Jar Executor Crashed</string>
     <string name="jar_executor_crash_reason">Jar Executor crash reason analyse is not supported now.</string>
 
