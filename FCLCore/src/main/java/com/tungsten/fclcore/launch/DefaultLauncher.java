@@ -50,6 +50,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class DefaultLauncher extends Launcher {
 
@@ -104,19 +105,19 @@ public class DefaultLauncher extends Launcher {
         res.addDefault("-Dminecraft.client.jar=", repository.getVersionJar(version).toString());
 
         // Using G1GC with its settings by default
-        if (options.getJava().getVersion() >= 8
-                && res.noneMatch(arg -> "-XX:-UseG1GC".equals(arg) || (arg.startsWith("-XX:+Use") && arg.endsWith("GC")))) {
-            res.addUnstableDefault("UnlockExperimentalVMOptions", true);
-            res.addUnstableDefault("UseG1GC", true);
-            res.addUnstableDefault("G1NewSizePercent", "20");
-            res.addUnstableDefault("G1ReservePercent", "20");
-            res.addUnstableDefault("MaxGCPauseMillis", "50");
-            res.addUnstableDefault("G1HeapRegionSize", "32m");
-        }
-
-        res.addUnstableDefault("UseAdaptiveSizePolicy", false);
-        res.addUnstableDefault("OmitStackTraceInFastThrow", false);
-        res.addUnstableDefault("DontCompileHugeMethods", false);
+//        if (options.getJava().getVersion() >= 8
+//                && res.noneMatch(arg -> "-XX:-UseG1GC".equals(arg) || (arg.startsWith("-XX:+Use") && arg.endsWith("GC")))) {
+//            res.addUnstableDefault("UnlockExperimentalVMOptions", true);
+//            res.addUnstableDefault("UseG1GC", true);
+//            res.addUnstableDefault("G1NewSizePercent", "20");
+//            res.addUnstableDefault("G1ReservePercent", "20");
+//            res.addUnstableDefault("MaxGCPauseMillis", "50");
+//            res.addUnstableDefault("G1HeapRegionSize", "32m");
+//        }
+//
+//        res.addUnstableDefault("UseAdaptiveSizePolicy", false);
+//        res.addUnstableDefault("OmitStackTraceInFastThrow", false);
+//        res.addUnstableDefault("DontCompileHugeMethods", false);
 
         // As 32-bit JVM allocate 320KB for stack by default rather than 64-bit version allocating 1MB,
         // causing Minecraft 1.13 crashed accounting for java.lang.StackOverflowError.
@@ -148,6 +149,8 @@ public class DefaultLauncher extends Launcher {
         res.addDefault("-Duser.home=", options.getGameDir().getAbsolutePath());
         res.addDefault("-Duser.language=", System.getProperty("user.language"));
         res.addDefault("-Duser.timezone=", TimeZone.getDefault().getID());
+        res.addDefault("-Djna.boot.library.path=", context.getApplicationInfo().nativeLibraryDir);
+        res.addDefault("-Dorg.lwjgl.vulkan.libname=", "libvulkan.so");
 
         if (getInjectorArg() != null && options.isBeGesture()) {
             res.addDefault("-Dfcl.injector=", getInjectorArg());
@@ -178,8 +181,8 @@ public class DefaultLauncher extends Launcher {
         configuration.put("${assets_root}", gameAssets.toAbsolutePath().toString());
 
         configuration.put("${natives_directory}", "${natives_directory}");
-
-        res.addAll(Arguments.parseArguments(version.getArguments().map(Arguments::getJvm).orElseGet(this::getDefaultJVMArguments), configuration));
+        List<String> jvmArgs = Arguments.parseArguments(version.getArguments().map(Arguments::getJvm).orElseGet(this::getDefaultJVMArguments), configuration);
+        res.addAll(jvmArgs.stream().filter(arg -> !arg.contains("-Djna.tmpdir=") && !arg.contains("-Dorg.lwjgl.system.SharedLibraryExtractPath=")).collect(Collectors.toList()));
         Arguments argumentsFromAuthInfo = authInfo.getLaunchArguments(options);
         if (argumentsFromAuthInfo != null && argumentsFromAuthInfo.getJvm() != null && !argumentsFromAuthInfo.getJvm().isEmpty())
             res.addAll(Arguments.parseArguments(argumentsFromAuthInfo.getJvm(), configuration));

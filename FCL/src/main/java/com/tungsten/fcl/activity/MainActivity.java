@@ -11,13 +11,17 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
+import com.tungsten.fcl.game.JarExecutorHelper;
 import com.tungsten.fcl.game.TexturesLoader;
 import com.tungsten.fcl.setting.Accounts;
 import com.tungsten.fcl.setting.ConfigHolder;
@@ -49,6 +53,7 @@ import com.tungsten.fcllibrary.component.FCLActivity;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 import com.tungsten.fcllibrary.component.view.FCLButton;
 import com.tungsten.fcllibrary.component.view.FCLDynamicIsland;
+import com.tungsten.fcllibrary.component.view.FCLEditText;
 import com.tungsten.fcllibrary.component.view.FCLImageView;
 import com.tungsten.fcllibrary.component.view.FCLMenuView;
 import com.tungsten.fcllibrary.component.view.FCLTextView;
@@ -81,6 +86,7 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
     public FCLMenuView controller;
     public FCLMenuView multiplayer;
     public FCLMenuView setting;
+    public FCLMenuView back;
 
     private LinearLayoutCompat account;
     private FCLImageView avatar;
@@ -90,7 +96,7 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
     private FCLImageView icon;
     private FCLTextView versionName;
     private FCLTextView versionHint;
-    private FCLButton back;
+    private FCLButton executeJar;
     private FCLButton launch;
 
     private ObjectProperty<Account> currentAccount;
@@ -190,11 +196,32 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             icon = findViewById(R.id.icon);
             versionName = findViewById(R.id.version_name);
             versionHint = findViewById(R.id.version_hint);
-            back = findViewById(R.id.back);
+            executeJar = findViewById(R.id.execute_jar);
             launch = findViewById(R.id.launch);
             account.setOnClickListener(this);
             version.setOnClickListener(this);
-            back.setOnClickListener(this);
+            executeJar.setOnClickListener(this);
+            executeJar.setOnLongClickListener(V -> {
+                int padding = ConvertUtils.dip2px(MainActivity.this, 15);
+                FCLEditText editText = new FCLEditText(MainActivity.this);
+                RelativeLayout layout = new RelativeLayout(MainActivity.this);
+                editText.setHint("-jar xxx");
+                editText.setLines(1);
+                editText.setMaxLines(1);
+                layout.setPadding(padding, padding, padding, padding);
+                layout.addView(editText);
+                AlertDialog dialog = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.jar_execute_custom_args)
+                        .setView(layout)
+                        .setPositiveButton(com.tungsten.fcllibrary.R.string.dialog_positive, (dialog1, which) -> JarExecutorHelper.exec(MainActivity.this, null, 8, editText.getText().toString()))
+                        .setNegativeButton(com.tungsten.fcllibrary.R.string.dialog_negative, null)
+                        .create();
+                layout.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                editText.setLayoutParams(new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                ThemeEngine.getInstance().applyFullscreen(dialog.getWindow(), ThemeEngine.getInstance().getTheme().isFullscreen());
+                dialog.show();
+                return true;
+            });
             launch.setOnClickListener(this);
             launch.setOnLongClickListener(view -> {
                 startActivity(new Intent(MainActivity.this, ShellActivity.class));
@@ -210,12 +237,14 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
                 controller = findViewById(R.id.controller);
                 multiplayer = findViewById(R.id.multiplayer);
                 setting = findViewById(R.id.setting);
+                back = findViewById(R.id.back);
                 home.setOnSelectListener(this);
                 manage.setOnSelectListener(this);
                 download.setOnSelectListener(this);
                 controller.setOnSelectListener(this);
                 multiplayer.setOnSelectListener(this);
                 setting.setOnSelectListener(this);
+                back.setOnClickListener(this);
                 home.setSelected(true);
 
                 setupAccountDisplay();
@@ -236,8 +265,7 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addCategory(Intent.CATEGORY_HOME);
             startActivity(i);
-        }
-        else {
+        } else {
             home.setSelected(true);
         }
     };
@@ -341,6 +369,9 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             if (uiManager != null) {
                 uiManager.onBackPressed();
             }
+        }
+        if (view == executeJar) {
+            JarExecutorHelper.start(this, this);
         }
         if (view == launch) {
             Versions.launch(this, Profiles.getSelectedProfile());

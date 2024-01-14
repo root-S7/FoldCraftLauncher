@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 
+import com.tungsten.fclauncher.keycodes.FCLKeycodes;
 import com.tungsten.fclauncher.utils.FCLPath;
 
 import java.io.File;
@@ -40,6 +41,7 @@ public class FCLBridge implements Serializable {
     public static final int ButtonPress                      = 4;
     public static final int ButtonRelease                    = 5;
     public static final int MotionNotify                     = 6;
+    public static final int KeyChar                          = 7;
     public static final int ConfigureNotify                  = 22;
     public static final int FCLMessage                       = 37;
 
@@ -77,7 +79,6 @@ public class FCLBridge implements Serializable {
     private boolean surfaceDestroyed;
     private Handler handler;
     private Thread thread;
-    private Thread fclLogThread;
 
     static {
         System.loadLibrary("xhook");
@@ -123,15 +124,24 @@ public class FCLBridge implements Serializable {
         this.handler = new Handler();
         this.callback = callback;
         this.surface = surface;
-        fclLogThread = new Thread(() -> {
-            receiveLog("invoke redirectStdio");
-            int errorCode = redirectStdio(getLogPath());
-            if (errorCode != 0) {
-                receiveLog("Can't exec redirectStdio! Error code: " + errorCode);
-            }
-        });
-        fclLogThread.setName("FCLLogThread");
-        fclLogThread.start();
+        setFCLBridge(this);
+        receiveLog("invoke redirectStdio");
+        int errorCode = redirectStdio(getLogPath());
+        if (errorCode != 0) {
+            receiveLog("Can't exec redirectStdio! Error code: " + errorCode);
+        }
+        receiveLog("invoke setLogPipeReady");
+        // set graphic output and event pipe
+        if (surface != null) {
+            handleWindow();
+        }
+        receiveLog("invoke setEventPipe");
+        setEventPipe();
+
+        // start
+        if (thread != null) {
+            thread.start();
+        }
     }
 
     public void pushEventMouseButton(int button, boolean press) {
@@ -144,6 +154,10 @@ public class FCLBridge implements Serializable {
 
     public void pushEventKey(int keyCode, int keyChar, boolean press) {
         pushEvent(System.nanoTime(), press ? KeyPress : KeyRelease, keyCode, keyChar);
+    }
+
+    public void pushEventChar(int keyChar) {
+        pushEvent(System.nanoTime(), KeyChar, FCLKeycodes.KEY_RESERVED, keyChar);
     }
 
     public void pushEventWindow(int width, int height) {
@@ -271,25 +285,6 @@ public class FCLBridge implements Serializable {
 
     public void setLogPath(String logPath) {
         this.logPath = logPath;
-    }
-
-    public void setLogPipeReady() {
-        receiveLog("invoke setLogPipeReady");
-        handler.post(() -> {
-            receiveLog("invoke setFCLBridge");
-            setFCLBridge(this);
-            // set graphic output and event pipe
-            if (surface != null) {
-                handleWindow();
-            }
-            receiveLog("invoke setEventPipe");
-            setEventPipe();
-
-            // start
-            if (thread != null) {
-                thread.start();
-            }
-        });
     }
 
     public void receiveLog(String log) {
