@@ -13,6 +13,7 @@ android {
         }
         aaptOptions{
             ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
+            ignoreAssetsPattern '!bin-arm.tar.xz*:!bin-x86.tar.xz*:!bin-x86_64.tar.xz*'
         }
         //包名建议使用"个人域名反写+服务器名称取每个字第一个字母"
         /**
