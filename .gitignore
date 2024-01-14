@@ -29,6 +29,3 @@ google-services.json
 
 # Android Profiling
 *.hprof
-
-# GitHub
-.github/
