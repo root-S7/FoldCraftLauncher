@@ -7,16 +7,18 @@ android {
     namespace 'com.tungsten.fcl'
     compileSdk 34
 
-    signingConfigs {
-        autoBuild {
-            storeFile file("../key-store.jks")
-            storePassword System.getenv("FCL_KEYSTORE_PASSWORD")
-            keyAlias "FCL-Key"
-            keyPassword System.getenv("FCL_KEYSTORE_PASSWORD")
-        }
-    }
-
     defaultConfig {
+        ndk{
+            abiFilter "arm64-v8a"
+        }
+        aaptOptions{
+            ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
+        }
+        //包名建议使用"个人域名反写+服务器名称取每个字第一个字母"
+        /**
+         * 比如我有个域名是"mcbbs.ren",我的服务器名称叫"猫窝"
+         *   那么这里的"applicationId"应该写成"ren.icraft.mw"
+        **/
         applicationId "com.tungsten.fcl"
         minSdk 26
         targetSdk 34
@@ -30,10 +32,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-        autobuild {
-            initWith debug
-            signingConfig signingConfigs.autoBuild
         }
         configureEach {
             resValue "string", "app_version", "${defaultConfig.versionName}"
@@ -54,50 +52,6 @@ android {
         }
     }
 }
-
-tasks.whenTaskAdded { Task task ->
-    if (task.name.contentEquals("assembleRelease")) {
-        task.dependsOn(uploadMap)
-    }
-}
-
-tasks.register('updateMap') {
-    doLast {
-        def list = []
-        new File("${rootDir}/version_map.json").withReader("UTF-8") { reader ->
-            reader.eachLine {
-                if (it.contains('versionCode')) {
-                    it = it.replaceAll('[0-9]+', "${android.defaultConfig.versionCode}")
-                } else if (it.contains("versionName")) {
-                    it = it.replaceAll(': ".+', ": \"${android.defaultConfig.versionName}\",")
-                } else if (it.contains("date")) {
-                    def date = new Date().format("yyyy.MM.dd", TimeZone.getTimeZone("UTC"))
-                    it = it.replaceAll(': ".+', ": \"${date}\",")
-                } else if (it.contains("url")) {
-                    it = it.replaceAll('download/.+"', "download/${android.defaultConfig.versionName}/FCL-release-${android.defaultConfig.versionName}.apk\"")
-                }
-                list.add(it + "\n")
-            }
-        }
-        new File("${rootDir}/version_map.json").withWriter("UTF-8") { writer ->
-            list.each {
-                writer.write(it)
-            }
-        }
-    }
-}
-
-task uploadMap(dependsOn: 'updateMap') {
-    doLast {
-        ssh.run {
-            session(remotes.debugServer) {
-                File file = file "${rootDir}/version_map.json"
-                put from: file.getAbsolutePath(), into: "/www/wwwroot/FCLApi/public/files"
-            }
-        }
-    }
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(path: ':FCLCore')
@@ -114,23 +68,4 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
-}
-
-ssh.settings {
-    knownHosts = allowAnyHosts
-}
-
-remotes {
-    try {
-        Properties prop = new Properties()
-        prop.load(new FileInputStream("${rootDir}/local.properties"))
-        debugServer {
-            host = prop.getProperty("sftp.host")
-            port = prop.getProperty("sftp.port").toInteger()
-            user = prop.getProperty("sftp.username")
-            password = prop.getProperty("sftp.password")
-        }
-    } catch (Exception e) {
-
-    }
 }
