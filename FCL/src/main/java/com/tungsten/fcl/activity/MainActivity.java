@@ -134,7 +134,7 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             if(onlineAnnouncement != null){
                 runOnUiThread(() -> {
                     onlineAnnouncement.setText(s);
-                    onlineAnnouncement.setTextSize(15F);
+                    onlineAnnouncement.setTextSize(16.5F);
                     onlineAnnouncement.setTextColor(Color.BLACK);
                 });
             }
