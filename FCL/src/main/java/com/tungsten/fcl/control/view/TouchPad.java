@@ -3,6 +3,7 @@ package com.tungsten.fcl.control.view;
 import android.content.Context;
 import android.os.Handler;
 import android.util.AttributeSet;
+import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -100,11 +101,15 @@ public class TouchPad extends View {
                 gameMenu.getInput().setPointerId(null);
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
-                        gameMenu.getInput().sendKeyEvent(FCLInput.MOUSE_LEFT, true);
+                        Choreographer.getInstance().postFrameCallbackDelayed(frameTimeNanos -> {
+                            gameMenu.getInput().sendKeyEvent(FCLInput.MOUSE_LEFT, true);
+                        }, 33);
                         break;
                     case MotionEvent.ACTION_CANCEL:
                     case MotionEvent.ACTION_UP:
-                        gameMenu.getInput().sendKeyEvent(FCLInput.MOUSE_LEFT, false);
+                        Choreographer.getInstance().postFrameCallbackDelayed(frameTimeNanos -> {
+                            gameMenu.getInput().sendKeyEvent(FCLInput.MOUSE_LEFT, false);
+                        }, 33);
                         break;
                     default:
                         break;
@@ -168,8 +173,8 @@ public class TouchPad extends View {
                     }
                     int newDownX = (int) event.getX(pointerIndex);
                     int newDownY = (int) event.getY(pointerIndex);
-                    int deltaX = (int) ((newDownX - downX) * gameMenu.getMenuSetting().getMouseSensitivity());
-                    int deltaY = (int) ((newDownY - downY) * gameMenu.getMenuSetting().getMouseSensitivity());
+                    int deltaX = (int) ((newDownX - downX) * gameMenu.getMenuSetting().getMouseSensitivity() / gameMenu.getBridge().getScaleFactor());
+                    int deltaY = (int) ((newDownY - downY) * gameMenu.getMenuSetting().getMouseSensitivity() / gameMenu.getBridge().getScaleFactor());
                     if (gameMenu.getMenuSetting().isEnableGyroscope()) {
                         gameMenu.setPointerX(initialX + deltaX);
                         gameMenu.setPointerY(initialY + deltaY);
