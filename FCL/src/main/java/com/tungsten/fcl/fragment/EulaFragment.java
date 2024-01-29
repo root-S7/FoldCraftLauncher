@@ -3,7 +3,9 @@ package com.tungsten.fcl.fragment;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.SplashActivity;
 import com.tungsten.fclcore.util.io.NetworkUtils;
@@ -23,14 +26,12 @@ import java.io.IOException;
 
 public class EulaFragment extends FCLFragment implements View.OnClickListener {
 
-    public static final String EULA_URL = "https://gitcode.net/fcl-team/fold-craft-launcher/-/raw/master/res/eula.txt?inline=false";
+    public static final String EULA_URL = FCLApplication.appConfig.getProperty("eula-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.0/eula.txt");
 
     private FCLProgressBar progressBar;
     private FCLTextView eula;
 
     private FCLButton next;
-
-    private boolean load = false;
 
     @Nullable
     @Override
@@ -44,7 +45,10 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
         next.setOnClickListener(this);
 
         loadEula();
-
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            next.setEnabled(true); // 启用按钮
+        }, 1500);
         return view;
     }
 
@@ -53,19 +57,17 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
             String str;
             try {
                 str = NetworkUtils.doGet(NetworkUtils.toURL(EULA_URL));
-                load = true;
-            } catch (IOException e) {
+            } catch (IOException | IllegalArgumentException e) {
                 e.printStackTrace();
                 str = getString(R.string.splash_eula_error);
             }
             final String s = str;
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    if (load) {
-                        next.setEnabled(true);
-                    }
                     progressBar.setVisibility(View.GONE);
                     eula.setText(s);
+                    eula.setTextSize(16.5F);
+                    eula.setTextColor(Color.BLACK);
                 });
             }
         }).start();
