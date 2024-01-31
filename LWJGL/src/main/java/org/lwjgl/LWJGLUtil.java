@@ -60,11 +60,9 @@ public class LWJGLUtil {
 	public static final int PLATFORM_LINUX 				= 1;
 	public static final int PLATFORM_MACOSX 			= 2;
 	public static final int PLATFORM_WINDOWS 			= 3;
-	public static final int PLATFORM_FCL    			= 1728;
 	public static final String PLATFORM_LINUX_NAME 		= "linux";
 	public static final String PLATFORM_MACOSX_NAME 	= "macosx";
 	public static final String PLATFORM_WINDOWS_NAME	= "windows";
-	public static final String PLATFORM_FCL_NAME    	= "fcl";
 
 	private static final String LWJGL_ICON_DATA_16x16 =
 		"\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377\377" +
@@ -279,12 +277,8 @@ public class LWJGLUtil {
 		final String osName = getPrivilegedProperty("os.name");
 		if ( osName.startsWith("Windows") )
 			PLATFORM = PLATFORM_WINDOWS;
-		else if ( osName.startsWith("Linux") || osName.startsWith("FreeBSD") || osName.startsWith("OpenBSD") || osName.startsWith("SunOS") || osName.startsWith("Unix") ) {
-			if (getPrivilegedProperty("lwjgl.platform").startsWith("FCL"))
-				PLATFORM = PLATFORM_FCL;
-			else
-				PLATFORM = PLATFORM_LINUX;
-		}
+		else if ( osName.startsWith("Linux") || osName.startsWith("FreeBSD") || osName.startsWith("OpenBSD") || osName.startsWith("SunOS") || osName.startsWith("Unix") )
+			PLATFORM = PLATFORM_LINUX;
 		else if ( osName.startsWith("Mac OS X") || osName.startsWith("Darwin") )
 			PLATFORM = PLATFORM_MACOSX;
 		else
@@ -304,7 +298,6 @@ public class LWJGLUtil {
 	 * @see #PLATFORM_WINDOWS
 	 * @see #PLATFORM_LINUX
 	 * @see #PLATFORM_MACOSX
-	 * @see #PLATFORM_FCL
 	 * @return the current platform type
 	 */
 	public static int getPlatform() {
@@ -316,7 +309,6 @@ public class LWJGLUtil {
 	 * @see #PLATFORM_WINDOWS_NAME
 	 * @see #PLATFORM_LINUX_NAME
 	 * @see #PLATFORM_MACOSX_NAME
-	 * @see #PLATFORM_FCL_NAME
 	 * @return current platform name
 	 */
 	public static String getPlatformName() {
@@ -327,8 +319,6 @@ public class LWJGLUtil {
 				return PLATFORM_MACOSX_NAME;
 			case LWJGLUtil.PLATFORM_WINDOWS:
 				return PLATFORM_WINDOWS_NAME;
-			case LWJGLUtil.PLATFORM_FCL:
-				return PLATFORM_FCL_NAME;
 			default:
 				return "unknown";
 		}

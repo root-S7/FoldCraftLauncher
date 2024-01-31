@@ -125,8 +125,6 @@ public final class APIUtil {
         switch (Platform.get()) {
             case WINDOWS:
                 return new WindowsLibrary(name);
-            case FCL:
-                return new FCLLibrary(name);
             case LINUX:
                 return new LinuxLibrary(name);
             case MACOSX:
