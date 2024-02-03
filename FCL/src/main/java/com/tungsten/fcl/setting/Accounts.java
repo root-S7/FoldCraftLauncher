@@ -43,6 +43,7 @@ import static java.util.stream.Collectors.toList;
 import android.content.Context;
 
 import com.google.gson.reflect.TypeToken;
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.game.OAuthServer;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -340,7 +341,7 @@ public final class Accounts {
             });
         }
 
-        triggerAuthlibInjectorUpdateCheck();
+        if("true".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))) triggerAuthlibInjectorUpdateCheck();
 
         for (AuthlibInjectorServer server : config().getAuthlibInjectorServers()) {
             if (selected instanceof AuthlibInjectorAccount && ((AuthlibInjectorAccount) selected).getServer() == server)

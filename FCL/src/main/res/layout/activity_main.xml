@@ -264,7 +264,39 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         app:layout_constraintStart_toEndOf="@+id/split_left"
-        app:layout_constraintEnd_toStartOf="@id/split_right"/>
+        app:layout_constraintEnd_toStartOf="@id/split_right">
+        <ScrollView
+            android:id="@+id/announcement_container"
+            android:alpha="0.7"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_height="200dp"
+            android:layout_width="305dp"
+            android:background="@drawable/background_info">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="公告"
+                    android:textSize="22sp"
+                    android:textAppearance="@style/TextAppearance.Compat.Notification.Title" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="?android:attr/listDivider" />
+                <com.tungsten.fcllibrary.component.view.FCLTextView
+                    android:autoLink="all"
+                    android:layout_margin="3dp"
+                    android:id="@+id/online_announcement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </ScrollView>
+    </com.tungsten.fcllibrary.component.view.FCLUILayout>
 
     <com.tungsten.fcllibrary.component.view.FCLDynamicIsland
         android:stateListAnimator="@null"
