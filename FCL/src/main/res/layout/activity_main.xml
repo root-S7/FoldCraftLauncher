@@ -270,8 +270,8 @@
             android:alpha="0.7"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="5dp"
-            android:layout_height="200dp"
-            android:layout_width="305dp"
+            android:layout_height="185dp"
+            android:layout_width="285dp"
             android:background="@drawable/background_info">
             <LinearLayout
                 android:layout_width="match_parent"
@@ -282,7 +282,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="公告"
-                    android:textSize="22sp"
+                    android:textSize="20sp"
                     android:textAppearance="@style/TextAppearance.Compat.Notification.Title" />
                 <View
                     android:layout_width="match_parent"
