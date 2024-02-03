@@ -6,7 +6,6 @@ plugins {
 android {
     namespace 'com.tungsten.fcl'
     compileSdk 34
-
     defaultConfig {
         ndk{
             abiFilter "arm64-v8a"
@@ -33,6 +32,11 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        fordebug {
+            initWith debug
+            applicationIdSuffix ".debug"
+            signingConfig signingConfigs.FCLDebugKey
         }
         configureEach {
             resValue "string", "app_version", "${defaultConfig.versionName}"
