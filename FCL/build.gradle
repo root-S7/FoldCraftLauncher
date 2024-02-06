@@ -33,11 +33,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        fordebug {
-            initWith debug
-            applicationIdSuffix ".debug"
-            signingConfig signingConfigs.FCLDebugKey
-        }
         configureEach {
             resValue "string", "app_version", "${defaultConfig.versionName}"
         }
