@@ -130,9 +130,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             @SuppressLint("UseCompatLoadingForDrawables") Drawable stateUpdate = getContext().getDrawable(R.drawable.ic_baseline_update_24);
             @SuppressLint("UseCompatLoadingForDrawables") Drawable stateDone = getContext().getDrawable(R.drawable.ic_baseline_done_24);
 
-            stateUpdate.setTint(Color.GREEN);
-            stateDone.setTint(Color.GREEN);
-
             lwjglState.setBackgroundDrawable(lwjgl ? stateDone : stateUpdate);
             cacioState.setBackgroundDrawable(cacio ? stateDone : stateUpdate);
             cacio11State.setBackgroundDrawable(cacio11 ? stateDone : stateUpdate);
@@ -271,11 +268,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_11_PATH, "app_runtime/java/jre11");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
-                    }
                     java11 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -296,11 +288,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_17_PATH, "app_runtime/java/jre17");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
-                    }
                     java17 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -321,11 +308,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_21_PATH, "app_runtime/java/jre21");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
-                    }
                     java21 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -363,14 +345,20 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             othersState.setVisibility(View.GONE);
             othersProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
+                try {
+                    if(!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
+                    else FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
 
-                new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
 
-                if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))){
-                    RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
+                    new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
+
+                    if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))) RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
+
+                    RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/version", FCLPath.OTHERS_DIR + "/version");
+                    others = true;
+                }catch(IOException e){
+                    e.printStackTrace();
                 }
-                RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/version", FCLPath.OTHERS_DIR + "/version");
-                others = true;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         othersState.setVisibility(View.VISIBLE);
