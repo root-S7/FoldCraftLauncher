@@ -7,18 +7,15 @@ import static com.tungsten.fclcore.fakefx.beans.binding.Bindings.createStringBin
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
-
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.game.JarExecutorHelper;
@@ -48,7 +45,6 @@ import com.tungsten.fclcore.mod.RemoteModRepository;
 import com.tungsten.fclcore.task.Schedulers;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.fakefx.BindingMapping;
-import com.tungsten.fclcore.util.io.NetworkUtils;
 import com.tungsten.fcllibrary.component.FCLActivity;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 import com.tungsten.fcllibrary.component.view.FCLButton;
@@ -59,7 +55,6 @@ import com.tungsten.fcllibrary.component.view.FCLMenuView;
 import com.tungsten.fcllibrary.component.view.FCLTextView;
 import com.tungsten.fcllibrary.component.view.FCLUILayout;
 import com.tungsten.fcllibrary.util.ConvertUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +72,6 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
 
     private UIManager uiManager;
     public FCLUILayout uiLayout;
-    public ScrollView announcementContainer;
 
     private ScrollView leftMenu;
     public FCLMenuView home;
@@ -119,26 +113,6 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
         background.setBackground(ThemeEngine.getInstance().getTheme().getBackground(this));
 
         titleView = findViewById(R.id.title);
-
-        announcementContainer = findViewById(R.id.announcement_container);
-        onlineAnnouncement = findViewById(R.id.online_announcement);
-        new Thread(() -> {
-            String str;
-            try {
-                str = NetworkUtils.doGet(NetworkUtils.toURL(FCLApplication.appConfig.getProperty("announcement-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.0/announcement.txt")));
-            } catch (IOException | IllegalArgumentException e) {
-                e.printStackTrace();
-                str = "无法获取公告";
-            }
-            final String s = str;
-            if(onlineAnnouncement != null){
-                runOnUiThread(() -> {
-                    onlineAnnouncement.setText(s);
-                    onlineAnnouncement.setTextSize(15.5F);
-                    onlineAnnouncement.setTextColor(Color.BLACK);
-                });
-            }
-        }).start();
 
         Skin.registerDefaultSkinLoader((type) -> {
             switch (type) {
@@ -299,10 +273,8 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
         if (view == home) {
             titleView.setTextWithAnim(getString(R.string.app_name));
             uiManager.switchUI(uiManager.getMainUI());
-            announcementContainer.setVisibility(View.VISIBLE);
         }
         if (view == manage) {
-            announcementContainer.setVisibility(View.GONE);
             String version = Profiles.getSelectedVersion();
             if (version == null) {
                 refreshMenuView(null);
@@ -315,22 +287,18 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
             }
         }
         if (view == download) {
-            announcementContainer.setVisibility(View.GONE);
             titleView.setTextWithAnim(getString(R.string.download));
             uiManager.switchUI(uiManager.getDownloadUI());
         }
         if (view == controller) {
-            announcementContainer.setVisibility(View.GONE);
             titleView.setTextWithAnim(getString(R.string.controller));
             uiManager.switchUI(uiManager.getControllerUI());
         }
         if (view == multiplayer) {
-            announcementContainer.setVisibility(View.GONE);
             titleView.setTextWithAnim(getString(R.string.multiplayer));
             uiManager.switchUI(uiManager.getMultiplayerUI());
         }
         if (view == setting) {
-            announcementContainer.setVisibility(View.GONE);
             titleView.setTextWithAnim(getString(R.string.setting));
             uiManager.switchUI(uiManager.getSettingUI());
         }
@@ -354,7 +322,6 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
 
     @Override
     public void onClick(View view) {
-        announcementContainer.setVisibility(View.GONE);
         if (view == account && uiManager.getCurrentUI() != uiManager.getAccountUI()) {
             refreshMenuView(null);
             titleView.setTextWithAnim(getString(R.string.account));
