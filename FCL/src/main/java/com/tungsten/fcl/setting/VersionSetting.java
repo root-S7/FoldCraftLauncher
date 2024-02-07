@@ -19,6 +19,7 @@ package com.tungsten.fcl.setting;
 
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fclauncher.FCLConfig;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener;
@@ -110,7 +111,7 @@ public final class VersionSetting implements Cloneable {
         permSizeProperty.set(permSize);
     }
 
-    private final IntegerProperty maxMemoryProperty = new SimpleIntegerProperty(this, "maxMemory", MemoryUtils.findBestRAMAllocation(FCLPath.CONTEXT));
+    private final IntegerProperty maxMemoryProperty = new SimpleIntegerProperty(this, "maxMemory", FCLApplication.appConfig.getProperty("set-memory") != null && FCLApplication.appConfig.getProperty("set-memory").matches("\\d+") && Integer.parseInt(FCLApplication.appConfig.getProperty("set-memory")) >= 1536 ? Integer.parseInt(FCLApplication.appConfig.getProperty("set-memory")) : MemoryUtils.findBestRAMAllocation(FCLPath.CONTEXT));
 
     public IntegerProperty maxMemoryProperty() {
         return maxMemoryProperty;
@@ -144,7 +145,7 @@ public final class VersionSetting implements Cloneable {
         minMemoryProperty.set(minMemory);
     }
 
-    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", true);
+    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", false);
 
     public boolean isAutoMemory() {
         return autoMemory.get();
@@ -268,7 +269,7 @@ public final class VersionSetting implements Cloneable {
      * 0 - .minecraft<br/>
      * 1 - .minecraft/versions/&lt;version&gt;/<br/>
      */
-    private final BooleanProperty isolateGameDirProperty = new SimpleBooleanProperty(this, "isolateGameDir", false);
+    private final BooleanProperty isolateGameDirProperty = new SimpleBooleanProperty(this, "isolateGameDir", FCLApplication.appConfig.getProperty("enable-isolate-working-directory","false").equals("true"));
 
     public BooleanProperty isolateGameDirProperty() {
         return isolateGameDirProperty;
@@ -438,7 +439,7 @@ public final class VersionSetting implements Cloneable {
             vs.setMinecraftArgs(Optional.ofNullable(obj.get("minecraftArgs")).map(JsonElement::getAsString).orElse(""));
             vs.setMaxMemory(maxMemoryN);
             vs.setMinMemory(Optional.ofNullable(obj.get("minMemory")).map(JsonElement::getAsInt).orElse(null));
-            vs.setAutoMemory(Optional.ofNullable(obj.get("autoMemory")).map(JsonElement::getAsBoolean).orElse(true));
+            vs.setAutoMemory(Optional.ofNullable(obj.get("autoMemory")).map(JsonElement::getAsBoolean).orElse(false));
             vs.setPermSize(Optional.ofNullable(obj.get("permSize")).map(JsonElement::getAsString).orElse(""));
             vs.setServerIp(Optional.ofNullable(obj.get("serverIp")).map(JsonElement::getAsString).orElse(""));
             vs.setJava(Optional.ofNullable(obj.get("java")).map(JsonElement::getAsString).orElse(JavaVersion.JAVA_AUTO.getVersionName()));
