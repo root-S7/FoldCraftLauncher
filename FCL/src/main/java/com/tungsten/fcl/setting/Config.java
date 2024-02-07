@@ -85,13 +85,13 @@ public final class Config implements Cloneable, Observable {
     private BooleanProperty autoDownloadThreads = new SimpleBooleanProperty(false);
 
     @SerializedName("downloadThreads")
-    private IntegerProperty downloadThreads = new SimpleIntegerProperty(64);
+    private IntegerProperty downloadThreads = new SimpleIntegerProperty(32);
 
     @SerializedName("downloadType")
     private StringProperty downloadType = new SimpleStringProperty("mcbbs");
 
     @SerializedName("autoChooseDownloadType")
-    private BooleanProperty autoChooseDownloadType = new SimpleBooleanProperty(true);
+    private BooleanProperty autoChooseDownloadType = new SimpleBooleanProperty(false);
 
     @SerializedName("versionListSource")
     private StringProperty versionListSource = new SimpleStringProperty("balanced");
