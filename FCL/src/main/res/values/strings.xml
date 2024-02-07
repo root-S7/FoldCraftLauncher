@@ -2,6 +2,8 @@
     <string name="app_name" translatable="false">Fold Craft Launcher</string>
     <string name="app_version" translatable="false">1.1.3</string>
 
+    <string name="oauth_api_key" translatable="false">null</string>
+
     <string name="splash_permission_msg">No storage permission, please grant Fold Craft Launcher the permission.</string>
 
     <string name="splash_title">Welcome to Fold Craft Launcher</string>
@@ -101,6 +103,9 @@
     <string name="action_retry">Retry</string>
     <string name="action_skip">Skip</string>
 
+    <string name="announcement">Announcement: %s</string>
+    <string name="announcement_significant">This announcement is an important announcement. Please confirm that you have read this announcement before hiding it. Do you want to continue hiding it?</string>
+
     <string name="archive_author">Author(s)</string>
     <string name="archive_date">Publish Date</string>
     <string name="archive_game_version">Game Version</string>
@@ -116,6 +121,7 @@
     <string name="button_copy">Copy</string>
     <string name="button_download">Download</string>
     <string name="button_export">Export</string>
+    <string name="button_hide">Hide</string>
     <string name="button_install">Install</string>
     <string name="button_mouse_left">Mouse Left</string>
     <string name="button_mouse_right">Mouse Right</string>
@@ -704,10 +710,10 @@
     <string name="search_hint_chinese">Search queries support both Chinese and English</string>
     <string name="search_hint_english">Only English is supported</string>
     <string name="search_sort">Sort By</string>
-    <string name="search_first_page">The first page</string>
+    <string name="search_first_page">First</string>
     <string name="search_previous_page" translatable="false">◀</string>
     <string name="search_next_page" translatable="false">▶</string>
-    <string name="search_last_page">The last page</string>
+    <string name="search_last_page">Last</string>
     <string name="search_page_n" translatable="false">%d / %s</string>
 
     <string name="settings_advanced_dont_check_game_completeness">Do not check game integrity</string>
