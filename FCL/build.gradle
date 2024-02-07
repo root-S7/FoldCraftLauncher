@@ -33,11 +33,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-        configureEach {
-            resValue "string", "app_version", "${defaultConfig.versionName}"
-            resValue "string", "curse_api_key", curseApiKey
-            resValue "string", "oauth_api_key", oauthApiKey
-        }
     }
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach { output ->
