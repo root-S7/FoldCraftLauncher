@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.os.StrictMode;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.tungsten.fcl.util.DeviceInfoUtils;
 import com.tungsten.fcl.util.PropertiesFileParse;
 import com.tungsten.fclauncher.utils.FCLPath;
 
@@ -19,6 +21,7 @@ public class FCLApplication extends Application implements Application.ActivityL
     private static WeakReference<Activity> currentActivity;
     public static Properties appConfig;
     public static SharedPreferences appDataSave;
+    public static DeviceInfoUtils deviceInfoUtils;
     @Override
     public void onCreate() {
         // enabledStrictMode();
@@ -31,6 +34,7 @@ public class FCLApplication extends Application implements Application.ActivityL
         **/
         appConfig = new PropertiesFileParse("config.properties", getApplicationContext()).getProperties();
         appDataSave = getSharedPreferences("launcher", MODE_PRIVATE);
+        deviceInfoUtils = new DeviceInfoUtils(this);
         FCLPath.loadPaths(this);
         if("true".equals(appConfig.getProperty("enable-private-directory-mode","false"))){
             FCLPath.SHARED_COMMON_DIR = FCLPath.PRIVATE_COMMON_DIR;

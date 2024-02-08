@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 
 import androidx.appcompat.widget.LinearLayoutCompat;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
@@ -139,10 +140,8 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     private void checkAnnouncement() {
         CompletableFuture<Announcement> future = CompletableFuture.supplyAsync(() -> {
             try {
-                Log.d("事件1", "执行了");
-                return HttpRequest.HttpGetRequest.GET(ANNOUNCEMENT_URL).getJson(Announcement.class);
+                return new Gson().fromJson(NetworkUtils.doGet(NetworkUtils.toURL(ANNOUNCEMENT_URL), FCLApplication.deviceInfoUtils.toString()), Announcement.class);
             }catch (Exception e) {
-                Log.d("事件2", "执行了");
                 return new Announcement(-1, true, "", new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))), new SimpleDateFormat("yyyy.MM.dd").format(new Date()), new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题"))));
             }
         });
