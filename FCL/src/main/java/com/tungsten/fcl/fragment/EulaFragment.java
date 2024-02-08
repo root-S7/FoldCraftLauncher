@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import androidx.annotation.Nullable;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.SplashActivity;
+import com.tungsten.fcl.util.AndroidUtils;
 import com.tungsten.fclcore.util.io.NetworkUtils;
 import com.tungsten.fcllibrary.component.FCLFragment;
 import com.tungsten.fcllibrary.component.view.FCLButton;
@@ -26,7 +28,7 @@ import java.io.IOException;
 
 public class EulaFragment extends FCLFragment implements View.OnClickListener {
 
-    public static final String EULA_URL = FCLApplication.appConfig.getProperty("eula-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.0/eula.txt");
+    public static final String EULA_URL = FCLApplication.appConfig.getProperty("eula-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.1.4/eula.txt");
 
     private FCLProgressBar progressBar;
     private FCLTextView eula;
@@ -45,10 +47,7 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
         next.setOnClickListener(this);
 
         loadEula();
-        Handler handler = new Handler();
-        handler.postDelayed(() -> {
-            next.setEnabled(true); // 启用按钮
-        }, 1500);
+        
         return view;
     }
 
@@ -70,6 +69,9 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
                     eula.setTextColor(Color.BLACK);
                 });
             }
+            new Handler(Looper.getMainLooper()).post(() -> {
+                next.setEnabled(true); // 启用按钮
+            });
         }).start();
     }
 
