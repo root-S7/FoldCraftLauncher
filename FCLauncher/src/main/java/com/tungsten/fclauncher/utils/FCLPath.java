@@ -28,6 +28,7 @@ public class FCLPath {
     public static String PLUGIN_DIR;
     public static String BACKGROUND_DIR;
     public static String CONTROLLER_DIR;
+    public static String OTHERS_DIR;
 
     public static String PRIVATE_COMMON_DIR;
     public static String SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FCL/.minecraft";
@@ -59,6 +60,7 @@ public class FCLPath {
         PLUGIN_DIR = FILES_DIR + "/plugins";
         BACKGROUND_DIR = FILES_DIR + "/background";
         CONTROLLER_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FCL/control";
+        OTHERS_DIR = FILES_DIR + "/others";
 
         PRIVATE_COMMON_DIR = context.getExternalFilesDir(".minecraft").getAbsolutePath();
 
@@ -82,8 +84,9 @@ public class FCLPath {
         init(PLUGIN_DIR);
         init(BACKGROUND_DIR);
         init(CONTROLLER_DIR);
-        init(PRIVATE_COMMON_DIR);
-        init(SHARED_COMMON_DIR);
+        init(OTHERS_DIR);
+        //init(PRIVATE_COMMON_DIR);
+        //init(SHARED_COMMON_DIR);
     }
 
     private static boolean init(String path) {
