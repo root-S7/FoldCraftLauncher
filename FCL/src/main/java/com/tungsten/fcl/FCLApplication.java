@@ -1,31 +1,27 @@
 package com.tungsten.fcl;
 
-import android.app.Activity;
-import android.app.Application;
-import android.content.Context;
+import android.app.*;
 import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.Environment;
-import android.os.StrictMode;
+import android.os.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.tungsten.fcl.util.DeviceInfoUtils;
-import com.tungsten.fcl.util.PropertiesFileParse;
-import com.tungsten.fclauncher.utils.FCLPath;
-
+import com.tungsten.fclauncher.utils.*;
 import java.lang.ref.WeakReference;
 import java.util.Properties;
 
 public class FCLApplication extends Application implements Application.ActivityLifecycleCallbacks {
+
     private static WeakReference<Activity> currentActivity;
     public static Properties appConfig;
     public static SharedPreferences appDataSave;
     public static DeviceInfoUtils deviceInfoUtils;
+
     @Override
     public void onCreate() {
         // enabledStrictMode();
         super.onCreate();
+
         /**
          * properties文件解析必须放到全局Application
          * 因为Application的onCreate方法只会在程序启动时有且运行一次，适用于全局共享变量数据
@@ -36,11 +32,10 @@ public class FCLApplication extends Application implements Application.ActivityL
         appDataSave = getSharedPreferences("launcher", MODE_PRIVATE);
         deviceInfoUtils = new DeviceInfoUtils(this);
         FCLPath.loadPaths(this);
-        if("true".equals(appConfig.getProperty("enable-private-directory-mode","false"))){
-            FCLPath.SHARED_COMMON_DIR = FCLPath.PRIVATE_COMMON_DIR;
-        }else{
-            FCLPath.SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + appConfig.getProperty("put-directory","FCL-Server") + "/.minecraft";
-        }
+
+        if("true".equals(appConfig.getProperty("enable-private-directory-mode","false"))) FCLPath.SHARED_COMMON_DIR = FCLPath.PRIVATE_COMMON_DIR;
+        else FCLPath.SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + appConfig.getProperty("put-directory","FCL-Server") + "/.minecraft";
+
         this.registerActivityLifecycleCallbacks(this);
     }
 
@@ -49,20 +44,9 @@ public class FCLApplication extends Application implements Application.ActivityL
     }
 
     private void enabledStrictMode() {
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectNetwork()
-                .detectCustomSlowCalls()
-                .detectDiskReads()
-                .detectDiskWrites() 
-                .detectAll()
-                .penaltyLog() 
-                .build());
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectNetwork().detectCustomSlowCalls().detectDiskReads().detectDiskWrites().detectAll().penaltyLog().build());
 
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
-                .detectLeakedClosableObjects()
-                .detectActivityLeaks()
-                .detectAll()
-                .penaltyLog()
-                .build());
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().detectLeakedClosableObjects().detectActivityLeaks().detectAll().penaltyLog().build());
     }
 
     @Override
@@ -97,8 +81,6 @@ public class FCLApplication extends Application implements Application.ActivityL
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-        if (currentActivity.get() == activity) {
-            currentActivity = null;
-        }
+        if (currentActivity.get() == activity) currentActivity = null;
     }
 }

@@ -12,6 +12,7 @@ import com.tungsten.fclauncher.FCLConfig;
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.bridge.FCLBridgeCallback;
+import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.io.FileUtils;
 
@@ -39,7 +40,7 @@ public class ProcessService extends Service {
         String jre = "jre" + java;
         FCLConfig config = new FCLConfig(
                 getApplicationContext(),
-                Environment.getExternalStorageDirectory().getAbsolutePath() + "/FCL/log",
+                FCLPath.LOG_DIR,
                 getApplicationContext().getDir("runtime", 0).getAbsolutePath() + "/java/" + jre,
                 getApplicationContext().getCacheDir() + "/fclauncher",
                 null,

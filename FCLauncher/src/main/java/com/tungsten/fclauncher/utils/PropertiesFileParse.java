@@ -1,12 +1,14 @@
-package com.tungsten.fcl.util;
+package com.tungsten.fclauncher.utils;
 
 import android.content.Context;
 import java.io.*;
 import java.util.*;
 
 public class PropertiesFileParse {
-    private Properties properties;
-    private InputStream in;
+
+    private final Properties properties;
+    private final InputStream in;
+
     public PropertiesFileParse(String propertiesFileName, Context context) {
         properties = new Properties();
         try {
@@ -16,6 +18,7 @@ public class PropertiesFileParse {
             throw new RuntimeException(e);
         }
     }
+
     public PropertiesFileParse(String propertiesFile) {
         properties = new Properties();
         try {
@@ -28,6 +31,7 @@ public class PropertiesFileParse {
     public Properties getProperties() {
         return properties;
     }
+
     public Map<String,String> propertiesToMap(){
         return new HashMap<String, String>((Map) properties);
     }
