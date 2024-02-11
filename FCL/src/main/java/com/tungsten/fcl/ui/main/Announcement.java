@@ -52,7 +52,7 @@ public class Announcement {
 
     public String getDisplayTitle(Context context) {
         if (title.size() == 0) {
-            throw new IllegalStateException("No title list!");
+            title.add(new Content("en",""));
         }
         for (Content c : title) {
             if (c.getLang().equals(LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString())) {
@@ -64,7 +64,7 @@ public class Announcement {
 
     public String getDisplayContent(Context context) {
         if (content.size() == 0) {
-            throw new IllegalStateException("No content list!");
+            content.add(new Content("en","无法获取公告，也许是网络问题"));
         }
         for (Content c : content) {
             if (c.getLang().equals(LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString())) {
