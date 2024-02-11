@@ -15,7 +15,7 @@
 - [x] 支持Forge, LiteLoader, OptiFine, Fabric, Quilt等API
 - [x] 内置Java8/Java17运行环境
 - [x] 可在线下载Mods，地图，纹理包，整合包等
-- [x] 支持部分光影 (可使用vgpu/VirGL渲染器运行光影)
+- [x] 支持部分光影 (可使用VGPU/VirGL/ZINK渲染器运行光影)
 - [x] 支持自定义按键
 - [x] 支持自定义主题
 - [x] 更多功能敬请期待！
