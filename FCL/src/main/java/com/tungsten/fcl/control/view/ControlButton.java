@@ -99,6 +99,7 @@ public class ControlButton extends AppCompatButton implements CustomView {
     public ControlButton(@NonNull Context context, GameMenu gameMenu, ViewListener listener) {
         super(context);
         this.menu = gameMenu;
+        setElevation(113.0f);
 
         setStateListAnimator(null);
 
@@ -481,10 +482,10 @@ public class ControlButton extends AppCompatButton implements CustomView {
     private boolean keycodeOutputting = false;
 
     private void handleKeyEvent(ButtonEventData.Event event, boolean press) {
+        if (!press && !keycodeOutputting) {
+            return;
+        }
         for (int keycode : event.outputKeycodesList()) {
-            if (!press && !keycodeOutputting) {
-                continue;
-            }
             keycodeOutputting = press;
             menu.getInput().sendKeyEvent(keycode, press);
         }
