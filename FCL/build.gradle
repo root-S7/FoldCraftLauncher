@@ -19,7 +19,7 @@ android {
          * 比如我有个域名是"mcbbs.ren",我的服务器名称叫"猫窝"
          *   那么这里的"applicationId"应该写成"ren.icraft.mw"
         **/
-        applicationId "com.tungsten.fcl"
+        applicationId "ren.icraft.fcl"
         minSdk 26
         targetSdk 34
         versionCode 1142
@@ -35,7 +35,7 @@ android {
     }
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach { output ->
-            outputFileName = "FCL-${variant.buildType.name}-${defaultConfig.versionName}.apk"
+            outputFileName = "FCL-${variant.buildType.name}-${defaultConfig.versionName}.APK"
         }
     }
     compileOptions {
