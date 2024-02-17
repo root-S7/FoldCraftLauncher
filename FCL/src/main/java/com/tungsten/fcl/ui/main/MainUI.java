@@ -1,13 +1,21 @@
 package com.tungsten.fcl.ui.main;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import androidx.appcompat.widget.LinearLayoutCompat;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.game.TexturesLoader;
 import com.tungsten.fcl.setting.Accounts;
@@ -19,6 +27,7 @@ import com.tungsten.fclcore.task.Schedulers;
 import com.tungsten.fclcore.task.Task;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.io.HttpRequest;
+import com.tungsten.fclcore.util.io.NetworkUtils;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 import com.tungsten.fcllibrary.component.ui.FCLCommonUI;
@@ -28,11 +37,17 @@ import com.tungsten.fcllibrary.component.view.FCLUILayout;
 import com.tungsten.fcllibrary.skin.SkinCanvas;
 import com.tungsten.fcllibrary.skin.SkinRenderer;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 
 public class MainUI extends FCLCommonUI implements View.OnClickListener {
-
-    public static final String ANNOUNCEMENT_URL = "https://gitcode.net/fcl-team/fold-craft-launcher/-/raw/master/res/announcement_v2.txt?inline=false";
+  
+    public static final String ANNOUNCEMENT_URL = FCLApplication.appConfig.getProperty("announcement-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.1.4/announcement.txt");
 
     private LinearLayoutCompat announcementContainer;
     private LinearLayoutCompat announcementLayout;
@@ -123,21 +138,22 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     }
 
     private void checkAnnouncement() {
-        try {
-            Task.supplyAsync(() -> HttpRequest.HttpGetRequest.GET(ANNOUNCEMENT_URL).getJson(Announcement.class))
-                    .thenAcceptAsync(Schedulers.androidUIThread(), announcement -> {
-                        this.announcement = announcement;
-                        if (!announcement.shouldDisplay(getContext()))
-                            return;
-                        announcementContainer.setVisibility(View.VISIBLE);
-                        title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", announcement.getDisplayTitle(getContext())));
-                        announcementView.setText(announcement.getDisplayContent(getContext()));
-                        date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", announcement.getDate()));
-                    }).start();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Logging.LOG.log(Level.WARNING, "Failed to get announcement!", e);
-        }
+        CompletableFuture<Announcement> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                return new Gson().fromJson(NetworkUtils.doGet(NetworkUtils.toURL(ANNOUNCEMENT_URL), FCLApplication.deviceInfoUtils.toString()), Announcement.class);
+            }catch (Exception e) {
+                return new Announcement(-1, true, "", new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))), new SimpleDateFormat("yyyy.MM.dd").format(new Date()), new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题"))));
+            }
+        });
+        future.thenAccept(announcement -> {
+            new Handler(Looper.getMainLooper()).post(() -> {
+                this.announcement = announcement;
+                announcementContainer.setVisibility(View.VISIBLE);
+                title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", this.announcement.getDisplayTitle(getContext())));
+                announcementView.setText(this.announcement.getDisplayContent(getContext()));
+                date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", this.announcement.getDate()));
+            });
+        });
     }
 
     private void hideAnnouncement() {
