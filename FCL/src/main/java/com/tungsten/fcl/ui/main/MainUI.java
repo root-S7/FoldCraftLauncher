@@ -47,7 +47,7 @@ import java.util.logging.Level;
 
 public class MainUI extends FCLCommonUI implements View.OnClickListener {
   
-    public static final String ANNOUNCEMENT_URL = FCLApplication.appConfig.getProperty("announcement-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.1.4/announcement.txt");
+    public static final String ANNOUNCEMENT_URL = FCLApplication.appConfig.getProperty("announcement-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.1.4.3/announcement.txt");
 
     private LinearLayoutCompat announcementContainer;
     private LinearLayoutCompat announcementLayout;
@@ -138,11 +138,21 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     }
 
     private void checkAnnouncement() {
-        CompletableFuture<Announcement> future = CompletableFuture.supplyAsync(() -> {
+        @SuppressLint("SimpleDateFormat") CompletableFuture<Announcement> future = CompletableFuture.supplyAsync(() -> {
             try {
                 return new Gson().fromJson(NetworkUtils.doGet(NetworkUtils.toURL(ANNOUNCEMENT_URL), FCLApplication.deviceInfoUtils.toString()), Announcement.class);
             }catch (Exception e) {
-                return new Announcement(-1, true, "", new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))), new SimpleDateFormat("yyyy.MM.dd").format(new Date()), new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题"))));
+                return new Announcement(
+                        -1,
+                        true,
+                        false,
+                        -1,
+                        -1,
+                        new ArrayList<>(Collections.singletonList("")),
+                        new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))),
+                        new SimpleDateFormat("yyyy.MM.dd").format(new Date()),
+                        new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题")))
+                );
             }
         });
         future.thenAccept(announcement -> {
