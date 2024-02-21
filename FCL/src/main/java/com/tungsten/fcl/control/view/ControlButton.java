@@ -12,6 +12,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
@@ -309,9 +310,12 @@ public class ControlButton extends AppCompatButton implements CustomView {
                     if ((Math.abs(event.getX() - downX) > 2 || Math.abs(event.getY() - downY) > 2) && System.currentTimeMillis() - downTime < 400) {
                         handler.removeCallbacks(deleteRunnable);
                     }
+                    autoFitPosition();
                     break;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    removeLine(0);
+                    removeLine(1);
                     setNormalStyle();
                     handler.removeCallbacks(deleteRunnable);
                     if (System.currentTimeMillis() - downTime <= 100
@@ -398,6 +402,119 @@ public class ControlButton extends AppCompatButton implements CustomView {
             }
         }
         return true;
+    }
+
+    private void showLine(int orientation, int pref, int self) {
+        if (menu == null)
+            return;
+
+        menu.getTouchPad().drawLine(orientation, pref, self);
+    }
+
+    private void removeLine(int orientation) {
+        if (menu == null)
+            return;
+
+        menu.getTouchPad().removeLine(orientation);
+    }
+
+    private void autoFitPosition() {
+        if (menu == null || !menu.getMenuSetting().isAutoFit())
+            return;
+
+        ViewGroup viewGroup = (ViewGroup) getParent();
+
+        final int autoFitDist = ConvertUtils.dip2px(getContext(), 5);
+        int dist = ConvertUtils.dip2px(getContext(), menu.getMenuSetting().getAutoFitDist());
+
+        boolean xPref = false;
+        boolean yPref = false;
+        int prefX = 0;
+        int prefY = 0;
+        int selfX = 0;
+        int selfY = 0;
+        int xDist = autoFitDist;
+        int yDist = autoFitDist;
+
+        int left = (int) getX();
+        int right = (int) (getX() + getWidth());
+        int up = (int) getY();
+        int down = (int) (getY() + getHeight());
+
+        for (int i = 0; i < viewGroup.getChildCount(); i++) {
+            if (viewGroup.getChildAt(i).getVisibility() == VISIBLE) {
+                View button = viewGroup.getChildAt(i);
+                if (button == this || (!(button instanceof ControlButton) && !(button instanceof ControlDirection))) {
+                    continue;
+                }
+                int buttonLeft = (int) button.getX();
+                int buttonRight = (int) (button.getX() + button.getWidth());
+                int buttonUp = (int) button.getY();
+                int buttonDown = (int) (button.getY() + button.getHeight());
+
+                if (Math.abs(left - buttonLeft) < xDist) {
+                    xPref = true;
+                    prefX = buttonLeft;
+                    xDist = left - buttonLeft;
+                    selfX = left - xDist;
+                }
+                if (left - buttonRight >= 0 && left - buttonRight < xDist) {
+                    xPref = true;
+                    prefX = buttonRight;
+                    xDist = left - buttonRight - dist;
+                    selfX = left - xDist;
+                }
+                if (Math.abs(right - buttonRight) < xDist) {
+                    xPref = true;
+                    prefX = buttonRight;
+                    xDist = right - buttonRight;
+                    selfX = right - xDist;
+                }
+                if (buttonLeft - right >= 0 && buttonLeft - right < xDist) {
+                    xPref = true;
+                    prefX = buttonLeft;
+                    xDist = right - buttonLeft + dist;
+                    selfX = right - xDist;
+                }
+                if (Math.abs(up - buttonUp) < yDist) {
+                    yPref = true;
+                    prefY = buttonUp;
+                    yDist = up - buttonUp;
+                    selfY = up - yDist;
+                }
+                if (up - buttonDown >= 0 && up - buttonDown < yDist) {
+                    yPref = true;
+                    prefY = buttonDown;
+                    yDist = up - buttonDown - dist;
+                    selfY = up - yDist;
+                }
+                if (Math.abs(down - buttonDown) < yDist) {
+                    yPref = true;
+                    prefY = buttonDown;
+                    yDist = down - buttonDown;
+                    selfY = down - yDist;
+                }
+                if (buttonUp - down >= 0 && buttonUp - down < yDist) {
+                    yPref = true;
+                    prefY = buttonUp;
+                    yDist = down - buttonUp + dist;
+                    selfY = down - yDist;
+                }
+            }
+        }
+
+        if (xPref) {
+            setX(left - xDist);
+            showLine(0, prefX, selfX);
+        } else {
+            removeLine(0);
+        }
+        if (yPref) {
+            setY(up - yDist);
+            showLine(1, prefY, selfY);
+        } else {
+            removeLine(1);
+        }
     }
 
     private void cancelAllEvent() {
