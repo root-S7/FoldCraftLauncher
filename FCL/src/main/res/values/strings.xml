@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Fold Craft Launcher</string>
-    <string name="app_version" translatable="false">1.1.4.3</string>
+    <string name="app_version" translatable="false">1.1.5</string>
 
     <string name="oauth_api_key" translatable="false">null</string>
 
@@ -18,7 +18,7 @@
     <string name="splash_runtime_java11" translatable="false">JRE 11</string>
     <string name="splash_runtime_java17" translatable="false">JRE 17</string>
     <string name="splash_runtime_java21" translatable="false">JRE 21</string>
-  
+
     <string name="splash_runtime_game_packages" translatable="true">Game data</string>
     <string name="splash_runtime_others" translatable="true">Others</string>
 
@@ -31,7 +31,7 @@
     <string name="controller">Controller</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="setting">Setting</string>
-    
+
     <string name="about">About</string>
     <string name="official_website">Official Website</string>
     <string name="about_developer">Author</string>
