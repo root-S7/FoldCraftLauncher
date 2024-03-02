@@ -20,6 +20,7 @@ package com.tungsten.fcl.setting;
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
 import com.tungsten.fcl.FCLApplication;
+import com.tungsten.fcl.util.AndroidUtils;
 import com.tungsten.fclauncher.FCLConfig;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener;
@@ -145,7 +146,7 @@ public final class VersionSetting implements Cloneable {
         minMemoryProperty.set(minMemory);
     }
 
-    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", false);
+    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", FCLApplication.appConfig.getProperty("set-auto-memory","false").equals("true"));
 
     public boolean isAutoMemory() {
         return autoMemory.get();
@@ -195,7 +196,7 @@ public final class VersionSetting implements Cloneable {
         minecraftArgsProperty.set(minecraftArgs);
     }
 
-    private final BooleanProperty notCheckJVMProperty = new SimpleBooleanProperty(this, "notCheckJVM", false);
+    private final BooleanProperty notCheckJVMProperty = new SimpleBooleanProperty(this, "notCheckJVM", FCLApplication.appConfig.getProperty("not-check-JVM-compatible","false").equals("true"));
 
     public BooleanProperty notCheckJVMProperty() {
         return notCheckJVMProperty;
@@ -212,7 +213,7 @@ public final class VersionSetting implements Cloneable {
         notCheckJVMProperty.set(notCheckJVM);
     }
 
-    private final BooleanProperty notCheckGameProperty = new SimpleBooleanProperty(this, "notCheckGame", false);
+    private final BooleanProperty notCheckGameProperty = new SimpleBooleanProperty(this, "notCheckGame", FCLApplication.appConfig.getProperty("not-check-game-data-compatible","false").equals("true"));
 
     public BooleanProperty notCheckGameProperty() {
         return notCheckGameProperty;
@@ -231,7 +232,7 @@ public final class VersionSetting implements Cloneable {
 
     // Minecraft settings.
 
-    private final StringProperty serverIpProperty = new SimpleStringProperty(this, "serverIp", "");
+    private final StringProperty serverIpProperty = new SimpleStringProperty(this, "serverIp", AndroidUtils.returnAddress(FCLApplication.appConfig.getProperty("access-server-ip","nothing")));
 
     public StringProperty serverIpProperty() {
         return serverIpProperty;
@@ -283,7 +284,7 @@ public final class VersionSetting implements Cloneable {
         isolateGameDirProperty.set(isolateGameDir);
     }
 
-    private final BooleanProperty beGestureProperty = new SimpleBooleanProperty(this, "beGesture", true);
+    private final BooleanProperty beGestureProperty = new SimpleBooleanProperty(this, "beGesture", FCLApplication.appConfig.getProperty("enable-be-gesture","true").equals("true"));
 
     public BooleanProperty beGestureProperty() {
         return beGestureProperty;
