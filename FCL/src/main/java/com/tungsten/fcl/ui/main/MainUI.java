@@ -138,32 +138,34 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     }
 
     private void checkAnnouncement() {
-        @SuppressLint("SimpleDateFormat") CompletableFuture<Announcement> future = CompletableFuture.supplyAsync(() -> {
-            try {
-                return new Gson().fromJson(NetworkUtils.doGet(NetworkUtils.toURL(ANNOUNCEMENT_URL), FCLApplication.deviceInfoUtils.toString()), Announcement.class);
-            }catch (Exception e) {
-                return new Announcement(
-                        -1,
-                        true,
-                        false,
-                        -1,
-                        -1,
-                        new ArrayList<>(Collections.singletonList("")),
-                        new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))),
-                        new SimpleDateFormat("yyyy.MM.dd").format(new Date()),
-                        new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题")))
-                );
-            }
-        });
-        future.thenAccept(announcement -> {
-            new Handler(Looper.getMainLooper()).post(() -> {
-                this.announcement = announcement;
-                announcementContainer.setVisibility(View.VISIBLE);
-                title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", this.announcement.getDisplayTitle(getContext())));
-                announcementView.setText(this.announcement.getDisplayContent(getContext()));
-                date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", this.announcement.getDate()));
+        if(FCLApplication.appConfig.getProperty("enable-announcement","true").equals("true")){
+            @SuppressLint("SimpleDateFormat") CompletableFuture<Announcement> future = CompletableFuture.supplyAsync(() -> {
+                try {
+                    return new Gson().fromJson(NetworkUtils.doGet(NetworkUtils.toURL(ANNOUNCEMENT_URL), FCLApplication.deviceInfoUtils.toString()), Announcement.class);
+                }catch (Exception e) {
+                    return new Announcement(
+                            -1,
+                            true,
+                            false,
+                            -1,
+                            -1,
+                            new ArrayList<>(Collections.singletonList("")),
+                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))),
+                            new SimpleDateFormat("yyyy.MM.dd").format(new Date()),
+                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题")))
+                    );
+                }
             });
-        });
+            future.thenAccept(announcement -> {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    this.announcement = announcement;
+                    announcementContainer.setVisibility(View.VISIBLE);
+                    title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", this.announcement.getDisplayTitle(getContext())));
+                    announcementView.setText(this.announcement.getDisplayContent(getContext()));
+                    date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", this.announcement.getDate()));
+                });
+            });
+        }else announcementContainer.setVisibility(View.INVISIBLE);
     }
 
     private void hideAnnouncement() {
