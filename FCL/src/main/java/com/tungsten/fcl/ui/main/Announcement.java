@@ -79,7 +79,7 @@ public class Announcement {
             title.add(new Content("en",""));
         }
         for (Content c : title) {
-            if (c.getLang().equals(LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString())) {
+            if (LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString().contains(c.getLang())) {
                 return c.getText();
             }
         }
@@ -91,7 +91,7 @@ public class Announcement {
             content.add(new Content("en","无法获取公告，也许是网络问题"));
         }
         for (Content c : content) {
-            if (c.getLang().equals(LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString())) {
+            if (LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString().contains(c.getLang())) {
                 return c.getText();
             }
         }
