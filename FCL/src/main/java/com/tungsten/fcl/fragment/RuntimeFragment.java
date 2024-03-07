@@ -1,6 +1,7 @@
 package com.tungsten.fcl.fragment;
 
 import android.annotation.*;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.*;
@@ -54,6 +55,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
 
     private FCLButton install;
 
+    private SharedPreferences.Editor edit = FCLApplication.appDataSave.edit();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -103,8 +106,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             java11 = RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11");
             java17 = RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17");
             java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21");
-            gamePackages = RuntimeUtils.isLatest(FCLPath.SHARED_COMMON_DIR, "/assets/.minecraft");
-            others = RuntimeUtils.isLatest(FCLPath.OTHERS_DIR, "/assets/others") && RuntimeUtils.isLatest(FCLPath.SHARED_COMMON_DIR, "/assets/.minecraft");
+            gamePackages = RuntimeUtils.isLatest(FCLPath.SHARED_COMMON_DIR, "/assets/.minecraft") && FCLApplication.appDataSave.getBoolean("gameDataExportSuccessful",false);
+            others = RuntimeUtils.isLatest(FCLPath.OTHERS_DIR, "/assets/others") && gamePackages;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -329,6 +332,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 RuntimeUtils.delete(FCLPath.SHARED_COMMON_DIR);
                 RuntimeUtils.copyAssetsDirToLocalDir(getContext(), ".minecraft", FCLPath.SHARED_COMMON_DIR);
                 gamePackages = true;
+                edit.putBoolean("gameDataExportSuccessful",true);
+                edit.apply();
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         gamePackagesState.setVisibility(View.VISIBLE);
