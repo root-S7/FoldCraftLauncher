@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Fold Craft Launcher</string>
-    <string name="app_version" translatable="false">1.1.5</string>
+    <string name="app_version" translatable="false">1.1.5.1</string>
 
     <string name="oauth_api_key" translatable="false">null</string>
 
@@ -296,6 +296,7 @@
     <string name="download_provider_mirror">From Mirror</string>
 
     <string name="edit_view_clone">Clone View</string>
+    <string name="edit_view_delete">Delete View</string>
     <string name="edit_view_event">View Event</string>
     <string name="edit_view_info">Base View Info</string>
     <string name="edit_view_no_group">Please add or select a view group first!</string>
