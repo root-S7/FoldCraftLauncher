@@ -1,34 +1,22 @@
 package com.tungsten.fcl.fragment;
 
-import android.annotation.SuppressLint;
+import android.annotation.*;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.ProgressBar;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.tungsten.fcl.FCLApplication;
-import com.tungsten.fcl.R;
+import androidx.annotation.*;
+import com.tungsten.fcl.*;
 import com.tungsten.fcl.activity.SplashActivity;
-import com.tungsten.fcl.util.ParseAuthlibInjectorServerFile;
-import com.tungsten.fcl.util.RuntimeUtils;
+import com.tungsten.fcl.util.*;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fcllibrary.component.FCLFragment;
-import com.tungsten.fcllibrary.component.view.FCLProgressBar;
+import com.tungsten.fcllibrary.component.view.*;
 import com.tungsten.fcllibrary.util.LocaleUtils;
-import com.tungsten.fcllibrary.component.view.FCLButton;
-import com.tungsten.fcllibrary.component.view.FCLImageView;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Locale;
+import java.io.*;
+import java.util.*;
 
 public class RuntimeFragment extends FCLFragment implements View.OnClickListener {
 
@@ -67,7 +55,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
 
     private FCLButton install;
 
-    SharedPreferences.Editor edit = FCLApplication.appDataSave.edit();
+    private SharedPreferences.Editor edit = FCLApplication.appDataSave.edit();
 
     @Nullable
     @Override
@@ -118,8 +106,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             java11 = RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11");
             java17 = RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17");
             java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21");
-            gamePackages = FCLApplication.appDataSave.getBoolean("gameDataExportSuccessful",false);
-            others = RuntimeUtils.isLatest(FCLPath.OTHERS_DIR, "/assets/others");
+            gamePackages = RuntimeUtils.isLatest(FCLPath.SHARED_COMMON_DIR, "/assets/.minecraft") && FCLApplication.appDataSave.getBoolean("gameDataExportSuccessful",false);
+            others = RuntimeUtils.isLatest(FCLPath.OTHERS_DIR, "/assets/others") && gamePackages;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -294,9 +282,9 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_17_PATH, "app_runtime/java/jre17");
                     if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
+                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 114.114.114.114\n" + "nameserver 8.8.8.8");
                     } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
+                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 223.5.5.5\n" + "nameserver 114.114.114.114");
                     }
                     java17 = true;
                 } catch (IOException e) {
@@ -319,9 +307,9 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_21_PATH, "app_runtime/java/jre21");
                     if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
+                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 114.114.114.114\n" + "nameserver 8.8.8.8");
                     } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
+                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 223.5.5.5\n" + "nameserver 114.114.114.114");
                     }
                     java21 = true;
                 } catch (IOException e) {
@@ -360,9 +348,10 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             othersState.setVisibility(View.GONE);
             othersProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
+                RuntimeUtils.delete(getActivity().getFilesDir().getAbsolutePath() + "/menu_setting.json");
+                RuntimeUtils.delete(getActivity().getFilesDir().getAbsolutePath() + "/config.json");
 
                 new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
-
                 if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))){
                     RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
                 }

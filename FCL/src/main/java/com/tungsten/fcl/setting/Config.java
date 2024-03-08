@@ -82,7 +82,7 @@ public final class Config implements Cloneable, Observable {
     private StringProperty commonDirectory = new SimpleStringProperty(FCLPath.SHARED_COMMON_DIR);
 
     @SerializedName("autoDownloadThreads")
-    private BooleanProperty autoDownloadThreads = new SimpleBooleanProperty(true);
+    private BooleanProperty autoDownloadThreads = new SimpleBooleanProperty(false);
 
     @SerializedName("downloadThreads")
     private IntegerProperty downloadThreads = new SimpleIntegerProperty(32);
