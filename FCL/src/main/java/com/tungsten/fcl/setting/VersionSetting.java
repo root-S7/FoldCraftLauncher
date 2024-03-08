@@ -19,26 +19,16 @@ package com.tungsten.fcl.setting;
 
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
+import com.tungsten.fcl.FCLApplication;
+import com.tungsten.fcl.util.AndroidUtils;
 import com.tungsten.fclauncher.FCLConfig;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener;
-import com.tungsten.fclcore.fakefx.beans.property.BooleanProperty;
-import com.tungsten.fclcore.fakefx.beans.property.DoubleProperty;
-import com.tungsten.fclcore.fakefx.beans.property.IntegerProperty;
-import com.tungsten.fclcore.fakefx.beans.property.ObjectProperty;
-import com.tungsten.fclcore.fakefx.beans.property.SimpleBooleanProperty;
-import com.tungsten.fclcore.fakefx.beans.property.SimpleDoubleProperty;
-import com.tungsten.fclcore.fakefx.beans.property.SimpleIntegerProperty;
-import com.tungsten.fclcore.fakefx.beans.property.SimpleObjectProperty;
-import com.tungsten.fclcore.fakefx.beans.property.SimpleStringProperty;
-import com.tungsten.fclcore.fakefx.beans.property.StringProperty;
-import com.tungsten.fclcore.game.JavaVersion;
-import com.tungsten.fclcore.game.Version;
-import com.tungsten.fclcore.task.Schedulers;
-import com.tungsten.fclcore.task.Task;
+import com.tungsten.fclcore.fakefx.beans.property.*;
+import com.tungsten.fclcore.game.*;
+import com.tungsten.fclcore.task.*;
 import com.tungsten.fclcore.util.Lang;
 import com.tungsten.fclcore.util.platform.MemoryUtils;
-
 import java.lang.reflect.Type;
 import java.util.Optional;
 
@@ -110,7 +100,7 @@ public final class VersionSetting implements Cloneable {
         permSizeProperty.set(permSize);
     }
 
-    private final IntegerProperty maxMemoryProperty = new SimpleIntegerProperty(this, "maxMemory", MemoryUtils.findBestRAMAllocation(FCLPath.CONTEXT));
+    private final IntegerProperty maxMemoryProperty = new SimpleIntegerProperty(this, "maxMemory", FCLApplication.appConfig.getProperty("set-memory") != null && FCLApplication.appConfig.getProperty("set-memory").matches("\\d+") && Integer.parseInt(FCLApplication.appConfig.getProperty("set-memory")) >= 1536 ? Integer.parseInt(FCLApplication.appConfig.getProperty("set-memory")) : MemoryUtils.findBestRAMAllocation(FCLPath.CONTEXT));
 
     public IntegerProperty maxMemoryProperty() {
         return maxMemoryProperty;
@@ -144,7 +134,7 @@ public final class VersionSetting implements Cloneable {
         minMemoryProperty.set(minMemory);
     }
 
-    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", true);
+    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", FCLApplication.appConfig.getProperty("set-auto-memory","false").equals("true"));
 
     public boolean isAutoMemory() {
         return autoMemory.get();
@@ -194,7 +184,7 @@ public final class VersionSetting implements Cloneable {
         minecraftArgsProperty.set(minecraftArgs);
     }
 
-    private final BooleanProperty notCheckJVMProperty = new SimpleBooleanProperty(this, "notCheckJVM", false);
+    private final BooleanProperty notCheckJVMProperty = new SimpleBooleanProperty(this, "notCheckJVM", FCLApplication.appConfig.getProperty("not-check-JVM-compatible","false").equals("true"));
 
     public BooleanProperty notCheckJVMProperty() {
         return notCheckJVMProperty;
@@ -211,7 +201,7 @@ public final class VersionSetting implements Cloneable {
         notCheckJVMProperty.set(notCheckJVM);
     }
 
-    private final BooleanProperty notCheckGameProperty = new SimpleBooleanProperty(this, "notCheckGame", false);
+    private final BooleanProperty notCheckGameProperty = new SimpleBooleanProperty(this, "notCheckGame", FCLApplication.appConfig.getProperty("not-check-game-data-compatible","false").equals("true"));
 
     public BooleanProperty notCheckGameProperty() {
         return notCheckGameProperty;
@@ -230,7 +220,7 @@ public final class VersionSetting implements Cloneable {
 
     // Minecraft settings.
 
-    private final StringProperty serverIpProperty = new SimpleStringProperty(this, "serverIp", "");
+    private final StringProperty serverIpProperty = new SimpleStringProperty(this, "serverIp", AndroidUtils.returnAddress(FCLApplication.appConfig.getProperty("access-server-ip","nothing")));
 
     public StringProperty serverIpProperty() {
         return serverIpProperty;
@@ -268,7 +258,7 @@ public final class VersionSetting implements Cloneable {
      * 0 - .minecraft<br/>
      * 1 - .minecraft/versions/&lt;version&gt;/<br/>
      */
-    private final BooleanProperty isolateGameDirProperty = new SimpleBooleanProperty(this, "isolateGameDir", false);
+    private final BooleanProperty isolateGameDirProperty = new SimpleBooleanProperty(this, "isolateGameDir", FCLApplication.appConfig.getProperty("enable-isolate-working-directory","false").equals("true"));
 
     public BooleanProperty isolateGameDirProperty() {
         return isolateGameDirProperty;
@@ -282,7 +272,7 @@ public final class VersionSetting implements Cloneable {
         isolateGameDirProperty.set(isolateGameDir);
     }
 
-    private final BooleanProperty beGestureProperty = new SimpleBooleanProperty(this, "beGesture", true);
+    private final BooleanProperty beGestureProperty = new SimpleBooleanProperty(this, "beGesture", FCLApplication.appConfig.getProperty("enable-be-gesture","false").equals("true"));
 
     public BooleanProperty beGestureProperty() {
         return beGestureProperty;
@@ -438,7 +428,7 @@ public final class VersionSetting implements Cloneable {
             vs.setMinecraftArgs(Optional.ofNullable(obj.get("minecraftArgs")).map(JsonElement::getAsString).orElse(""));
             vs.setMaxMemory(maxMemoryN);
             vs.setMinMemory(Optional.ofNullable(obj.get("minMemory")).map(JsonElement::getAsInt).orElse(null));
-            vs.setAutoMemory(Optional.ofNullable(obj.get("autoMemory")).map(JsonElement::getAsBoolean).orElse(true));
+            vs.setAutoMemory(Optional.ofNullable(obj.get("autoMemory")).map(JsonElement::getAsBoolean).orElse(false));
             vs.setPermSize(Optional.ofNullable(obj.get("permSize")).map(JsonElement::getAsString).orElse(""));
             vs.setServerIp(Optional.ofNullable(obj.get("serverIp")).map(JsonElement::getAsString).orElse(""));
             vs.setJava(Optional.ofNullable(obj.get("java")).map(JsonElement::getAsString).orElse(JavaVersion.JAVA_AUTO.getVersionName()));

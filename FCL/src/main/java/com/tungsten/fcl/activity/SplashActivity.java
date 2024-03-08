@@ -3,7 +3,6 @@ package com.tungsten.fcl.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -17,6 +16,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.fragment.EulaFragment;
 import com.tungsten.fcl.fragment.RuntimeFragment;
@@ -103,11 +103,10 @@ public class SplashActivity extends FCLActivity {
     }
 
     public void start() {
-        SharedPreferences sharedPreferences = getSharedPreferences("launcher", MODE_PRIVATE);
-        if (sharedPreferences.getBoolean("isFirstLaunch", true)) {
+        FCLApplication.appDataSave = getSharedPreferences("launcher", MODE_PRIVATE);
+        if(FCLApplication.appDataSave.getBoolean("isFirstLaunch", true)) {
             getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim).replace(R.id.fragment, eulaFragment).commit();
-        }
-        else {
+        }else {
             getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim).replace(R.id.fragment, runtimeFragment).commit();
         }
     }
