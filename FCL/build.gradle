@@ -9,17 +9,9 @@ android {
 
     def curseApiKey = System.getenv("CURSE_API_KEY")
     def oauthApiKey = System.getenv("OAUTH_API_KEY")
-    if (curseApiKey == null || oauthApiKey == null) {
-        if (new File("${rootDir}/local.properties").exists()) {
-            Properties prop = new Properties()
-            prop.load(new FileInputStream("${rootDir}/local.properties"))
-            curseApiKey = prop.get("curse.api.key")
-            oauthApiKey = prop.get("oauth.api.key")
-        }
-    }
-    if (curseApiKey == null || oauthApiKey == null) {
-        curseApiKey = "null"
-        oauthApiKey = "null"
+    if (curseApiKey == "" || oauthApiKey == "") {
+        curseApiKey = "$2a$10$fgjXkx00bZZ5ypMONic.Uu7/Be1KFjmMcprkzelHhjjs7FErXt7i6"
+        oauthApiKey = "d903cc0e-c3b4-4a3c-b347-06c2e6269be0"
     }
 
     signingConfigs {
@@ -32,6 +24,10 @@ android {
     }
 
     defaultConfig {
+        aaptOptions{
+            ignoreAssets "!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~"
+            ignoreAssetsPattern "!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~"
+        }
         applicationId "com.tungsten.fcl"
         minSdk 26
         targetSdk 34
@@ -106,43 +102,6 @@ android {
                         include 'x86_64'
                         break
                 }
-            }
-        }
-    }
-}
-
-tasks.register('updateMap') {
-    doLast {
-        def list = []
-        new File("${rootDir}/version_map.json").withReader("UTF-8") { reader ->
-            reader.eachLine {
-                if (it.contains('versionCode')) {
-                    it = it.replaceAll('[0-9]+', "${android.defaultConfig.versionCode}")
-                } else if (it.contains("versionName")) {
-                    it = it.replaceAll(': ".+', ": \"${android.defaultConfig.versionName}\",")
-                } else if (it.contains("date")) {
-                    def date = new Date().format("yyyy.MM.dd", TimeZone.getTimeZone("UTC"))
-                    it = it.replaceAll(': ".+', ": \"${date}\",")
-                } else if (it.contains("url")) {
-                    it = it.replaceAll('download/.+"', "download/${android.defaultConfig.versionName}/FCL-release-${android.defaultConfig.versionName}-all.apk\"")
-                }
-                list.add(it + "\n")
-            }
-        }
-        new File("${rootDir}/version_map.json").withWriter("UTF-8") { writer ->
-            list.each {
-                writer.write(it)
-            }
-        }
-    }
-}
-
-task uploadMap(dependsOn: 'updateMap') {
-    doLast {
-        ssh.run {
-            session(remotes.debugServer) {
-                File file = file "${rootDir}/version_map.json"
-                put from: file.getAbsolutePath(), into: "/www/wwwroot/FCLApi/public/files"
             }
         }
     }
