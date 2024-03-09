@@ -256,11 +256,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_11_PATH, "app_runtime/java/jre11");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 114.114.114.114\n" + "nameserver 8.8.8.8");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 223.5.5.5\n" + "nameserver 114.114.114.114");
-                    }
+                    FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","223.5.5.5") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"));
                     java11 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -281,11 +277,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_17_PATH, "app_runtime/java/jre17");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 114.114.114.114\n" + "nameserver 8.8.8.8");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 223.5.5.5\n" + "nameserver 114.114.114.114");
-                    }
+                    FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","223.5.5.5") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"));
                     java17 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -306,11 +298,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_21_PATH, "app_runtime/java/jre21");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 114.114.114.114\n" + "nameserver 8.8.8.8");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 223.5.5.5\n" + "nameserver 114.114.114.114");
-                    }
+                    FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","223.5.5.5") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"));
                     java21 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
