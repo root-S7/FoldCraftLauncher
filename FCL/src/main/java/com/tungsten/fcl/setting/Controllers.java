@@ -26,9 +26,8 @@ public class Controllers {
     private Controllers() {
     }
 
-    private static final ObservableList<Controller> controllers = observableArrayList(controller -> new Observable[]{controller});
+    private static final ObservableList<Controller> controllers = observableArrayList(controller -> new Observable[] { controller });
     private static final ReadOnlyListWrapper<Controller> controllersWrapper = new ReadOnlyListWrapper<>(controllers);
-
     public static Controller DEFAULT_CONTROLLER;
 
     public static void checkControllers() {
@@ -108,9 +107,7 @@ public class Controllers {
                             .registerTypeAdapterFactory(new JavaFxPropertyTypeAdapterFactory(true, true))
                             .setPrettyPrinting()
                             .create().fromJson(str, Controller.class);
-                    if (controller != null) {
-                        list.add(controller);
-                    }
+                    list.add(controller);
                 } catch (IOException e) {
                     Logging.LOG.log(Level.WARNING, "Can't read file: " + json.getAbsolutePath(), e.getMessage());
                 }
