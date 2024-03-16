@@ -47,8 +47,6 @@ public final class Logging {
     }
 
     public static String filterForbiddenToken(String message) {
-        for (String token : accessTokens)
-            message = message.replace(token, "<access token>");
         return message;
     }
 
@@ -67,7 +65,7 @@ public final class Logging {
 
             Files.createDirectories(logFolder);
             FileHandler fileHandler = new FileHandler(logFolder.resolve("fcl.log").toAbsolutePath().toString());
-            fileHandler.setLevel(Level.FINEST);
+            fileHandler.setLevel(Level.ALL);
             fileHandler.setFormatter(formatter);
             fileHandler.setEncoding("UTF-8");
             LOG.addHandler(fileHandler);
@@ -77,7 +75,7 @@ public final class Logging {
 
         ConsoleHandler consoleHandler = new ConsoleHandler();
         consoleHandler.setFormatter(formatter);
-        consoleHandler.setLevel(Level.FINER);
+        consoleHandler.setLevel(Level.ALL);
         LOG.addHandler(consoleHandler);
 
         StreamHandler streamHandler = new StreamHandler(storedLogs, formatter) {
@@ -102,7 +100,7 @@ public final class Logging {
 
         ConsoleHandler consoleHandler = new ConsoleHandler();
         consoleHandler.setFormatter(new DefaultFormatter());
-        consoleHandler.setLevel(Level.FINER);
+        consoleHandler.setLevel(Level.ALL);
         LOG.addHandler(consoleHandler);
     }
 
