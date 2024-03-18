@@ -37,8 +37,7 @@ public class RuntimeUtils {
 
     public static boolean isLatest(String targetDir, String srcDir) throws IOException {
         File targetFile = new File(targetDir + "/version");
-        long version = Long.parseLong(IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")));
-        return targetFile.exists() && Long.parseLong(FileUtils.readText(targetFile)) == version;
+        return targetFile.exists() && Objects.equals(ReadTools.convertToString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")), ReadTools.readFileTxt(targetDir + "/version"));
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
