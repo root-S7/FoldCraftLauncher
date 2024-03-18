@@ -90,7 +90,7 @@ public class DefaultLauncher extends Launcher {
         res.addDefault("-Dsun.stdout.encoding=", encoding.name());
         res.addDefault("-Dsun.stderr.encoding=", encoding.name());
 
-        if (!"-Dlog4j2.formatMsgNoLookups=false".equals(formatMsgNoLookups) && isUsingLog4j()) {
+        if (isUsingLog4j()) {
             res.addDefault("-Dlog4j.configurationFile=", getLog4jConfigurationFile().getAbsolutePath());
         }
 
