@@ -130,7 +130,10 @@ public class DefaultLauncher extends Launcher {
         }
 
         res.addDefault("-Djava.io.tmpdir=", FCLPath.CACHE_DIR);
+        res.addDefault("-Dos.name=", "Linux");
         res.addDefault("-Dorg.lwjgl.opengl.libname=", "${gl_lib_name}");
+        res.addDefault("-Dwindow.width=", options.getWidth() + "");
+        res.addDefault("-Dwindow.height=", options.getHeight() + "");
         res.addDefault("-Duser.home=", options.getGameDir().getAbsolutePath());
         res.addDefault("-Djna.boot.library.path=", context.getApplicationInfo().nativeLibraryDir);
         res.addDefault("-Dorg.lwjgl.vulkan.libname=", "libvulkan.so");
