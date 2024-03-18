@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name" translatable="false">Fold Craft Launcher</string>
-    <string name="app_version" translatable="false">1.1.5.1</string>
 
     <string name="oauth_api_key" translatable="false">null</string>
 
@@ -751,6 +750,7 @@
     <string name="settings_fcl_renderer_angle">ANGLE (OpenGL 4.6, only support 1.17+)</string>
     <string name="settings_fcl_renderer_vgpu" >VGPU (OpenGL 2.1+, only support 1.17-)</string>
     <string name="settings_fcl_renderer_zink" translatable="false">Vulkan Zink (OpenGL 4.6)</string>
+    <string name="settings_fcl_renderer_freedreno" >Freedreno (OpenGL 4.6, only support GPU a616-a660)</string>
 
     <string name="settings_game">Game Settings</string>
     <string name="settings_game_dimension">Resolution</string>
