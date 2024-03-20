@@ -231,9 +231,9 @@ public class DownloadPage extends FCLCommonPage implements ManageUI.VersionLoada
 
         nameEditText.setHint(supportChinese.get() ? getContext().getString(R.string.search_hint_chinese) : getContext().getString(R.string.search_hint_english));
 
-        sourceText.setVisibility(downloadSources.getSize() > 1 ? View.VISIBLE : View.GONE);
-        sourceSpinner.setVisibility(downloadSources.getSize() > 1 ? View.VISIBLE : View.GONE);
-        if (downloadSources.getSize() > 1) {
+        sourceText.setVisibility(downloadSources.getSize() > 0 ? View.VISIBLE : View.GONE);
+        sourceSpinner.setVisibility(downloadSources.getSize() > 0 ? View.VISIBLE : View.GONE);
+        if (downloadSources.getSize() > 0) {
             sourceSpinner.setDataList(new ArrayList<>(downloadSources));
             ArrayAdapter<String> sourceAdapter = new ArrayAdapter<>(getContext(), R.layout.item_spinner_auto_tint, new ArrayList<>(downloadSources));
             sourceAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
