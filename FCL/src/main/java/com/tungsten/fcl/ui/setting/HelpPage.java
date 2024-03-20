@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class HelpPage extends FCLCommonPage implements View.OnClickListener {
 
-    public static final String DOC_INDEX_URL = "https://mirror.ghproxy.com/https://raw.githubusercontent.com/hyplant/FoldCraftLauncher/empty/document/index/APP_VERSION.json";
+    public static final String DOC_INDEX_URL = "https://mirror.ghproxy.com/https://raw.githubusercontent.com/hyplant/FoldCraftLauncher/doc/document/index.json";
 
     private ListView categoryListView;
     private ListView listView;
@@ -110,7 +110,7 @@ public class HelpPage extends FCLCommonPage implements View.OnClickListener {
             refresh();
         }
         if (v == website) {
-            Uri uri = Uri.parse("https://github.com/hyplant/FoldCraftLauncher/tree/empty/document/APP_VERSION");
+            Uri uri = Uri.parse("https://github.com/hyplant/FoldCraftLauncher/tree/doc/document");
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             getContext().startActivity(intent);
         }
