@@ -54,7 +54,7 @@ public class ArticleAdapter extends FCLAdapter {
         }
         DocIndex.Item item = list.get(i);
         viewHolder.parent.setOnClickListener(v -> {
-            Uri uri = Uri.parse("https://fcl-team.github.io/pages/documentation.html?path=" + item.getPath());
+            Uri uri = Uri.parse(item.getPath());
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             getContext().startActivity(intent);
         });
