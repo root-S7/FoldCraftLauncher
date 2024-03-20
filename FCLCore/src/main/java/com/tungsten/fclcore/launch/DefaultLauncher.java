@@ -25,6 +25,7 @@ import android.content.Context;
 import android.os.Build;
 
 import com.google.gson.GsonBuilder;
+import com.tungsten.fcl.R;
 import com.tungsten.fclauncher.FCLConfig;
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.bridge.FCLBridge;
@@ -379,6 +380,8 @@ public class DefaultLauncher extends Launcher {
                 pair("${classpath_separator}", File.pathSeparator),
                 pair("${primary_jar}", repository.getVersionJar(version).getAbsolutePath()),
                 pair("${language}", Locale.getDefault().toString()),
+                pair("${launcher_name}", FCLPath.CONTEXT.getString(R.string.app_name)),
+                pair("${launcher_version}", FCLPath.CONTEXT.getString(R.string.app_version)),
 
                 // file_separator is used in -DignoreList
                 pair("${file_separator}", File.pathSeparator),
