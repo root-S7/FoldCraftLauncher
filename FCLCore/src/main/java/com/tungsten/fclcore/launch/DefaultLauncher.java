@@ -25,7 +25,7 @@ import android.content.Context;
 import android.os.Build;
 
 import com.google.gson.GsonBuilder;
-import com.tungsten.fcl.R;
+import com.tungsten.fclcore.R;
 import com.tungsten.fclauncher.FCLConfig;
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.bridge.FCLBridge;
