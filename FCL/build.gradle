@@ -6,7 +6,19 @@ plugins {
 android {
     namespace 'com.tungsten.fcl'
     compileSdk 34
+
+    Properties properties = new Properties()
+    properties.load(new FileInputStream("${rootDir}/local.properties"))
+
     defaultConfig {
+        signingConfigs {
+            FCLDebugKey {
+                storeFile file("../debug-key.jks")
+                storePassword "FCL-Debug"
+                keyAlias "FCL-Debug"
+                keyPassword "FCL-Debug"
+            }
+        }
         ndk{
             abiFilter "arm64-v8a"
         }
@@ -37,6 +49,8 @@ android {
         }
         configureEach {
             resValue "string", "app_version", "${defaultConfig.versionName}"
+            resValue "string", "curse_api_key", properties.get("curse-api-key","null")
+            resValue "string", "oauth_api_key", properties.get("oauth-api-key","null")
         }
     }
     applicationVariants.configureEach { variant ->
