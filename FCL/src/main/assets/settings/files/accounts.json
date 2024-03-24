@@ -1,0 +1,12 @@
+[
+  {
+    "uuid": "00000000000000000000000000000000",
+    "username": "Player",
+    "skin": {
+      "type": "default",
+      "cslApi": "",
+      "textureModel": "default"
+    },
+    "type": "offline"
+  }
+]

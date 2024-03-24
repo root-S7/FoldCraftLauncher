@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <long name="clear_cache" value="0" />
+    <boolean name="gameDataExportSuccessful" value="true" />
+    <int name="ignore_announcement" value="0" />
+    <int name="ignore_update" value="2147483647" />
+    <int name="lang" value="0" />
+    <boolean name="isFirstLaunch" value="false" />
+</map>

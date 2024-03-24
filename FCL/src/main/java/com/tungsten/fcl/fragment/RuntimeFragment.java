@@ -341,8 +341,11 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
 
                 new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
                 if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))){
-                    RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
+                    RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others", FCLPath.PLUGIN_DIR);
                 }
+
+                RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "settings", FCLPath.FILES_DIR + "/..");
+
                 RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/version", FCLPath.OTHERS_DIR + "/version");
                 others = true;
                 if (getActivity() != null) {
