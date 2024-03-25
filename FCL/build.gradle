@@ -7,12 +7,9 @@ android {
     namespace 'com.tungsten.fcl'
     compileSdk 34
 
-    def curseApiKey = System.getenv("CURSE_API_KEY")
-    def oauthApiKey = System.getenv("OAUTH_API_KEY")
-    if (curseApiKey == "" || oauthApiKey == "") {
-        curseApiKey = "\u0024\u0032\u0061\u0024\u0031\u0030\u0024\u0066\u0067\u006a\u0058\u006b\u0078\u0030\u0030\u0062\u005a\u005a\u0035\u0079\u0070\u004d\u004f\u004e\u0069\u0063\u002e\u0055\u0075\u0037\u002f\u0042\u0065\u0031\u004b\u0046\u006a\u006d\u004d\u0063\u0070\u0072\u006b\u007a\u0065\u006c\u0048\u0068\u006a\u006a\u0073\u0037\u0046\u0045\u0072\u0058\u0074\u0037\u0069\u0036"
-        oauthApiKey = "\u0064\u0039\u0030\u0033\u0063\u0063\u0030\u0065\u002d\u0063\u0033\u0062\u0034\u002d\u0034\u0061\u0033\u0063\u002d\u0062\u0033\u0034\u0037\u002d\u0030\u0036\u0063\u0032\u0065\u0036\u0032\u0036\u0039\u0062\u0065\u0030"
-    }
+
+    Properties properties = new Properties()
+    properties.load(new FileInputStream("${rootDir}/local.properties"))
 
     signingConfigs {
         DebugKey {
@@ -43,8 +40,8 @@ android {
         }
         configureEach {
             resValue "string", "app_version", "${defaultConfig.versionName}"
-            resValue "string", "curse_api_key", curseApiKey
-            resValue "string", "oauth_api_key", oauthApiKey
+            resValue "string", "curse_api_key", properties.get("curse-api-key","null")
+            resValue "string", "oauth_api_key", properties.get("oauth-api-key","null")
         }
     }
     applicationVariants.configureEach { variant ->
