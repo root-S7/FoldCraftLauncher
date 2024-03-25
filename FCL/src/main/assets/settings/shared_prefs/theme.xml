@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <int name="theme_color" value="-983802788" />
+    <int name="animation_speed" value="0" />
+    <boolean name="fullscreen" value="false" />
+</map>

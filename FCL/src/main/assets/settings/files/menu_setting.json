@@ -1,0 +1,19 @@
+{
+  "autoFit": false,
+  "autoFitDist": 0,
+  "lockMenuView": true,
+  "disableSoftKeyAdjust": true,
+  "showLog": false,
+  "menuPositionX": 1.0,
+  "menuPositionY": 1.0,
+  "disableGesture": false,
+  "disableBEGesture": true,
+  "gestureMode": 0,
+  "enableGyroscope": false,
+  "gyroscopeSensitivity": 10,
+  "mouseMoveMode": 1,
+  "mouseSensitivity": 1.0,
+  "mouseSize": 20,
+  "gamepadDeadzone": 1.0,
+  "gamepadAimAssistZone": 0.98
+}
