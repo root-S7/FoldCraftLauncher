@@ -1,5 +1,6 @@
 package com.tungsten.fcl.fragment;
 
+import static android.content.Context.MODE_PRIVATE;
 import android.annotation.*;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -55,11 +56,15 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
 
     private FCLButton install;
 
-    private SharedPreferences.Editor edit = FCLApplication.appDataSave.edit();
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        sharedPreferences = getActivity().getSharedPreferences("launcher", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         View view = inflater.inflate(R.layout.fragment_runtime, container, false);
 
         lwjglProgress = findViewById(view, R.id.lwjgl_progress);
@@ -106,8 +111,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             java11 = RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11");
             java17 = RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17");
             java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21");
-            gamePackages = RuntimeUtils.isLatest(FCLPath.SHARED_COMMON_DIR, "/assets/.minecraft") && FCLApplication.appDataSave.getBoolean("gameDataExportSuccessful",false);
-            others = RuntimeUtils.isLatest(FCLPath.OTHERS_DIR, "/assets/others") && gamePackages;
+            gamePackages = RuntimeUtils.isLatest(sharedPreferences, "game_packages_version", "版本异常", "/assets/.minecraft") && !sharedPreferences.getBoolean("is_first_game_packages",true);
+            others = RuntimeUtils.isLatest(sharedPreferences, "game_others_version", "版本异常", "/assets/others") && gamePackages;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -138,6 +143,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
     private void check() {
         if (isLatest()) {
             if (getActivity() != null) {
+                editor.apply();
+
                 ((SplashActivity) getActivity()).enterLauncher();
             }
         }
@@ -320,8 +327,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 RuntimeUtils.delete(FCLPath.SHARED_COMMON_DIR);
                 RuntimeUtils.copyAssetsDirToLocalDir(getContext(), ".minecraft", FCLPath.SHARED_COMMON_DIR);
                 gamePackages = true;
-                edit.putBoolean("gameDataExportSuccessful",true);
-                edit.apply();
+                editor.putString("game_packages_version", ReadTools.convertToString(getContext(), ".minecraft/version"));
+                editor.putBoolean("is_first_game_packages", false);
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         gamePackagesState.setVisibility(View.VISIBLE);
@@ -340,10 +347,11 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 RuntimeUtils.delete(getActivity().getFilesDir().getAbsolutePath() + "/config.json");
 
                 new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
-                if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))){
+                if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","false"))){
                     RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
                 }
-                RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/version", FCLPath.OTHERS_DIR + "/version");
+                RuntimeUtils.copyAssetsDirToLocalDir(getContext(), "others/background", FCLPath.BACKGROUND_DIR);
+                editor.putString("game_others_version", ReadTools.convertToString(getContext(), "others/version"));
                 others = true;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
