@@ -31,9 +31,6 @@ public class FCLApplication extends Application implements Application.ActivityL
         deviceInfoUtils = new DeviceInfoUtils(this);
         FCLPath.loadPaths(this);
 
-        if("true".equals(appConfig.getProperty("enable-private-directory-mode","false"))) FCLPath.SHARED_COMMON_DIR = FCLPath.PRIVATE_COMMON_DIR;
-        else FCLPath.SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + appConfig.getProperty("put-directory","FCL-Server") + "/.minecraft";
-
         this.registerActivityLifecycleCallbacks(this);
     }
 

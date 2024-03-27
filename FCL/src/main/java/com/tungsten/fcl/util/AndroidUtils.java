@@ -27,8 +27,6 @@ import com.tungsten.fclcore.util.io.FileUtils;
 
 import java.io.File;
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @SuppressLint("DiscouragedApi")
 public class AndroidUtils {
@@ -125,23 +123,4 @@ public class AndroidUtils {
         return mime;
     }
 
-    public static boolean isValidAddress(String address) {
-        // 匹配输入的地址
-        Pattern ipPattern = Pattern.compile("^(([0-9]{1,3}\\.){3}[0-9]{1,3}(:[0-9]{1,5})?)?$");
-        Pattern domainPatternRegex = Pattern.compile("^([a-zA-Z0-9.-]+)\\.([a-zA-Z]{2,})$");
-        Pattern domainWithPortPatternRegex = Pattern.compile("^([a-zA-Z0-9.-]+\\.)+[a-zA-Z]{2,}(\\:[0-9]{1,5})?$");
-        Pattern ipv6PatternRegex = Pattern.compile("^\\[([0-9a-fA-F]{0,4}:){1,7}[0-9a-fA-F]{0,4}\\](:[0-9]{1,5})?$");
-
-        Matcher ipMatcher = ipPattern.matcher(address);
-        Matcher domainMatcher = domainPatternRegex.matcher(address);
-        Matcher domainWithPortMatcher = domainWithPortPatternRegex.matcher(address);
-        Matcher ipv6Matcher = ipv6PatternRegex.matcher(address);
-
-        // 检查是否匹配其中一个模式
-        return ipMatcher.matches() || domainMatcher.matches() || domainWithPortMatcher.matches() || ipv6Matcher.matches();
-    }
-
-    public static String returnAddress(String address) {
-        return isValidAddress(address) ? address : "";
-    }
 }

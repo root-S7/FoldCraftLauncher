@@ -3,21 +3,11 @@ package com.tungsten.fcl.util;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.tungsten.fcl.fragment.RuntimeFragment;
+import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorServer;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class ParseAuthlibInjectorServerFile {
@@ -114,17 +104,38 @@ public class ParseAuthlibInjectorServerFile {
      * 将view内容加到config.json文件中
      * @param jsonArray 对象数组
     **/
-    private void addToFile(JsonArray jsonArray){
-        try {
-            FileOutputStream outputStream = new FileOutputStream(new File(context.getFilesDir(), "config.json"));
+    private void addToFile(JsonArray jsonArray) {
+        File file = new File(FCLPath.FILES_DIR + "/config.json");
 
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.add("authlibInjectorServers",jsonArray);
+        if(!file.exists()) {
+            try {
+                FileOutputStream outputStream = new FileOutputStream(file);
 
-            outputStream.write(jsonObject.toString().getBytes());
-            outputStream.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.add("authlibInjectorServers",jsonArray);
+
+                outputStream.write(jsonObject.toString().getBytes());
+                outputStream.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }else {
+            try {
+                JsonParser parser = new JsonParser();
+                JsonObject asJsonObject1 = parser.parse(new FileReader(file)).getAsJsonObject();
+                asJsonObject1.add("authlibInjectorServers", jsonArray);
+                // 创建 BufferedWriter 实例
+                BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
+
+                // 将更新后的 JSON 对象写入文件
+                writer.write(asJsonObject1.toString());
+
+                // 关闭 BufferedWriter
+                writer.close();
+            }catch(IOException | IllegalStateException | JsonIOException | JsonSyntaxException e) {
+                RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
+                addToFile(jsonArray);
+            }
         }
     }
 
