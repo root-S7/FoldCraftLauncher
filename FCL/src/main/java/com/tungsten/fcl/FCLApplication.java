@@ -14,7 +14,6 @@ public class FCLApplication extends Application implements Application.ActivityL
 
     private static WeakReference<Activity> currentActivity;
     public static Properties appConfig;
-    public static SharedPreferences appDataSave;
     public static DeviceInfoUtils deviceInfoUtils;
 
     @Override
@@ -29,7 +28,6 @@ public class FCLApplication extends Application implements Application.ActivityL
          * 解决那些频繁分配内存对象导致程序崩溃问题比如Handler...
         **/
         appConfig = new PropertiesFileParse("config.properties", getApplicationContext()).getProperties();
-        appDataSave = getSharedPreferences("launcher", MODE_PRIVATE);
         deviceInfoUtils = new DeviceInfoUtils(this);
         FCLPath.loadPaths(this);
 

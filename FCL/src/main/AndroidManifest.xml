@@ -19,6 +19,7 @@
     <application
         android:name=".FCLApplication"
         android:allowBackup="true"
+        android:hasFragileUserData="true"
         android:requestLegacyExternalStorage="true"
         android:preserveLegacyExternalStorage="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -59,9 +60,15 @@
             android:screenOrientation="sensorLandscape"/>
         <activity
             android:name=".activity.ShellActivity"
+            android:exported="true"
             android:windowSoftInputMode="adjustResize"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
-            android:screenOrientation="sensorPortrait"/>
+            android:screenOrientation="sensorPortrait">
+            <intent-filter>
+                <action android:name="android.intent.action.APPLICATION_PREFERENCES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:process=":jvm"
             android:launchMode="standard"

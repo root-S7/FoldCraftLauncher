@@ -341,7 +341,7 @@ public final class Accounts {
             });
         }
 
-        if("true".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","true"))) triggerAuthlibInjectorUpdateCheck();
+        if("true".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","false"))) triggerAuthlibInjectorUpdateCheck();
 
         for (AuthlibInjectorServer server : config().getAuthlibInjectorServers()) {
             if (selected instanceof AuthlibInjectorAccount && ((AuthlibInjectorAccount) selected).getServer() == server)

@@ -25,28 +25,7 @@
         "isolateGameDir": false
       },
       "gameDir": "/storage/emulated/0/FCL/.minecraft",
-      "selectedMinecraftVersion": "1.20.1-forge"
-    },
-    "config": {
-      "global": {
-        "usesGlobal": true,
-        "javaArgs": "",
-        "minecraftArgs": "",
-        "maxMemory": 4096,
-        "autoMemory": true,
-        "permSize": "",
-        "serverIp": "",
-        "java": "Auto",
-        "scaleFactor": 1.0,
-        "notCheckGame": true,
-        "notCheckJVM": true,
-        "beGesture": false,
-        "controller": "HyController",
-        "renderer": 4,
-        "isolateGameDir": false
-      },
-      "gameDir": "/storage/emulated/0/FCL/minecraft",
-      "selectedMinecraftVersion": "modifyConfigurations"
+      "selectedMinecraftVersion": ""
     }
   },
   "downloadThreads": 64,

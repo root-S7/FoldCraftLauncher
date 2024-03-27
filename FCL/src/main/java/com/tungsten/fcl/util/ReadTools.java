@@ -1,5 +1,7 @@
 package com.tungsten.fcl.util;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.content.Context;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -22,10 +24,10 @@ public class ReadTools {
             reader.close();
             inputStream.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            return "Error...".trim();
         }
 
-        return content.toString();
+        return content.toString().trim();
     }
 
     // /data/user/0/com.tungsten.fcl/files/version
@@ -37,19 +39,29 @@ public class ReadTools {
             while ((line = reader.readLine()) != null) content.append(line).append("\n");
         }catch (IOException e){
             e.printStackTrace();
+            return "Error...".trim();
         }
 
-        return content.toString();
+        return content.toString().trim();
     }
 
     public static String convertToString(InputStream inputStream) throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, UTF_8));
         String line;
 
         while((line = bufferedReader.readLine()) != null) stringBuilder.append(line).append("\n");
 
         bufferedReader.close();
-        return stringBuilder.toString();
+        stringBuilder.trimToSize();
+        return stringBuilder.toString().trim();
+    }
+
+    public static String convertToString(Context context, String assetsFile){
+        try {
+            return convertToString(context.getAssets().open(assetsFile)).trim();
+        } catch (IOException e) {
+            return ("Error: " + e.getMessage()).trim();
+        }
     }
 }

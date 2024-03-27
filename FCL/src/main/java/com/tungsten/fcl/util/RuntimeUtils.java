@@ -1,6 +1,7 @@
 package com.tungsten.fcl.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.system.Os;
 
 import com.tungsten.fclauncher.FCLauncher;
@@ -37,7 +38,11 @@ public class RuntimeUtils {
 
     public static boolean isLatest(String targetDir, String srcDir) throws IOException {
         File targetFile = new File(targetDir + "/version");
-        return targetFile.exists() && Objects.equals(ReadTools.convertToString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")), ReadTools.readFileTxt(targetDir + "/version"));
+        return targetFile.exists() && targetDir != null && srcDir != null && Objects.equals(ReadTools.convertToString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")), ReadTools.readFileTxt(targetDir + "/version"));
+    }
+
+    public static boolean isLatest(SharedPreferences sharedPreferences, String key, String defaultValue, String srcDir) throws IOException {
+        return sharedPreferences != null && key != null && defaultValue != null && srcDir != null && Objects.equals(ReadTools.convertToString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")), sharedPreferences.getString(key,defaultValue).trim());
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
