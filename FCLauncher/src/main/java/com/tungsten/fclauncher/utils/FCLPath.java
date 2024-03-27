@@ -29,7 +29,6 @@ public class FCLPath {
     public static String PLUGIN_DIR;
     public static String BACKGROUND_DIR;
     public static String CONTROLLER_DIR;
-    public static String OTHERS_DIR;
 
     public static String PRIVATE_COMMON_DIR;
     public static String SHARED_COMMON_DIR;
@@ -68,7 +67,6 @@ public class FCLPath {
         PLUGIN_DIR = FILES_DIR + "/plugins";
         BACKGROUND_DIR = FILES_DIR + "/background";
         CONTROLLER_DIR = SHARED_COMMON_DIR + "/control";
-        OTHERS_DIR = FILES_DIR + "/others";
 
         AUTHLIB_INJECTOR_PATH = PLUGIN_DIR + "/authlib-injector.jar";
         MULTIPLAYER_FIX_PATH = PLUGIN_DIR + "/MultiplayerFix.jar";
@@ -91,7 +89,6 @@ public class FCLPath {
         init(PLUGIN_DIR);
         init(BACKGROUND_DIR);
         init(CONTROLLER_DIR);
-        init(OTHERS_DIR);
         //init(PRIVATE_COMMON_DIR);
         //init(SHARED_COMMON_DIR);
     }
