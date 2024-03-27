@@ -100,7 +100,7 @@ public final class VersionSetting implements Cloneable {
         permSizeProperty.set(permSize);
     }
 
-    private final IntegerProperty maxMemoryProperty = new SimpleIntegerProperty(this, "maxMemory", FCLApplication.appConfig.getProperty("set-memory") != null && FCLApplication.appConfig.getProperty("set-memory").matches("\\d+") && Integer.parseInt(FCLApplication.appConfig.getProperty("set-memory")) >= 1536 ? Integer.parseInt(FCLApplication.appConfig.getProperty("set-memory")) : MemoryUtils.findBestRAMAllocation(FCLPath.CONTEXT));
+    private final IntegerProperty maxMemoryProperty = new SimpleIntegerProperty(this, "maxMemory", MemoryUtils.findBestRAMAllocation(FCLPath.CONTEXT));
 
     public IntegerProperty maxMemoryProperty() {
         return maxMemoryProperty;
@@ -134,7 +134,7 @@ public final class VersionSetting implements Cloneable {
         minMemoryProperty.set(minMemory);
     }
 
-    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", FCLApplication.appConfig.getProperty("set-auto-memory","false").equals("true"));
+    private final BooleanProperty autoMemory = new SimpleBooleanProperty(this, "autoMemory", false);
 
     public boolean isAutoMemory() {
         return autoMemory.get();
@@ -184,7 +184,7 @@ public final class VersionSetting implements Cloneable {
         minecraftArgsProperty.set(minecraftArgs);
     }
 
-    private final BooleanProperty notCheckJVMProperty = new SimpleBooleanProperty(this, "notCheckJVM", FCLApplication.appConfig.getProperty("not-check-JVM-compatible","false").equals("true"));
+    private final BooleanProperty notCheckJVMProperty = new SimpleBooleanProperty(this, "notCheckJVM", false);
 
     public BooleanProperty notCheckJVMProperty() {
         return notCheckJVMProperty;
@@ -201,7 +201,7 @@ public final class VersionSetting implements Cloneable {
         notCheckJVMProperty.set(notCheckJVM);
     }
 
-    private final BooleanProperty notCheckGameProperty = new SimpleBooleanProperty(this, "notCheckGame", FCLApplication.appConfig.getProperty("not-check-game-data-compatible","false").equals("true"));
+    private final BooleanProperty notCheckGameProperty = new SimpleBooleanProperty(this, "notCheckGame", false);
 
     public BooleanProperty notCheckGameProperty() {
         return notCheckGameProperty;
@@ -220,7 +220,7 @@ public final class VersionSetting implements Cloneable {
 
     // Minecraft settings.
 
-    private final StringProperty serverIpProperty = new SimpleStringProperty(this, "serverIp", AndroidUtils.returnAddress(FCLApplication.appConfig.getProperty("access-server-ip","nothing")));
+    private final StringProperty serverIpProperty = new SimpleStringProperty(this, "serverIp", "");
 
     public StringProperty serverIpProperty() {
         return serverIpProperty;
@@ -258,7 +258,7 @@ public final class VersionSetting implements Cloneable {
      * 0 - .minecraft<br/>
      * 1 - .minecraft/versions/&lt;version&gt;/<br/>
      */
-    private final BooleanProperty isolateGameDirProperty = new SimpleBooleanProperty(this, "isolateGameDir", FCLApplication.appConfig.getProperty("enable-isolate-working-directory","false").equals("true"));
+    private final BooleanProperty isolateGameDirProperty = new SimpleBooleanProperty(this, "isolateGameDir", false);
 
     public BooleanProperty isolateGameDirProperty() {
         return isolateGameDirProperty;
@@ -272,7 +272,7 @@ public final class VersionSetting implements Cloneable {
         isolateGameDirProperty.set(isolateGameDir);
     }
 
-    private final BooleanProperty beGestureProperty = new SimpleBooleanProperty(this, "beGesture", FCLApplication.appConfig.getProperty("enable-be-gesture","false").equals("true"));
+    private final BooleanProperty beGestureProperty = new SimpleBooleanProperty(this, "beGesture", false);
 
     public BooleanProperty beGestureProperty() {
         return beGestureProperty;

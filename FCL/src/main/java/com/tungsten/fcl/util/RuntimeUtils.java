@@ -6,6 +6,7 @@ import android.system.Os;
 
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.utils.Architecture;
+import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.Pack200Utils;
 import com.tungsten.fclcore.util.io.FileUtils;
@@ -329,6 +330,25 @@ public class RuntimeUtils {
         }
         catch (Exception e){
             e.printStackTrace();
+        }
+    }
+
+    public static void reloadConfiguration(Context context){
+        try {
+            //先删除旧文件
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/menu_setting.json");
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/background");
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/../shared_prefs/theme.xml");
+            //再写入新文件
+            RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR);
+            RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
+            RuntimeUtils.copyAssets(context, "others/config.json", FCLPath.FILES_DIR + "/config.json");
+            RuntimeUtils.copyAssets(context, "others/global_config.json", FCLPath.FILES_DIR + "/global_config.json");
+            RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
