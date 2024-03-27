@@ -16,6 +16,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <permission
+        android:name="com.tungsten.fcl.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:protectionLevel="0x00000022" />
+    <uses-permission android:name="com.tungsten.fcl.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
     <application
         android:name=".FCLApplication"
         android:allowBackup="true"
