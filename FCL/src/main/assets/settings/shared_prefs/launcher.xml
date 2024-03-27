@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <long name="clear_cache" value="0" />
+    <int name="lang" value="0" />
+    <int name="ignore_update" value="2147483647" />
+    <boolean name="is_first_game_packages" value="false" />
+    <string name="game_packages_version">115103</string>
+    <string name="game_others_version">2</string>
+    <boolean name="is_first_launch" value="true" />
+</map>
