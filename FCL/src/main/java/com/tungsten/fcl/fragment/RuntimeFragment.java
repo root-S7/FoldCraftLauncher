@@ -343,18 +343,12 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             othersState.setVisibility(View.GONE);
             othersProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
-                RuntimeUtils.delete(getActivity().getFilesDir().getAbsolutePath() + "/menu_setting.json");
-                RuntimeUtils.delete(getActivity().getFilesDir().getAbsolutePath() + "/config.json");
-
-                new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
                 if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","false"))){
                     RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
                 }
-                RuntimeUtils.copyAssetsDirToLocalDir(getContext(), "others/background", FCLPath.BACKGROUND_DIR);
                 editor.putString("game_others_version", ReadTools.convertToString(getContext(), "others/version"));
-
-                RuntimeUtils.copyAssetsDirToLocalDir(getContext(), "settings", FCLPath.FILES_DIR + "/..");
-
+                RuntimeUtils.reloadConfiguration(getContext());
+                new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
                 others = true;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
