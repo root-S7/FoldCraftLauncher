@@ -6,7 +6,7 @@
     <string name="splash_permission_msg">No storage permission, please grant Fold Craft Launcher the permission.</string>
 
     <string name="splash_title">Welcome to Fold Craft Launcher</string>
-    <string name="splash_eula_error">Cannot get EULA, please check the network.\nPlease open https://github.com/hyplant/FoldCraftLauncher/tree/doc/eula in your browser and view the EULA file according to your launcher version!\n</string>
+    <string name="splash_eula_error">Cannot get EULA, please check the network.</string>
     <string name="splash_eula_next">Agree and Continue</string>
     <string name="splash_runtime_title">Install or update app runtime</string>
     <string name="splash_runtime_lwjgl" translatable="false">LWJGL</string>
@@ -34,9 +34,9 @@
     <string name="about">About</string>
     <string name="official_website">Official Website</string>
     <string name="about_developer">Author</string>
-    <string name="about_sponsor">Feedback</string>
+    <string name="about_sponsor">Sponsor</string>
     <string name="about_source">Open Source</string>
-    <string name="about_desc">Warning: Currently, only Simplified Chinese is available. You can use translation software, but the translation cannot replace the original text.\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n关于\n    经过修改的 FCL，仅限内部使用，请勿对外传播。\n    该版本 FCL，由 Hyplant 基于 root-S7 的服务器直装版 FCL 修改而成。\n    该版本内置了一个整合包，同时对一些默认选项进行了调整。\n    为使这些默认影响生效，你需要按照以下步骤进行安装。\n\n整合包安装指导\n    1. 安装 apk 并打开应用，授予存储空间权限，部分手机需要进入应用程序信息，授予 com.tungsten.fcl.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION 权限。\n    2. 阅读并同意下方的用户协议。\n    3. 在安装运行库界面点击安装，等待安装完成。\n    4. 此时立即进入最近任务界面，强制关闭 FCL。\n    5. 再次打开 FCL，变成白色（夜间模式为黑色）背景，灰色主题说明成功。\n      【否则请进入应用程序信息，清除数据后重复上方步骤。】\n    6. 现在已经配置完成，可以正常使用。\n\n使用本软件即代表你同意：\n    官方版 FCL 用户协议\n    root-S7 的服务器直装版 FCL 用户协议\n    Minecraft: Java Edition 用户协议\n    Minecraft forge 用户协议\n    该整合包中包含的模组的用户协议\n    多人游戏提供方要求的用户协议（若使用多人游戏）\n    皮肤站要求的用户协议（若使用皮肤站）\n\n注意：\n    本整合包中提供的客户端未经授权，仅供体验！\n    建议用户在体验后自觉于24小时内删除，并前往官网购买正版后再下载正版。\n    如果因未授权客户端等原因造成问题，由用户自行承担，本启动器作者及上游项目相关人员的人员不负责。\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n关于原版：\n\nFold Craft Launcher is an Android Minecraft Launcher, allows user to launch Minecraft: Java Edition on Android device.\n\nFold Craft Launcher is developed by FCL-Team.\n\nFold Craft Launcher's most features are modified based on HMCLCore.\n\nThe app borrows and quotes some codes of PojavLauncher and Boat, so if you are going to distribute this app, please follow GPL-v3 License.\n</string>
+    <string name="about_desc">Fold Craft Launcher is an Android Minecraft Launcher, allows user to launch Minecraft: Java Edition on Android device.\n\nFold Craft Launcher is developed by FCL-Team.\n\nFold Craft Launcher\'s most features are modified based on HMCLCore.\n\nThe app borrows and quotes some codes of PojavLauncher and Boat, so if you are going to distribute this app, please follow GPL-v3 License.</string>
 
     <string name="account_add_server">Add Authentication Server</string>
     <string name="account_add_server_url">Server URL</string>
@@ -140,7 +140,7 @@
     <string name="button_right" translatable="false">▶</string>
 
     <string name="community">Community</string>
-    <string name="community_hint">Notice: This launcher is an unofficial internal version. Please do not provide feedback on issues related to this version in the official community!\n\nThere isn't any community for this version currently. If you have any questions, please send a private message to the provider.</string>
+    <string name="community_hint">Join our community to get latest version, report bugs, etc. Please follow the community rules if you join.</string>
     <string name="community_discord" translatable="false">Discord</string>
     <string name="community_qq">Unofficial QQ-Group</string>
 
@@ -315,6 +315,7 @@
     <string name="edit_button_event_auto_click">Keep Clicking</string>
     <string name="edit_button_event_open_menu">Open Menu</string>
     <string name="edit_button_event_touch_mode">Switch Gesture Mode</string>
+    <string name="edit_button_event_mouse_mode">Switch Mouse Mode</string>
     <string name="edit_button_event_input">Input</string>
     <string name="edit_button_event_quick_input">Open Quick Input Dialog</string>
     <string name="edit_button_event_output_text">Send Text</string>

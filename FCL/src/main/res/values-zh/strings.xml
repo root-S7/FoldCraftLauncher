@@ -3,7 +3,7 @@
     <string name="splash_permission_msg">没有存储权限，请授予 Fold Craft Launcher 权限。</string>
 
     <string name="splash_title">欢迎使用 Fold Craft Launcher</string>
-    <string name="splash_eula_error">无法获取用户协议，请检查网络。\n请在浏览器中打开 https://github.com/hyplant/FoldCraftLauncher/tree/doc/eula 并根据启动器版本查看用户协议文件！\n</string>
+    <string name="splash_eula_error">无法获取用户协议，请检查网络。\n无法获取用户协议，请检查网络。\n无法获取用户协议，请检查网络。</string>
     <string name="splash_eula_next">同意并继续</string>
     <string name="splash_runtime_title">安装或更新运行环境</string>
     <string name="splash_runtime_install">安装 / 更新</string>
@@ -22,9 +22,9 @@
     <string name="about">关于</string>
     <string name="official_website">官网</string>
     <string name="about_developer">作者</string>
-    <string name="about_sponsor">反馈</string>
+    <string name="about_sponsor">赞助</string>
     <string name="about_source">开源</string>
-    <string name="about_desc">关于\n    经过修改的 FCL，仅限内部使用，请勿对外传播。\n    该版本 FCL，由 Hyplant 基于 root-S7 的服务器直装版 FCL 修改而成。\n    该版本内置了一个整合包，同时对一些默认选项进行了调整。\n    为使这些默认影响生效，你需要按照以下步骤进行安装。\n\n整合包安装指导\n    1. 安装 apk 并打开应用，授予存储空间权限，部分手机需要进入应用程序信息，授予 com.tungsten.fcl.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION 权限。\n    2. 阅读并同意下方的用户协议。\n    3. 在安装运行库界面点击安装，等待安装完成。\n    4. 此时立即进入最近任务界面，强制关闭 FCL。\n    5. 再次打开 FCL，变成白色（夜间模式为黑色）背景，灰色主题说明成功。\n      【否则请进入应用程序信息，清除数据后重复上方步骤。】\n    6. 现在已经配置完成，可以正常使用。\n\n使用本软件即代表你同意：\n    官方版 FCL 用户协议\n    root-S7 的服务器直装版 FCL 用户协议\n    Minecraft: Java Edition 用户协议\n    Minecraft forge 用户协议\n    该整合包中包含的模组的用户协议\n    多人游戏提供方要求的用户协议（若使用多人游戏）\n    皮肤站要求的用户协议（若使用皮肤站）\n\n注意：\n    本整合包中提供的客户端未经授权，仅供体验！\n    建议用户在体验后自觉于24小时内删除，并前往官网购买正版后再下载正版。\n    如果因未授权客户端等原因造成问题，由用户自行承担，本启动器作者及上游项目相关人员的人员不负责。\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n关于原版：\nFold Craft Launcher 是一个 Android Minecraft 启动器，让用户能够在 Android 设备上启动 Minecraft: Java Edition。\n\nFold Craft Launcher 由 FCL-Team 开发。\n\nFold Craft Launcher 的主要功能是基于 HMCLCore 修改而成的。\n\n该应用借鉴和引用了一些 PojavLauncher 和 Boat 的源码，所以如果你要传播分发该软件，请遵循 GPL-v3 协议。\n</string>
+    <string name="about_desc">Fold Craft Launcher 是一个 Android Minecraft 启动器，让用户能够在 Android 设备上启动 Minecraft: Java Edition。\n\nFold Craft Launcher 由 FCL-Team 开发。\n\nFold Craft Launcher 的主要功能是基于 HMCLCore 修改而成的。\n\n该应用借鉴和引用了一些 PojavLauncher 和 Boat 的源码，所以如果你要传播分发该软件，请遵循 GPL-v3 协议。</string>
 
     <string name="account_add_server">添加认证服务器</string>
     <string name="account_add_server_url">服务器地址</string>
@@ -120,7 +120,7 @@
     <string name="button_reset">重置</string>
 
     <string name="community">社区</string>
-    <string name="community_hint">注：该启动器为内部版本，非官方分支，请勿在官方社区内反馈该版本相关的问题！\n\n该版本目前没有交流社区，如有疑问请私信软件提供者进行反馈。</string>
+    <string name="community_hint">加入社区以获取最新版本，反馈 bug 等。如果你要加入社区，请遵守社区规定。\n注：该启动器为服务器直装版，非官方分支！</string>
     <string name="community_qq">非官方QQ 群</string>
 
     <string name="control_create">创建新布局</string>
@@ -294,6 +294,7 @@
     <string name="edit_button_event_auto_click">自动点击</string>
     <string name="edit_button_event_open_menu">打开菜单</string>
     <string name="edit_button_event_touch_mode">切换触控手势模式</string>
+    <string name="edit_button_event_mouse_mode">切换鼠标控制模式</string>
     <string name="edit_button_event_input">呼出输入法</string>
     <string name="edit_button_event_quick_input">打开快捷输入</string>
     <string name="edit_button_event_output_text">发送文本</string>
