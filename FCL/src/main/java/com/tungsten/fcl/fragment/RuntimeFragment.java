@@ -15,9 +15,8 @@ import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fcllibrary.component.FCLFragment;
 import com.tungsten.fcllibrary.component.view.*;
-import com.tungsten.fcllibrary.util.LocaleUtils;
+
 import java.io.*;
-import java.util.*;
 
 public class RuntimeFragment extends FCLFragment implements View.OnClickListener {
 
@@ -348,7 +347,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 }
                 RuntimeUtils.reloadConfiguration(getContext());
                 RuntimeUtils.copyAssetsDirToLocalDir(getContext(), "others/background", FCLPath.BACKGROUND_DIR);
-                new ParseAuthlibInjectorServerFile(this,"authlib-injector-server.json").parseFileAndConvert();
+                new ParseAuthlibInjectorServerFile(this, "others/authlib-injector-server.json").parseFileAndConvert();
                 editor.putString("game_others_version", ReadTools.convertToString(getContext(), "others/version"));
                 others = true;
                 if (getActivity() != null) {
