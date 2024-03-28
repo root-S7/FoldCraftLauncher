@@ -16,6 +16,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -59,7 +60,7 @@ public class RuntimeUtils {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void copyAssets(Context context, String src, String dest) throws IOException {
         String[] fileNames = context.getAssets().list(src);
-        if (fileNames.length > 0) {
+        if(fileNames.length > 0) {
             File file = new File(dest);
             if (!file.exists())
                 file.mkdirs();
@@ -70,13 +71,13 @@ public class RuntimeUtils {
                     copyAssets(context, fileName, dest + File.separator + fileName);
                 }
             }
-        } else {
+        }else {
             File outFile = new File(dest);
             InputStream is = context.getAssets().open(src);
             FileOutputStream fos = new FileOutputStream(outFile);
             byte[] buffer = new byte[1024];
             int byteCount;
-            while ((byteCount = is.read(buffer)) != -1) {
+            while((byteCount = is.read(buffer)) != -1) {
                 fos.write(buffer, 0, byteCount);
             }
             fos.flush();
@@ -98,7 +99,7 @@ public class RuntimeUtils {
                 }
             } else {// 如果是文件
                 InputStream is = context.getAssets().open(assetsPath);
-                FileOutputStream fos = new FileOutputStream(new File(savePath));
+                FileOutputStream fos = new FileOutputStream(savePath);
                 byte[] buffer = new byte[1024];
                 int byteCount = 0;
                 // 循环从输入流读取
@@ -111,8 +112,8 @@ public class RuntimeUtils {
                 is.close();
                 fos.close();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }catch(Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -131,8 +132,8 @@ public class RuntimeUtils {
             fos.flush();
             is.close();
             fos.close();
-        }catch(IOException e){
-            e.printStackTrace();
+        }catch(IOException e) {
+            throw new RuntimeException(e);
         }
     }
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -140,32 +141,32 @@ public class RuntimeUtils {
         dest.mkdirs();
         TarArchiveInputStream tarIn = new TarArchiveInputStream(new XZCompressorInputStream(tarFileInputStream));
         TarArchiveEntry tarEntry = tarIn.getNextTarEntry();
-        while (tarEntry != null) {
-            if (tarEntry.getSize() <= 20480) {
+        while(tarEntry != null) {
+            if(tarEntry.getSize() <= 20480) {
                 try {
                     Thread.sleep(25);
-                } catch (InterruptedException ignored) {
+                }catch(InterruptedException ignored) {
 
                 }
             }
             File destPath = new File(dest, tarEntry.getName());
-            if (tarEntry.isSymbolicLink()) {
+            if(tarEntry.isSymbolicLink()) {
                 Objects.requireNonNull(destPath.getParentFile()).mkdirs();
-                try {
+                try{
                     Os.symlink(tarEntry.getLinkName().replace("..", dest.getAbsolutePath()), new File(dest, tarEntry.getName()).getAbsolutePath());
-                } catch (Throwable e) {
+                }catch(Throwable e) {
                     Logging.LOG.log(Level.WARNING, e.getMessage());
                 }
-            } else if (tarEntry.isDirectory()) {
+            }else if(tarEntry.isDirectory()) {
                 destPath.mkdirs();
                 destPath.setExecutable(true);
-            } else if (!destPath.exists() || destPath.length() != tarEntry.getSize()) {
+            }else if(!destPath.exists() || destPath.length() != tarEntry.getSize()) {
                 Objects.requireNonNull(destPath.getParentFile()).mkdirs();
                 destPath.createNewFile();
                 FileOutputStream os = new FileOutputStream(destPath);
                 byte[] buffer = new byte[1024];
                 int byteCount;
-                while ((byteCount = tarIn.read(buffer)) != -1) {
+                while((byteCount = tarIn.read(buffer)) != -1) {
                     os.write(buffer, 0, byteCount);
                 }
                 os.close();
@@ -179,14 +180,13 @@ public class RuntimeUtils {
     public static void patchJava(Context context, String javaPath) throws IOException {
         Pack200Utils.unpack(context.getApplicationInfo().nativeLibraryDir, javaPath);
         File dest = new File(javaPath);
-        if(!dest.exists())
-            return;
+        if(!dest.exists()) return;
         String libFolder = FCLauncher.getJreLibDir(javaPath);
         File ftIn = new File(dest, libFolder + "/libfreetype.so.6");
         File ftOut = new File(dest, libFolder + "/libfreetype.so");
-        if (ftIn.exists() && (!ftOut.exists() || ftIn.length() != ftOut.length())) {
-            ftIn.renameTo(ftOut);
-        }
+
+        if (ftIn.exists() && (!ftOut.exists() || ftIn.length() != ftOut.length())) ftIn.renameTo(ftOut);
+
         File fileLib = new File(dest, "/" + libFolder + "/libawt_xawt.so");
         fileLib.delete();
         FileUtils.copyFile(new File(context.getApplicationInfo().nativeLibraryDir, "libawt_xawt.so"), fileLib);
@@ -199,13 +199,13 @@ public class RuntimeUtils {
     **/
     public static boolean delete(String filePath) {
         File file = new File(filePath);
-        if (!file.exists()) {
+        if(!file.exists()) {
             return false;
-        } else {
-            if (file.isFile()) {
+        }else {
+            if(file.isFile()) {
                 // 为文件时调用删除文件方法
                 return deleteFile(filePath);
-            } else {
+            }else {
                 // 为目录时调用删除目录方法
                 return deleteDirectory(filePath);
             }
@@ -219,9 +219,7 @@ public class RuntimeUtils {
     **/
     private static boolean deleteFile(String filePath) {
         File file = new File(filePath);
-        if (file.isFile() && file.exists()) {
-            return file.delete();
-        }
+        if(file.isFile() && file.exists()) return file.delete();
         return false;
     }
 
@@ -233,29 +231,27 @@ public class RuntimeUtils {
     private static boolean deleteDirectory(String path){
         boolean flag = false;
         //如果filePath不以文件分隔符结尾，自动添加文件分隔符
-        if (!path.endsWith(File.separator)) {
-            path = path + File.separator;
-        }
+        if(!path.endsWith(File.separator)) path = path + File.separator;
+
         File dirFile = new File(path);
-        if (!dirFile.exists() || !dirFile.isDirectory()) {
-            return false;
-        }
+        if(!dirFile.exists() || !dirFile.isDirectory()) return false;
+
         flag = true;
         //统计path的根目录下有多少个文件夹和文件总和
         File[] files = dirFile.listFiles();
         //遍历删除文件夹下的所有文件(包括子目录)
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isFile()) {
+        for(File file : files) {
+            if(file.isFile()) {
                 //删除子文件
-                flag = deleteFile(files[i].getAbsolutePath());
-                if (!flag) break;
-            } else {
+                flag = deleteFile(file.getAbsolutePath());
+                if(!flag) break;
+            }else {
                 //删除子目录[递归]
-                flag = deleteDirectory(files[i].getAbsolutePath());
-                if (!flag) break;
+                flag = deleteDirectory(file.getAbsolutePath());
+                if(!flag) break;
             }
         }
-        if (!flag) return false;
+        if(!flag) return false;
         //删除当前空目录
         return dirFile.delete();
     }
@@ -287,15 +283,10 @@ public class RuntimeUtils {
             }
             List<ForkJoinTask<Long>> jobs = new ArrayList<>();
             for(File f : files) {
-                if(!f.isDirectory()) {
-                    size.addAndGet(f.length());
-                } else {
-                    jobs.add(new CalDirCommand(f));
-                }
+                if(!f.isDirectory()) size.addAndGet(f.length());
+                else jobs.add(new CalDirCommand(f));
             }
-            for(ForkJoinTask<Long> t : invokeAll(jobs)) {
-                size.addAndGet(t.join());
-            }
+            for(ForkJoinTask<Long> t : invokeAll(jobs)) size.addAndGet(t.join());
             return size.get();
         }
     }
@@ -306,20 +297,19 @@ public class RuntimeUtils {
     public static void copyFile(String srcPath,String destPath){
         File src = new File(srcPath);
         File dest = new File(destPath);
+
         try {
-            InputStream inputStream = new BufferedInputStream(new FileInputStream(src));
-            OutputStream outputStream = new BufferedOutputStream(new FileOutputStream(dest));
+            InputStream inputStream = new BufferedInputStream(Files.newInputStream(src.toPath()));
+            OutputStream outputStream = new BufferedOutputStream(Files.newOutputStream(dest.toPath()));
             byte[] flush = new byte[1024];
             int len = -1;
-            while ((len = inputStream.read(flush)) != -1){
-                outputStream.write(flush,0,len);
-            }
+            while ((len = inputStream.read(flush)) != -1) outputStream.write(flush,0,len);
+
             outputStream.flush();
             outputStream.close();
             inputStream.close();
-        }
-        catch (Exception e){
-            e.printStackTrace();
+        }catch(Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -358,14 +348,10 @@ public class RuntimeUtils {
 
 
             // 重新写入新文件
-            try {
-                RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
-                RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
-            }catch(IOException e) {
-                e.printStackTrace();
-            }
-        }catch(JsonSyntaxException | JsonIOException ignored) {
-            ignored.printStackTrace();
+            RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
+            RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
+        }catch (JsonSyntaxException | JsonIOException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -373,7 +359,7 @@ public class RuntimeUtils {
         try {
             Paths.get(str);
             return true;
-        } catch (InvalidPathException e) {
+        }catch(InvalidPathException e) {
             return false;
         }
     }
