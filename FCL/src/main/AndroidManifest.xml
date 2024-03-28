@@ -42,7 +42,6 @@
         android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission
         android:name="android.permission.RECORD_AUDIO" />
-
     <application
         android:name=".FCLApplication"
         android:allowBackup="true"
@@ -57,7 +56,6 @@
         android:supportsRtl="true"
         android:largeHeap="true"
         android:usesCleartextTraffic="true"
-        android:hasFragileUserData="true"
         android:isGame="true"
         android:appCategory="game"
         android:theme="@style/Theme.FoldCraftLauncher"
@@ -70,7 +68,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -121,10 +118,7 @@
             android:authorities="@string/file_browser_provider"
             android:exported="false"
             android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/provider_paths"/>
         </provider>
     </application>
-
 </manifest>
