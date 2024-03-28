@@ -323,10 +323,6 @@ public class RuntimeUtils {
         }
     }
 
-<<<<<<< HEAD
-    public static void reloadConfiguration(Context context){
-           
-=======
     public static void reloadConfiguration(Context context) {
         try {
             // 先删除旧文件
