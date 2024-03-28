@@ -6,7 +6,7 @@
     <string name="splash_permission_msg">No storage permission, please grant Fold Craft Launcher the permission.</string>
 
     <string name="splash_title">Welcome to Fold Craft Launcher</string>
-    <string name="splash_eula_error">Cannot get EULA, please check the network.\nPlease open https://github.com/hyplant/FoldCraftLauncher/tree/doc/eula in your browser and view the EULA file according to your launcher version!\n</string>
+    <string name="splash_eula_error">Cannot get EULA, please check the network.\nPlease open  in your browser and view the EULA file according to your launcher version!\n</string>
     <string name="splash_eula_next">Agree and Continue</string>
     <string name="splash_runtime_title">Install or update app runtime</string>
     <string name="splash_runtime_lwjgl" translatable="false">LWJGL</string>
