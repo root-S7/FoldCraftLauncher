@@ -3,7 +3,7 @@
     <string name="splash_permission_msg">没有存储权限，请授予 Fold Craft Launcher 权限。</string>
 
     <string name="splash_title">欢迎使用 Fold Craft Launcher</string>
-    <string name="splash_eula_error">无法获取用户协议，请检查网络。\n请在浏览器中打开 https://github.com/hyplant/FoldCraftLauncher/tree/doc/eula 并根据启动器版本查看用户协议文件！\n</string>
+    <string name="splash_eula_error">无法获取用户协议，请检查网络。\n请在浏览器中打开  并根据启动器版本查看用户协议文件！\n</string>
     <string name="splash_eula_next">同意并继续</string>
     <string name="splash_runtime_title">安装或更新运行环境</string>
     <string name="splash_runtime_install">安装 / 更新</string>
