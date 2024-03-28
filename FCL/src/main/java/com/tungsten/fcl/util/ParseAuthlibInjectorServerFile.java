@@ -107,35 +107,27 @@ public class ParseAuthlibInjectorServerFile {
     private void addToFile(JsonArray jsonArray) {
         File file = new File(FCLPath.FILES_DIR + "/config.json");
 
-        if(!file.exists()) {
-            try {
-                FileOutputStream outputStream = new FileOutputStream(file);
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add("authlibInjectorServers",jsonArray);
 
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.add("authlibInjectorServers",jsonArray);
-
-                outputStream.write(jsonObject.toString().getBytes());
-                outputStream.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }else {
+        if(file.exists()) {
             try {
                 JsonParser parser = new JsonParser();
-                JsonObject asJsonObject1 = parser.parse(new FileReader(file)).getAsJsonObject();
-                asJsonObject1.add("authlibInjectorServers", jsonArray);
-                // 创建 BufferedWriter 实例
-                BufferedWriter writer = new BufferedWriter(new FileWriter(file, false));
-
-                // 将更新后的 JSON 对象写入文件
-                writer.write(asJsonObject1.toString());
-
-                // 关闭 BufferedWriter
-                writer.close();
+                jsonObject = parser.parse(new FileReader(file)).getAsJsonObject();
+                jsonObject.add("authlibInjectorServers", jsonArray);
             }catch(IOException | IllegalStateException | JsonIOException | JsonSyntaxException e) {
                 RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
                 addToFile(jsonArray);
             }
+        }
+
+        try {
+            FileOutputStream outputStream = new FileOutputStream(file);
+
+            outputStream.write(jsonObject.toString().getBytes());
+            outputStream.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

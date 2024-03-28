@@ -65,7 +65,7 @@ public class FCLPath {
         BACKGROUND_DIR = FILES_DIR + "/background";
         CONTROLLER_DIR = SHARED_COMMON_DIR + "/control";
 
-        FCLPath.SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server") + "/.minecraft";
+        SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server") + "/.minecraft";
         PRIVATE_COMMON_DIR = context.getExternalFilesDir(".minecraft").getAbsolutePath();
 
         AUTHLIB_INJECTOR_PATH = PLUGIN_DIR + "/authlib-injector.jar";
@@ -89,8 +89,8 @@ public class FCLPath {
         init(PLUGIN_DIR);
         init(BACKGROUND_DIR);
         init(CONTROLLER_DIR);
-        init(PRIVATE_COMMON_DIR);
-        init(SHARED_COMMON_DIR);
+        //init(PRIVATE_COMMON_DIR);
+        //init(SHARED_COMMON_DIR);
     }
 
     private static boolean init(String path) {

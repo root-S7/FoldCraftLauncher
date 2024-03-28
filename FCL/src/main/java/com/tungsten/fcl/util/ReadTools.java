@@ -3,11 +3,14 @@ package com.tungsten.fcl.util;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
+import android.content.res.AssetManager;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 
 public class ReadTools {
 
@@ -62,6 +65,16 @@ public class ReadTools {
             return convertToString(context.getAssets().open(assetsFile)).trim();
         } catch (IOException e) {
             return ("Error: " + e.getMessage()).trim();
+        }
+    }
+
+    public static Reader getAssetReader(Context context, String fileName) {
+        AssetManager assetManager = context.getAssets();
+        try {
+            InputStream inputStream = assetManager.open(fileName);
+            return new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+        }catch(IOException e) {
+            return null;
         }
     }
 }
