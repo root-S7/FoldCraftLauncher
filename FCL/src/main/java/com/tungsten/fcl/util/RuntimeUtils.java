@@ -3,7 +3,8 @@ package com.tungsten.fcl.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.system.Os;
-
+import com.google.gson.*;
+import com.tungsten.fcl.R;
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.utils.Architecture;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -11,27 +12,16 @@ import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.Pack200Utils;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
-
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveTask;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 
@@ -333,22 +323,79 @@ public class RuntimeUtils {
         }
     }
 
+<<<<<<< HEAD
     public static void reloadConfiguration(Context context){
+           
+=======
+    public static void reloadConfiguration(Context context) {
         try {
-            //先删除旧文件
+            // 先删除旧文件
             RuntimeUtils.delete(FCLPath.FILES_DIR + "/menu_setting.json");
             RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
             RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
             RuntimeUtils.delete(FCLPath.FILES_DIR + "/background");
             RuntimeUtils.delete(FCLPath.FILES_DIR + "/../shared_prefs/theme.xml");
-            //再写入新文件
+            // 在这里解压背景图片
             RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR);
-            RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
-            RuntimeUtils.copyAssets(context, "others/config.json", FCLPath.FILES_DIR + "/config.json");
-            RuntimeUtils.copyAssets(context, "others/global_config.json", FCLPath.FILES_DIR + "/global_config.json");
-            RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
+        catch (IOException e){
+            e.printStackTrace();
+        }
+
+        try {
+            Gson gson = new Gson();
+            JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
+            JsonObject configurations = jsonObject.getAsJsonObject("configurations");
+
+            // 若不存在gameDir属性值有问题则添加一个
+            for(String key : configurations.keySet()) {
+                JsonObject config = configurations.getAsJsonObject(key);
+
+                if(!config.has("gameDir") || !isPath(config.get("gameDir").getAsString()) || !new File(config.get("gameDir").getAsString()).canWrite() || !new File(config.get("gameDir").getAsString()).canRead()) {
+                    if(key.equals(context.getString(R.string.profile_private))) config.addProperty("gameDir", FCLPath.PRIVATE_COMMON_DIR);
+                    else config.addProperty("gameDir", FCLPath.SHARED_COMMON_DIR);
+                }
+
+            }
+
+            // 将修改后的 "configurations" 字段与原始 JSON 字符串中的其他字段合并
+            JsonObject mergedJsonObject = new JsonObject();
+            for (String key : jsonObject.keySet()) {
+                if (!key.equals("configurations")) {
+                    mergedJsonObject.add(key, jsonObject.get(key));
+                } else {
+                    mergedJsonObject.add("configurations", jsonObject.getAsJsonObject("configurations"));
+                }
+            }
+
+            // 重新写入新文件
+            try {
+                RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
+                RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
+                RuntimeUtils.copyAssets(context, "others/global_config.json", FCLPath.FILES_DIR + "/global_config.json");
+                // 最后解压一遍需要强制覆盖的设置
+                RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..");
+            }catch(IOException e) {
+                e.printStackTrace();
+            }
+        }catch(JsonSyntaxException | JsonIOException ignored) {
+            ignored.printStackTrace();
+        }
+    }
+
+    public static boolean isPath(String str) {
+        try {
+            Paths.get(str);
+            return true;
+        } catch (InvalidPathException e) {
+            return false;
+        }
+    }
+
+    public static void writeStringToFile(String path,String fileName, String content) throws IOException {
+        File file = new File(path, fileName);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        writer.write(content);
+        writer.close();
     }
 }
