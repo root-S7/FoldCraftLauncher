@@ -324,16 +324,16 @@ public class RuntimeUtils {
     }
 
     public static void reloadConfiguration(Context context) {
-        // 先删除旧文件
-        RuntimeUtils.delete(FCLPath.FILES_DIR + "/menu_setting.json");
-        RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
-        RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
-        RuntimeUtils.delete(FCLPath.FILES_DIR + "/background");
-        RuntimeUtils.delete(FCLPath.FILES_DIR + "/../shared_prefs/theme.xml");
-        // 在这里解压背景图片
-        RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR);
-
         try {
+            // 先删除旧文件
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/menu_setting.json");
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/background");
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/../shared_prefs/theme.xml");
+            // 在这里解压背景图片
+            RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR);
+
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
             JsonObject configurations = jsonObject.getAsJsonObject("configurations");
@@ -358,18 +358,18 @@ public class RuntimeUtils {
                     mergedJsonObject.add("configurations", jsonObject.getAsJsonObject("configurations"));
                 }
             }
-
             // 重新写入新文件
                 RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
+
+            // 然后解压其他配置文件
+            RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
+            RuntimeUtils.copyAssets(context, "others/global_config.json", FCLPath.FILES_DIR + "/global_config.json");
+            // 最后解压一遍需要强制覆盖的设置
+            RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..");
+
         }catch(Exception ignored) {
             ignored.printStackTrace();
         }
-
-        // 然后解压其他配置文件
-        RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
-        RuntimeUtils.copyAssets(context, "others/global_config.json", FCLPath.FILES_DIR + "/global_config.json");
-        // 最后解压一遍需要强制覆盖的设置
-        RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..");
     }
 
     public static boolean isPath(String str) {
