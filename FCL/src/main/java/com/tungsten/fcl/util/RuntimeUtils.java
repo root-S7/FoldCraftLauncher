@@ -365,15 +365,11 @@ public class RuntimeUtils {
             }
 
             // 重新写入新文件
-            try {
                 RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
                 RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
                 RuntimeUtils.copyAssets(context, "others/global_config.json", FCLPath.FILES_DIR + "/global_config.json");
                 // 最后解压一遍需要强制覆盖的设置
                 RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..");
-            }catch(IOException e) {
-                e.printStackTrace();
-            }
         }catch(JsonSyntaxException | JsonIOException ignored) {
             ignored.printStackTrace();
         }
