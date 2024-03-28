@@ -2,6 +2,8 @@ package com.tungsten.fclauncher.utils;
 
 import android.content.Context;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class PropertiesFileParse {
@@ -22,7 +24,7 @@ public class PropertiesFileParse {
     public PropertiesFileParse(String propertiesFile) {
         properties = new Properties();
         try {
-            in = new BufferedInputStream(new FileInputStream(propertiesFile));
+            in = new BufferedInputStream(Files.newInputStream(Paths.get(propertiesFile)));
             properties.load(in);
         } catch (IOException e) {
             throw new RuntimeException(e);

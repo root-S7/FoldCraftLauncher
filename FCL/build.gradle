@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 plugins {
     id 'com.android.application'
     id "org.hidetake.ssh" version "2.11.2"
@@ -9,7 +12,7 @@ android {
 
 
     Properties properties = new Properties()
-    properties.load(new FileInputStream("${rootDir}/local.properties"))
+    properties.load(Files.newInputStream(Paths.get("${rootDir}/local.properties")))
 
     signingConfigs {
         DebugKey {
