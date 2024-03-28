@@ -361,7 +361,7 @@ public class RuntimeUtils {
 
             // 重新写入新文件
                 RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
-        }catch(JsonSyntaxException | JsonIOException ignored) {
+        }catch(Exception ignored) {
             ignored.printStackTrace();
         }
 
