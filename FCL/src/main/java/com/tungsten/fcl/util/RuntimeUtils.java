@@ -1,7 +1,10 @@
 package com.tungsten.fcl.util;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Environment;
 import android.system.Os;
 import com.google.gson.*;
 import com.tungsten.fcl.R;
@@ -22,6 +25,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
@@ -314,11 +318,14 @@ public class RuntimeUtils {
     }
 
     public static void reloadConfiguration(Context context) {
-        //先删除旧文件
+        // 先删除旧文件
         RuntimeUtils.delete(FCLPath.FILES_DIR + "/menu_setting.json");
         RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
         RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
-
+        // 删除launcher.xml需要更新字段
+        SharedPreferences.Editor editor = context.getSharedPreferences("launcher", MODE_PRIVATE).edit();
+        editor.remove("this_game_resources_directory");
+        editor.apply();
 
         try {
             Gson gson = new Gson();
@@ -369,5 +376,28 @@ public class RuntimeUtils {
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(content);
         writer.close();
+    }
+
+    public static String getApplicationThisGameDirectory(final Context context) {
+        SharedPreferences launcher = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
+        String launcherFileThisGameDirectory = launcher.getString("this_game_resources_directory", null);
+        if(launcherFileThisGameDirectory != null && isPath(launcherFileThisGameDirectory)) return launcherFileThisGameDirectory;
+
+        JsonObject configJsonObject;
+
+        try {
+            if(new File(FCLPath.FILES_DIR + "/config.json").exists()) {
+                Gson gson = new Gson();
+                configJsonObject = gson.fromJson(ReadTools.convertToString(Files.newInputStream(Paths.get(FCLPath.FILES_DIR + "/config.json"))), JsonObject.class);
+            }else {
+                Gson gson = new Gson();
+                configJsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
+            }
+        }catch(JsonSyntaxException | JsonIOException | IOException e) {
+            return FCLPath.SHARED_COMMON_DIR;
+        }
+
+        if(configJsonObject.get("last").getAsString() == null || configJsonObject.get("last").getAsString().isEmpty()) return FCLPath.SHARED_COMMON_DIR;
+        else return configJsonObject.get("last").getAsString().equals(context.getString(R.string.profile_private)) ? FCLPath.PRIVATE_COMMON_DIR : FCLPath.SHARED_COMMON_DIR;
     }
 }

@@ -323,10 +323,13 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             gamePackagesState.setVisibility(View.GONE);
             gamePackagesProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
-                RuntimeUtils.delete(FCLPath.SHARED_COMMON_DIR);
-                RuntimeUtils.copyAssetsDirToLocalDir(getContext(), ".minecraft", FCLPath.SHARED_COMMON_DIR);
+                RuntimeUtils.reloadConfiguration(getContext());
+                String applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(getContext());
+                RuntimeUtils.delete(applicationThisGameDirectory);
+                RuntimeUtils.copyAssetsDirToLocalDir(getContext(), ".minecraft", applicationThisGameDirectory);
                 gamePackages = true;
                 editor.putString("game_packages_version", ReadTools.convertToString(getContext(), ".minecraft/version"));
+                editor.putString("this_game_resources_directory", applicationThisGameDirectory);
                 editor.putBoolean("is_first_game_packages", false);
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
@@ -345,7 +348,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","false"))){
                     RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
                 }
-                RuntimeUtils.reloadConfiguration(getContext());
                 RuntimeUtils.copyAssetsDirToLocalDir(getContext(), "others/background", FCLPath.BACKGROUND_DIR);
                 new ParseAuthlibInjectorServerFile(this, "others/authlib-injector-server.json").parseFileAndConvert();
                 editor.putString("game_others_version", ReadTools.convertToString(getContext(), "others/version"));

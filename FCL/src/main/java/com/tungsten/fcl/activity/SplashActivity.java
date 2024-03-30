@@ -51,6 +51,8 @@ public class SplashActivity extends FCLActivity {
         background.setBackground(ThemeEngine.getInstance().getTheme().getBackground(this));
 
         checkPermission();
+
+        System.gc();
     }
 
     private void checkPermission() {
