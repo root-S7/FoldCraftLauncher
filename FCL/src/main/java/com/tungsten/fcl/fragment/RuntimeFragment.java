@@ -323,14 +323,14 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             gamePackagesState.setVisibility(View.GONE);
             gamePackagesProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
-                RuntimeUtils.reloadConfiguration(getContext());
                 String applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(getContext());
                 RuntimeUtils.delete(applicationThisGameDirectory);
                 RuntimeUtils.copyAssetsDirToLocalDir(getContext(), ".minecraft", applicationThisGameDirectory);
-                gamePackages = true;
                 editor.putString("game_packages_version", ReadTools.convertToString(getContext(), ".minecraft/version"));
                 editor.putString("this_game_resources_directory", applicationThisGameDirectory);
                 editor.putBoolean("is_first_game_packages", false);
+                RuntimeUtils.reloadConfiguration(getContext());
+                gamePackages = true;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {
                         gamePackagesState.setVisibility(View.VISIBLE);
@@ -350,7 +350,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 }
                 editor.putString("game_others_version", ReadTools.convertToString(getContext(), "others/version"));
                 RuntimeUtils.reloadConfiguration(getContext());
-                new ParseAuthlibInjectorServerFile(this, "others/authlib-injector-server.json").parseFileAndConvert();
                 others = true;
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(() -> {

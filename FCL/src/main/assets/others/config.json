@@ -1,4 +1,9 @@
 {
+  "authlibInjectorServers": [
+    {
+      "url": "https://littleskin.cn/api/yggdrasil/"
+    }
+  ],
   "configurations": {
     "公有目录": {
       "global": {
