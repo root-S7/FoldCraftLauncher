@@ -322,12 +322,14 @@ public class RuntimeUtils {
         RuntimeUtils.delete(FCLPath.FILES_DIR + "/menu_setting.json");
         RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
         RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
+
         // 删除launcher.xml需要更新字段
         SharedPreferences.Editor editor = context.getSharedPreferences("launcher", MODE_PRIVATE).edit();
         editor.remove("this_game_resources_directory");
         editor.apply();
 
         try {
+            // 读取config.json配置文件并解析
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
             JsonObject configurations = jsonObject.getAsJsonObject("configurations");
@@ -380,6 +382,8 @@ public class RuntimeUtils {
 
     public static String getApplicationThisGameDirectory(final Context context) {
         SharedPreferences launcher = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
+        SharedPreferences.Editor edit = launcher.edit();
+
         String launcherFileThisGameDirectory = launcher.getString("this_game_resources_directory", null);
         if(launcherFileThisGameDirectory != null && isPath(launcherFileThisGameDirectory)) return launcherFileThisGameDirectory;
 
@@ -394,10 +398,17 @@ public class RuntimeUtils {
                 configJsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
             }
         }catch(JsonSyntaxException | JsonIOException | IOException e) {
+            edit.putString("this_game_resources_directory", FCLPath.SHARED_COMMON_DIR);
+            edit.apply();
             return FCLPath.SHARED_COMMON_DIR;
         }
 
-        if(configJsonObject.get("last").getAsString() == null || configJsonObject.get("last").getAsString().isEmpty()) return FCLPath.SHARED_COMMON_DIR;
-        else return configJsonObject.get("last").getAsString().equals(context.getString(R.string.profile_private)) ? FCLPath.PRIVATE_COMMON_DIR : FCLPath.SHARED_COMMON_DIR;
+        JsonElement lastElement = configJsonObject.get("last");
+        String lastValue = lastElement != null && !lastElement.isJsonNull() ? lastElement.getAsString() : null;
+        String s = lastValue != null && lastValue.equals(context.getString(R.string.profile_private)) ? FCLPath.PRIVATE_COMMON_DIR : FCLPath.SHARED_COMMON_DIR;
+        edit.putString("this_game_resources_directory", s);
+        edit.apply();
+
+        return s;
     }
 }

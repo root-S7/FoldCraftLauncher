@@ -15,7 +15,6 @@ import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fcllibrary.component.FCLFragment;
 import com.tungsten.fcllibrary.component.view.*;
-
 import java.io.*;
 
 public class RuntimeFragment extends FCLFragment implements View.OnClickListener {
@@ -323,10 +322,23 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             gamePackagesState.setVisibility(View.GONE);
             gamePackagesProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
-                RuntimeUtils.reloadConfiguration(getContext());
                 String applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(getContext());
+                // 删除原目录游戏数据[若在配置文件内修改了公有目录存放位置]
                 RuntimeUtils.delete(applicationThisGameDirectory);
+
+                // 重载配置文件
+                RuntimeUtils.reloadConfiguration(getContext());
+
+                // 重新获取新的游戏目录
+                applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(getContext());
+
+                // 对新的目录中若有残留文件则先删除
+                RuntimeUtils.delete(applicationThisGameDirectory);
+
+                // 在将安装包assets中游戏资源释放到对应目录中
                 RuntimeUtils.copyAssetsDirToLocalDir(getContext(), ".minecraft", applicationThisGameDirectory);
+
+                //设置完成标志
                 gamePackages = true;
                 editor.putString("game_packages_version", ReadTools.convertToString(getContext(), ".minecraft/version"));
                 editor.putString("this_game_resources_directory", applicationThisGameDirectory);

@@ -1,10 +1,9 @@
 package com.tungsten.fcl;
 
 import android.app.*;
-import android.content.SharedPreferences;
+import android.content.*;
 import android.os.*;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.annotation.*;
 import com.tungsten.fcl.util.DeviceInfoUtils;
 import com.tungsten.fclauncher.utils.*;
 import java.lang.ref.WeakReference;
@@ -15,6 +14,7 @@ public class FCLApplication extends Application implements Application.ActivityL
     private static WeakReference<Activity> currentActivity;
     public static Properties appConfig;
     public static DeviceInfoUtils deviceInfoUtils;
+    private static SharedPreferences sharedPreferences;
 
     @Override
     public void onCreate() {
@@ -29,6 +29,7 @@ public class FCLApplication extends Application implements Application.ActivityL
         **/
         appConfig = new PropertiesFileParse("config.properties", getApplicationContext()).getProperties();
         deviceInfoUtils = new DeviceInfoUtils(this);
+        sharedPreferences = getApplicationContext().getSharedPreferences("launcher", Context.MODE_PRIVATE);
         FCLPath.loadPaths(this);
 
         this.registerActivityLifecycleCallbacks(this);
@@ -36,6 +37,10 @@ public class FCLApplication extends Application implements Application.ActivityL
 
     public static Activity getCurrentActivity() {
         return currentActivity.get();
+    }
+
+    public static SharedPreferences getSharedPreferences() {
+        return sharedPreferences;
     }
 
     private void enabledStrictMode() {
