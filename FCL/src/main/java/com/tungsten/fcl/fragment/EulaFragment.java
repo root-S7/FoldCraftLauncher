@@ -28,7 +28,7 @@ import java.io.IOException;
 
 public class EulaFragment extends FCLFragment implements View.OnClickListener {
 
-    public static final String EULA_URL = FCLApplication.appConfig.getProperty("eula-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.1.4.3/eula.txt");
+    public static final String EULA_URL = FCLApplication.appConfig.getProperty("eula-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.1.6/eula.txt");
 
     private FCLProgressBar progressBar;
     private FCLTextView eula;
