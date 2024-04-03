@@ -390,13 +390,10 @@ public class RuntimeUtils {
         JsonObject configJsonObject;
 
         try {
-            if(new File(FCLPath.FILES_DIR + "/config.json").exists()) {
-                Gson gson = new Gson();
-                configJsonObject = gson.fromJson(ReadTools.convertToString(Files.newInputStream(Paths.get(FCLPath.FILES_DIR + "/config.json"))), JsonObject.class);
-            }else {
-                Gson gson = new Gson();
-                configJsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
-            }
+            Gson gson = new Gson();
+
+            if(new File(FCLPath.FILES_DIR + "/config.json").exists()) configJsonObject = gson.fromJson(ReadTools.convertToString(Files.newInputStream(Paths.get(FCLPath.FILES_DIR + "/config.json"))), JsonObject.class);
+            else configJsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
         }catch(JsonSyntaxException | JsonIOException | IOException e) {
             edit.putString("this_game_resources_directory", FCLPath.SHARED_COMMON_DIR);
             edit.apply();
