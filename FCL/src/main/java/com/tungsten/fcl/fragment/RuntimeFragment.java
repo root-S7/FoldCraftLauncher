@@ -1,7 +1,6 @@
 package com.tungsten.fcl.fragment;
 
 import static android.content.Context.MODE_PRIVATE;
-import android.content.Context;
 import android.annotation.*;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
@@ -327,7 +326,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                 // 删除原目录游戏数据[若在配置文件内修改了公有目录存放位置]
                 RuntimeUtils.delete(applicationThisGameDirectory);
                 // 删除launcher.xml需要更新字段
-                SharedPreferences.Editor editor = context.getSharedPreferences("launcher", MODE_PRIVATE).edit();
                 editor.remove("this_game_resources_directory");
                 editor.apply();
                 // 重新获取新的游戏目录
