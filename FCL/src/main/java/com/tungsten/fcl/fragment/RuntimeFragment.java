@@ -1,6 +1,7 @@
 package com.tungsten.fcl.fragment;
 
 import static android.content.Context.MODE_PRIVATE;
+import android.content.Context;
 import android.annotation.*;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
