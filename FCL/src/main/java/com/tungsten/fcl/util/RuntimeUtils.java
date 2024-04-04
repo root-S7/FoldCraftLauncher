@@ -335,12 +335,7 @@ public class RuntimeUtils {
             RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
             RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
             RuntimeUtils.delete(FCLPath.FILES_DIR + "/background");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/../shared_prefs/theme.xml");
-            // 删除launcher.xml需要更新字段
-            SharedPreferences.Editor editor = context.getSharedPreferences("launcher", MODE_PRIVATE).edit();
-            editor.remove("this_game_resources_directory");
-            editor.apply();
-
+            RuntimeUtils.delete(FCLPath.FILES_DIR + "/../shared_prefs");
             // 在这里解压背景图片
             RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR);
 
