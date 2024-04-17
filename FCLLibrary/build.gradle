@@ -21,7 +21,7 @@ android {
         }
         fordebug {
             initWith debug
-            resValue 'string', 'file_browser_provider', 'com.mojang.minecraftpe.debug.provider'
+            resValue 'string', 'file_browser_provider', 'com.primatelabs.geekbench6.debug.provider'
         }
     }
     compileOptions {
