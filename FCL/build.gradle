@@ -40,6 +40,11 @@ android {
         debug {
             initWith debug
             signingConfig signingConfigs.DebugKey
+            jniDebuggable true
+            renderscriptDebuggable true
+            debuggable true
+            minifyEnabled false
+            multiDexEnabled true
         }
         configureEach {
             resValue "string", "app_version", "${defaultConfig.versionName}"

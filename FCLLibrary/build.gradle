@@ -17,6 +17,11 @@ android {
         debug {
             initWith debug
             resValue 'string', 'file_browser_provider', 'com.tungsten.fcl.debug.provider'
+            jniDebuggable true
+            renderscriptDebuggable true
+            debuggable true
+            multiDexEnabled true
+            minifyEnabled false
         }
     }
     compileOptions {

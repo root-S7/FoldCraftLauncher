@@ -14,8 +14,13 @@ android {
     }
 
     buildTypes {
-        fordebug {
+        debug {
             initWith debug
+            jniDebuggable true
+            renderscriptDebuggable true
+            debuggable true
+            minifyEnabled false
+            multiDexEnabled true
         }
     }
     compileOptions {
