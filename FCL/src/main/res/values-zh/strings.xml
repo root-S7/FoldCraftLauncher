@@ -16,12 +16,7 @@
     <string name="multiplayer">多人联机</string>
     <string name="setting">全局设置</string>
 
-    <string name="splash_runtime_game_packages" translatable="true">游戏客户端数据</string>
-    <string name="splash_runtime_others" translatable="true">其它</string>
-
     <string name="about">关于</string>
-    <string name="official_website">官网</string>
-    <string name="about_developer">作者</string>
     <string name="about_sponsor">赞助</string>
     <string name="about_source">开源</string>
     <string name="about_desc">Fold Craft Launcher 是一个 Android Minecraft 启动器，让用户能够在 Android 设备上启动 Minecraft: Java Edition。\n\nFold Craft Launcher 由 FCL-Team 开发。\n\nFold Craft Launcher 的主要功能是基于 HMCLCore 修改而成的。\n\n该应用借鉴和引用了一些 PojavLauncher 和 Boat 的源码，所以如果你要传播分发该软件，请遵循 GPL-v3 协议。</string>
@@ -718,7 +713,7 @@
     <string name="settings_fcl_controller_injector">基岩版触控手势</string>
     <string name="settings_fcl_renderer">渲染器</string>
     <string name="settings_fcl_renderer_angle">ANGLE (OpenGL 4.6, 仅支持 1.17及以上版本)</string>
-    <string name="settings_fcl_renderer_vgpu" >VGPU (OpenGL 2.1+, 仅支持 1.7-1.13.2)</string>
+    <string name="settings_fcl_renderer_vgpu" >VGPU (OpenGL 2.1+, 仅支持 1.7–1.13.2)</string>
 
     <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, 仅支持GPU a616-a660)</string>
     <string name="settings_game">游戏设置</string>
