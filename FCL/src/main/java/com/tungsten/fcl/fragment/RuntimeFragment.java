@@ -1,30 +1,21 @@
 package com.tungsten.fcl.fragment;
 
-import android.annotation.SuppressLint;
-import android.graphics.Color;
+import static android.content.Context.MODE_PRIVATE;
+import android.annotation.*;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-import com.tungsten.fcl.R;
+import android.view.*;
+import android.widget.ProgressBar;
+import androidx.annotation.*;
+import com.tungsten.fcl.*;
 import com.tungsten.fcl.activity.SplashActivity;
-import com.tungsten.fcl.util.RuntimeUtils;
+import com.tungsten.fcl.util.*;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fcllibrary.component.FCLFragment;
-import com.tungsten.fcllibrary.component.view.FCLProgressBar;
-import com.tungsten.fcllibrary.util.LocaleUtils;
-import com.tungsten.fcllibrary.component.view.FCLButton;
-import com.tungsten.fcllibrary.component.view.FCLImageView;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Locale;
+import com.tungsten.fcllibrary.component.view.*;
+import java.io.*;
 
 public class RuntimeFragment extends FCLFragment implements View.OnClickListener {
 
@@ -36,6 +27,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
     boolean java11 = false;
     boolean java17 = false;
     boolean java21 = false;
+    boolean gamePackages = false;
+    boolean others = false;
 
     private FCLProgressBar lwjglProgress;
     private FCLProgressBar cacioProgress;
@@ -45,6 +38,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
     private FCLProgressBar java11Progress;
     private FCLProgressBar java17Progress;
     private FCLProgressBar java21Progress;
+    private ProgressBar gamePackagesProgress;
+    private ProgressBar othersProgress;
 
     private FCLImageView lwjglState;
     private FCLImageView cacioState;
@@ -54,12 +49,20 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
     private FCLImageView java11State;
     private FCLImageView java17State;
     private FCLImageView java21State;
+    private FCLImageView gamePackagesState;
+    private FCLImageView othersState;
 
     private FCLButton install;
+
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        sharedPreferences = getActivity().getSharedPreferences("launcher", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
         View view = inflater.inflate(R.layout.fragment_runtime, container, false);
 
         lwjglProgress = findViewById(view, R.id.lwjgl_progress);
@@ -70,6 +73,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
         java11Progress = findViewById(view, R.id.java11_progress);
         java17Progress = findViewById(view, R.id.java17_progress);
         java21Progress = findViewById(view, R.id.java21_progress);
+        gamePackagesProgress = findViewById(view, R.id.game_packages_progress);
+        othersProgress = findViewById(view, R.id.others_progress);
 
         lwjglState = findViewById(view, R.id.lwjgl_state);
         cacioState = findViewById(view, R.id.cacio_state);
@@ -79,6 +84,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
         java11State = findViewById(view, R.id.java11_state);
         java17State = findViewById(view, R.id.java17_state);
         java21State = findViewById(view, R.id.java21_state);
+        gamePackagesState = findViewById(view, R.id.game_packages_state);
+        othersState = findViewById(view, R.id.others_state);
 
         initState();
 
@@ -102,6 +109,8 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             java11 = RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11");
             java17 = RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17");
             java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21");
+            gamePackages = RuntimeUtils.isLatest(sharedPreferences, "game_packages_version", "版本异常", "/assets/.minecraft") && !sharedPreferences.getBoolean("is_first_game_packages",true);
+            others = RuntimeUtils.isLatest(sharedPreferences, "game_others_version", "版本异常", "/assets/others") && gamePackages;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -112,9 +121,6 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             @SuppressLint("UseCompatLoadingForDrawables") Drawable stateUpdate = getContext().getDrawable(R.drawable.ic_baseline_update_24);
             @SuppressLint("UseCompatLoadingForDrawables") Drawable stateDone = getContext().getDrawable(R.drawable.ic_baseline_done_24);
 
-            stateUpdate.setTint(Color.GRAY);
-            stateDone.setTint(Color.GRAY);
-
             lwjglState.setBackgroundDrawable(lwjgl ? stateDone : stateUpdate);
             cacioState.setBackgroundDrawable(cacio ? stateDone : stateUpdate);
             cacio11State.setBackgroundDrawable(cacio11 ? stateDone : stateUpdate);
@@ -123,16 +129,20 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             java11State.setBackgroundDrawable(java11 ? stateDone : stateUpdate);
             java17State.setBackgroundDrawable(java17 ? stateDone : stateUpdate);
             java21State.setBackgroundDrawable(java21 ? stateDone : stateUpdate);
+            gamePackagesState.setBackgroundDrawable(gamePackages ? stateDone : stateUpdate);
+            othersState.setBackgroundDrawable(others ? stateDone : stateUpdate);
         }
     }
 
     private boolean isLatest() {
-        return lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21;
+        return lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && gamePackages && others;
     }
 
     private void check() {
         if (isLatest()) {
             if (getActivity() != null) {
+                editor.apply();
+
                 ((SplashActivity) getActivity()).enterLauncher();
             }
         }
@@ -251,11 +261,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_11_PATH, "app_runtime/java/jre11");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
-                    }
+                    FileUtils.writeText(new File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","223.5.5.5") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"));
                     java11 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -276,11 +282,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_17_PATH, "app_runtime/java/jre17");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
-                    }
+                    FileUtils.writeText(new File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","223.5.5.5") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"));
                     java17 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -301,11 +303,7 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             new Thread(() -> {
                 try {
                     RuntimeUtils.installJava(getContext(), FCLPath.JAVA_21_PATH, "app_runtime/java/jre21");
-                    if (!LocaleUtils.getSystemLocale().getDisplayName().equals(Locale.CHINA.getDisplayName())) {
-                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 1.1.1.1\n" + "nameserver 1.0.0.1");
-                    } else {
-                        FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 8.8.8.8\n" + "nameserver 8.8.4.4");
-                    }
+                    FileUtils.writeText(new File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","223.5.5.5") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"));
                     java21 = true;
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -314,6 +312,62 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
                     getActivity().runOnUiThread(() -> {
                         java21State.setVisibility(View.VISIBLE);
                         java21Progress.setVisibility(View.GONE);
+                        refreshDrawables();
+                        check();
+                    });
+                }
+            }).start();
+        }
+        if (!gamePackages) {
+            gamePackagesState.setVisibility(View.GONE);
+            gamePackagesProgress.setVisibility(View.VISIBLE);
+            new Thread(() -> {
+                String applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(getContext());
+                // 删除原目录游戏数据[若在配置文件内修改了公有目录存放位置]
+                RuntimeUtils.delete(applicationThisGameDirectory);
+
+                // 重载配置文件
+                RuntimeUtils.reloadConfiguration(getContext());
+
+                // 重新获取新的游戏目录
+                applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(getContext());
+
+                // 对新的目录中若有残留文件则先删除
+                RuntimeUtils.delete(applicationThisGameDirectory);
+
+                // 在将安装包assets中游戏资源释放到对应目录中
+                RuntimeUtils.copyAssetsDirToLocalDir(getContext(), ".minecraft", applicationThisGameDirectory);
+
+                //设置完成标志
+                gamePackages = true;
+                editor.putString("game_packages_version", ReadTools.convertToString(getContext(), ".minecraft/version"));
+                editor.putString("this_game_resources_directory", applicationThisGameDirectory);
+                editor.putBoolean("is_first_game_packages", false);
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        gamePackagesState.setVisibility(View.VISIBLE);
+                        gamePackagesProgress.setVisibility(View.GONE);
+                        refreshDrawables();
+                        check();
+                    });
+                }
+            }).start();
+        }
+        if (!others) {
+            othersState.setVisibility(View.GONE);
+            othersProgress.setVisibility(View.VISIBLE);
+            new Thread(() -> {
+                if("false".equals(FCLApplication.appConfig.getProperty("download-authlib-injector-online","false"))){
+                    RuntimeUtils.copyAssetsFileToLocalDir(getContext(), "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar");
+                }
+                RuntimeUtils.copyAssetsDirToLocalDir(getContext(), "others/background", FCLPath.BACKGROUND_DIR);
+                new ParseAuthlibInjectorServerFile(this, "others/authlib-injector-server.json").parseFileAndConvert();
+                editor.putString("game_others_version", ReadTools.convertToString(getContext(), "others/version"));
+                others = true;
+                if (getActivity() != null) {
+                    getActivity().runOnUiThread(() -> {
+                        othersState.setVisibility(View.VISIBLE);
+                        othersProgress.setVisibility(View.GONE);
                         refreshDrawables();
                         check();
                     });
