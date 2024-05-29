@@ -40,8 +40,8 @@ android {
         applicationId "com.primatelabs.geekbench6"
         minSdk 26
         targetSdk 34
-        versionCode 1160
-        versionName "1.1.6"
+        versionCode 1162
+        versionName "1.1.6.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
