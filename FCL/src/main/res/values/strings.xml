@@ -26,7 +26,7 @@
     <string name="controller">Controller</string>
     <string name="multiplayer">Multiplayer</string>
     <string name="setting">Setting</string>
-    
+
     <string name="about">About</string>
     <string name="about_launcher" translatable="false">Fold Craft Launcher</string>
     <string name="about_developer" translatable="false">FCL-Team</string>
@@ -138,7 +138,7 @@
     <string name="community">Community</string>
     <string name="community_hint">Join our community to get latest version, report bugs, etc. Please follow the community rules if you join.</string>
     <string name="community_discord" translatable="false">Discord</string>
-    <string name="community_qq">QQ-Group</string>
+    <string name="community_qq">Unofficial QQ-Group</string>
 
     <string name="control_create">Create Controller</string>
     <string name="control_delete">Are you sure to delete this controller?</string>

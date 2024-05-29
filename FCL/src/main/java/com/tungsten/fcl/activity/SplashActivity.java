@@ -51,6 +51,8 @@ public class SplashActivity extends FCLActivity {
         background.setBackground(ThemeEngine.getInstance().getTheme().getBackground(this));
 
         checkPermission();
+
+        System.gc();
     }
 
     private void checkPermission() {
@@ -104,7 +106,7 @@ public class SplashActivity extends FCLActivity {
 
     public void start() {
         SharedPreferences sharedPreferences = getSharedPreferences("launcher", MODE_PRIVATE);
-        if (sharedPreferences.getBoolean("isFirstLaunch", true)) {
+        if (sharedPreferences.getBoolean("is_first_launch", true)) {
             getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim).replace(R.id.fragment, eulaFragment).commit();
         }
         else {
