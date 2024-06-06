@@ -8,7 +8,7 @@ jobs:
   DebugBuild:
     strategy:
       matrix:
-        # arch: [ "all", "arm", "arm64", "x86", "x64" ]
+        # arch: [ "all", "arm", "arm64", "x86", "x86_64" ]
         arch: [ "all" ]
       fail-fast: false
     env:
