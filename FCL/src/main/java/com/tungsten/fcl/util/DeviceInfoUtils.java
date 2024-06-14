@@ -6,6 +6,8 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+
+import com.jaredrummler.android.device.DeviceName;
 import com.tungsten.fcl.BuildConfig;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,26 +32,13 @@ public class DeviceInfoUtils{
     }
 
     public void readDeviceInfo() throws IOException {
-        map.put("Device-Name", Build.MANUFACTURER.substring(0, 1).toUpperCase() + Build.MANUFACTURER.substring(1) + "(" + Build.MODEL + ")");
+        map.put("Device-Name", DeviceName.getDeviceName());
 
         map.put("Android-Version", "Android " + Build.VERSION.RELEASE);
 
         map.put("Launcher-Version", BuildConfig.VERSION_NAME);
 
-        try{
-            InputStream inputStream = Runtime.getRuntime().exec("cat /proc/cpuinfo").getInputStream();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-            String line;
-            while((line = bufferedReader.readLine()) != null)
-                if(line.contains("Hardware")){
-                    map.put("SOC-Information", line.split(":")[1].trim());
-                    break;
-                }
-            bufferedReader.close();
-            inputStream.close();
-        }catch(IOException e){
-            e.printStackTrace();
-        }
+        map.put("SOC-Information", Build.HARDWARE);
 
         ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
         ((ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryInfo(memoryInfo);
