@@ -13,11 +13,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
-
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.game.JarExecutorHelper;
 import com.tungsten.fcl.game.TexturesLoader;
@@ -56,7 +55,6 @@ import com.tungsten.fcllibrary.component.view.FCLMenuView;
 import com.tungsten.fcllibrary.component.view.FCLTextView;
 import com.tungsten.fcllibrary.component.view.FCLUILayout;
 import com.tungsten.fcllibrary.util.ConvertUtils;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +68,7 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
 
     public ConstraintLayout background;
     public FCLDynamicIsland titleView;
+    public FCLTextView onlineAnnouncement;
 
     private UIManager uiManager;
     public FCLUILayout uiLayout;
@@ -225,10 +224,14 @@ public class MainActivity extends FCLActivity implements FCLMenuView.OnSelectLis
                 setupAccountDisplay();
                 setupVersionDisplay();
 
-                UpdateChecker.getInstance().checkAuto(this).start();
+                if(FCLApplication.appConfig.getProperty("check-update","true").equals("true")){
+                    UpdateChecker.getInstance().checkAuto(this).start();
+                }
             });
         });
     }
+
+
 
     public Runnable backToMainUI = () -> {
         if (uiManager.getCurrentUI() == uiManager.getMainUI()) {

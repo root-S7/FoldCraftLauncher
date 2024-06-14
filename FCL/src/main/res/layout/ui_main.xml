@@ -7,7 +7,7 @@
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@+id/announcement_container"
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -33,6 +33,7 @@
                 android:singleLine="true"
                 android:text="@string/announcement"
                 android:padding="10dp"
+                android:textSize="20sp"
                 android:layout_gravity="center"
                 app:auto_text_tint="true"/>
 
@@ -48,6 +49,7 @@
 
                 <com.tungsten.fcllibrary.component.view.FCLTextView
                     android:padding="10dp"
+                    android:textSize="16.5sp"
                     android:id="@+id/announcement"
                     android:autoLink="web"
                     android:layout_width="match_parent"
@@ -79,7 +81,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="@string/button_hide"
-            app:ripple="true"/>
+            app:ripple="true"
+            android:visibility="invisible"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
