@@ -18,6 +18,7 @@
 package com.tungsten.fcl.game;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.util.RuntimeUtils;
@@ -176,6 +177,7 @@ public final class FCLGameLauncher extends DefaultLauncher {
     @Override
     public FCLBridge launch() throws IOException, InterruptedException {
         FileUtils.deleteDirectoryQuietly(new File("/data/user_de/0/com.tungsten.fcl/code_cache"));
+        FileUtils.deleteDirectoryQuietly(new File(String.valueOf(context.getCacheDir()).replaceAll("cache","code_cache")));
         generateOptionsTxt();
         // Sodium
         modifyIfConfigDetected("sodium-mixins.properties", "", "mixin.features.chunk_rendering=false", false, FCLConfig.Renderer.RENDERER_GL4ES, FCLConfig.Renderer.RENDERER_VGPU);

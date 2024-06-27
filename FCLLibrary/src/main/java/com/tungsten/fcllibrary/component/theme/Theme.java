@@ -70,7 +70,7 @@ public class Theme {
     }
 
     public int getAutoHintTint() {
-        return ColorUtils.calculateLuminance(getColor()) >= 0.5 ? Color.parseColor("#99000000") : Color.parseColor("#99FFFFFF");
+        return ColorUtils.calculateLuminance(getColor()) >= 0.5 ? Color.parseColor("#99000000") : Color.parseColor("#99686767");
     }
 
     public boolean isFullscreen() {
@@ -160,8 +160,8 @@ public class Theme {
     public static Theme getTheme(Context context) {
         SharedPreferences sharedPreferences;
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
-        int color = sharedPreferences.getInt("theme_color", Color.parseColor("#7797CF"));
-        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", false);
+        int color = sharedPreferences.getInt("theme_color", Color.parseColor("#6D7DBF"));
+        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", true);
         int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
         Bitmap lt = !new File(context.getFilesDir().getAbsolutePath() + "/background/lt.png").exists() ? ConvertUtils.getBitmapFromRes(context, R.drawable.background_light) : BitmapFactory.decodeFile(context.getFilesDir().getAbsolutePath() + "/background/lt.png");
         BitmapDrawable backgroundLt = new BitmapDrawable(lt);

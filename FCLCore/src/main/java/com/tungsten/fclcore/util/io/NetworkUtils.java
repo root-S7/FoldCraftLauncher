@@ -24,6 +24,7 @@ import static com.tungsten.fclcore.util.StringUtils.substringAfterLast;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -190,6 +191,23 @@ public final class NetworkUtils {
         HttpURLConnection con = createHttpConnection(url);
         con = resolveConnection(con);
         return IOUtils.readFullyAsString(con.getInputStream());
+    }
+
+    public static String doGet(URL url,String agent) throws IOException {
+        StringBuilder content = new StringBuilder();
+
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestProperty("User-Agent", agent);
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            content.append(line).append("\n");
+        }
+        reader.close();
+
+        return content.toString();
     }
 
     public static String doPost(URL u, Map<String, String> params) throws IOException {

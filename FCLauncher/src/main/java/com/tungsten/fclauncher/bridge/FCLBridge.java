@@ -229,7 +229,7 @@ public class FCLBridge implements Serializable {
                     uri = Uri.parse(targetLink);
                 } else {
                     //can`t get authority by R.string.file_browser_provider
-                    uri = FileProvider.getUriForFile(context, "com.tungsten.fcl.provider", new File(targetLink));
+                    uri = FileProvider.getUriForFile(context, "com.ludashi.benchmark2.provider", new File(targetLink));
                 }
                 intent.setDataAndType(uri, "*/*");
                 context.startActivity(intent);
