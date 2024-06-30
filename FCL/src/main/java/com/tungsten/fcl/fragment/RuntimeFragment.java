@@ -323,6 +323,9 @@ public class RuntimeFragment extends FCLFragment implements View.OnClickListener
             gamePackagesProgress.setVisibility(View.VISIBLE);
             new Thread(() -> {
                 String applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(getContext());
+                // 删除旧按键数据
+                RuntimeUtils.delete(FCLPath.SHARED_COMMON_DIR);
+
                 // 删除原目录游戏数据[若在配置文件内修改了公有目录存放位置]
                 RuntimeUtils.delete(applicationThisGameDirectory);
                 // 删除launcher.xml需要更新字段
