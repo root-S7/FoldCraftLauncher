@@ -1,5 +1,6 @@
 package com.tungsten.fclcore.fakefx;
 
+import java.nio.file.Files;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.io.File;
@@ -179,7 +180,7 @@ public class PlatformUtil {
     private static void loadPropertiesFromFile(final File file) {
         Properties p = new Properties();
         try {
-            InputStream in = new FileInputStream(file);
+            InputStream in = Files.newInputStream(file.toPath());
             p.load(in);
             in.close();
         } catch (IOException e) {
