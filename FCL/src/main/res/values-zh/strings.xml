@@ -8,7 +8,7 @@
     <string name="splash_permission_settings_msg">您已选择永不授权，请在设置中手动授予存储权限。</string>
 
     <string name="splash_title">欢迎使用 Fold Craft Launcher</string>
-    <string name="splash_eula_error">无法获取用户协议，请检查网络。</string>
+    <string name="splash_eula_error">无法获取用户协议，请检查网络。\n无法获取用户协议，请检查网络。\n无法获取用户协议，请检查网络。</string>
     <string name="splash_eula_next">同意并继续</string>
     <string name="splash_runtime_title">安装或更新运行环境</string>
     <string name="splash_runtime_install">安装 / 更新</string>
@@ -120,8 +120,8 @@
     <string name="button_reset">重置</string>
 
     <string name="community">社区</string>
-    <string name="community_hint">加入社区以获取最新版本，反馈 bug 等。如果你要加入社区，请遵守社区规定。\n注：由于 QQ 群聊人数有限，加入 QQ 群需先赞助10元或以上金额，赞助方式见关于页面。</string>
-    <string name="community_qq">QQ 群</string>
+    <string name="community_hint">加入社区以获取最新版本，反馈 bug 等。如果你要加入社区，请遵守社区规定。\n注：该启动器为服务器直装版，非官方分支！</string>
+    <string name="community_qq">非官方QQ 群</string>
 
     <string name="control_create">创建新布局</string>
     <string name="control_delete">你确定要删除该布局吗？</string>
@@ -718,8 +718,8 @@
     <string name="settings_fcl_controller_injector">基岩版触控手势</string>
     <string name="settings_fcl_vulkan_driver_system">允许Zink使用系统Vulkan驱动</string>
     <string name="settings_fcl_renderer">渲染器</string>
-    <string name="settings_fcl_renderer_angle">ANGLE (OpenGL 4.6, 仅支持 1.17+)</string>
-    <string name="settings_fcl_renderer_vgpu" >VGPU (OpenGL 2.1+, 仅支持 1.17-)</string>
+    <string name="settings_fcl_renderer_angle">ANGLE (OpenGL 4.6, 仅支持 1.17及以上版本)</string>
+    <string name="settings_fcl_renderer_vgpu" >VGPU (OpenGL 2.1+, 仅支持 1.7–1.13.2)</string>
 
     <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, 仅支持GPU a616-a660)</string>
     <string name="settings_game">游戏设置</string>
