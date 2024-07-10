@@ -52,6 +52,7 @@
                     android:textSize="16.5sp"
                     android:id="@+id/announcement"
                     android:autoLink="web"
+                    android:textColorLink="#77FF00"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:auto_text_tint="true"/>
