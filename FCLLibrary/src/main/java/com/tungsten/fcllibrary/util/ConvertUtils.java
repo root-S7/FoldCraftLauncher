@@ -66,7 +66,7 @@ public class ConvertUtils {
     public static void saveBitmapSilently(Bitmap bitmap, String path) {
         try {
             saveBitmap(bitmap, path);
-        } catch (IOException e) {
+        }catch(IOException e) {
             e.printStackTrace();
         }
     }

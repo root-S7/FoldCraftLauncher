@@ -281,20 +281,20 @@ public class ModpackFileSelectionPage extends FCLTempPage implements View.OnClic
                                 exportInfo.getDescription(),
                                 null,
                                 exportInfo.getJavaArguments(),
-                                false,
+                                true,
                                 854,
                                 480,
                                 vs.getMaxMemory(),
                                 exportInfo.getMinMemory(),
                                 false,
-                                /* showConsoleOnError */ true,
-                                /* autoCloseConsole */ false,
-                                /* overrideMemory */ true,
-                                /* overrideJavaLocation */ false,
-                                /* overrideJavaArgs */ true,
-                                /* overrideConsole */ true,
-                                /* overrideCommands */ true,
-                                /* overrideWindow */ true
+                                true,
+                                false,
+                                true,
+                                false,
+                                true,
+                                true,
+                                true,
+                                true
                         ), modpackFile);
             }
 
