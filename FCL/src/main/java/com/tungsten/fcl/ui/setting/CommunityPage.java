@@ -38,7 +38,7 @@ public class CommunityPage extends FCLCommonPage implements View.OnClickListener
     @Override
     public void onClick(View v) {
         if (v == discord) {
-            Uri uri = Uri.parse(FCLApplication.appConfig.getProperty("discord","https://icraft.ren:90/titles/Discord"));
+            Uri uri = Uri.parse(FCLApplication.appConfig.getProperty("discord","https://icraft.asia:90/titles/Discord"));
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             getContext().startActivity(intent);
         }
