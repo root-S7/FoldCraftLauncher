@@ -21,7 +21,7 @@ android {
         }
         fordebug {
             initWith debug
-            resValue 'string', 'file_browser_provider', 'com.tungsten.fcl.debug.provider'
+            resValue 'string', 'file_browser_provider', 'com.miHoYo.hkrpg.debug.provider'
         }
     }
     compileOptions {

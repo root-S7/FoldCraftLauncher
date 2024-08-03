@@ -4,8 +4,10 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
+import java.util.Properties;
 
 public class FCLPath {
+    private static Properties APP_CONFIG_PROPERTIES;
 
     public static Context CONTEXT;
 
@@ -30,7 +32,7 @@ public class FCLPath {
     public static String CONTROLLER_DIR;
 
     public static String PRIVATE_COMMON_DIR;
-    public static String SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FCL/.minecraft";
+    public static String SHARED_COMMON_DIR;
 
     public static String AUTHLIB_INJECTOR_PATH;
     public static String MULTIPLAYER_FIX_PATH;
@@ -39,11 +41,13 @@ public class FCLPath {
     public static String DK_BACKGROUND_PATH;
 
     public static void loadPaths(Context context) {
+        APP_CONFIG_PROPERTIES = new PropertiesFileParse("config.properties", context).getProperties();
+
         CONTEXT = context;
 
         NATIVE_LIB_DIR = context.getApplicationInfo().nativeLibraryDir;
 
-        LOG_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FCL/log";
+        LOG_DIR = SHARED_COMMON_DIR + "/temp/log";
         CACHE_DIR = context.getCacheDir() + "/fclauncher";
 
         RUNTIME_DIR = context.getDir("runtime", 0).getAbsolutePath();
@@ -59,8 +63,9 @@ public class FCLPath {
         FILES_DIR = context.getFilesDir().getAbsolutePath();
         PLUGIN_DIR = FILES_DIR + "/plugins";
         BACKGROUND_DIR = FILES_DIR + "/background";
-        CONTROLLER_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FCL/control";
+        CONTROLLER_DIR = SHARED_COMMON_DIR + "/control";
 
+        SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server") + "/.minecraft";
         PRIVATE_COMMON_DIR = context.getExternalFilesDir(".minecraft").getAbsolutePath();
 
         AUTHLIB_INJECTOR_PATH = PLUGIN_DIR + "/authlib-injector.jar";
@@ -84,8 +89,8 @@ public class FCLPath {
         init(PLUGIN_DIR);
         init(BACKGROUND_DIR);
         init(CONTROLLER_DIR);
-        init(PRIVATE_COMMON_DIR);
-        init(SHARED_COMMON_DIR);
+        //init(PRIVATE_COMMON_DIR);
+        //init(SHARED_COMMON_DIR);
     }
 
     private static boolean init(String path) {

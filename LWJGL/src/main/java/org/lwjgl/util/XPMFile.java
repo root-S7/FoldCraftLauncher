@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
@@ -84,7 +85,7 @@ public class XPMFile {
 	 *             If any IO exceptions occurs while reading file
 	 */
 	public static XPMFile load(String file) throws IOException {
-		return load(new FileInputStream(new File(file)));
+		return load(Files.newInputStream(new File(file).toPath()));
 	}
 
 	/**
@@ -259,8 +260,7 @@ public class XPMFile {
 		try {
 			String out = args[0].substring(0, args[0].indexOf(".")) + ".raw";
 			XPMFile file = XPMFile.load(args[0]);
-			BufferedOutputStream bos = new BufferedOutputStream(
-					new FileOutputStream(new File(out)));
+			BufferedOutputStream bos = new BufferedOutputStream(Files.newOutputStream(new File(out).toPath()));
 			bos.write(file.getBytes());
 			bos.close();
 
