@@ -136,7 +136,6 @@ public class DefaultLauncher extends Launcher {
         res.addDefault("-Dwindow.width=", options.getWidth() + "");
         res.addDefault("-Dwindow.height=", options.getHeight() + "");
         res.addDefault("-Duser.home=", options.getGameDir().getAbsolutePath());
-        res.addDefault("-Djna.boot.library.path=", context.getApplicationInfo().nativeLibraryDir);
         res.addDefault("-Dorg.lwjgl.vulkan.libname=", "libvulkan.so");
         File libJna = new File(FCLPath.RUNTIME_DIR, "jna");
         res.addDefault("-Djna.boot.library.path=", libJna.exists() ? libJna.getAbsolutePath() : context.getApplicationInfo().nativeLibraryDir);
