@@ -286,7 +286,7 @@ public final class VersionSetting implements Cloneable {
         beGestureProperty.set(beGesture);
     }
 
-    private final BooleanProperty VKDriverSystemProperty = new SimpleBooleanProperty(this, "vulkanDriverSystem", true);
+    private final BooleanProperty VKDriverSystemProperty = new SimpleBooleanProperty(this, "vulkanDriverSystem", false);
 
     public BooleanProperty VKDriverSystemProperty() {
         return VKDriverSystemProperty;
