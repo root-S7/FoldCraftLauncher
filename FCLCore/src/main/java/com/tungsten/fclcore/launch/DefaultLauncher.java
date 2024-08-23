@@ -47,6 +47,7 @@ import com.tungsten.fclcore.util.versioning.VersionNumber;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Supplier;
@@ -376,7 +377,7 @@ public class DefaultLauncher extends Launcher {
             source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.12.xml");
         }
 
-        try (InputStream input = source; OutputStream output = new FileOutputStream(targetFile)) {
+        try (InputStream input = source; OutputStream output = Files.newOutputStream(targetFile.toPath())) {
             IOUtils.copyTo(input, output);
         }
     }
