@@ -40,8 +40,8 @@ android {
         applicationId "com.miHoYo.hkrpg"
         minSdk 26
         targetSdk 34
-        versionCode 1175
-        versionName "1.1.7.5"
+        versionCode 1176
+        versionName "1.1.7.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
