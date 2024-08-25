@@ -1,5 +1,8 @@
 package com.tungsten.fcl.control;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -413,7 +416,10 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
                 int screenHeight = AndroidUtils.getScreenHeight(FCLApplication.getCurrentActivity());
                 if (fclBridge != null) {
                     fclBridge.setScaleFactor(doubleValue);
-                    fclBridge.getSurfaceTexture().setDefaultBufferSize((int) (screenWidth * doubleValue), (int) (screenHeight * doubleValue));
+                    int width = (int) (screenWidth * doubleValue);
+                    int height = (int) (screenHeight * doubleValue);
+                    fclBridge.getSurfaceTexture().setDefaultBufferSize(width, height);
+                    fclBridge.pushEventWindow(width, height);
                 }
             }
         };
@@ -552,6 +558,12 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         initRightMenu();
 
         viewManager.setup();
+
+        if (new File(FCLPath.FILES_DIR, "cursor.png").exists()) {
+            Bitmap bitmap = BitmapFactory.decodeFile(new File(FCLPath.FILES_DIR, "cursor.png").getAbsolutePath());
+            BitmapDrawable drawable = new BitmapDrawable(getActivity().getResources(), bitmap);
+            getCursor().setImageDrawable(drawable);
+        }
     }
 
     @Override

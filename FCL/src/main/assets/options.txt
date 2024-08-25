@@ -5,6 +5,7 @@ renderDistance:2
 simulationDistance:5
 ao:0
 maxFps:260
+guiScale:4
 gamma:1.0
 renderClouds:fast
 particles:1
