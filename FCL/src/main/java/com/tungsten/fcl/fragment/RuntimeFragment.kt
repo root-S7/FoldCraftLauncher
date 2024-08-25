@@ -1,22 +1,23 @@
 package com.tungsten.fcl.fragment
 
-import android.annotation.SuppressLint
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.content.res.AppCompatResources
+import com.tungsten.fcl.FCLApplication
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.SplashActivity
 import com.tungsten.fcl.databinding.FragmentRuntimeBinding
+import com.tungsten.fcl.util.ParseAuthlibInjectorServerFile
+import com.tungsten.fcl.util.ReadTools
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.util.io.FileUtils
 import com.tungsten.fcllibrary.component.FCLFragment
-import com.tungsten.fcllibrary.component.view.FCLButton
-import com.tungsten.fcllibrary.component.view.FCLImageView
-import com.tungsten.fcllibrary.component.view.FCLProgressBar
 import com.tungsten.fcllibrary.util.LocaleUtils
 import java.io.File
 import java.io.IOException
@@ -33,12 +34,18 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     var java17: Boolean = false
     var java21: Boolean = false
     var jna: Boolean = false
+    var gameResource = false
+    var other = false
+    lateinit var sharedPreferences: SharedPreferences
+    lateinit var editor: SharedPreferences.Editor
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        sharedPreferences = requireActivity().getSharedPreferences("launcher", Context.MODE_PRIVATE)
+        editor = sharedPreferences.edit()
         val view = inflater.inflate(R.layout.fragment_runtime, container, false)
         bind = FragmentRuntimeBinding.bind(view)
         initState()
@@ -68,6 +75,9 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             java17 = RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
             java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
             jna = RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
+            gameResource = RuntimeUtils.isLatest(sharedPreferences, "game_resources_version", "版本异常", "/assets/.minecraft") && !sharedPreferences.getBoolean("is_first_game_packages", true)
+            other = RuntimeUtils.isLatest(sharedPreferences, "game_others_version", "版本异常", "/assets/others") && gameResource
+
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -80,8 +90,8 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             val stateDone =
                 AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_done_24)
 
-            stateUpdate?.setTint(Color.GRAY)
-            stateDone?.setTint(Color.GRAY)
+            stateUpdate?.setTint(Color.RED)
+            stateDone?.setTint(Color.GREEN)
 
             bind.apply {
                 lwjglState.setBackgroundDrawable(if (lwjgl) stateDone else stateUpdate)
@@ -93,15 +103,18 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 java17State.setBackgroundDrawable(if (java17) stateDone else stateUpdate)
                 java21State.setBackgroundDrawable(if (java21) stateDone else stateUpdate)
                 jnaState.setBackgroundDrawable(if (jna) stateDone else stateUpdate)
+                gameResourceState.setBackgroundDrawable(if (gameResource) stateDone else stateUpdate)
+                otherState.setBackgroundDrawable(if (other) stateDone else stateUpdate)
             }
         }
     }
 
     private val isLatest: Boolean
-        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna
+        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna && gameResource && other
 
     private fun check() {
         if (isLatest) {
+            editor.apply()
             (activity as SplashActivity).enterLauncher()
         }
     }
@@ -113,6 +126,67 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
 
         bind.apply {
             installing = true
+            if (!gameResource) {
+                gameResourceState.visibility = View.GONE
+                gameResourceProgress.visibility = View.VISIBLE
+                Thread {
+                    try {
+                        var applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(context)
+                        // 删除旧按键数据
+                        RuntimeUtils.delete(FCLPath.SHARED_COMMON_DIR)
+
+                        // 删除原目录游戏数据[若在配置文件内修改了公有目录存放位置]
+                        RuntimeUtils.delete(applicationThisGameDirectory)
+
+                        // 重载配置文件
+                        RuntimeUtils.reloadConfiguration(context)
+
+                        // 重新获取新的游戏目录
+                        applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(context)
+
+                        // 对新的目录中若有残留文件则先删除
+                        RuntimeUtils.delete(applicationThisGameDirectory)
+
+                        // 在将安装包assets中游戏资源释放到对应目录中
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, ".minecraft", applicationThisGameDirectory)
+
+                        //设置完成标志
+                        gameResource = true
+                        editor.putString("game_resources_version", ReadTools.convertToString(context, ".minecraft/version"))
+                        editor.putString("this_game_resources_directory", applicationThisGameDirectory)
+                        editor.putBoolean("is_first_game_packages", false)
+                        activity?.runOnUiThread {
+                            gameResourceState.visibility = View.VISIBLE
+                            gameResourceProgress.visibility = View.GONE
+                            refreshDrawables()
+                            check()
+                        }
+                    }catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }.start()
+            }
+            if (!other) {
+                otherState.setVisibility(View.GONE)
+                otherProgress.visibility = View.VISIBLE
+                Thread {
+                    try {
+                        if ("false" == FCLApplication.appConfig.getProperty("download-authlib-injector-online", "false")) RuntimeUtils.copyAssetsFileToLocalDir(context, "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar")
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR)
+                        ParseAuthlibInjectorServerFile(activity, "others/authlib-injector-server.json").parseFileAndConvert()
+                        editor.putString("game_others_version", ReadTools.convertToString(context, "others/version"))
+                        other = true
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                    activity?.runOnUiThread {
+                        otherState.visibility = View.VISIBLE
+                        otherProgress.visibility = View.GONE
+                        refreshDrawables()
+                        check()
+                    }
+                }.start()
+            }
             if (!lwjgl) {
                 lwjglState.visibility = View.GONE
                 lwjglProgress.visibility = View.VISIBLE

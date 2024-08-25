@@ -13,6 +13,7 @@ import android.widget.RelativeLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.forEach
 import androidx.databinding.DataBindingUtil
+import com.tungsten.fcl.FCLApplication
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.ActivityMainBinding
 import com.tungsten.fcl.game.JarExecutorHelper
@@ -223,7 +224,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
 
                     setupAccountDisplay()
                     setupVersionDisplay()
-                    UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
+                    if (FCLApplication.appConfig.getProperty("check-update", "true") == "true") UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
                 }
             }
         }
