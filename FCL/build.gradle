@@ -3,6 +3,7 @@ import java.nio.file.Paths
 
 plugins {
     id 'com.android.application'
+    id 'org.jetbrains.kotlin.android' version '1.9.20'
     id "org.hidetake.ssh" version "2.11.2"
 }
 
@@ -71,6 +72,38 @@ android {
         }
         pickFirst '**/libbytehook.so'
     }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    dataBinding {
+        enabled true
+    }
+    buildFeatures {
+        buildConfig true
+    }
+    splits {
+        def arch = System.getProperty("arch", "all")
+        if (arch != 'all') {
+            abi {
+                enable true
+                reset()
+                switch (arch) {
+                    case 'arm':
+                        include 'armeabi-v7a'
+                        break
+                    case 'arm64':
+                        include 'arm64-v8a'
+                        break
+                    case 'x86':
+                        include 'x86'
+                        break
+                    case 'x86_64':
+                        include 'x86_64'
+                        break
+                }
+            }
+        }
+    }
 }
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -86,6 +119,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'com.github.Mathias-Boulay:android_gamepad_remapper:06184ddbce'
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
