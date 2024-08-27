@@ -361,7 +361,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 Thread {
                     try {
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "others", FCLPath.FILES_DIR)
-                        RuntimeUtils.copyAssetsDieToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..")
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..")
                         other = true
                     } catch (e: IOException) {
                         e.printStackTrace()
