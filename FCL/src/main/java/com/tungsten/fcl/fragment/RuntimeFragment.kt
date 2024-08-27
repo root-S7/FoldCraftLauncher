@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Process
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -117,7 +116,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         if (isLatest) {
             if (needRestart) {
                 activity?.finish()
-                activity?.runOnUiThread {Process.exit(0)}
+                activity?.System.exit(0)
             } else {
                 (activity as? SplashActivity)?.enterLauncher()
             }
