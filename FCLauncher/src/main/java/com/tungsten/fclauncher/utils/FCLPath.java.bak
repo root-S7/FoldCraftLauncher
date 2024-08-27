@@ -34,7 +34,6 @@ public class FCLPath {
 
     public static String PRIVATE_COMMON_DIR;
     public static String SHARED_COMMON_DIR;
-    public static String WORK_DIR;
 
     public static String AUTHLIB_INJECTOR_PATH;
     public static String MULTIPLAYER_FIX_PATH;
