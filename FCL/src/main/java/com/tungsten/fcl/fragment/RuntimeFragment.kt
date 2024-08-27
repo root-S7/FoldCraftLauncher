@@ -116,9 +116,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         if (isLatest) {
             if (needRestart) {
                finish()
-               val intent = Intent(this, MainActivity::class.java)
-               intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-               startActivity(intent)
                exitProcess(0)
             } else {
                 (activity as SplashActivity).enterLauncher()
