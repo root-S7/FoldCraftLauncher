@@ -67,9 +67,11 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
     private FCLButton theme;
     private FCLButton ltBackground;
     private FCLButton dkBackground;
+    private FCLButton cursor;
     private FCLButton resetTheme;
     private FCLButton resetLtBackground;
     private FCLButton resetDkBackground;
+    private FCLButton resetCursor;
     private FCLSwitch ignoreNotch;
     private FCLSeekBar animationSpeed;
     private FCLTextView animationSpeedText;
@@ -84,6 +86,12 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         super(context, id, parent, resId);
     }
 
+    public void clearCacheDirs() {
+        FileUtils.cleanDirectoryQuietly(new File(FCLPath.CACHE_DIR));
+        FileUtils.cleanDirectoryQuietly(new File(FCLPath.FILES_DIR + "/../cache"));
+        FileUtils.cleanDirectoryQuietly(new File(FCLPath.FILES_DIR + "/../code_cache"));
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -94,9 +102,11 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         theme = findViewById(R.id.theme);
         ltBackground = findViewById(R.id.background_lt);
         dkBackground = findViewById(R.id.background_dk);
+        cursor = findViewById(R.id.cursor);
         resetTheme = findViewById(R.id.reset_theme);
         resetLtBackground = findViewById(R.id.reset_background_lt);
         resetDkBackground = findViewById(R.id.reset_background_dk);
+        resetCursor = findViewById(R.id.reset_cursor);
         ignoreNotch = findViewById(R.id.ignore_notch);
         animationSpeed = findViewById(R.id.animation_speed);
         animationSpeedText = findViewById(R.id.animation_speed_text);
@@ -113,9 +123,11 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         theme.setOnClickListener(this);
         ltBackground.setOnClickListener(this);
         dkBackground.setOnClickListener(this);
+        cursor.setOnClickListener(this);
         resetTheme.setOnClickListener(this);
         resetLtBackground.setOnClickListener(this);
         resetDkBackground.setOnClickListener(this);
+        resetCursor.setOnClickListener(this);
 
         ArrayList<String> languageList = new ArrayList<>();
         languageList.add(getContext().getString(R.string.settings_launcher_language_system));
@@ -175,23 +187,8 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         threads.addProgressListener();
         threads.progressProperty().bindBidirectional(config().downloadThreadsProperty());
         threadsText.stringProperty().bind(Bindings.createStringBinding(() -> threads.getProgress() + "", threads.progressProperty()));
-
-        if (System.currentTimeMillis() - getLastClearCacheTime() >= 3 * ONE_DAY) {
-            FileUtils.cleanDirectoryQuietly(new File(FCLPath.CACHE_DIR).getParentFile());
-            setLastClearCacheTime(System.currentTimeMillis());
-        }
-    }
-
-    public long getLastClearCacheTime() {
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        return sharedPreferences.getLong("clear_cache", 0L);
-    }
-
-    public void setLastClearCacheTime(long time) {
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong("clear_cache", time);
-        editor.apply();
+        // clear cache when start
+        clearCacheDirs();
     }
 
     private int getSourcePosition(String source) {
@@ -226,7 +223,7 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
             }).start();
         }
         if (v == clearCache) {
-            FileUtils.cleanDirectoryQuietly(new File(FCLPath.CACHE_DIR).getParentFile());
+            clearCacheDirs();
         }
         if (v == exportLog) {
             thread(() -> {
@@ -289,7 +286,7 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
                     if (AndroidUtils.isDocUri(uri)) {
                         path = AndroidUtils.copyFileToDir(getActivity(), uri, new File(FCLPath.CACHE_DIR));
                     }
-                    ThemeEngine.getInstance().applyAndSave(getContext(), ((MainActivity) getActivity()).background, path, null);
+                    ThemeEngine.getInstance().applyAndSave(getContext(), ((MainActivity) getActivity()).bind.background, path, null);
                 }
             }));
         }
@@ -307,7 +304,29 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
                     if (AndroidUtils.isDocUri(uri)) {
                         path = AndroidUtils.copyFileToDir(getActivity(), uri, new File(FCLPath.CACHE_DIR));
                     }
-                    ThemeEngine.getInstance().applyAndSave(getContext(), ((MainActivity) getActivity()).background, null, path);
+                    ThemeEngine.getInstance().applyAndSave(getContext(), ((MainActivity) getActivity()).bind.background, null, path);
+                }
+            }));
+        }
+        if(v == cursor) {
+            FileBrowser.Builder builder = new FileBrowser.Builder(getContext());
+            builder.setLibMode(LibMode.FILE_CHOOSER);
+            builder.setSelectionMode(SelectionMode.SINGLE_SELECTION);
+            ArrayList<String> suffix = new ArrayList<>();
+            suffix.add(".png");
+            builder.setSuffix(suffix);
+            builder.create().browse(getActivity(), RequestCodes.SELECT_CURSOR_CODE, ((requestCode, resultCode, data) -> {
+                if (requestCode == RequestCodes.SELECT_CURSOR_CODE && resultCode == Activity.RESULT_OK && data != null) {
+                    String path = FileBrowser.getSelectedFiles(data).get(0);
+                    Uri uri = Uri.parse(path);
+                    if (AndroidUtils.isDocUri(uri)) {
+                        AndroidUtils.copyFile(getActivity(), uri, new File(FCLPath.FILES_DIR, "cursor.png"));
+                    } else {
+                        try {
+                            FileUtils.copyFile(new File(path), new File(FCLPath.FILES_DIR, "cursor.png"));
+                        } catch (IOException ignore) {
+                        }
+                    }
                 }
             }));
         }
@@ -319,7 +338,7 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
                 if (!new File(FCLPath.LT_BACKGROUND_PATH).delete() && new File(FCLPath.LT_BACKGROUND_PATH).exists())
                     Schedulers.androidUIThread().execute(() -> Toast.makeText(getContext(), getContext().getString(R.string.message_failed), Toast.LENGTH_SHORT).show());
 
-                Schedulers.androidUIThread().execute(() -> ThemeEngine.getInstance().applyAndSave(getContext(), ((MainActivity) getActivity()).background, null, null));
+                Schedulers.androidUIThread().execute(() -> ThemeEngine.getInstance().applyAndSave(getContext(), ((MainActivity) getActivity()).bind.background, null, null));
             }).start();
         }
         if (v == resetDkBackground) {
@@ -327,8 +346,11 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
                 if (!new File(FCLPath.DK_BACKGROUND_PATH).delete() && new File(FCLPath.DK_BACKGROUND_PATH).exists())
                     Schedulers.androidUIThread().execute(() -> Toast.makeText(getContext(), getContext().getString(R.string.message_failed), Toast.LENGTH_SHORT).show());
 
-                Schedulers.androidUIThread().execute(() -> ThemeEngine.getInstance().applyAndSave(getContext(), ((MainActivity) getActivity()).background, null, null));
+                Schedulers.androidUIThread().execute(() -> ThemeEngine.getInstance().applyAndSave(getContext(), ((MainActivity) getActivity()).bind.background, null, null));
             }).start();
+        }
+        if (v == resetCursor) {
+            new File(FCLPath.FILES_DIR, "cursor.png").delete();
         }
     }
 

@@ -93,9 +93,6 @@ public final class Profiles {
             Profile current = new Profile(FCLPath.CONTEXT.getString(R.string.profile_shared), new File(FCLPath.SHARED_COMMON_DIR), new VersionSetting(), null);
             Profile home = new Profile(FCLPath.CONTEXT.getString(R.string.profile_private), new File(FCLPath.PRIVATE_COMMON_DIR));
             profiles.addAll(current, home);
-
-            edit.putString("this_game_resources_directory", config().getConfigurations().get(config().getSelectedProfile()).getGameDir().getAbsolutePath());
-            edit.apply();
         }
     }
 
@@ -111,8 +108,6 @@ public final class Profiles {
         selectedProfile.addListener((a, b, newValue) -> {
             if(newValue != null) {
                 newValue.getRepository().refreshVersionsAsync().start();
-                edit.putString("this_game_resources_directory", selectedProfile.get().getGameDir().getAbsolutePath());
-                edit.apply();
             }
         });
     }

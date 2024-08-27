@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 import android.system.Os;
+import android.util.Log;
+
 import com.google.gson.*;
 import com.tungsten.fcl.R;
 import com.tungsten.fclauncher.FCLauncher;
@@ -15,6 +17,7 @@ import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.Pack200Utils;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
+import com.tungsten.fclcore.util.io.Unzipper;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
@@ -46,6 +49,15 @@ public class RuntimeUtils {
         FileUtils.deleteDirectory(new File(targetDir));
         new File(targetDir).mkdirs();
         copyAssets(context, srcDir, targetDir);
+    }
+
+    public static void installJna(Context context, String targetDir, String srcDir) throws IOException {
+        FileUtils.deleteDirectory(new File(targetDir));
+        new File(targetDir).mkdirs();
+        copyAssets(context, srcDir, targetDir);
+        File file = new File(FCLPath.JNA_PATH, "jna-arm64.zip");
+        new Unzipper(file, new File(FCLPath.RUNTIME_DIR)).unzip();
+        file.delete();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -117,7 +129,7 @@ public class RuntimeUtils {
                 fos.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -137,7 +149,7 @@ public class RuntimeUtils {
             is.close();
             fos.close();
         }catch(IOException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -324,36 +336,24 @@ public class RuntimeUtils {
             inputStream.close();
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
     public static void reloadConfiguration(Context context) {
         try {
-            // 先删除旧文件
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/menu_setting.json");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/background");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/../shared_prefs");
-            // 在这里解压背景图片
-            RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR);
-
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
             JsonObject configurations = jsonObject.getAsJsonObject("configurations");
-
             // 若不存在gameDir属性值有问题则添加一个
             for(String key : configurations.keySet()) {
                 JsonObject config = configurations.getAsJsonObject(key);
 
                 if(!config.has("gameDir") || !isPath(config.get("gameDir").getAsString()) || !new File(config.get("gameDir").getAsString()).canWrite() || !new File(config.get("gameDir").getAsString()).canRead()) {
-                    if(key.equals(context.getString(R.string.profile_private))) config.addProperty("gameDir", FCLPath.PRIVATE_COMMON_DIR);
-                    else config.addProperty("gameDir", FCLPath.SHARED_COMMON_DIR);
+                    config.addProperty("gameDir", FCLPath.SHARED_COMMON_DIR);
                 }
 
             }
-
             // 将修改后的 "configurations" 字段与原始 JSON 字符串中的其他字段合并
             JsonObject mergedJsonObject = new JsonObject();
             for (String key : jsonObject.keySet()) {
@@ -365,15 +365,8 @@ public class RuntimeUtils {
             }
             // 重新写入新文件
             RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
-
-            // 然后解压其他配置文件
-            RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
-            RuntimeUtils.copyAssets(context, "others/global_config.json", FCLPath.FILES_DIR + "/global_config.json");
-            // 最后解压一遍需要强制覆盖的设置
-            RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..");
-
-        }catch(Exception ignored) {
-            ignored.printStackTrace();
+        }catch (JsonSyntaxException | JsonIOException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -391,34 +384,5 @@ public class RuntimeUtils {
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(content);
         writer.close();
-    }
-
-    public static String getApplicationThisGameDirectory(final Context context) {
-        SharedPreferences launcher = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = launcher.edit();
-
-        String launcherFileThisGameDirectory = launcher.getString("this_game_resources_directory", null);
-        if(launcherFileThisGameDirectory != null && isPath(launcherFileThisGameDirectory)) return launcherFileThisGameDirectory;
-
-        JsonObject configJsonObject;
-
-        try {
-            Gson gson = new Gson();
-
-            if(new File(FCLPath.FILES_DIR + "/config.json").exists()) configJsonObject = gson.fromJson(ReadTools.convertToString(Files.newInputStream(Paths.get(FCLPath.FILES_DIR + "/config.json"))), JsonObject.class);
-            else configJsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
-        }catch(JsonSyntaxException | JsonIOException | IOException e) {
-            edit.putString("this_game_resources_directory", FCLPath.SHARED_COMMON_DIR);
-            edit.apply();
-            return FCLPath.SHARED_COMMON_DIR;
-        }
-
-        JsonElement lastElement = configJsonObject.get("last");
-        String lastValue = lastElement != null && !lastElement.isJsonNull() ? lastElement.getAsString() : null;
-        String s = lastValue != null && lastValue.equals(context.getString(R.string.profile_private)) ? FCLPath.PRIVATE_COMMON_DIR : FCLPath.SHARED_COMMON_DIR;
-        edit.putString("this_game_resources_directory", s);
-        edit.apply();
-
-        return s;
     }
 }
