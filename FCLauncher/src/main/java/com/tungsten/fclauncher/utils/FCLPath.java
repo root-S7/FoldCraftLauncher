@@ -49,7 +49,7 @@ public class FCLPath {
 
         NATIVE_LIB_DIR = context.getApplicationInfo().nativeLibraryDir;
 
-        LOG_DIR = WORK_DIR + "/log";
+        LOG_DIR = WORK_DIR + "/logs";
         CACHE_DIR = WORK_DIR + "/cache";
 
         RUNTIME_DIR = context.getDir("runtime", 0).getAbsolutePath();
