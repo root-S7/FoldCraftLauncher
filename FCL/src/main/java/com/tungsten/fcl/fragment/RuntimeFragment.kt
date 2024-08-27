@@ -115,8 +115,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     private fun check() {
         if (isLatest) {
             if (needRestart) {
-                activity?.finish()
-                activity?.System.exit(0)
+                (activity as? SplashActivity)?.finish()
             } else {
                 (activity as? SplashActivity)?.enterLauncher()
             }
