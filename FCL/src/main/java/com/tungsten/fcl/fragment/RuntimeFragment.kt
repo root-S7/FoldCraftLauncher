@@ -118,9 +118,9 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         }
     }
 
-    private fun setNameServer() {
+    private fun setNameServer(targetJavaPath:String) {
         FileUtils.writeText(
-            File(FCLPath.JAVA_11_PATH + "/resolv.conf"),
+            File(targetJavaPath + "/resolv.conf"),
             FCLApplication.appConfig.getProperty("primary-nameserver", "223.5.5.5") + "\n" + FCLApplication.appConfig.getProperty("secondary-nameserver", "8.8.8.8")
         )
     }
@@ -137,11 +137,9 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 gameResourceProgress.visibility = View.VISIBLE
                 Thread {
                     try {
-                        var applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(context)
+                        var applicationThisGameDirectory = FCLPath.SHARED_COMMON_DIR
                         // 重载配置文件
                         RuntimeUtils.reloadConfiguration(context)
-                        // 重新获取新的游戏目录
-                        applicationThisGameDirectory = RuntimeUtils.getApplicationThisGameDirectory(context)
                         // 删除旧按键数据
                         RuntimeUtils.delete(applicationThisGameDirectory)
                         // 在将安装包assets中游戏资源释放到对应目录中
@@ -253,7 +251,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_8_PATH,
                             "app_runtime/java/jre8"
                         )
-                        setNameServer()
+                        setNameServer(FCLPath.JAVA_8_PATH)
                         java8 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -276,7 +274,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_11_PATH,
                             "app_runtime/java/jre11"
                         )
-                        setNameServer()
+                        setNameServer(FCLPath.JAVA_11_PATH)
                         java11 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -299,7 +297,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_17_PATH,
                             "app_runtime/java/jre17"
                         )
-                        setNameServer()
+                        setNameServer(FCLPath.JAVA_17_PATH)
                         java17 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -322,7 +320,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_21_PATH,
                             "app_runtime/java/jre21"
                         )
-                        setNameServer()
+                        setNameServer(FCLPath.JAVA_21_PATH)
                         java21 = true
                     } catch (e: IOException) {
                         e.printStackTrace()

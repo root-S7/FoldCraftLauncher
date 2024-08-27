@@ -342,15 +342,6 @@ public class RuntimeUtils {
 
     public static void reloadConfiguration(Context context) {
         try {
-            // 先删除旧文件
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/menu_setting.json");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/config.json");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/global_config.json");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/background");
-            RuntimeUtils.delete(FCLPath.FILES_DIR + "/../shared_prefs");
-            // 在这里解压背景图片
-            RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR);
-
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
             JsonObject configurations = jsonObject.getAsJsonObject("configurations");
@@ -360,8 +351,7 @@ public class RuntimeUtils {
                 JsonObject config = configurations.getAsJsonObject(key);
 
                 if(!config.has("gameDir") || !isPath(config.get("gameDir").getAsString()) || !new File(config.get("gameDir").getAsString()).canWrite() || !new File(config.get("gameDir").getAsString()).canRead()) {
-                    if(key.equals(context.getString(R.string.profile_private))) config.addProperty("gameDir", FCLPath.PRIVATE_COMMON_DIR);
-                    else config.addProperty("gameDir", FCLPath.SHARED_COMMON_DIR);
+                    config.addProperty("gameDir", FCLPath.SHARED_COMMON_DIR);
                 }
 
             }
@@ -375,15 +365,6 @@ public class RuntimeUtils {
                     mergedJsonObject.add("configurations", jsonObject.getAsJsonObject("configurations"));
                 }
             }
-            // 重新写入新文件
-            RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
-
-            // 然后解压其他配置文件
-            RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
-            RuntimeUtils.copyAssets(context, "others/global_config.json", FCLPath.FILES_DIR + "/global_config.json");
-            // 最后解压一遍需要强制覆盖的设置
-            RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..");
-
         }catch(Exception ignored) {
             ignored.printStackTrace();
         }
@@ -403,34 +384,5 @@ public class RuntimeUtils {
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(content);
         writer.close();
-    }
-
-    public static String getApplicationThisGameDirectory(final Context context) {
-        SharedPreferences launcher = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        SharedPreferences.Editor edit = launcher.edit();
-
-        String launcherFileThisGameDirectory = launcher.getString("this_game_resources_directory", null);
-        if(launcherFileThisGameDirectory != null && isPath(launcherFileThisGameDirectory)) return launcherFileThisGameDirectory;
-
-        JsonObject configJsonObject;
-
-        try {
-            Gson gson = new Gson();
-
-            if(new File(FCLPath.FILES_DIR + "/config.json").exists()) configJsonObject = gson.fromJson(ReadTools.convertToString(Files.newInputStream(Paths.get(FCLPath.FILES_DIR + "/config.json"))), JsonObject.class);
-            else configJsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
-        }catch(JsonSyntaxException | JsonIOException | IOException e) {
-            edit.putString("this_game_resources_directory", FCLPath.SHARED_COMMON_DIR);
-            edit.apply();
-            return FCLPath.SHARED_COMMON_DIR;
-        }
-
-        JsonElement lastElement = configJsonObject.get("last");
-        String lastValue = lastElement != null && !lastElement.isJsonNull() ? lastElement.getAsString() : null;
-        String s = lastValue != null && lastValue.equals(context.getString(R.string.profile_private)) ? FCLPath.PRIVATE_COMMON_DIR : FCLPath.SHARED_COMMON_DIR;
-        edit.putString("this_game_resources_directory", s);
-        edit.apply();
-
-        return s;
     }
 }
