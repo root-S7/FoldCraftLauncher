@@ -161,13 +161,19 @@ public final class LauncherHelper {
                 .thenComposeAsync(() -> logIn(context, account).withStage("launch.state.logging_in"))
                 .thenComposeAsync(authInfo -> Task.supplyAsync(() -> {
                     LaunchOptions launchOptions = repository.getLaunchOptions(selectedVersion, javaVersionRef.get(), profile.getGameDir(), javaAgents);
-                    return new FCLGameLauncher(
+                    FCLGameLauncher launcher = new FCLGameLauncher(
                             context,
                             repository,
                             version.get(),
                             authInfo,
                             launchOptions
                     );
+                    version.get().getLibraries().forEach(library -> {
+                        if (library.getName().startsWith("net.java.dev.jna:jna:")) {
+                            launcher.setJnaVersion(library.getVersion());
+                        }
+                    });
+                    return launcher;
                 }).thenComposeAsync(launcher -> { // launcher is prev task's result
                     return Task.supplyAsync(launcher::launch);
                 }).thenAcceptAsync(fclBridge -> Schedulers.androidUIThread().execute(() -> {
@@ -198,7 +204,7 @@ public final class LauncherHelper {
                 launchingStepsPane.dismiss();
                 if (!success) {
                     Exception ex = executor.getException();
-                    if (!(ex instanceof CancellationException)) {
+                    if (ex != null && !(ex instanceof CancellationException)) {
                         Schedulers.androidUIThread().execute(() -> {
                             String message;
                             if (ex instanceof ModpackCompletionException) {

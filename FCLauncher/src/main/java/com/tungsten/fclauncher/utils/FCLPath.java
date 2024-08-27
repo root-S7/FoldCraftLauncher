@@ -21,6 +21,7 @@ public class FCLPath {
     public static String JAVA_11_PATH;
     public static String JAVA_17_PATH;
     public static String JAVA_21_PATH;
+    public static String JNA_PATH;
     public static String LWJGL_DIR;
     public static String CACIOCAVALLO_8_DIR;
     public static String CACIOCAVALLO_11_DIR;
@@ -47,14 +48,15 @@ public class FCLPath {
 
         NATIVE_LIB_DIR = context.getApplicationInfo().nativeLibraryDir;
 
-        LOG_DIR = SHARED_COMMON_DIR + "/temp/log";
-        CACHE_DIR = context.getCacheDir() + "/fclauncher";
+        LOG_DIR = WORK_DIR + "/temp/log";
+        CACHE_DIR = WORKDIR + "/cache";
 
         RUNTIME_DIR = context.getDir("runtime", 0).getAbsolutePath();
         JAVA_8_PATH = RUNTIME_DIR + "/java/jre8";
         JAVA_11_PATH = RUNTIME_DIR + "/java/jre11";
         JAVA_17_PATH = RUNTIME_DIR + "/java/jre17";
         JAVA_21_PATH = RUNTIME_DIR + "/java/jre21";
+        JNA_PATH = RUNTIME_DIR + "/jna";
         LWJGL_DIR = RUNTIME_DIR + "/lwjgl";
         CACIOCAVALLO_8_DIR = RUNTIME_DIR + "/caciocavallo";
         CACIOCAVALLO_11_DIR = RUNTIME_DIR + "/caciocavallo11";
@@ -65,7 +67,8 @@ public class FCLPath {
         BACKGROUND_DIR = FILES_DIR + "/background";
         CONTROLLER_DIR = SHARED_COMMON_DIR + "/control";
 
-        SHARED_COMMON_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server") + "/.minecraft";
+        WORK_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server");
+        SHARED_COMMON_DIR = WORK_DIR + "/.minecraft";
         PRIVATE_COMMON_DIR = context.getExternalFilesDir(".minecraft").getAbsolutePath();
 
         AUTHLIB_INJECTOR_PATH = PLUGIN_DIR + "/authlib-injector.jar";
@@ -89,8 +92,9 @@ public class FCLPath {
         init(PLUGIN_DIR);
         init(BACKGROUND_DIR);
         init(CONTROLLER_DIR);
-        //init(PRIVATE_COMMON_DIR);
-        //init(SHARED_COMMON_DIR);
+        init(PRIVATE_COMMON_DIR);
+        init(SHARED_COMMON_DIR);
+        init(WORK_DIR);
     }
 
     private static boolean init(String path) {

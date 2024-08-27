@@ -22,6 +22,7 @@
     <string name="splash_runtime_java11" translatable="false">JRE 11</string>
     <string name="splash_runtime_java17" translatable="false">JRE 17</string>
     <string name="splash_runtime_java21" translatable="false">JRE 21</string>
+    <string name="splash_runtime_jna" translatable="false">JNA</string>
     <string name="splash_runtime_install">Install / Update</string>
 
     <string name="account">Account</string>
@@ -292,7 +293,7 @@
 
     <string name="download_provider_mcbbs">MCBBS (https://www.mcbbs.net/)</string>
     <string name="download_provider_bmclapi">BMCLAPI (bangbang93, https://bmclapi2.bangbang93.com/)</string>
-    <string name="download_provider_mojang">Mojang (OptiFine is provided by BMCLAPI)</string>
+    <string name="download_provider_mojang">Mojang (OptiFine is provided by OF-302)</string>
     <string name="download_provider_official">From Official Sources</string>
     <string name="download_provider_balanced">From Fastest Available</string>
     <string name="download_provider_mirror">From Mirror</string>
@@ -796,6 +797,7 @@
     <string name="settings_launcher_theme">Theme</string>
     <string name="settings_launcher_background_lt">Light Mode Launcher Background</string>
     <string name="settings_launcher_background_dk">Dark Mode Launcher Background</string>
+    <string name="settings_launcher_cursor">Cursor Picture</string>
     <string name="settings_launcher_ignore_notch">Ignore Notch</string>
     <string name="settings_launcher_animation_speed">Animation Speed</string>
 

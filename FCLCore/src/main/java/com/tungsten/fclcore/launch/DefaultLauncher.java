@@ -55,6 +55,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class DefaultLauncher extends Launcher {
+    private String jnaVersion;
 
     public DefaultLauncher(Context context, GameRepository repository, Version version, AuthInfo authInfo, LaunchOptions options) {
         super(context, repository, version, authInfo, options);
@@ -138,6 +139,9 @@ public class DefaultLauncher extends Launcher {
         res.addDefault("-Duser.home=", options.getGameDir().getAbsolutePath());
         res.addDefault("-Dorg.lwjgl.vulkan.libname=", "libvulkan.so");
         File libJna = new File(FCLPath.RUNTIME_DIR, "jna");
+        if (jnaVersion != null && !jnaVersion.isEmpty()) {
+            libJna = new File(libJna, jnaVersion);
+        }
         res.addDefault("-Djna.boot.library.path=", libJna.exists() ? libJna.getAbsolutePath() : context.getApplicationInfo().nativeLibraryDir);
 
         if (getInjectorArg() != null && options.isBeGesture()) {
@@ -423,5 +427,9 @@ public class DefaultLauncher extends Launcher {
         );
         config.setUseVKDriverSystem(options.isVKDriverSystem());
         return FCLauncher.launchMinecraft(config);
+    }
+
+    public void setJnaVersion(String jnaVersion) {
+        this.jnaVersion = jnaVersion;
     }
 }
