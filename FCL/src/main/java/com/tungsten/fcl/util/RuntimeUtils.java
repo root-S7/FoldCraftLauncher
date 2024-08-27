@@ -129,7 +129,7 @@ public class RuntimeUtils {
                 fos.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -149,7 +149,7 @@ public class RuntimeUtils {
             is.close();
             fos.close();
         }catch(IOException e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -336,7 +336,7 @@ public class RuntimeUtils {
             inputStream.close();
         }
         catch (Exception e){
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -345,7 +345,6 @@ public class RuntimeUtils {
             Gson gson = new Gson();
             JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
             JsonObject configurations = jsonObject.getAsJsonObject("configurations");
-
             // 若不存在gameDir属性值有问题则添加一个
             for(String key : configurations.keySet()) {
                 JsonObject config = configurations.getAsJsonObject(key);
@@ -355,7 +354,6 @@ public class RuntimeUtils {
                 }
 
             }
-
             // 将修改后的 "configurations" 字段与原始 JSON 字符串中的其他字段合并
             JsonObject mergedJsonObject = new JsonObject();
             for (String key : jsonObject.keySet()) {
@@ -365,8 +363,10 @@ public class RuntimeUtils {
                     mergedJsonObject.add("configurations", jsonObject.getAsJsonObject("configurations"));
                 }
             }
-        }catch(Exception ignored) {
-            ignored.printStackTrace();
+            // 重新写入新文件
+            RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
+        }catch (JsonSyntaxException | JsonIOException | IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
