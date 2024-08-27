@@ -86,6 +86,12 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         super(context, id, parent, resId);
     }
 
+    public void clearCacheDirs() {
+        FileUtils.cleanDirectoryQuietly(new File(FCLPath.CACHE_DIR));
+        FileUtils.cleanDirectoryQuietly(new File(FCLPath.FILES_DIR + "/../cache"));
+        FileUtils.cleanDirectoryQuietly(new File(FCLPath.FILES_DIR + "/../code_cache"));
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -181,23 +187,8 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         threads.addProgressListener();
         threads.progressProperty().bindBidirectional(config().downloadThreadsProperty());
         threadsText.stringProperty().bind(Bindings.createStringBinding(() -> threads.getProgress() + "", threads.progressProperty()));
-
-        if (System.currentTimeMillis() - getLastClearCacheTime() >= 3 * ONE_DAY) {
-            FileUtils.cleanDirectoryQuietly(new File(FCLPath.CACHE_DIR).getParentFile());
-            setLastClearCacheTime(System.currentTimeMillis());
-        }
-    }
-
-    public long getLastClearCacheTime() {
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        return sharedPreferences.getLong("clear_cache", 0L);
-    }
-
-    public void setLastClearCacheTime(long time) {
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putLong("clear_cache", time);
-        editor.apply();
+        // clear cache when start
+        clearCacheDirs()
     }
 
     private int getSourcePosition(String source) {
@@ -232,7 +223,7 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
             }).start();
         }
         if (v == clearCache) {
-            FileUtils.cleanDirectoryQuietly(new File(FCLPath.CACHE_DIR).getParentFile());
+            clearCacheDirs()
         }
         if (v == exportLog) {
             thread(() -> {

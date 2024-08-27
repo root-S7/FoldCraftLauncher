@@ -37,6 +37,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     var other = false
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
+    var needRestart: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -113,8 +114,15 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
 
     private fun check() {
         if (isLatest) {
-            editor.apply()
-            (activity as SplashActivity).enterLauncher()
+            if (needRestart) {
+               finish()
+               val intent = Intent(this, MainActivity::class.java)
+               intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+               startActivity(intent)
+               exitProcess(0)
+            } else {
+                (activity as SplashActivity).enterLauncher()
+            }
         }
     }
 
@@ -379,6 +387,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
 
     override fun onClick(view: View) {
         if (view === bind.install) {
+            needRestart = true
             install()
         }
     }
