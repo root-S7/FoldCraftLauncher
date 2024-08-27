@@ -188,7 +188,7 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         threads.progressProperty().bindBidirectional(config().downloadThreadsProperty());
         threadsText.stringProperty().bind(Bindings.createStringBinding(() -> threads.getProgress() + "", threads.progressProperty()));
         // clear cache when start
-        clearCacheDirs()
+        clearCacheDirs();
     }
 
     private int getSourcePosition(String source) {
@@ -223,7 +223,7 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
             }).start();
         }
         if (v == clearCache) {
-            clearCacheDirs()
+            clearCacheDirs();
         }
         if (v == exportLog) {
             thread(() -> {
