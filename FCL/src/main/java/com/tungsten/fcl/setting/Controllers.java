@@ -5,6 +5,7 @@ import static com.tungsten.fclcore.fakefx.collections.FXCollections.observableAr
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.tungsten.fcl.utils.RuntimeUtils;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.Observable;
 import com.tungsten.fclcore.fakefx.beans.property.ReadOnlyListProperty;
@@ -17,6 +18,8 @@ import com.tungsten.fclcore.util.io.IOUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -37,16 +40,16 @@ public class Controllers {
         }
         if (controllers.isEmpty()) {
             try {
+                RuntimeUtils.copyAssetsDirToLocalDir(context, "controllers", FCLPath.CONTROLLER_DIR);
                 if (DEFAULT_CONTROLLER == null) {
-                    String str = IOUtils.readFullyAsString(Controllers.class.getResourceAsStream("/assets/controllers/Default.json"));
+                    str = new String(Files.readAllBytes(Paths.get(FCLPath.CONTROLLER_DIR + "Default.json")));
                     DEFAULT_CONTROLLER = new GsonBuilder()
                             .registerTypeAdapterFactory(new JavaFxPropertyTypeAdapterFactory(true, true))
                             .setPrettyPrinting()
                             .create().fromJson(str, Controller.class);
                 }
-                DEFAULT_CONTROLLER.saveToDisk();
             } catch (IOException e) {
-                Logging.LOG.log(Level.SEVERE, "Failed to generate default controller!", e.getMessage());
+                Logging.LOG.log(Level.SEVERE, "Failed to generate default controllers!", e.getMessage());
             }
             controllers.addAll(getControllersFromDisk());
         }

@@ -143,9 +143,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 Thread {
                     try {
                         var applicationThisGameDirectory = FCLPath.SHARED_COMMON_DIR
-                        // 重载配置文件
-                        RuntimeUtils.reloadConfiguration(context)
-                        // 删除旧按键数据
+                        // 删除旧数据
                         RuntimeUtils.delete(applicationThisGameDirectory)
                         // 在将安装包assets中游戏资源释放到对应目录中
                         RuntimeUtils.copyAssetsDirToLocalDir(context, ".minecraft", applicationThisGameDirectory)
@@ -366,6 +364,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 Thread {
                     try {
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "others", FCLPath.FILES_DIR)
+                        RuntimeUtils.reloadConfiguration(context)
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..")
                         other = true
                     } catch (e: IOException) {

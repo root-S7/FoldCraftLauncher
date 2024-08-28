@@ -33,6 +33,7 @@ public class ShellActivity extends FCLActivity {
         logWindow.appendLog("Here is the shell command line!\n");
         shellUtil = new ShellUtil(new File(FCLPath.FILES_DIR).getParent(), output -> logWindow.appendLog("\t" + output + "\n"));
         shellUtil.start();
+        shellUtil.append("sh .bashrc");
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -50,7 +51,7 @@ public class ShellActivity extends FCLActivity {
                 if (cmd.endsWith("\n")) {
                     logWindow.appendLog("->" + cmd);
                     editText.setText("");
-                    if (cmd.contains("clear")) {
+                    if (cmd == "clear")) {
                         logWindow.cleanLog();
                         return;
                     }
