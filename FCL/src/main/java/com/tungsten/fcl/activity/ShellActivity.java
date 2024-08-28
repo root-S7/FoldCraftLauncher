@@ -51,7 +51,7 @@ public class ShellActivity extends FCLActivity {
                 if (cmd.endsWith("\n")) {
                     logWindow.appendLog("->" + cmd);
                     editText.setText("");
-                    if (cmd == "clear")) {
+                    if (cmd == "clear") {
                         logWindow.cleanLog();
                         return;
                     }
