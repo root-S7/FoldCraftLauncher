@@ -33,7 +33,8 @@ public class FCLPath {
     public static String CONTROLLER_DIR;
 
     public static String SHARED_COMMON_DIR;
-    public static String WORK_DIR;
+    public static String EXTERNAL_DIR;
+    public static String INTERNAL_DIR;
 
     public static String AUTHLIB_INJECTOR_PATH;
     public static String MULTIPLAYER_FIX_PATH;
@@ -48,8 +49,8 @@ public class FCLPath {
 
         NATIVE_LIB_DIR = context.getApplicationInfo().nativeLibraryDir;
 
-        LOG_DIR = WORK_DIR + "/logs";
-        CACHE_DIR = WORK_DIR + "/cache";
+        LOG_DIR = EXTERNAL_DIR + "/logs";
+        CACHE_DIR = EXTERNAL_DIR + "/cache";
 
         RUNTIME_DIR = context.getDir("runtime", 0).getAbsolutePath();
         JAVA_8_PATH = RUNTIME_DIR + "/java/jre8";
@@ -63,12 +64,13 @@ public class FCLPath {
         CACIOCAVALLO_17_DIR = RUNTIME_DIR + "/caciocavallo17";
 
         FILES_DIR = context.getFilesDir().getAbsolutePath();
+        INTERNAL_DIR = new File(FILES_DIR).getParentFile().getAbsolutePath();
         PLUGIN_DIR = FILES_DIR + "/plugins";
         BACKGROUND_DIR = FILES_DIR + "/background";
-        CONTROLLER_DIR = WORK_DIR + "/controllers";
+        CONTROLLER_DIR = EXTERNAL_DIR + "/controllers";
 
-        WORK_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server");
-        SHARED_COMMON_DIR = WORK_DIR + "/.minecraft";
+        EXTERNAL_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server");
+        SHARED_COMMON_DIR = EXTERNAL_DIR + "/.minecraft";
 
         AUTHLIB_INJECTOR_PATH = PLUGIN_DIR + "/authlib-injector.jar";
         MULTIPLAYER_FIX_PATH = PLUGIN_DIR + "/MultiplayerFix.jar";
@@ -92,7 +94,7 @@ public class FCLPath {
         init(BACKGROUND_DIR);
         init(CONTROLLER_DIR);
         init(SHARED_COMMON_DIR);
-        init(WORK_DIR);
+        init(EXTERNAL_DIR);
     }
 
     private static boolean init(String path) {

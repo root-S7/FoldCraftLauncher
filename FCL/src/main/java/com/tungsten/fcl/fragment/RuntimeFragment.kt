@@ -110,7 +110,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     }
 
     private val isLatest: Boolean
-        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna && gameResource && other
+        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna && gameResource
 
     private fun check() {
         if (isLatest) {
@@ -143,10 +143,16 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 Thread {
                     try {
                         var applicationThisGameDirectory = FCLPath.SHARED_COMMON_DIR
+                        var applicationThisDataDirectory = FCLPath.EXTERNAL_DIR + "/minecraft"
+                        // 释放config.json并刷新
+                        RuntimeUtils.copyAssetsFileToLocalDir(context, "config.json", FCLPath.FILES_DIR)
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "game", FCLPath.PLUGIN_DIR)
+                        RuntimeUtils.reloadConfiguration(context)
                         // 删除旧数据
                         RuntimeUtils.delete(applicationThisGameDirectory)
                         // 在将安装包assets中游戏资源释放到对应目录中
                         RuntimeUtils.copyAssetsDirToLocalDir(context, ".minecraft", applicationThisGameDirectory)
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "minecraft", applicationThisDataDirectory)
                         //设置完成标志
                         gameResource = true
                         activity?.runOnUiThread {
@@ -363,9 +369,8 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 otherProgress.visibility = View.VISIBLE
                 Thread {
                     try {
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "others", FCLPath.FILES_DIR)
-                        RuntimeUtils.reloadConfiguration(context)
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "settings", FCLPath.FILES_DIR + "/..")
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "othersExternal", FCLPath.EXTERNAL_DIR)
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "othersInternal", FCLPath.INTERNAL_DIR)
                         other = true
                     } catch (e: IOException) {
                         e.printStackTrace()

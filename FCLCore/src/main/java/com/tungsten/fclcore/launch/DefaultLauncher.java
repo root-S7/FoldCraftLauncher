@@ -361,13 +361,14 @@ public class DefaultLauncher extends Launcher {
         if (targetFile.exists()) return;
         InputStream source;
         if (VersionNumber.compare(repository.getGameVersion(version).orElse("0.0"), "1.12") < 0) {
-            source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.7.xml");
+            source = FCLPath.PLUGIN_DIR + "log4j2-1.7.xml";
         } else {
-            source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.12.xml");
+            source = FCLPath.PLUGIN_DIR + "log4j2-1.12.xml";
         }
-
-        try (InputStream input = source; OutputStream output = Files.newOutputStream(targetFile.toPath())) {
-            IOUtils.copyTo(input, output);
+        try {
+            Files.copy(source, targetFile.getAbsolutePath());
+        } catch (IOException e) {
+            LOG.log(Level.WARNING, "Failed to copy log4j config file", e);
         }
     }
 

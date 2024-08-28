@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
+<map>
+    <int name="ignore_update" value="2147483647" />
+    <int name="lang" value="0" />
+    <boolean name="is_first_launch" value="true" />
+</map>
