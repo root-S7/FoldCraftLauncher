@@ -3,6 +3,7 @@ package com.tungsten.fcl.setting;
 import static com.tungsten.fcl.util.FXUtils.onInvalidating;
 import static com.tungsten.fclcore.fakefx.collections.FXCollections.observableArrayList;
 
+import android.content.Context;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.tungsten.fcl.util.RuntimeUtils;
@@ -42,7 +43,7 @@ public class Controllers {
             try {
                 RuntimeUtils.copyAssetsDirToLocalDir(context, "controllers", FCLPath.CONTROLLER_DIR);
                 if (DEFAULT_CONTROLLER == null) {
-                    str = new String(Files.readAllBytes(Paths.get(FCLPath.CONTROLLER_DIR + "Default.json")));
+                    String str = new String(Files.readAllBytes(Paths.get(FCLPath.CONTROLLER_DIR + "Default.json")));
                     DEFAULT_CONTROLLER = new GsonBuilder()
                             .registerTypeAdapterFactory(new JavaFxPropertyTypeAdapterFactory(true, true))
                             .setPrettyPrinting()

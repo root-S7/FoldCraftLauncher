@@ -38,7 +38,7 @@ public class CommunityPage extends FCLCommonPage implements View.OnClickListener
     @Override
     public void onClick(View v) {
         if (v == discord) {
-            Uri uri = Uri.parse(FCLApplication.appConfig.getProperty("discord","https://icraft.asia:90/titles/Discord"));
+            Uri uri = Uri.parse(FCLApplication.appConfig.getProperty("discord","https://github.com/hyplant"));
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             getContext().startActivity(intent);
         }
@@ -47,11 +47,11 @@ public class CommunityPage extends FCLCommonPage implements View.OnClickListener
         }
     }
 
-    private final static String QQ_GROUP_KEY = FCLApplication.appConfig.getProperty("qq-group-key","tUFbF4hOV-O0Xykwx0VyxISWgKyf8gqe");
+    private final static String QQ_GROUP_KEY = FCLApplication.appConfig.getProperty("qq-group-key","https://github.com/hyplant/FoldCraftLauncher");
 
     public boolean joinQQGroup(String key) {
         Intent intent = new Intent();
-        intent.setData(Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D" + key));
+        intent.setData(Uri.parse(key));
         try {
             getContext().startActivity(intent);
             return true;

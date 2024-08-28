@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ListView;
 
 import com.google.gson.reflect.TypeToken;
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fclcore.task.Schedulers;
 import com.tungsten.fclcore.task.Task;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class HelpPage extends FCLCommonPage implements View.OnClickListener {
 
-    public static final String DOC_INDEX_URL = "https://mirror.ghproxy.com/https://raw.githubusercontent.com/hyplant/FoldCraftLauncher/doc/document/index.json";
+    public static final String DOC_INDEX_URL = FCLApplication.appConfig.getProperty("doc-index-url","https://raw.githubusercontent.com/hyplant/FoldCraftLauncher/doc/document/index.json");
 
     private ListView categoryListView;
     private ListView listView;

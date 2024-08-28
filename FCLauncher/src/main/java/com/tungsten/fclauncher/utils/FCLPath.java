@@ -65,7 +65,7 @@ public class FCLPath {
         FILES_DIR = context.getFilesDir().getAbsolutePath();
         PLUGIN_DIR = FILES_DIR + "/plugins";
         BACKGROUND_DIR = FILES_DIR + "/background";
-        CONTROLLER_DIR = SHARED_COMMON_DIR + "/control";
+        CONTROLLER_DIR = WORK_DIR + "/controllers";
 
         WORK_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server");
         SHARED_COMMON_DIR = WORK_DIR + "/.minecraft";
