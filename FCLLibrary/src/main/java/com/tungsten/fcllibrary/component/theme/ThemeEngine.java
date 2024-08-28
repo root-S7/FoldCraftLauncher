@@ -47,7 +47,7 @@ public class ThemeEngine {
             handler = new Handler();
             theme = Theme.getTheme(context);
             if (!theme.isModified()) {
-                theme.setColor(getWallpaperColor(context));
+                theme.setColor(getDefaultColor(context));
             }
             runnables = new HashMap<>();
             initialized = true;
@@ -156,14 +156,8 @@ public class ThemeEngine {
         Theme.saveTheme(context, theme);
     }
 
-    public static int getWallpaperColor(Context context) {
-        int color = Color.parseColor("#7797CF");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            WallpaperColors colors = WallpaperManager.getInstance(context).getWallpaperColors(WallpaperManager.FLAG_SYSTEM);
-            if (colors != null) {
-                color = colors.getPrimaryColor().toArgb();
-            }
-        }
+    public static int getDefaultColor(Context context) {
+        int color = Color.parseColor(R.color.default_theme_color);
         return color;
     }
 
