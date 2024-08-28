@@ -91,8 +91,7 @@ public final class Profiles {
     private static void checkProfiles() {
         if (profiles.isEmpty()) {
             Profile current = new Profile(FCLPath.CONTEXT.getString(R.string.profile_shared), new File(FCLPath.SHARED_COMMON_DIR), new VersionSetting(), null);
-            Profile home = new Profile(FCLPath.CONTEXT.getString(R.string.profile_private), new File(FCLPath.PRIVATE_COMMON_DIR));
-            profiles.addAll(current, home);
+            profiles.addAll(current);
         }
     }
 

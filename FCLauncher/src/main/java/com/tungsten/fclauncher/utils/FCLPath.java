@@ -32,7 +32,6 @@ public class FCLPath {
     public static String BACKGROUND_DIR;
     public static String CONTROLLER_DIR;
 
-    public static String PRIVATE_COMMON_DIR;
     public static String SHARED_COMMON_DIR;
     public static String WORK_DIR;
 
@@ -70,7 +69,6 @@ public class FCLPath {
 
         WORK_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + APP_CONFIG_PROPERTIES.getProperty("put-directory","FCL-Server");
         SHARED_COMMON_DIR = WORK_DIR + "/.minecraft";
-        PRIVATE_COMMON_DIR = context.getExternalFilesDir(".minecraft").getAbsolutePath();
 
         AUTHLIB_INJECTOR_PATH = PLUGIN_DIR + "/authlib-injector.jar";
         MULTIPLAYER_FIX_PATH = PLUGIN_DIR + "/MultiplayerFix.jar";
@@ -93,7 +91,6 @@ public class FCLPath {
         init(PLUGIN_DIR);
         init(BACKGROUND_DIR);
         init(CONTROLLER_DIR);
-        init(PRIVATE_COMMON_DIR);
         init(SHARED_COMMON_DIR);
         init(WORK_DIR);
     }

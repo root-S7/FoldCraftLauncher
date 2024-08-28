@@ -11,9 +11,9 @@
     <string name="splash_permission_settings_msg">You have chosen "Never Allow" Please manually grant storage permissions in settings.</string>
 
     <string name="splash_title">Welcome to Fold Craft Launcher</string>
-    <string name="splash_eula_error">Cannot get EULA, please check the network.</string>
+    <string name="splash_eula_error">Cannot get EULA, please check the network.\n\nYou can view it later by going to the doc branch of the github repository.</string>
     <string name="splash_eula_next">Agree and Continue</string>
-    <string name="splash_runtime_title">Install or update app runtime</string>
+    <string name="splash_runtime_title">Install or update app runtime\n\nYou need to restart the app after the installation completed. The app will automatically quit and be ready to use when reopened.</string>
     <string name="splash_runtime_lwjgl" translatable="false">LWJGL</string>
     <string name="splash_runtime_cacio" translatable="false">Caciocavallo</string>
     <string name="splash_runtime_cacio11" translatable="false">Caciocavallo 11</string>
@@ -715,8 +715,7 @@
     <string name="mods_url">Official Page</string>
     <string name="mods_update_modpack_mod_warning">Updating mods in a modpack can lead to irreparable results, possibly corrupting the modpack so that it cannot start. Are you sure you want to update?</string>
 
-    <string name="profile_shared">Shared Directory</string>
-    <string name="profile_private">Private Directory</string>
+    <string name="profile_shared" translatable="false">Default Directory</string>
     <string name="profile_name">Name</string>
     <string name="profile_path">Path</string>
     <string name="profile_select">Select Directory</string>
@@ -786,11 +785,8 @@
     <string name="settings_launcher_download_source_auto">Auto Choose Download Mirror</string>
     <string name="settings_launcher_language">Language</string>
     <string name="settings_launcher_language_system">Use System Language</string>
-    <string name="settings_launcher_language_english" translatable="false">English</string>
     <string name="settings_launcher_language_simplified_chinese" translatable="false">简体中文</string>
-    <string name="settings_launcher_language_russian" translatable="false">Русский язык</string>
-    <string name="settings_launcher_language_brazilian_portuguese" translatable="false">Português brasileiro</string>
-    <string name="settings_launcher_language_persian" translatable="false">فارسی</string>
+    <string name="settings_launcher_language_english" translatable="false">English</string>
     <string name="settings_launcher_launcher_log_export">Export launcher logs</string>
     <string name="settings_launcher_launcher_log_export_failed">Unable to export logs</string>
     <string name="settings_launcher_launcher_log_export_success">Logs have been exported to %s</string>
