@@ -47,7 +47,7 @@ import java.util.logging.Level;
 
 public class MainUI extends FCLCommonUI implements View.OnClickListener {
   
-    public static final String ANNOUNCEMENT_URL = FCLApplication.appConfig.getProperty("announcement-url","https://mirror.ghproxy.com/https://raw.githubusercontent.com/hyplant/FoldCraftLauncher/doc/announcement/latest.json");
+    public static final String ANNOUNCEMENT_URL = FCLApplication.appConfig.getProperty("announcement-url","https://raw.githubusercontent.com/hyplant/FoldCraftLauncher/doc/announcement/latest.json");
 
     private LinearLayoutCompat announcementContainer;
     private LinearLayoutCompat announcementLayout;
