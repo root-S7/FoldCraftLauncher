@@ -359,7 +359,7 @@ public class DefaultLauncher extends Launcher {
     public void extractLog4jConfigurationFile() throws IOException {
         File targetFile = getLog4jConfigurationFile();
         if (targetFile.exists()) return;
-        InputStream source;
+        String source;
         if (VersionNumber.compare(repository.getGameVersion(version).orElse("0.0"), "1.12") < 0) {
             source = FCLPath.PLUGIN_DIR + "log4j2-1.7.xml";
         } else {

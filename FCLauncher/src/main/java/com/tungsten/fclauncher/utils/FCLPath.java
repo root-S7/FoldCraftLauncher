@@ -95,6 +95,7 @@ public class FCLPath {
         init(CONTROLLER_DIR);
         init(SHARED_COMMON_DIR);
         init(EXTERNAL_DIR);
+        init(INTERNAL_DIR);
     }
 
     private static boolean init(String path) {

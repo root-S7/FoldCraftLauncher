@@ -114,6 +114,21 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
 
     private fun check() {
         if (isLatest) {
+            if (!other) {
+                needRestart=true
+                otherState.setVisibility(View.GONE)
+                otherProgress.visibility = View.VISIBLE
+                try {
+                    RuntimeUtils.copyAssetsDirToLocalDir(context, "othersExternal", FCLPath.EXTERNAL_DIR)
+                    RuntimeUtils.copyAssetsDirToLocalDir(context, "othersInternal", FCLPath.INTERNAL_DIR)
+                    other = true
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                otherState.visibility = View.VISIBLE
+                otherProgress.visibility = View.GONE
+                refreshDrawables()
+            }
             if (needRestart) {
                 (activity as? SplashActivity)?.finish()
                 System.exit(0)
@@ -366,22 +381,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             }
             if (!other) {
                 otherState.setVisibility(View.GONE)
-                otherProgress.visibility = View.VISIBLE
-                Thread {
-                    try {
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "othersExternal", FCLPath.EXTERNAL_DIR)
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "othersInternal", FCLPath.INTERNAL_DIR)
-                        other = true
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                    activity?.runOnUiThread {
-                        otherState.visibility = View.VISIBLE
-                        otherProgress.visibility = View.GONE
-                        refreshDrawables()
-                        check()
-                    }
-                }.start()
             }
         }
     }
