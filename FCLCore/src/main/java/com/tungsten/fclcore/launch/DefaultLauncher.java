@@ -49,6 +49,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -359,14 +360,15 @@ public class DefaultLauncher extends Launcher {
     public void extractLog4jConfigurationFile() throws IOException {
         File targetFile = getLog4jConfigurationFile();
         if (targetFile.exists()) return;
-        String source;
+        Path target = Paths.get(targetFile.getAbsolutePath());
+        Path source;
         if (VersionNumber.compare(repository.getGameVersion(version).orElse("0.0"), "1.12") < 0) {
-            source = FCLPath.PLUGIN_DIR + "log4j2-1.7.xml";
+            source = Paths.get(FCLPath.PLUGIN_DIR + "log4j2-1.7.xml");
         } else {
-            source = FCLPath.PLUGIN_DIR + "log4j2-1.12.xml";
+            source = Paths.get(FCLPath.PLUGIN_DIR + "log4j2-1.12.xml");
         }
         try {
-            Files.copy(source, targetFile.getAbsolutePath());
+            Files.copy(source, target);
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Failed to copy log4j config file", e);
         }
