@@ -170,7 +170,7 @@ public class Theme {
     public static Theme getTheme(Context context) {
         SharedPreferences sharedPreferences;
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
-        int color = sharedPreferences.getInt("theme_color", Color.parseColor(context.getColor(R.color.default_theme_color)));
+        int color = sharedPreferences.getInt("theme_color", context.getColor(R.color.default_theme_color));
         boolean fullscreen = sharedPreferences.getBoolean("fullscreen", false);
         boolean modified = sharedPreferences.getBoolean("modified", false);
         int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
