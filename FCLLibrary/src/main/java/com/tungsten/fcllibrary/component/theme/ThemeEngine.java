@@ -157,7 +157,7 @@ public class ThemeEngine {
     }
 
     public static int getDefaultColor(Context context) {
-        int color = Color.parseColor(R.color.default_theme_color);
+        int color = Color.parseColor(context.getColor(R.color.default_theme_color));
         return color;
     }
 
