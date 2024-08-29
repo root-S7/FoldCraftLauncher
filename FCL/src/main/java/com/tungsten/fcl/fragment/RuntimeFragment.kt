@@ -114,21 +114,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
 
     private fun check() {
         if (isLatest) {
-            if (!other) {
-                needRestart=true
-                otherState.setVisibility(View.GONE)
-                otherProgress.visibility = View.VISIBLE
-                try {
-                    RuntimeUtils.copyAssetsDirToLocalDir(context, "othersExternal", FCLPath.EXTERNAL_DIR)
-                    RuntimeUtils.copyAssetsDirToLocalDir(context, "othersInternal", FCLPath.INTERNAL_DIR)
-                    other = true
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
-                otherState.visibility = View.VISIBLE
-                otherProgress.visibility = View.GONE
-                refreshDrawables()
-            }
             if (needRestart) {
                 (activity as? SplashActivity)?.finish()
                 System.exit(0)
@@ -138,10 +123,31 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         }
     }
 
+    private fun checkOthers() {
+        if (isLatest) {
+            bind.apply {
+                if (!other) {
+                    otherProgress.visibility = View.VISIBLE
+                    try {
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "othersExternal", FCLPath.EXTERNAL_DIR)
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "othersInternal", FCLPath.INTERNAL_DIR)
+                        other = true
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                    otherState.visibility = View.VISIBLE
+                    otherProgress.visibility = View.GONE
+                    refreshDrawables()
+                    check()
+                }
+            }
+        }
+    }
+
     private fun setNameServer(targetJavaPath:String) {
         FileUtils.writeText(
             File(targetJavaPath + "/resolv.conf"),
-            FCLApplication.appConfig.getProperty("primary-nameserver", "223.5.5.5") + "\n" + FCLApplication.appConfig.getProperty("secondary-nameserver", "8.8.8.8")
+            FCLApplication.appConfig.getProperty("primary-nameserver", "223.5.5.5") + "\n" + FCLApplication.appConfig.getProperty("secondary-nameserver", "8.8.8.8") + "\n"
         )
     }
 
@@ -174,7 +180,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             gameResourceState.visibility = View.VISIBLE
                             gameResourceProgress.visibility = View.GONE
                             refreshDrawables()
-                            check()
+                            checkOthers()
                         }
                     }catch (e: IOException) {
                         e.printStackTrace()
@@ -195,7 +201,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         lwjglState.visibility = View.VISIBLE
                         lwjglProgress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
@@ -217,7 +223,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         cacioState.visibility = View.VISIBLE
                         cacioProgress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
@@ -239,7 +245,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         cacio11State.visibility = View.VISIBLE
                         cacio11Progress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
@@ -261,7 +267,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         cacio17State.visibility = View.VISIBLE
                         cacio17Progress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
@@ -284,7 +290,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         java8State.visibility = View.VISIBLE
                         java8Progress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
@@ -307,7 +313,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         java11State.visibility = View.VISIBLE
                         java11Progress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
@@ -330,7 +336,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         java17State.visibility = View.VISIBLE
                         java17Progress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
@@ -353,7 +359,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         java21State.visibility = View.VISIBLE
                         java21Progress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
@@ -375,12 +381,12 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         jnaState.visibility = View.VISIBLE
                         jnaProgress.visibility = View.GONE
                         refreshDrawables()
-                        check()
+                        checkOthers()
                     }
                 }.start()
             }
             if (!other) {
-                otherState.setVisibility(View.GONE)
+                otherState.visibility = View.GONE
             }
         }
     }
