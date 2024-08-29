@@ -279,7 +279,7 @@ public final class LauncherHelper {
             CompletableFuture<JavaVersion> future = new CompletableFuture<>();
             Runnable continueAction = () -> future.complete(javaVersion);
             FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context);
-            builder.setCancelable(false);
+            builder.setCancelable(true);
             builder.setMessage(context.getString(R.string.launch_error_java));
             builder.setPositiveButton(context.getString(R.string.launch_error_java_auto), () -> {
                 setting.setJava(JavaVersion.JAVA_AUTO.getVersionName());

@@ -104,8 +104,8 @@
     <string name="action_retry">Retry</string>
     <string name="action_skip">Skip</string>
 
-    <string name="announcement">Announcement: %s</string>
-    <string name="announcement_significant">This announcement is an important announcement. You cant hide it.</string>
+    <string name="announcement">Notice: %s</string>
+    <string name="announcement_significant">This announcement is an important announcement. You can&#39;t hide it.</string>
     <string name="announcement_error">ERROR</string>
     <string name="announcement_failure">Failed to get the announcement.\nYou can view it later by going to the doc branch of the github repository.</string>
 
@@ -785,8 +785,8 @@
     <string name="settings_launcher_download_source_auto">Auto Choose Download Mirror</string>
     <string name="settings_launcher_language">Language</string>
     <string name="settings_launcher_language_system">Use System Language</string>
-    <string name="settings_launcher_language_simplified_chinese" translatable="false">简体中文</string>
     <string name="settings_launcher_language_english" translatable="false">English</string>
+    <string name="settings_launcher_language_simplified_chinese" translatable="false">简体中文</string>
     <string name="settings_launcher_launcher_log_export">Export launcher logs</string>
     <string name="settings_launcher_launcher_log_export_failed">Unable to export logs</string>
     <string name="settings_launcher_launcher_log_export_success">Logs have been exported to %s</string>

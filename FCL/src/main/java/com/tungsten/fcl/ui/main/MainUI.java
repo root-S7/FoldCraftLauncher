@@ -207,7 +207,7 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
             if (announcement != null && announcement.isSignificant()) {
                 FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(getContext());
                 builder.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT);
-                builder.setCancelable(true);
+                builder.setCancelable(false);
                 builder.setMessage(getContext().getString(R.string.announcement_significant));
                 builder.setPositiveButton(null);
                 builder.setNegativeButton(null);
