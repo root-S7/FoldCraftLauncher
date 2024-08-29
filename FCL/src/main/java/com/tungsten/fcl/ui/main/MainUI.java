@@ -150,9 +150,9 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
                             -1,
                             -1,
                             new ArrayList<>(Collections.singletonList("")),
-                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", context.getString(R.string.announcement_error)))),
+                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", getContext().getString(R.string.announcement_error)))),
                             new SimpleDateFormat("yyyy.MM.dd").format(new Date()),
-                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", context.getString(R.string.announcement_failure))))
+                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", getContext().getString(R.string.announcement_failure))))
                     );
                 }
             });
