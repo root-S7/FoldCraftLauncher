@@ -50,7 +50,7 @@ public class FCLPath {
         NATIVE_LIB_DIR = context.getApplicationInfo().nativeLibraryDir;
 
         LOG_DIR = EXTERNAL_DIR + "/logs";
-        CACHE_DIR = EXTERNAL_DIR + "/cache";
+        CACHE_DIR = FILES_DIR + "/cache";
 
         RUNTIME_DIR = context.getDir("runtime", 0).getAbsolutePath();
         JAVA_8_PATH = RUNTIME_DIR + "/java/jre8";

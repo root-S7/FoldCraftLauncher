@@ -88,8 +88,6 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
 
     public void clearCacheDirs() {
         FileUtils.cleanDirectoryQuietly(new File(FCLPath.CACHE_DIR));
-        FileUtils.cleanDirectoryQuietly(new File(FCLPath.FILES_DIR + "/../cache"));
-        FileUtils.cleanDirectoryQuietly(new File(FCLPath.FILES_DIR + "/../code_cache"));
     }
 
     @Override
