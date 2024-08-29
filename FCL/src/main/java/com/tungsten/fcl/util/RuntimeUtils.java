@@ -343,7 +343,7 @@ public class RuntimeUtils {
     public static void reloadConfiguration(Context context) {
         try {
             Gson gson = new Gson();
-            JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
+            JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "config.json"), JsonObject.class);
             JsonObject configurations = jsonObject.getAsJsonObject("configurations");
             // 若不存在gameDir属性值有问题则添加一个
             for(String key : configurations.keySet()) {
@@ -364,7 +364,8 @@ public class RuntimeUtils {
                 }
             }
             // 重新写入新文件
-            RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
+            String formattedMergedJson = new GsonBuilder().setPrettyPrinting().create().toJson(mergedJsonObject);
+            RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", formattedMergedJson);
         }catch (JsonSyntaxException | JsonIOException | IOException e) {
             throw new RuntimeException(e);
         }

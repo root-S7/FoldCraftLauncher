@@ -165,8 +165,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                     try {
                         var applicationThisGameDirectory = FCLPath.SHARED_COMMON_DIR
                         var applicationThisDataDirectory = FCLPath.EXTERNAL_DIR + "/minecraft"
-                        // 释放config.json并刷新
-                        RuntimeUtils.copyAssetsFileToLocalDir(context, "config.json", FCLPath.FILES_DIR + "config.json")
+                        // 释放启动器插件并刷新配置
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "game", FCLPath.PLUGIN_DIR)
                         RuntimeUtils.reloadConfiguration(context)
                         // 删除旧数据
