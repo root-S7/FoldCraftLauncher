@@ -145,7 +145,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
 
         try {
             ConfigHolder.init()
-        } catch (e: IOException or e: RuntimeException) {
+        } catch (e: IOException or RuntimeException) {
             Logging.LOG.log(Level.WARNING, e.message)
         }
 
