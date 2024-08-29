@@ -115,10 +115,10 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     private fun check() {
         if (isLatest) {
             if (needRestart) {
-                (activity as? SplashActivity)?.finish()
+                (activity as SplashActivity).finish()
                 System.exit(0)
             } else {
-                (activity as? SplashActivity)?.enterLauncher()
+                (activity as SplashActivity).enterLauncher()
             }
         }
     }
@@ -132,13 +132,13 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "othersExternal", FCLPath.EXTERNAL_DIR)
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "othersInternal", FCLPath.INTERNAL_DIR)
                         other = true
+                        otherState.visibility = View.VISIBLE
+                        otherProgress.visibility = View.GONE
+                        refreshDrawables()
+                        check()
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
-                    otherState.visibility = View.VISIBLE
-                    otherProgress.visibility = View.GONE
-                    refreshDrawables()
-                    check()
                 }
             }
         }
@@ -166,7 +166,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         var applicationThisGameDirectory = FCLPath.SHARED_COMMON_DIR
                         var applicationThisDataDirectory = FCLPath.EXTERNAL_DIR + "/minecraft"
                         // 释放config.json并刷新
-                        RuntimeUtils.copyAssetsFileToLocalDir(context, "config.json", FCLPath.FILES_DIR)
+                        RuntimeUtils.copyAssetsFileToLocalDir(context, "config.json", FCLPath.FILES_DIR + "config.json")
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "game", FCLPath.PLUGIN_DIR)
                         RuntimeUtils.reloadConfiguration(context)
                         // 删除旧数据
