@@ -129,18 +129,17 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 if (!other) {
                     otherProgress.visibility = View.VISIBLE
                     try {
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "game", FCLPath.PLUGIN_DIR)
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "othersExternal", FCLPath.EXTERNAL_DIR)
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "othersInternal", FCLPath.INTERNAL_DIR)
                         other = true
                         otherState.visibility = View.VISIBLE
                         otherProgress.visibility = View.GONE
                         refreshDrawables()
-                        check()
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
                 }
+                check()
             }
         }
     }
