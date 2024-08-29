@@ -111,7 +111,7 @@ public class HelpPage extends FCLCommonPage implements View.OnClickListener {
             refresh();
         }
         if (v == website) {
-            Uri uri = Uri.parse("https://github.com/hyplant/FoldCraftLauncher/tree/doc/document");
+            Uri uri = Uri.parse(FCLApplication.appConfig.getProperty("doc-home-url","https://github.com/hyplant/FoldCraftLauncher/tree/doc/document"));
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             getContext().startActivity(intent);
         }

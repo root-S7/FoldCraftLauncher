@@ -150,9 +150,9 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
                             -1,
                             -1,
                             new ArrayList<>(Collections.singletonList("")),
-                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))),
+                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", context.getString(R.string.announcement_error))),
                             new SimpleDateFormat("yyyy.MM.dd").format(new Date()),
-                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题")))
+                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", context.getString(R.string.announcement_failure))))
                     );
                 }
             });
@@ -207,9 +207,9 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
             if (announcement != null && announcement.isSignificant()) {
                 FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(getContext());
                 builder.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT);
-                builder.setCancelable(false);
+                builder.setCancelable(true);
                 builder.setMessage(getContext().getString(R.string.announcement_significant));
-                builder.setPositiveButton(this::hideAnnouncement);
+                builder.setPositiveButton(null);
                 builder.setNegativeButton(null);
                 builder.create().show();
             } else {

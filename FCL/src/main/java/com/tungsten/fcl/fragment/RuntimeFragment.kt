@@ -113,7 +113,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna && gameResource
 
     private fun check() {
-        if (isLatest) {
+        if (isLatest && other) {
             if (needRestart) {
                 (activity as SplashActivity).finish()
                 System.exit(0)
@@ -123,8 +123,11 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         }
     }
 
+    private var installingOther = false
     private fun checkOthers() {
+        if (installingOther) return
         if (isLatest) {
+            installingOther = true
             bind.apply {
                 if (!other) {
                     otherProgress.visibility = View.VISIBLE
@@ -385,6 +388,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             }
             if (!other) {
                 otherState.visibility = View.GONE
+                checkOthers()
             }
         }
     }

@@ -89,7 +89,9 @@
     <string name="action_skip">跳过</string>
 
     <string name="announcement">公告：%s</string>
-    <string name="announcement_significant">此公告为重要公告，隐藏前请确认你已阅读此公告，是否继续隐藏？</string>
+    <string name="announcement_significant">此公告为重要公告，无法隐藏。</string>
+    <string name="announcement_error">异常</string>
+    <string name="announcement_failure">无法获取公告。\n您可以稍后前往 github 仓库的 doc 分支查看。</string>
 
     <string name="archive_author">作者</string>
     <string name="archive_date">发布时间</string>

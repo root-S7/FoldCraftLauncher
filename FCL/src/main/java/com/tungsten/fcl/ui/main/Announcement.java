@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.tungsten.fcl.R
 import com.tungsten.fcl.upgrade.UpdateChecker;
 import com.tungsten.fcllibrary.util.LocaleUtils;
 
@@ -88,7 +89,7 @@ public class Announcement {
 
     public String getDisplayContent(Context context) {
         if (content.size() == 0) {
-            content.add(new Content("en","无法获取公告，也许是网络问题"));
+            content.add(new Content("en",context.getString(R.string.announcement_failure)));
         }
         for (Content c : content) {
             if (LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString().contains(c.getLang())) {

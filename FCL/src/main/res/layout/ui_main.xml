@@ -82,8 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="@string/button_hide"
-            app:ripple="true"
-            android:visibility="invisible"/>
+            app:ripple="true"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

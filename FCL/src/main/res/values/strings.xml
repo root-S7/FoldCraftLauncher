@@ -105,7 +105,9 @@
     <string name="action_skip">Skip</string>
 
     <string name="announcement">Announcement: %s</string>
-    <string name="announcement_significant">This announcement is an important announcement. Please confirm that you have read this announcement before hiding it. Do you want to continue hiding it?</string>
+    <string name="announcement_significant">This announcement is an important announcement. You can't hide it.</string>
+    <string name="announcement_error">ERROR</string>
+    <string name="announcement_failure">Failed to get the announcement.\nYou can view it later by going to the doc branch of the github repository.</string>
 
     <string name="archive_author">Author(s)</string>
     <string name="archive_date">Publish Date</string>
