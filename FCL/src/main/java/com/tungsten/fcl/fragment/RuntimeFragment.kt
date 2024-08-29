@@ -76,7 +76,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
             jna = RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
             gameResource = RuntimeUtils.isLatest(FCLPath.SHARED_COMMON_DIR, "/assets/.minecraft")
-            other = RuntimeUtils.isLatest(FCLPath.FILES_DIR, "/assets/othersInternal")
+            other = RuntimeUtils.isLatest(FCLPath.FILES_DIR, "/assets/othersInternal/files")
 
         } catch (e: IOException) {
             e.printStackTrace()
