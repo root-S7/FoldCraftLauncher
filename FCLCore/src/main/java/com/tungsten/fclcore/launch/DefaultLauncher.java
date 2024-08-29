@@ -363,9 +363,9 @@ public class DefaultLauncher extends Launcher {
         Path target = Paths.get(targetFile.getAbsolutePath());
         Path source;
         if (VersionNumber.compare(repository.getGameVersion(version).orElse("0.0"), "1.12") < 0) {
-            source = Paths.get(FCLPath.PLUGIN_DIR + "log4j2-1.7.xml");
+            source = Paths.get(FCLPath.PLUGIN_DIR + "/log4j2-1.7.xml");
         } else {
-            source = Paths.get(FCLPath.PLUGIN_DIR + "log4j2-1.12.xml");
+            source = Paths.get(FCLPath.PLUGIN_DIR + "/log4j2-1.12.xml");
         }
         try {
             Files.copy(source, target);
