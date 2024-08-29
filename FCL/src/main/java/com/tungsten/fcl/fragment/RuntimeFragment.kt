@@ -129,6 +129,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 if (!other) {
                     otherProgress.visibility = View.VISIBLE
                     try {
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "game", FCLPath.PLUGIN_DIR)
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "othersExternal", FCLPath.EXTERNAL_DIR)
                         RuntimeUtils.copyAssetsDirToLocalDir(context, "othersInternal", FCLPath.INTERNAL_DIR)
                         other = true
@@ -165,8 +166,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                     try {
                         var applicationThisGameDirectory = FCLPath.SHARED_COMMON_DIR
                         var applicationThisDataDirectory = FCLPath.EXTERNAL_DIR + "/minecraft"
-                        // 释放启动器插件并刷新配置
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "game", FCLPath.PLUGIN_DIR)
+                        // 先刷新配置
                         RuntimeUtils.reloadConfiguration(context)
                         // 删除旧数据
                         RuntimeUtils.delete(applicationThisGameDirectory)
