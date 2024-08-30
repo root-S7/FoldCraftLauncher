@@ -147,6 +147,13 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
             ConfigHolder.init()
         } catch (e: IOException) {
             Logging.LOG.log(Level.WARNING, e.message)
+        } catch (e: IllegalStateException) {
+            Logging.LOG.log(Level.SEVERE, e.message)
+            val intent = Intent(this, SplashActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+            finish()
+            System.exit(0)
         }
 
         bind.apply {
