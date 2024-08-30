@@ -61,6 +61,10 @@ public final class ConfigHolder {
     }
 
     public synchronized static void init() throws IOException {
+        if (configInstance != null) {
+            throw new IllegalStateException("Configuration is already loaded");
+        }
+
         configInstance = loadConfig();
         configInstance.addListener(source -> markConfigDirty());
 
