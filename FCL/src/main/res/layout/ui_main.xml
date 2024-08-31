@@ -65,7 +65,7 @@
                     android:textSize="16.5sp"
                     android:id="@+id/announcement"
                     android:autoLink="web"
-                    android:textColorLink="@android:color/text_color_link"
+                    android:textColorLink="@color/text_color_link"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:auto_text_tint="true"/>
@@ -82,7 +82,7 @@
                 <com.tungsten.fcllibrary.component.view.FCLTextView
                     android:id="@+id/date"
                     android:autoLink="web"
-                    android:textColorLink="@android:color/text_color_link"
+                    android:textColorLink="@color/text_color_link"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="3"
