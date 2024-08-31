@@ -162,7 +162,7 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
                     announcementContainer.setVisibility(View.VISIBLE);
                     title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", this.announcement.getDisplayTitle(getContext())));
                     announcementView.setText(this.announcement.getDisplayContent(getContext()));
-                    date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", this.announcement.getDate()));
+                    date.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", this.announcement.getDate()));
                 });
             });
         }else announcementContainer.setVisibility(View.INVISIBLE);

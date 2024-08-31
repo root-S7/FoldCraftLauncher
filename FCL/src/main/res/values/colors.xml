@@ -3,4 +3,5 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="ui_bg_color">#7ACCCBCB</color>
+    <color name="text_color_link">#D000FFFF</color>
 </resources>
