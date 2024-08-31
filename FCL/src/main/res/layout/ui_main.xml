@@ -31,17 +31,22 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:padding="10dp">
-                <com.tungsten.fcllibrary.component.view.FCLTextView
-                    android:id="@+id/title"
+                <HorizontalScrollView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:singleLine="true"
-                    android:text="@string/announcement"
+                    android:fillViewport="true"
                     android:paddingHorizontal="10dp"
-                    android:textSize="20sp"
-                    android:layout_gravity="center"
-                    app:auto_text_tint="true"/>
+                    android:layout_gravity="center">
+                    <com.tungsten.fcllibrary.component.view.FCLTextView
+                        android:id="@+id/title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:singleLine="true"
+                        android:textSize="20sp"
+                        app:auto_text_tint="true"/>
+                </HorizontalScrollView>
                 <com.tungsten.fcllibrary.component.view.FCLButton
                     android:id="@+id/hide"
                     android:layout_width="wrap_content"
@@ -86,7 +91,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="3"
-                    android:text="@string/announcement"
                     android:padding="10dp"
                     android:layout_gravity="start"
                     app:auto_text_tint="true"/>
