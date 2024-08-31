@@ -179,9 +179,6 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
             }
         });
 
-        SharedPreferences sharedPreferences = getContext().getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = sharedPreferences.edit();
-
         threads.setProgress(config().getDownloadThreads());
         threads.addProgressListener();
         threads.progressProperty().bindBidirectional(config().downloadThreadsProperty());
@@ -207,9 +204,12 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
+        SharedPreferences sharedPreferences = getContext().getSharedPreferences("launcher", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+
         if (v == checkUpdate) {
-        editor.putInt("ignore_announcement", -1);
-        editor.apply();
+            editor.putInt("ignore_announcement", -1);
+            editor.apply();
             if (!UpdateChecker.getInstance().isChecking()) {
                 UpdateChecker.getInstance().checkManually(getContext()).whenComplete(Schedulers.androidUIThread(), e -> {
                     if (e != null) {
