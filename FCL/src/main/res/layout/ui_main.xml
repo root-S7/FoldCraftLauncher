@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         app:layout_constraintHorizontal_bias="0"
-        app:layout_constraintWidth_percent="0.4"
+        app:layout_constraintWidth_percent="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -26,16 +26,30 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <com.tungsten.fcllibrary.component.view.FCLTextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:text="@string/announcement"
-                android:padding="10dp"
-                android:textSize="20sp"
-                android:layout_gravity="center"
-                app:auto_text_tint="true"/>
+                android:orientation="horizontal"
+                android:padding="10dp">
+                <com.tungsten.fcllibrary.component.view.FCLTextView
+                    android:id="@+id/title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:singleLine="true"
+                    android:text="@string/announcement"
+                    android:paddingHorizontal="10dp"
+                    android:textSize="20sp"
+                    android:layout_gravity="center"
+                    app:auto_text_tint="true"/>
+                <com.tungsten.fcllibrary.component.view.FCLButton
+                    android:id="@+id/hide"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:text="@string/button_hide"
+                    app:ripple="true"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
 
             <View
                 android:layout_width="match_parent"
@@ -69,25 +83,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:text="@string/update_date"
+                android:text="@string/announcement"
                 android:padding="10dp"
-                android:layout_gravity="center"
+                android:layout_gravity="start"
                 app:auto_text_tint="true"/>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
-
-        <com.tungsten.fcllibrary.component.view.FCLButton
-            android:id="@+id/hide"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/button_hide"
-            app:ripple="true"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <RelativeLayout
         android:id="@+id/skin_container"
+        android:visibility="gone"
         android:layout_width="0dp"
         android:layout_height="300dp"
         app:layout_constraintHorizontal_bias="1"

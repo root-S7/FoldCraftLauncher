@@ -108,8 +108,10 @@ public class Announcement {
             return false;
         if (specificLang.size() != 0 && !specificLang.contains(LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString()))
             return false;
+        if (significant)
+            return true;
         SharedPreferences sharedPreferences = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        return sharedPreferences.getInt("ignore_announcement", 0) < id;
+        return sharedPreferences.getInt("ignore_announcement", 0) != id;
     }
 
     public void hide(Context context) {
