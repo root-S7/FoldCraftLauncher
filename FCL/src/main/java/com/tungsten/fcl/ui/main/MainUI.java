@@ -159,6 +159,8 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
             future.thenAccept(announcement -> {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     this.announcement = announcement;
+                    if (!announcement.shouldDisplay(getContext()))
+                        return;
                     announcementContainer.setVisibility(View.VISIBLE);
                     title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", this.announcement.getDisplayTitle(getContext())));
                     announcementView.setText(this.announcement.getDisplayContent(getContext()));

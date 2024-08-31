@@ -734,7 +734,7 @@
 
     <string name="settings_launcher">启动器设置</string>
     <string name="settings_launcher_debug">调试</string>
-    <string name="settings_launcher_upgrade">启动器更新</string>
+    <string name="settings_launcher_upgrade">应用程序和公告更新</string>
     <string name="settings_launcher_upgrade_check">检测</string>
     <string name="settings_launcher_cache">缓存文件夹</string>
     <string name="settings_launcher_clear_cache">清理缓存</string>
@@ -798,7 +798,7 @@
 
     <string name="update">更新</string>
     <string name="update_netdisk">网盘</string>
-    <string name="update_checking">正在检查更新</string>
+    <string name="update_checking">正在检查更新（若有新公告，请重启启动器查看）</string>
     <string name="update_check_failed">无法检测更新</string>
     <string name="update_date">日期：%s</string>
     <string name="update_description">描述：\n%s</string>

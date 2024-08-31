@@ -774,7 +774,7 @@
 
     <string name="settings_launcher">Launcher Settings</string>
     <string name="settings_launcher_debug">Debug</string>
-    <string name="settings_launcher_upgrade">Update Launcher</string>
+    <string name="settings_launcher_upgrade">Update Launcher and Announcement</string>
     <string name="settings_launcher_upgrade_check">Check</string>
     <string name="settings_launcher_cache">Cache Directory</string>
     <string name="settings_launcher_clear_cache">Clear cache</string>
@@ -840,7 +840,7 @@
 
     <string name="update">Update</string>
     <string name="update_netdisk">Netdisk</string>
-    <string name="update_checking">Checking for Updates</string>
+    <string name="update_checking">Checking for Updates (Restart to view new announcement)</string>
     <string name="update_check_failed">Failed to check update</string>
     <string name="update_date">Date: %s</string>
     <string name="update_description">Description:\n%s</string>
