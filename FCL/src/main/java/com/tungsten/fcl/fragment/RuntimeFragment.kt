@@ -303,21 +303,8 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_11_PATH,
                             "app_runtime/java/jre11"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_11_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
-                            )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_11_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) FileUtils.writeText(File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 1.1.1.1" + "\nnameserver 8.8.8.8")
+                        else FileUtils.writeText(File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","119.29.29.29") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"))
                         java11 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -340,21 +327,8 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_17_PATH,
                             "app_runtime/java/jre17"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_17_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
-                            )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_17_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) FileUtils.writeText(File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 1.1.1.1" + "\nnameserver 8.8.8.8")
+                        else FileUtils.writeText(File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","119.29.29.29") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"))
                         java17 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -377,21 +351,8 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_21_PATH,
                             "app_runtime/java/jre21"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_21_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
-                            )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_21_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) FileUtils.writeText(File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 1.1.1.1" + "\nnameserver 8.8.8.8")
+                        else FileUtils.writeText(File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","119.29.29.29") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"))
                         java21 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
