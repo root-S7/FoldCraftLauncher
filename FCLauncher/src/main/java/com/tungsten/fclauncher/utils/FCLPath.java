@@ -7,7 +7,7 @@ import java.io.File;
 import java.util.Properties;
 
 public class FCLPath {
-    private static Properties APP_CONFIG_PROPERTIES;
+    public static Properties APP_CONFIG_PROPERTIES;
 
     public static Context CONTEXT;
 

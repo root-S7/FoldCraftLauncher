@@ -27,10 +27,10 @@ public class FCLApplication extends Application implements Application.ActivityL
          * 向上和向下传递值时候如果传递的是频繁访问数据可不在经过意图传递数据值
          * 解决那些频繁分配内存对象导致程序崩溃问题比如Handler...
         **/
-        appConfig = new PropertiesFileParse("config.properties", getApplicationContext()).getProperties();
         deviceInfoUtils = new DeviceInfoUtils(this);
         sharedPreferences = getApplicationContext().getSharedPreferences("launcher", Context.MODE_PRIVATE);
         FCLPath.loadPaths(this);
+        appConfig = FCLPath.APP_CONFIG_PROPERTIES;
 
         this.registerActivityLifecycleCallbacks(this);
     }
