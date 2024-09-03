@@ -343,7 +343,7 @@ public class RuntimeUtils {
         try {
             // 读取config.json配置文件并解析
             Gson gson = new Gson();
-            JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
+            JsonObject jsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others_file/config.json"), JsonObject.class);
             JsonObject configurations = jsonObject.getAsJsonObject("configurations");
 
             // 若不存在gameDir属性值有问题则添加一个
@@ -370,7 +370,7 @@ public class RuntimeUtils {
 
             // 重新写入新文件
             RuntimeUtils.writeStringToFile(FCLPath.FILES_DIR, "config.json", gson.toJson(mergedJsonObject));
-            RuntimeUtils.copyAssets(context, "others/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
+            RuntimeUtils.copyAssets(context, "others_file/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
         }catch (JsonSyntaxException | JsonIOException | IOException e) {
             throw new RuntimeException(e);
         }
@@ -405,7 +405,7 @@ public class RuntimeUtils {
             Gson gson = new Gson();
 
             if(new File(FCLPath.FILES_DIR + "/config.json").exists()) configJsonObject = gson.fromJson(ReadTools.convertToString(Files.newInputStream(Paths.get(FCLPath.FILES_DIR + "/config.json"))), JsonObject.class);
-            else configJsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others/config.json"), JsonObject.class);
+            else configJsonObject = gson.fromJson(ReadTools.getAssetReader(context, "others_file/config.json"), JsonObject.class);
         }catch(JsonSyntaxException | JsonIOException | IOException e) {
             edit.putString("this_game_resources_directory", FCLPath.SHARED_COMMON_DIR);
             edit.apply();

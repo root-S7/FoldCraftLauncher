@@ -35,7 +35,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     var java21: Boolean = false
     var jna: Boolean = false
     var gameResource = false
-    var other = false
+    var othersFile = false
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
 
@@ -76,7 +76,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
             jna = RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
             gameResource = RuntimeUtils.isLatest(sharedPreferences, "game_resources_version", "版本异常", "/assets/.minecraft") && !sharedPreferences.getBoolean("is_first_game_packages", true)
-            other = RuntimeUtils.isLatest(sharedPreferences, "game_others_version", "版本异常", "/assets/others") && gameResource
+            othersFile = RuntimeUtils.isLatest(sharedPreferences, "others_file_version", "版本异常", "/assets/others_file") && gameResource
 
         } catch (e: IOException) {
             e.printStackTrace()
@@ -104,13 +104,13 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 java21State.setBackgroundDrawable(if (java21) stateDone else stateUpdate)
                 jnaState.setBackgroundDrawable(if (jna) stateDone else stateUpdate)
                 gameResourceState.setBackgroundDrawable(if (gameResource) stateDone else stateUpdate)
-                otherState.setBackgroundDrawable(if (other) stateDone else stateUpdate)
+                othersFileState.setBackgroundDrawable(if (othersFile) stateDone else stateUpdate)
             }
         }
     }
 
     private val isLatest: Boolean
-        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna && gameResource && other
+        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna && gameResource && othersFile
 
     private fun check() {
         if (isLatest) {
@@ -166,22 +166,22 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                     }
                 }.start()
             }
-            if (!other) {
-                otherState.setVisibility(View.GONE)
-                otherProgress.visibility = View.VISIBLE
+            if (!othersFile) {
+                othersFileState.setVisibility(View.GONE)
+                othersFileProgress.visibility = View.VISIBLE
                 Thread {
                     try {
-                        if ("false" == FCLApplication.appConfig.getProperty("download-authlib-injector-online", "false")) RuntimeUtils.copyAssetsFileToLocalDir(context, "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar")
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR)
-                        ParseAuthlibInjectorServerFile(activity, "others/authlib-injector-server.json").parseFileAndConvert()
-                        editor.putString("game_others_version", ReadTools.convertToString(context, "others/version"))
-                        other = true
+                        if ("false" == FCLApplication.appConfig.getProperty("download-authlib-injector-online", "false")) RuntimeUtils.copyAssetsFileToLocalDir(context, "others_file/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar")
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "others_file/background", FCLPath.BACKGROUND_DIR)
+                        ParseAuthlibInjectorServerFile(activity, "others_file/authlib-injector-server.json").parseFileAndConvert()
+                        editor.putString("others_file_version", ReadTools.convertToString(context, "others_file/version"))
+                        othersFile = true
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
                     activity?.runOnUiThread {
-                        otherState.visibility = View.VISIBLE
-                        otherProgress.visibility = View.GONE
+                        othersFileState.visibility = View.VISIBLE
+                        othersFileProgress.visibility = View.GONE
                         refreshDrawables()
                         check()
                     }
