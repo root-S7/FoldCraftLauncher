@@ -157,11 +157,14 @@ public class ThemeEngine {
     }
 
     public static int getWallpaperColor(Context context) {
-        int color = Color.parseColor("#7797CF");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            WallpaperColors colors = WallpaperManager.getInstance(context).getWallpaperColors(WallpaperManager.FLAG_SYSTEM);
-            if (colors != null) {
-                color = colors.getPrimaryColor().toArgb();
+        int color;
+        try {
+            color = Color.parseColor(FCLPath.APP_CONFIG_PROPERTIES.getProperty("theme-color","#7797CF"));
+        }catch(IllegalArgumentException e) {
+            color = Color.parseColor("#7797CF");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                WallpaperColors colors = WallpaperManager.getInstance(context).getWallpaperColors(WallpaperManager.FLAG_SYSTEM);
+                if (colors != null) color = colors.getPrimaryColor().toArgb();
             }
         }
         return color;
