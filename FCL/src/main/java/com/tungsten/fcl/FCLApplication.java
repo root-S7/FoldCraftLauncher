@@ -44,9 +44,20 @@ public class FCLApplication extends Application implements Application.ActivityL
     }
 
     private void enabledStrictMode() {
-        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectNetwork().detectCustomSlowCalls().detectDiskReads().detectDiskWrites().detectAll().penaltyLog().build());
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectNetwork()
+                .detectCustomSlowCalls()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectAll()
+                .penaltyLog()
+                .build());
 
-        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().detectLeakedClosableObjects().detectActivityLeaks().detectAll().penaltyLog().build());
+        StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
+                .detectLeakedClosableObjects()
+                .detectActivityLeaks()
+                .detectAll()
+                .penaltyLog()
+                .build());
     }
 
     @Override
@@ -81,6 +92,8 @@ public class FCLApplication extends Application implements Application.ActivityL
 
     @Override
     public void onActivityDestroyed(@NonNull Activity activity) {
-        if (currentActivity.get() == activity) currentActivity = null;
+        if (currentActivity != null && currentActivity.get() == activity) {
+            currentActivity = null;
+        }
     }
 }
