@@ -28,6 +28,7 @@ import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +78,7 @@ public class ForgeOldInstallTask extends Task<Version> {
                 throw new IOException("Cannot make directory " + forgeFile.getParent());
 
             ZipEntry forgeEntry = zipFile.getEntry(installProfile.getInstall().getFilePath());
-            try (InputStream is = zipFile.getInputStream(forgeEntry); OutputStream os = new FileOutputStream(forgeFile)) {
+            try (InputStream is = zipFile.getInputStream(forgeEntry); OutputStream os = Files.newOutputStream(forgeFile.toPath())) {
                 IOUtils.copyTo(is, os);
             }
 
