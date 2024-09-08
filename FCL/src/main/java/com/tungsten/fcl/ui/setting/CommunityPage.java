@@ -47,7 +47,7 @@ public class CommunityPage extends FCLCommonPage implements View.OnClickListener
         }
     }
 
-    private final static String QQ_GROUP_KEY = FCLApplication.appConfig.getProperty("qq-group-key","tUFbF4hOV-O0Xykwx0VyxISWgKyf8gqe");
+    private final static String QQ_GROUP_KEY = FCLApplication.appConfig.getProperty("qq-group-key","huOeeoWkJd3X-FTqbhgHxNh89hoNJ1cT");
 
     public boolean joinQQGroup(String key) {
         Intent intent = new Intent();
