@@ -16,6 +16,7 @@ import com.tungsten.fcl.util.ParseAuthlibInjectorServerFile
 import com.tungsten.fcl.util.ReadTools
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
+import com.tungsten.fclcore.task.Schedulers
 import com.tungsten.fclcore.util.io.FileUtils
 import com.tungsten.fcllibrary.component.FCLFragment
 import com.tungsten.fcllibrary.util.LocaleUtils
@@ -48,10 +49,12 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         editor = sharedPreferences.edit()
         val view = inflater.inflate(R.layout.fragment_runtime, container, false)
         bind = FragmentRuntimeBinding.bind(view)
-        initState()
-        refreshDrawables()
-        check()
         bind.install.setOnClickListener(this)
+        Schedulers.defaultScheduler().execute {
+            initState()
+            refreshDrawables()
+            check()
+        }
         return view
     }
 

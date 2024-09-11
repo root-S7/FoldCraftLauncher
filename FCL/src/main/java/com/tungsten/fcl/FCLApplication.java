@@ -1,9 +1,13 @@
 package com.tungsten.fcl;
 
-import android.app.*;
+import android.app.Activity;
+import android.app.Application;
+import android.os.Bundle;
+import android.os.StrictMode;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import com.mio.util.PerfUtil;
 import android.content.*;
-import android.os.*;
-import androidx.annotation.*;
 import com.tungsten.fcl.util.DeviceInfoUtils;
 import com.tungsten.fclauncher.utils.*;
 import java.lang.ref.WeakReference;
@@ -33,6 +37,7 @@ public class FCLApplication extends Application implements Application.ActivityL
         appConfig = FCLPath.APP_CONFIG_PROPERTIES;
 
         this.registerActivityLifecycleCallbacks(this);
+        PerfUtil.install();
     }
 
     public static Activity getCurrentActivity() {
