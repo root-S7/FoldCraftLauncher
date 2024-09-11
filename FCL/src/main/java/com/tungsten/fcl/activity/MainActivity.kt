@@ -16,6 +16,7 @@ import androidx.core.view.forEach
 import androidx.databinding.DataBindingUtil
 import com.mio.util.AnimUtil
 import com.mio.util.AnimUtil.Companion.interpolator
+import com.tungsten.fcl.FCLApplication
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.ActivityMainBinding
 import com.tungsten.fcl.game.JarExecutorHelper
@@ -226,7 +227,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
 
                     setupAccountDisplay()
                     setupVersionDisplay()
-                    UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
+                    if (FCLApplication.appConfig.getProperty("check-update", "true") == "true") UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
                 }
                 playAnim()
             }
