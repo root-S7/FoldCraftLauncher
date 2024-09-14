@@ -41,8 +41,8 @@ android {
         applicationId "com.miHoYo.hkrpg"
         minSdk 26
         targetSdk 34
-        versionCode 1176
-        versionName "1.1.7.6"
+        versionCode 1179
+        versionName "1.1.7.9"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -118,7 +118,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.github.Mathias-Boulay:android_gamepad_remapper:06184ddbce'
+    implementation 'com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3'
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

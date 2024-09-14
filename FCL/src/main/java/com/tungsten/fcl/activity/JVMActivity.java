@@ -21,8 +21,11 @@ import com.tungsten.fcl.control.MenuType;
 import com.tungsten.fcl.setting.GameOption;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.keycodes.FCLKeycodes;
+import com.tungsten.fclauncher.keycodes.LwjglGlfwKeycode;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fcllibrary.component.FCLActivity;
+
+import org.lwjgl.glfw.CallbackBridge;
 
 import java.util.Objects;
 import java.util.logging.Level;
@@ -82,7 +85,7 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
     public void onSurfaceTextureAvailable(@NonNull SurfaceTexture surfaceTexture, int i, int i1) {
         Logging.LOG.log(Level.INFO, "surface ready, start jvm now!");
         fclBridge.setSurfaceDestroyed(false);
-        int width = menuType == MenuType.GAME ? (int) (i * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_WIDTH;
+        int width = menuType == MenuType.GAME ? (int) ((i + ((GameMenu) menu).getMenuSetting().getCursorOffset()) * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_WIDTH;
         int height = menuType == MenuType.GAME ? (int) (i1 * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_HEIGHT;
         if (menuType == MenuType.GAME) {
             GameOption gameOption = new GameOption(Objects.requireNonNull(menu.getBridge()).getGameDir());
@@ -99,7 +102,7 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
 
     @Override
     public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surfaceTexture, int i, int i1) {
-        int width = menuType == MenuType.GAME ? (int) (i * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_WIDTH;
+        int width = menuType == MenuType.GAME ? (int) ((i + ((GameMenu) menu).getMenuSetting().getCursorOffset()) * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_WIDTH;
         int height = menuType == MenuType.GAME ? (int) (i1 * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_HEIGHT;
         surfaceTexture.setDefaultBufferSize(width, height);
         fclBridge.pushEventWindow(width, height);
@@ -108,7 +111,7 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
     @Override
     public boolean onSurfaceTextureDestroyed(@NonNull SurfaceTexture surfaceTexture) {
         fclBridge.setSurfaceDestroyed(true);
-        return false;
+        return true;
     }
 
     private int output = 0;
@@ -129,6 +132,7 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
         if (menu != null) {
             menu.onPause();
         }
+        CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 0);
         super.onPause();
     }
 
@@ -137,7 +141,20 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
         if (menu != null) {
             menu.onResume();
         }
+        CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 1);
         super.onResume();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_VISIBLE, 1);
+    }
+
+    @Override
+    protected void onStop() {
+        CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_VISIBLE, 0);
+        super.onStop();
     }
 
     @Override
