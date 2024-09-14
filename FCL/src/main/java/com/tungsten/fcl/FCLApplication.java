@@ -37,11 +37,14 @@ public class FCLApplication extends Application implements Application.ActivityL
         appConfig = FCLPath.APP_CONFIG_PROPERTIES;
 
         this.registerActivityLifecycleCallbacks(this);
-        PerfUtil.install();
+//        PerfUtil.install();
     }
 
     public static Activity getCurrentActivity() {
-        return currentActivity.get();
+        if (currentActivity != null) {
+            return currentActivity.get();
+        }
+        return null;
     }
 
     public static SharedPreferences getSharedPreferences() {
@@ -67,7 +70,7 @@ public class FCLApplication extends Application implements Application.ActivityL
 
     @Override
     public void onActivityCreated(@NonNull Activity activity, @Nullable Bundle bundle) {
-
+        currentActivity = new WeakReference<>(activity);
     }
 
     @Override

@@ -17,6 +17,8 @@ import androidx.databinding.DataBindingUtil
 import com.mio.util.AnimUtil
 import com.mio.util.AnimUtil.Companion.interpolator
 import com.tungsten.fcl.FCLApplication
+import com.mio.util.AnimUtil
+import com.mio.util.AnimUtil.Companion.interpolator
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.ActivityMainBinding
 import com.tungsten.fcl.game.JarExecutorHelper
