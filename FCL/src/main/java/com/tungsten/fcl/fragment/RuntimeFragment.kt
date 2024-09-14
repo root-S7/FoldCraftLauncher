@@ -36,7 +36,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     var java21: Boolean = false
     var jna: Boolean = false
     var gameResource = false
-    var other = false
+    var othersFile = false
     lateinit var sharedPreferences: SharedPreferences
     lateinit var editor: SharedPreferences.Editor
 
@@ -81,7 +81,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
             jna = RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
             gameResource = RuntimeUtils.isLatest(sharedPreferences, "game_resources_version", "版本异常", "/assets/.minecraft") && !sharedPreferences.getBoolean("is_first_game_packages", true)
-            other = RuntimeUtils.isLatest(sharedPreferences, "game_others_version", "版本异常", "/assets/others") && gameResource
+            othersFile = RuntimeUtils.isLatest(sharedPreferences, "others_file_version", "版本异常", "/assets/others_file") && gameResource
 
         } catch (e: IOException) {
             e.printStackTrace()
@@ -109,13 +109,13 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 java21State.setBackgroundDrawable(if (java21) stateDone else stateUpdate)
                 jnaState.setBackgroundDrawable(if (jna) stateDone else stateUpdate)
                 gameResourceState.setBackgroundDrawable(if (gameResource) stateDone else stateUpdate)
-                otherState.setBackgroundDrawable(if (other) stateDone else stateUpdate)
+                othersFileState.setBackgroundDrawable(if (othersFile) stateDone else stateUpdate)
             }
         }
     }
 
     private val isLatest: Boolean
-        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna && gameResource && other
+        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna && gameResource && othersFile
 
     private fun check() {
         if (isLatest) {
@@ -171,22 +171,22 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                     }
                 }.start()
             }
-            if (!other) {
-                otherState.setVisibility(View.GONE)
-                otherProgress.visibility = View.VISIBLE
+            if (!othersFile) {
+                othersFileState.setVisibility(View.GONE)
+                othersFileProgress.visibility = View.VISIBLE
                 Thread {
                     try {
-                        if ("false" == FCLApplication.appConfig.getProperty("download-authlib-injector-online", "false")) RuntimeUtils.copyAssetsFileToLocalDir(context, "others/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar")
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "others/background", FCLPath.BACKGROUND_DIR)
-                        ParseAuthlibInjectorServerFile(activity, "others/authlib-injector-server.json").parseFileAndConvert()
-                        editor.putString("game_others_version", ReadTools.convertToString(context, "others/version"))
-                        other = true
+                        if ("false" == FCLApplication.appConfig.getProperty("download-authlib-injector-online", "false")) RuntimeUtils.copyAssetsFileToLocalDir(context, "others_file/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar")
+                        RuntimeUtils.copyAssetsDirToLocalDir(context, "others_file/background", FCLPath.BACKGROUND_DIR)
+                        ParseAuthlibInjectorServerFile(activity, "others_file/authlib-injector-server.json").parseFileAndConvert()
+                        editor.putString("others_file_version", ReadTools.convertToString(context, "others_file/version"))
+                        othersFile = true
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
                     activity?.runOnUiThread {
-                        otherState.visibility = View.VISIBLE
-                        otherProgress.visibility = View.GONE
+                        othersFileState.visibility = View.VISIBLE
+                        othersFileProgress.visibility = View.GONE
                         refreshDrawables()
                         check()
                     }
@@ -308,21 +308,8 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_11_PATH,
                             "app_runtime/java/jre11"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_11_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
-                            )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_11_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) FileUtils.writeText(File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver 1.1.1.1" + "\nnameserver 8.8.8.8")
+                        else FileUtils.writeText(File(FCLPath.JAVA_11_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","119.29.29.29") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"))
                         java11 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -345,21 +332,8 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_17_PATH,
                             "app_runtime/java/jre17"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_17_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
-                            )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_17_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) FileUtils.writeText(File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver 1.1.1.1" + "\nnameserver 8.8.8.8")
+                        else FileUtils.writeText(File(FCLPath.JAVA_17_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","119.29.29.29") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"))
                         java17 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -382,21 +356,8 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_21_PATH,
                             "app_runtime/java/jre21"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_21_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
-                            )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_21_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) FileUtils.writeText(File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver 1.1.1.1" + "\nnameserver 8.8.8.8")
+                        else FileUtils.writeText(File(FCLPath.JAVA_21_PATH + "/resolv.conf"), "nameserver " + FCLApplication.appConfig.getProperty("primary-nameserver","119.29.29.29") + "\nnameserver " + FCLApplication.appConfig.getProperty("secondary-nameserver","8.8.8.8"))
                         java21 = true
                     } catch (e: IOException) {
                         e.printStackTrace()

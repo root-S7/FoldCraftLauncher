@@ -14,6 +14,8 @@ import android.widget.RelativeLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.forEach
 import androidx.databinding.DataBindingUtil
+import com.mio.util.AnimUtil
+import com.mio.util.AnimUtil.Companion.interpolator
 import com.tungsten.fcl.FCLApplication
 import com.mio.util.AnimUtil
 import com.mio.util.AnimUtil.Companion.interpolator

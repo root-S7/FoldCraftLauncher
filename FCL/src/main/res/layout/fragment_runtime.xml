@@ -237,7 +237,7 @@
                     <com.tungsten.fcllibrary.component.view.FCLTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="其它"
+                        android:text="其它文件"
                         android:layout_gravity="center"
                         android:textColor="@color/black"/>
 
@@ -250,7 +250,7 @@
                         android:visibility="gone"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:id="@+id/other_progress"
+                        android:id="@+id/others_file_progress"
                         android:layout_gravity="center"
                         android:layout_marginStart="10dp"/>
 
@@ -258,7 +258,7 @@
                         app:auto_src_tint="false"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/other_state"
+                        android:id="@+id/others_file_state"
                         android:layout_gravity="center"
                         android:layout_marginStart="10dp"/>
 
