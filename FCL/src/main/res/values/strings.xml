@@ -160,6 +160,7 @@
     <string name="control_info_name_exist">The controller already exist, please change the name!</string>
     <string name="control_info_name_invalid">Invalid Name</string>
     <string name="control_info_version">Version: </string>
+    <string name="control_info_version_code">Version Code: </string>
     <string name="control_list">Controller List</string>
     <string name="control_select">Select Controller</string>
     <string name="control_share">Share Controller</string>
@@ -953,4 +954,6 @@
     <string name="world_time">EEE, MMM d, yyyy HH:mm:ss</string>
     <string name="install_apk">Install .apk</string>
     <string name="edit">Edit</string>
+    <string name="modpack_download_warn_title">Notice</string>
+    <string name="modpack_download_warn_msg">Before installation, you should understand that most modpacks are designed for PC, so there is a high probability that you will encounter crashes or other issues when trying to launch. This is often not a problem that can be solved at the launcher level. Therefore, you need to understand the relevant knowledge and try to solve the problem yourself or seek help from others (do not ask the launcher developer!).</string>
 </resources>
