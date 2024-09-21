@@ -10,13 +10,16 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.BounceInterpolator
+import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.forEach
+import androidx.core.view.marginStart
 import androidx.databinding.DataBindingUtil
 import com.mio.util.AnimUtil
 import com.mio.util.AnimUtil.Companion.interpolator
 import com.tungsten.fcl.FCLApplication
+import com.mio.util.AnimUtil.Companion.startAfter
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.ActivityMainBinding
 import com.tungsten.fcl.game.JarExecutorHelper
@@ -164,17 +167,18 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                 version.setOnClickListener(this@MainActivity)
                 executeJar.setOnClickListener(this@MainActivity)
                 executeJar.setOnLongClickListener {
-                    val padding = ConvertUtils.dip2px(this@MainActivity, 15f)
-                    val editText = FCLEditText(this@MainActivity)
-                    val layout = RelativeLayout(this@MainActivity)
-                    editText.hint = "-jar xxx"
-                    editText.setLines(1)
-                    editText.maxLines = 1
-                    layout.setPadding(padding, padding, padding, padding)
-                    layout.addView(editText)
-                    val dialog = AlertDialog.Builder(this@MainActivity)
+                    val editText = FCLEditText(this@MainActivity).apply {
+                        hint = "-jar xxx"
+                        setLines(1)
+                        maxLines = 1
+                        layoutParams = FrameLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                        )
+                    }
+                    AlertDialog.Builder(this@MainActivity)
                         .setTitle(R.string.jar_execute_custom_args)
-                        .setView(layout)
+                        .setView(editText)
                         .setPositiveButton(com.tungsten.fcllibrary.R.string.dialog_positive) { _: DialogInterface?, _: Int ->
                             JarExecutorHelper.exec(
                                 this@MainActivity,
@@ -185,19 +189,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                         }
                         .setNegativeButton(com.tungsten.fcllibrary.R.string.dialog_negative, null)
                         .create()
-                    layout.layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                    editText.layoutParams = RelativeLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
-                    ThemeEngine.getInstance().applyFullscreen(
-                        dialog.window,
-                        ThemeEngine.getInstance().getTheme().isFullscreen
-                    )
-                    dialog.show()
+                        .show()
                     true
                 }
                 launch.setOnClickListener(this@MainActivity)
@@ -240,8 +232,9 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         if (event?.keyCode == KeyEvent.KEYCODE_BACK) {
             _uiManager?.onBackPressed()
+            return true
         }
-        return true
+        return super.onKeyDown(keyCode, event)
     }
 
     override fun onPause() {
@@ -300,7 +293,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
     }
 
     fun refreshMenuView(view: FCLMenuView?) {
-        bind.menu.forEach {
+        bind.leftMenu.forEach {
             if (it is FCLMenuView && it != view) {
                 it.isSelected = false
             }
@@ -344,6 +337,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                         accountHint.text = getString(R.string.account_state_add)
                         avatar.setBackgroundDrawable(
                             BitmapDrawable(
+                                resources,
                                 TexturesLoader.toAvatar(
                                     TexturesLoader.getDefaultSkin(TextureModel.ALEX).image,
                                     ConvertUtils.dip2px(
@@ -408,7 +402,9 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                     .orElse(getString(R.string.message_unknown))
                 val libraries = StringBuilder(game)
                 val analyzer = LibraryAnalyzer.analyze(
-                    Profiles.getSelectedProfile().repository.getResolvedPreservingPatchesVersion(version)
+                    Profiles.getSelectedProfile().repository.getResolvedPreservingPatchesVersion(
+                        version
+                    )
                 )
                 for (mark in analyzer) {
                     val libraryId = mark.libraryId
@@ -469,18 +465,35 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
 
     private fun playAnim() {
         bind.apply {
+            val speed = ThemeEngine.getInstance().getTheme().animationSpeed
             AnimUtil.playTranslationX(
-                leftMenu,
-                ThemeEngine.getInstance().getTheme().animationSpeed * 100L,
+                listOf(leftMenu),
+                speed * 100L,
                 -100f,
                 0f
-            ).interpolator(BounceInterpolator()).start()
+            ).forEach {
+                it.interpolator(BounceInterpolator()).start()
+            }
             AnimUtil.playTranslationX(
-                rightMenu,
-                ThemeEngine.getInstance().getTheme().animationSpeed * 100L,
+                listOf(rightMenu, splitRight),
+                speed * 100L,
                 100f,
                 0f
-            ).interpolator(BounceInterpolator()).start()
+            ).forEach {
+                it.interpolator(BounceInterpolator()).start()
+            }
+            AnimUtil.playTranslationY(listOf(launch, executeJar), speed * 100L, -200f, 0f)
+                .forEachIndexed { index, objectAnimator ->
+                    objectAnimator.interpolator(BounceInterpolator()).startAfter((index + 1) * 100L)
+                }
+            AnimUtil.playTranslationY(
+                listOf(home, manage, download, controller, setting, back),
+                speed * 100L,
+                -300f,
+                0f
+            ).forEachIndexed { index, objectAnimator ->
+                objectAnimator.interpolator(BounceInterpolator()).startAfter((index + 1) * 100L)
+            }
         }
     }
 }
