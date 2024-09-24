@@ -100,6 +100,7 @@
 
     <string name="action_refresh">Обновить </string>
     <string name="action_retry">Повторить попытку</string>
+    <string name="action_share">Делиться</string>
     <string name="action_skip">Пропустить</string>
 
     <string name="announcement">Объявление: %s</string>
@@ -148,18 +149,27 @@
     <string name="control_download">Загрузить Контроллер</string>
     <string name="control_download_latest">Загрузите последнюю версию</string>
     <string name="control_download_history">Скачать исторические версии</string>
+    <string name="control_download_history_empty">Исторической версии нет!</string>
     <string name="control_download_lang_current">Текущий язык</string>
-    <string name="control_download_source_cn">Источник загрузки для материкового Китая</string>
+    <string name="control_download_source_cn">Gitee</string>
     <string name="control_download_device_phone">Телефон</string>
     <string name="control_download_device_pad">Прокладка</string>
     <string name="control_download_device_other">Другие</string>
+    <string name="control_download_exist">Текущий контроллер уже существует. Загрузка перезапишет локальный контроллер. Вы уверены, что хотите продолжить?</string>
     <string name="control_edit">Редактировать</string>
     <string name="control_import">Импортировать</string>
     <string name="control_import_failed">Ошибка импорта</string>
     <string name="control_upgrade">Контроллер: %s — устарел, он может вызывать ошибки, но мы по-прежнему поддерживаем его. \nХотите перенести его на новую версию?</string>
     <string name="control_incompatible">Контроллер: %s — несовместимый контроллер. Это может быть вызвано слишком низкой версией Лаунчера или слишком низкой версией контроллера.</string>
+    <string name="control_upload_requirement">Сначала присоединитесь к группе QQ, затем нажмите «Поделиться», чтобы поделиться контроллером и его информацией с администратором, и дождитесь проверки. Свяжитесь с администратором, чтобы сообщить ему категорию вашего контроллера.</string>
     <string name="control_info_author">Автор: </string>
+    <string name="control_info_icon">Икона: </string>
+    <string name="control_info_lang">Язык: </string>
+    <string name="control_info_device">Тип устройства: </string>
+    <string name="control_info_screenshot">Скриншоты: </string>
+    <string name="control_info_intro">Введение: </string>
     <string name="control_info_description">Описание: </string>
+    <string name="control_info_screenshot_max">Можно загрузить до 16 скриншотов!</string>
     <string name="control_info_edit">Редактировать информацию о контроллере</string>
     <string name="control_info_more">Читать дальше</string>
     <string name="control_info_name">Имя: </string>
@@ -845,6 +855,7 @@
 
     <string name="update">Обновить</string>
     <string name="update_netdisk">Netdisk</string>
+    <string name="update_check">Проверить наличие обновлений</string>
     <string name="update_checking">Проверка обновлений</string>
     <string name="update_check_failed">Ошибка во время проверки обновления</string>
     <string name="update_date">Дата: %s</string>

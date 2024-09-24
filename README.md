@@ -6,7 +6,7 @@
 
 - [Fold Craft Launcher](https://fcl-team.github.io/): 该软件作用是在手机上玩耍Java版我的世界
 - **在你的Android设备上运行Java版我的世界**, 支持绝大多数Mods和部分光影。
-- QQ交流群：965085729
+- QQ交流群：793713629
 
 <h2 align="center">应用功能如下</h2>
 
