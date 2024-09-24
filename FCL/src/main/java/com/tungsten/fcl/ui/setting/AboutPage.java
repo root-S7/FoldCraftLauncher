@@ -45,16 +45,16 @@ public class AboutPage extends FCLCommonPage implements View.OnClickListener {
         Uri uri = null;
 
         if (v == launcher) {
-            uri = Uri.parse("https://fcl-team.github.io/");
+            uri = Uri.parse("https://fcl-team.github.io");
         }
         if (v == developer) {
-            uri = Uri.parse("https://github.com/FCL-Team");
+            uri = Uri.parse("https://github.com/root-S7");
         }
         if (v == sponsor) {
             uri = Uri.parse("https://afdian.com/@tungs");
         }
         if (v == source) {
-            uri = Uri.parse("https://github.com/FCL-Team/FoldCraftLauncher");
+            uri = Uri.parse("https://github.com/root-S7/FoldCraftLauncher");
         }
 
         if (uri != null) {

@@ -3,7 +3,10 @@ package com.tungsten.fcl.fragment;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +14,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.SplashActivity;
-import com.tungsten.fclcore.util.io.IOUtils;
+import com.tungsten.fcl.util.AndroidUtils;
+import com.tungsten.fclcore.util.io.NetworkUtils;
 import com.tungsten.fcllibrary.component.FCLFragment;
 import com.tungsten.fcllibrary.component.view.FCLButton;
 import com.tungsten.fcllibrary.component.view.FCLProgressBar;
@@ -23,12 +28,12 @@ import java.io.IOException;
 
 public class EulaFragment extends FCLFragment implements View.OnClickListener {
 
+    public static final String EULA_URL = FCLApplication.appConfig.getProperty("eula-url","https://icraft.ren:90/titles/FCL/Releases_Version/1.1.6/eula.txt");
+
     private FCLProgressBar progressBar;
     private FCLTextView eula;
 
     private FCLButton next;
-
-    private boolean load = false;
 
     @Nullable
     @Override
@@ -42,7 +47,7 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
         next.setOnClickListener(this);
 
         loadEula();
-
+        
         return view;
     }
 
@@ -50,22 +55,23 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
         new Thread(() -> {
             String str;
             try {
-                str = IOUtils.readFullyAsString(requireActivity().getAssets().open( "eula.txt"));
-                load = true;
-            } catch (IOException e) {
+                str = NetworkUtils.doGet(NetworkUtils.toURL(EULA_URL),FCLApplication.deviceInfoUtils.toString());
+            } catch (IOException | IllegalArgumentException e) {
                 e.printStackTrace();
                 str = getString(R.string.splash_eula_error);
             }
             final String s = str;
             if (getActivity() != null) {
                 getActivity().runOnUiThread(() -> {
-                    if (load) {
-                        next.setEnabled(true);
-                    }
                     progressBar.setVisibility(View.GONE);
                     eula.setText(s);
+                    eula.setTextSize(16.5F);
+                    eula.setTextColor(Color.BLACK);
                 });
             }
+            new Handler(Looper.getMainLooper()).post(() -> {
+                next.setEnabled(true); // 启用按钮
+            });
         }).start();
     }
 
@@ -75,7 +81,7 @@ public class EulaFragment extends FCLFragment implements View.OnClickListener {
             if (getActivity() != null) {
                 SharedPreferences sharedPreferences = getActivity().getSharedPreferences("launcher", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("isFirstLaunch", false);
+                editor.putBoolean("is_first_launch", false);
                 editor.apply();
                 ((SplashActivity) getActivity()).start();
             }

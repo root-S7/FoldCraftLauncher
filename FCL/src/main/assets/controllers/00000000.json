@@ -1,17 +1,62 @@
 {
-  "id": "00000000",
+  "id": "2edd8d02",
   "name": "Default",
-  "version": "1.2.0",
-  "versionCode": 1,
-  "author": "Tungsten",
-  "description": "Default controller of Fold Craft Launcher.",
+  "version": "2.2.2",
+  "versionCode": 2,
+  "author": "Administrator",
+  "description": "基础按键",
   "controllerVersion": 20,
   "buttonStyles": [
     {
-      "name": "Default",
+      "name": "右下",
       "textColor": -1,
-      "textSize": 12,
-      "strokeColor": -12303292,
+      "textSize": 16,
+      "strokeColor": -29440,
+      "strokeWidth": 12,
+      "cornerRadius": 122,
+      "fillColor": 0,
+      "textColorPressed": -1,
+      "textSizePressed": 12,
+      "strokeColorPressed": -12303292,
+      "strokeWidthPressed": 10,
+      "cornerRadiusPressed": 100,
+      "fillColorPressed": -3355444
+    },
+    {
+      "name": "左上",
+      "textColor": -1,
+      "textSize": 14,
+      "strokeColor": -16745729,
+      "strokeWidth": 10,
+      "cornerRadius": 100,
+      "fillColor": 0,
+      "textColorPressed": -1,
+      "textSizePressed": 12,
+      "strokeColorPressed": -12303292,
+      "strokeWidthPressed": 10,
+      "cornerRadiusPressed": 100,
+      "fillColorPressed": -3355444
+    },
+    {
+      "name": "键盘",
+      "textColor": -1,
+      "textSize": 13,
+      "strokeColor": -65372,
+      "strokeWidth": 10,
+      "cornerRadius": 100,
+      "fillColor": 0,
+      "textColorPressed": -1,
+      "textSizePressed": 12,
+      "strokeColorPressed": -12303292,
+      "strokeWidthPressed": 10,
+      "cornerRadiusPressed": 100,
+      "fillColorPressed": -3355444
+    },
+    {
+      "name": "右上",
+      "textColor": -1,
+      "textSize": 14,
+      "strokeColor": -65536,
       "strokeWidth": 10,
       "cornerRadius": 100,
       "fillColor": 0,
@@ -26,9 +71,9 @@
   "directionStyles": [
     {
       "name": "Default",
-      "styleType": "BUTTON",
+      "styleType": "ROCKER",
       "buttonStyle": {
-        "interval": 50,
+        "interval": 33,
         "textColor": -1,
         "textSize": 12,
         "strokeColor": -12303292,
@@ -43,15 +88,15 @@
         "fillColorPressed": -3355444
       },
       "rockerStyle": {
-        "rockerSize": 400,
+        "rockerSize": 250,
         "bgCornerRadius": 500,
         "bgStrokeWidth": 20,
-        "bgStrokeColor": -12303292,
+        "bgStrokeColor": -12703447,
         "bgFillColor": 0,
         "rockerCornerRadius": 500,
         "rockerStrokeWidth": 10,
-        "rockerStrokeColor": -12303292,
-        "rockerFillColor": -7829368
+        "rockerStrokeColor": -13086062,
+        "rockerFillColor": -13881494
       }
     }
   ],
@@ -64,22 +109,22 @@
         "buttonList": [
           {
             "id": "f93bfc52-e745-4277-a4db-5c85829fb35e",
-            "text": "×",
-            "style": "Default",
+            "text": "左键",
+            "style": "右下",
             "baseInfo": {
               "visibilityType": "ALWAYS",
-              "xPosition": 800,
-              "yPosition": 750,
+              "xPosition": 828,
+              "yPosition": 690,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 160
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 160
               }
             },
             "event": {
@@ -90,6 +135,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -103,6 +149,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -114,6 +161,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -125,6 +173,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -135,22 +184,22 @@
           },
           {
             "id": "37f97e88-efe1-4052-a2d6-55f82d0f8be6",
-            "text": "■",
-            "style": "Default",
+            "text": "跳跃",
+            "style": "右下",
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 875,
-              "yPosition": 750,
+              "xPosition": 936,
+              "yPosition": 690,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 160
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 160
               }
             },
             "event": {
@@ -161,6 +210,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -174,6 +224,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -185,6 +236,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -196,6 +248,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -206,22 +259,22 @@
           },
           {
             "id": "4881cb4c-6eb4-4183-8cd3-ba56ac969543",
-            "text": "○",
-            "style": "Default",
+            "text": "右键",
+            "style": "右下",
             "baseInfo": {
               "visibilityType": "ALWAYS",
-              "xPosition": 875,
-              "yPosition": 565,
+              "xPosition": 936,
+              "yPosition": 447,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 160
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 160
               }
             },
             "event": {
@@ -232,6 +285,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -245,6 +299,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -256,6 +311,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -267,6 +323,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -277,22 +334,22 @@
           },
           {
             "id": "5aafb6b5-e4e8-42bd-baf6-3385a06a5825",
-            "text": "E",
-            "style": "Default",
+            "text": "背包",
+            "style": "左上",
             "baseInfo": {
               "visibilityType": "ALWAYS",
-              "xPosition": 720,
-              "yPosition": 1000,
+              "xPosition": 288,
+              "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 100
+                "size": 150
               },
               "percentageHeight": {
                 "reference": "SCREEN_WIDTH",
-                "size": 100
+                "size": 110
               }
             },
             "event": {
@@ -303,6 +360,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -316,6 +374,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -327,6 +386,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -338,6 +398,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -348,22 +409,22 @@
           },
           {
             "id": "bbd7a36c-fcc5-46d8-a927-180ed08a035f",
-            "text": "▼",
-            "style": "Default",
+            "text": "蹲下",
+            "style": "右下",
             "baseInfo": {
               "visibilityType": "ALWAYS",
-              "xPosition": 950,
-              "yPosition": 935,
+              "xPosition": 937,
+              "yPosition": 938,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 163
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 140
+                "size": 160
               }
             },
             "event": {
@@ -374,6 +435,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -385,6 +447,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -396,6 +459,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -409,6 +473,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -419,22 +484,22 @@
           },
           {
             "id": "049b35dd-999c-4de1-af52-53304659addf",
-            "text": "Q",
-            "style": "Default",
+            "text": "丢物品",
+            "style": "左上",
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 1000,
-              "yPosition": 400,
+              "xPosition": 362,
+              "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 160
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 110
               }
             },
             "event": {
@@ -445,6 +510,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -456,6 +522,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -467,6 +534,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -480,6 +548,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -490,8 +559,8 @@
           },
           {
             "id": "3bc32d1b-30ca-44d1-b1ab-f27561ca7edf",
-            "text": "Esc",
-            "style": "Default",
+            "text": "返回",
+            "style": "左上",
             "baseInfo": {
               "visibilityType": "ALWAYS",
               "xPosition": 0,
@@ -501,11 +570,11 @@
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 150
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 110
               }
             },
             "event": {
@@ -516,6 +585,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -529,6 +599,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -540,6 +611,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -551,6 +623,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -561,22 +634,22 @@
           },
           {
             "id": "cb02a199-990a-4a3b-9cad-aadcfa5ae046",
-            "text": "F3",
-            "style": "Default",
+            "text": "调试",
+            "style": "左上",
             "baseInfo": {
-              "visibilityType": "ALWAYS",
-              "xPosition": 100,
+              "visibilityType": "IN_GAME",
+              "xPosition": 72,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 150
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 110
               }
             },
             "event": {
@@ -587,6 +660,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -600,6 +674,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -611,6 +686,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -622,6 +698,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -632,22 +709,22 @@
           },
           {
             "id": "68d941b2-ff89-4914-bfea-cb95942ccab5",
-            "text": "T",
-            "style": "Default",
+            "text": "聊天",
+            "style": "左上",
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 200,
+              "xPosition": 216,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 150
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 110
               }
             },
             "event": {
@@ -658,7 +735,8 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
-                "input": false,
+                "switchMouseMode": false,
+                "input": true,
                 "quickInput": false,
                 "outputText": "",
                 "outputKeycodes": [
@@ -671,6 +749,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -682,6 +761,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -693,6 +773,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -703,22 +784,22 @@
           },
           {
             "id": "ed3c2149-7c48-46ae-86c9-5f931251c308",
-            "text": "Input",
-            "style": "Default",
+            "text": "呼出键盘",
+            "style": "键盘",
             "baseInfo": {
               "visibilityType": "ALWAYS",
-              "xPosition": 500,
+              "xPosition": 497,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 190
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 110
               }
             },
             "event": {
@@ -729,6 +810,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -740,6 +822,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -751,6 +834,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": true,
                 "quickInput": false,
                 "outputText": "",
@@ -762,6 +846,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -772,22 +857,22 @@
           },
           {
             "id": "43606f98-b410-44de-b7d0-b36a17e54089",
-            "text": "Enter",
-            "style": "Default",
+            "text": "回车",
+            "style": "右上",
             "baseInfo": {
-              "visibilityType": "ALWAYS",
-              "xPosition": 900,
+              "visibilityType": "IN_GAME",
+              "xPosition": 1000,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 200
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 151
               }
             },
             "event": {
@@ -798,6 +883,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -811,6 +897,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -822,6 +909,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -833,6 +921,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -842,23 +931,23 @@
             }
           },
           {
-            "id": "9a4a8307-35fb-46bd-ab55-1e28538f0cd1",
-            "text": "BackSp",
-            "style": "Default",
+            "id": "86068880-6da8-4c97-8b57-122cb440eb1d",
+            "text": "视角",
+            "style": "左上",
             "baseInfo": {
-              "visibilityType": "ALWAYS",
-              "xPosition": 1000,
+              "visibilityType": "IN_GAME",
+              "xPosition": 144,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 160
+                "size": 150
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 120
+                "size": 110
               }
             },
             "event": {
@@ -869,11 +958,12 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
                 "outputKeycodes": [
-                  14
+                  63
                 ],
                 "bindViewGroup": []
               },
@@ -882,6 +972,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -893,6 +984,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -904,6 +996,7 @@
                 "autoClick": false,
                 "openMenu": false,
                 "switchTouchMode": false,
+                "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
@@ -919,18 +1012,18 @@
             "style": "Default",
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 50,
-              "yPosition": 900,
+              "xPosition": 33,
+              "yPosition": 894,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 450
+                "size": 500
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 450
+                "size": 500
               }
             },
             "event": {
