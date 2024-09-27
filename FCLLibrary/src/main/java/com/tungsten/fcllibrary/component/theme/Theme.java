@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 
 import androidx.core.graphics.ColorUtils;
 
+import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.property.BooleanProperty;
 import com.tungsten.fclcore.fakefx.beans.property.IntegerProperty;
 import com.tungsten.fclcore.fakefx.beans.property.ObjectProperty;
@@ -78,7 +79,7 @@ public class Theme {
     }
 
     public int getAutoHintTint() {
-        return ColorUtils.calculateLuminance(getColor()) >= 0.5 ? Color.parseColor("#99000000") : Color.parseColor("#99FFFFFF");
+        return ColorUtils.calculateLuminance(getColor()) >= 0.5 ? Color.parseColor("#99000000") : Color.parseColor("#99686767");
     }
 
     public boolean isFullscreen() {
@@ -187,7 +188,7 @@ public class Theme {
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
         int color = sharedPreferences.getInt("theme_color", Color.parseColor("#7797CF"));
         int color2 = sharedPreferences.getInt("theme_color2", Color.parseColor("#7797CF"));
-        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", false);
+        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.APP_CONFIG_PROPERTIES.getProperty("fullscreen", "true").equals("true"));
         boolean modified = sharedPreferences.getBoolean("modified", false);
         int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
         Bitmap lt = !new File(context.getFilesDir().getAbsolutePath() + "/background/lt.png").exists() ? ConvertUtils.getBitmapFromRes(context, R.drawable.background_light) : BitmapFactory.decodeFile(context.getFilesDir().getAbsolutePath() + "/background/lt.png");
