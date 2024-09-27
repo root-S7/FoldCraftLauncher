@@ -11,15 +11,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.BounceInterpolator
 import android.widget.FrameLayout
-import android.widget.RelativeLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.forEach
-import androidx.core.view.marginStart
+import androidx.core.view.postDelayed
 import androidx.databinding.DataBindingUtil
 import com.mio.util.AnimUtil
 import com.mio.util.AnimUtil.Companion.interpolator
 import com.tungsten.fcl.FCLApplication
 import com.mio.util.AnimUtil.Companion.startAfter
+import com.mio.util.GuideUtil
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.ActivityMainBinding
 import com.tungsten.fcl.game.JarExecutorHelper
@@ -34,6 +34,7 @@ import com.tungsten.fcl.upgrade.UpdateChecker
 import com.tungsten.fcl.util.AndroidUtils
 import com.tungsten.fcl.util.FXUtils
 import com.tungsten.fcl.util.WeakListenerHolder
+import com.tungsten.fclauncher.bridge.FCLBridge
 import com.tungsten.fclcore.auth.Account
 import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorAccount
 import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorServer
@@ -197,6 +198,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                     startActivity(Intent(this@MainActivity, ShellActivity::class.java))
                     true
                 }
+                launchBoat.setOnClickListener(this@MainActivity)
 
                 uiManager = UIManager(this@MainActivity, uiLayout)
                 _uiManager = uiManager
@@ -225,6 +227,14 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                     if (FCLApplication.appConfig.getProperty("check-update", "true") == "true") UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
                 }
                 playAnim()
+                uiLayout.postDelayed(1500) {
+                    GuideUtil.show(
+                        this@MainActivity,
+                        setting,
+                        getString(R.string.guide_theme2),
+                        GuideUtil.TAG_GUIDE_THEME_2
+                    )
+                }
             }
         }
     }
@@ -252,7 +262,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
         bind.apply {
             when (view) {
                 home -> {
-                    title.setTextWithAnim(getString(R.string.app_name))
+                    title.setTextWithAnim(getString(R.string.app_name) + " " + getString(R.string.app_version))
                     uiManager.switchUI(uiManager.mainUI)
                 }
 
@@ -319,6 +329,10 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                 JarExecutorHelper.start(this@MainActivity, this@MainActivity)
             }
             if (view === launch) {
+                Versions.launch(this@MainActivity, Profiles.getSelectedProfile())
+            }
+            if (view === launchBoat) {
+                FCLBridge.BACKEND_IS_BOAT = true;
                 Versions.launch(this@MainActivity, Profiles.getSelectedProfile())
             }
         }
@@ -482,7 +496,12 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
             ).forEach {
                 it.interpolator(BounceInterpolator()).start()
             }
-            AnimUtil.playTranslationY(listOf(launch, executeJar), speed * 100L, -200f, 0f)
+            AnimUtil.playTranslationY(
+                listOf(executeJar, launch, launchBoat),
+                speed * 100L,
+                -200f,
+                0f
+            )
                 .forEachIndexed { index, objectAnimator ->
                     objectAnimator.interpolator(BounceInterpolator()).startAfter((index + 1) * 100L)
                 }

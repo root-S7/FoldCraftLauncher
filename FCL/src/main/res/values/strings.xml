@@ -25,6 +25,7 @@
 
     <string name="account">Account</string>
     <string name="version">Version</string>
+    <string name="launch_mode">Launch mode</string>
     <string name="manage">Manage</string>
     <string name="download">Download</string>
     <string name="controller">Controller</string>
@@ -482,7 +483,8 @@
     <string name="jar_executor_crash_title">Jar Executor Crashed</string>
     <string name="jar_executor_crash_reason">Jar Executor crash reason analyse is not supported now.</string>
 
-    <string name="launch">Launch</string>
+    <string name="launch">Pojav</string>
+    <string name="launch_boat">Boat</string>
     <string name="launch_error_java">You are using a deprecated Java version, are you sure you want to continue?</string>
     <string name="launch_error_java_auto">Auto select</string>
     <string name="launch_error_java_continue">Continue</string>
@@ -817,6 +819,7 @@
     <string name="settings_launcher_launcher_log_export_failed">Unable to export logs</string>
     <string name="settings_launcher_launcher_log_export_success">Logs have been exported to %s</string>
     <string name="settings_launcher_theme">Theme</string>
+    <string name="settings_launcher_theme2">Theme2</string>
     <string name="settings_launcher_background_lt">Light Mode Launcher Background</string>
     <string name="settings_launcher_background_dk">Dark Mode Launcher Background</string>
     <string name="settings_launcher_cursor">Cursor Picture</string>
@@ -980,4 +983,5 @@
     <string name="modpack_download_warn_title">Notice</string>
     <string name="modpack_download_warn_msg">Before installation, you should understand that most modpacks are designed for PC, so there is a high probability that you will encounter crashes or other issues when trying to launch. This is often not a problem that can be solved at the launcher level. Therefore, you need to understand the relevant knowledge and try to solve the problem yourself or seek help from others (do not ask the launcher developer!).</string>
     <string name="view_incompatible">View incompatible mods</string>
+    <string name="guide_theme2">If you find the color of the text on the right side is not clear, you can click here, then click \"Launcher Settings\", and select \"Theme 2\"</string>
 </resources>

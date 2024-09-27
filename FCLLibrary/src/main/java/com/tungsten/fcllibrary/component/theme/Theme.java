@@ -27,6 +27,7 @@ import java.io.File;
 public class Theme {
 
     private final IntegerProperty color = new SimpleIntegerProperty();
+    private final IntegerProperty color2 = new SimpleIntegerProperty();
     private final IntegerProperty ltColor = new SimpleIntegerProperty();
     private final IntegerProperty dkColor = new SimpleIntegerProperty();
     private final IntegerProperty autoTint = new SimpleIntegerProperty();
@@ -36,7 +37,7 @@ public class Theme {
     private final ObjectProperty<BitmapDrawable> backgroundLt = new SimpleObjectProperty<>();
     private final ObjectProperty<BitmapDrawable> backgroundDk = new SimpleObjectProperty<>();
 
-    public Theme(int color, boolean fullscreen, int animationSpeed, BitmapDrawable backgroundLt, BitmapDrawable backgroundDk, boolean modified) {
+    public Theme(int color, int color2, boolean fullscreen, int animationSpeed, BitmapDrawable backgroundLt, BitmapDrawable backgroundDk, boolean modified) {
         float[] ltHsv = new float[3];
         Color.colorToHSV(color, ltHsv);
         ltHsv[1] -= (1 - ltHsv[1]) * 0.3f;
@@ -46,6 +47,7 @@ public class Theme {
         dkHsv[1] += (1 - dkHsv[1]) * 0.3f;
         dkHsv[2] -= (1 - dkHsv[2]) * 0.3f;
         this.color.set(color);
+        this.color2.set(color2);
         this.ltColor.set(Color.HSVToColor(ltHsv));
         this.dkColor.set(Color.HSVToColor(dkHsv));
         this.fullscreen.set(fullscreen);
@@ -58,6 +60,10 @@ public class Theme {
 
     public int getColor() {
         return color.get();
+    }
+
+    public int getColor2() {
+        return color2.get();
     }
 
     public int getLtColor() {
@@ -98,6 +104,10 @@ public class Theme {
 
     public IntegerProperty colorProperty() {
         return color;
+    }
+
+    public IntegerProperty color2Property() {
+        return color2;
     }
 
     public IntegerProperty ltColorProperty() {
@@ -150,6 +160,11 @@ public class Theme {
         this.dkColor.set(Color.HSVToColor(dkHsv));
         this.autoTint.set(ColorUtils.calculateLuminance(color) >= 0.5 ? Color.parseColor("#FF000000") : Color.parseColor("#FFFFFFFF"));
         this.color.set(color);
+        this.color2.set(color);
+    }
+
+    public void setColor2(int color) {
+        this.color2.set(color);
     }
 
     public void setFullscreen(boolean fullscreen) {
@@ -172,6 +187,7 @@ public class Theme {
         SharedPreferences sharedPreferences;
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
         int color = sharedPreferences.getInt("theme_color", Color.parseColor("#7797CF"));
+        int color2 = sharedPreferences.getInt("theme_color2", Color.parseColor("#7797CF"));
         boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.APP_CONFIG_PROPERTIES.getProperty("fullscreen", "true").equals("true"));
         boolean modified = sharedPreferences.getBoolean("modified", false);
         int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
@@ -179,7 +195,7 @@ public class Theme {
         BitmapDrawable backgroundLt = new BitmapDrawable(lt);
         Bitmap dk = !new File(context.getFilesDir().getAbsolutePath() + "/background/dk.png").exists() ? ConvertUtils.getBitmapFromRes(context, R.drawable.background_dark) : BitmapFactory.decodeFile(context.getFilesDir().getAbsolutePath() + "/background/dk.png");
         BitmapDrawable backgroundDk = new BitmapDrawable(dk);
-        return new Theme(color, fullscreen, animationSpeed, backgroundLt, backgroundDk, modified);
+        return new Theme(color, color2, fullscreen, animationSpeed, backgroundLt, backgroundDk, modified);
     }
 
     public static void saveTheme(Context context, Theme theme) {
@@ -192,6 +208,7 @@ public class Theme {
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
         editor = sharedPreferences.edit();
         editor.putInt("theme_color", theme.getColor());
+        editor.putInt("theme_color2", theme.getColor2());
         editor.putBoolean("fullscreen", theme.isFullscreen());
         editor.putInt("animation_speed", theme.getAnimationSpeed());
         editor.putBoolean("modified", modified);
