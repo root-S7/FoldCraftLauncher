@@ -160,7 +160,7 @@ public class Theme {
         this.dkColor.set(Color.HSVToColor(dkHsv));
         this.autoTint.set(ColorUtils.calculateLuminance(color) >= 0.5 ? Color.parseColor("#FF000000") : Color.parseColor("#FFFFFFFF"));
         this.color.set(color);
-        this.color2.set(color);
+        //this.color2.set(color);
     }
 
     public void setColor2(int color) {
