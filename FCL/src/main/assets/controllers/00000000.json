@@ -3981,14 +3981,16 @@
               },
               "longPressEvent": {
                 "autoKeep": false,
-                "autoClick": false,
+                "autoClick": true,
                 "openMenu": false,
                 "switchTouchMode": false,
                 "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
-                "outputKeycodes": [],
+                "outputKeycodes": [
+                  105
+                ],
                 "bindViewGroup": []
               },
               "clickEvent": {
@@ -4056,14 +4058,16 @@
               },
               "longPressEvent": {
                 "autoKeep": false,
-                "autoClick": false,
+                "autoClick": true,
                 "openMenu": false,
                 "switchTouchMode": false,
                 "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
-                "outputKeycodes": [],
+                "outputKeycodes": [
+                  108
+                ],
                 "bindViewGroup": []
               },
               "clickEvent": {
@@ -4131,14 +4135,16 @@
               },
               "longPressEvent": {
                 "autoKeep": false,
-                "autoClick": false,
+                "autoClick": true,
                 "openMenu": false,
                 "switchTouchMode": false,
                 "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
-                "outputKeycodes": [],
+                "outputKeycodes": [
+                  106
+                ],
                 "bindViewGroup": []
               },
               "clickEvent": {
@@ -4206,14 +4212,16 @@
               },
               "longPressEvent": {
                 "autoKeep": false,
-                "autoClick": false,
+                "autoClick": true,
                 "openMenu": false,
                 "switchTouchMode": false,
                 "switchMouseMode": false,
                 "input": false,
                 "quickInput": false,
                 "outputText": "",
-                "outputKeycodes": [],
+                "outputKeycodes": [
+                  103
+                ],
                 "bindViewGroup": []
               },
               "clickEvent": {
