@@ -1,7 +1,7 @@
 {
   "id": "f9b80a8f",
   "name": "Default",
-  "version": "2.3.0",
+  "version": "2.2.2",
   "versionCode": 4,
   "author": "root-S7",
   "description": "多人游戏基本布局",
@@ -393,7 +393,7 @@
                 "size": 145
               },
               "percentageHeight": {
-                "reference": "SCREEN_WIDTH",
+                "reference": "SCREEN_HEIGHT",
                 "size": 100
               }
             },
