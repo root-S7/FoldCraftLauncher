@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.view.View;
 
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fclcore.task.Task;
 import com.tungsten.fcllibrary.component.ui.FCLCommonPage;
@@ -37,7 +38,7 @@ public class CommunityPage extends FCLCommonPage implements View.OnClickListener
     @Override
     public void onClick(View v) {
         if (v == discord) {
-            Uri uri = Uri.parse("https://discord.gg/ffhvuXTwyV");
+            Uri uri = Uri.parse(FCLApplication.appConfig.getProperty("discord","https://icraft.ren:90/titles/Discord"));
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
             getContext().startActivity(intent);
         }
@@ -46,7 +47,7 @@ public class CommunityPage extends FCLCommonPage implements View.OnClickListener
         }
     }
 
-    private final static String QQ_GROUP_KEY = "9_Mnxe5x1l6L7giLuRYQyBh0iWBgCUbw";
+    private final static String QQ_GROUP_KEY = FCLApplication.appConfig.getProperty("qq-group-key","huOeeoWkJd3X-FTqbhgHxNh89hoNJ1cT");
 
     public boolean joinQQGroup(String key) {
         Intent intent = new Intent();
