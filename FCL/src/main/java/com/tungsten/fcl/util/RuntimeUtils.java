@@ -340,6 +340,9 @@ public class RuntimeUtils {
         editor.remove("this_game_resources_directory");
         editor.apply();
 
+        // 删除theme.xml文件内保存的数据
+        context.deleteSharedPreferences("theme");
+
         try {
             // 读取config.json配置文件并解析
             Gson gson = new Gson();
