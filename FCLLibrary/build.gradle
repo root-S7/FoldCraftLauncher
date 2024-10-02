@@ -22,8 +22,8 @@ android {
         }
         fordebug {
             initWith debug
-            resValue 'string', 'file_browser_provider', 'com.miHoYo.hkrpg.debug.provider'
-            resValue 'string', 'file_browser_document_provider', 'com.miHoYo.hkrpg.debug.document.provider'
+            resValue 'string', 'file_browser_provider', 'com.hg.wreckfest.debug.provider'
+            resValue 'string', 'file_browser_document_provider', 'com.hg.wreckfest.debug.document.provider'
         }
     }
     compileOptions {

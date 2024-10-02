@@ -38,7 +38,7 @@ android {
          * 注意：手机厂商会根据APK包名给应用不同性能策略
          * 如果你需要更高的帧率那么可修改成其他游戏包名或者跑分APP包名
         **/
-        applicationId "com.miHoYo.hkrpg"
+        applicationId "com.hg.wreckfest"
         minSdk 26
         targetSdk 34
         versionCode 1183
