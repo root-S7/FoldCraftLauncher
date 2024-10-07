@@ -7,10 +7,13 @@
         "maxMemory": -1,
         "autoMemory": false,
         "serverIp": "",
+        "java": "",
         "scaleFactor": 1.0,
         "notCheckGame": false,
         "notCheckJVM": false,
         "beGesture": false,
+        "vulkanDriverSystem": false,
+        "controller": "",
         "renderer": 0,
         "isolateGameDir": false
       },
@@ -23,15 +26,18 @@
         "maxMemory": -1,
         "autoMemory": false,
         "serverIp": "",
+        "java": "",
         "scaleFactor": 1.0,
         "notCheckGame": false,
         "notCheckJVM": false,
         "beGesture": false,
+        "vulkanDriverSystem": false,
+        "controller": "",
         "renderer": 0,
         "isolateGameDir": false
       },
       "selectedMinecraftVersion": ""
     }
   },
-  "last": "公有目录"
+  "last": "私有目录"
 }
