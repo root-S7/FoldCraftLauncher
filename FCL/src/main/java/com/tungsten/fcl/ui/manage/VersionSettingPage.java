@@ -37,6 +37,7 @@ import com.tungsten.fclcore.util.platform.MemoryUtils;
 import com.tungsten.fcllibrary.browser.FileBrowser;
 import com.tungsten.fcllibrary.browser.options.LibMode;
 import com.tungsten.fcllibrary.browser.options.SelectionMode;
+import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.ui.FCLCommonPage;
 import com.tungsten.fcllibrary.component.view.FCLCheckBox;
 import com.tungsten.fcllibrary.component.view.FCLEditText;
@@ -256,6 +257,15 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
 
             Schedulers.androidUIThread().execute(() -> loadVersion(profile, versionId));
         });
+        vulkanDriverSystemSwitch.setOnClickListener(v -> {
+            if (vulkanDriverSystemSwitch.checkProperty().get() && AndroidUtils.isAdrenoGPU()) {
+                FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(getContext());
+                builder.setAlertLevel(FCLAlertDialog.AlertLevel.INFO);
+                builder.setMessage(getContext().getString(R.string.message_vulkan_driver_system));
+                builder.setNegativeButton(getContext().getString(com.tungsten.fcllibrary.R.string.dialog_positive), null);
+                builder.create().show();
+            }
+        });
     }
 
     @Override
@@ -290,45 +300,45 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
 
         // unbind data fields
         if (lastVersionSetting != null) {
-            lastVersionSetting.isolateGameDirProperty().removeListener(listener);
-            FXUtils.unbind(txtJVMArgs, lastVersionSetting.javaArgsProperty());
-            FXUtils.unbind(txtGameArgs, lastVersionSetting.minecraftArgsProperty());
-            FXUtils.unbind(txtMetaspace, lastVersionSetting.permSizeProperty());
-            FXUtils.unbind(txtServerIP, lastVersionSetting.serverIpProperty());
-            FXUtils.unbindBoolean(chkAutoAllocate, lastVersionSetting.autoMemoryProperty());
-            FXUtils.unbindBoolean(isolateWorkingDirSwitch, lastVersionSetting.isolateGameDirProperty());
-            FXUtils.unbindBoolean(noGameCheckSwitch, lastVersionSetting.notCheckGameProperty());
-            FXUtils.unbindBoolean(noJVMCheckSwitch, lastVersionSetting.notCheckJVMProperty());
-            FXUtils.unbindBoolean(beGestureSwitch, lastVersionSetting.beGestureProperty());
-            FXUtils.unbindBoolean(vulkanDriverSystemSwitch, lastVersionSetting.VKDriverSystemProperty());
-            FXUtils.unbindSelection(javaSpinner, lastVersionSetting.javaProperty());
-            FXUtils.unbindSelection(rendererSpinner, lastVersionSetting.rendererProperty());
-            scaleFactorSeekbar.percentProgressProperty().unbindBidirectional(lastVersionSetting.scaleFactorProperty());
-            maxMemory.unbindBidirectional(lastVersionSetting.maxMemoryProperty());
+            lastVersionSetting.getIsolateGameDirProperty().removeListener(listener);
+            FXUtils.unbind(txtJVMArgs, lastVersionSetting.getJavaArgsProperty());
+            FXUtils.unbind(txtGameArgs, lastVersionSetting.getMinecraftArgsProperty());
+            FXUtils.unbind(txtMetaspace, lastVersionSetting.getPermSizeProperty());
+            FXUtils.unbind(txtServerIP, lastVersionSetting.getServerIpProperty());
+            FXUtils.unbindBoolean(chkAutoAllocate, lastVersionSetting.getAutoMemoryProperty());
+            FXUtils.unbindBoolean(isolateWorkingDirSwitch, lastVersionSetting.getIsolateGameDirProperty());
+            FXUtils.unbindBoolean(noGameCheckSwitch, lastVersionSetting.getNotCheckGameProperty());
+            FXUtils.unbindBoolean(noJVMCheckSwitch, lastVersionSetting.getNotCheckJVMProperty());
+            FXUtils.unbindBoolean(beGestureSwitch, lastVersionSetting.getBeGestureProperty());
+            FXUtils.unbindBoolean(vulkanDriverSystemSwitch, lastVersionSetting.getVkDriverSystemProperty());
+            FXUtils.unbindSelection(javaSpinner, lastVersionSetting.getJavaProperty());
+            FXUtils.unbindSelection(rendererSpinner, lastVersionSetting.getRendererProperty());
+            scaleFactorSeekbar.percentProgressProperty().unbindBidirectional(lastVersionSetting.getScaleFactorProperty());
+            maxMemory.unbindBidirectional(lastVersionSetting.getMaxMemoryProperty());
 
-            lastVersionSetting.usesGlobalProperty().removeListener(specificSettingsListener);
+            lastVersionSetting.getUsesGlobalProperty().removeListener(specificSettingsListener);
         }
 
         // bind new data fields
         if (getId() == ManagePageManager.PAGE_ID_MANAGE_SETTING) {
-            versionSetting.isolateGameDirProperty().addListener(listener);
+            versionSetting.getIsolateGameDirProperty().addListener(listener);
         }
-        FXUtils.bindString(txtJVMArgs, versionSetting.javaArgsProperty());
-        FXUtils.bindString(txtGameArgs, versionSetting.minecraftArgsProperty());
-        FXUtils.bindString(txtMetaspace, versionSetting.permSizeProperty());
-        FXUtils.bindString(txtServerIP, versionSetting.serverIpProperty());
-        FXUtils.bindBoolean(chkAutoAllocate, versionSetting.autoMemoryProperty());
-        FXUtils.bindBoolean(isolateWorkingDirSwitch, versionSetting.isolateGameDirProperty());
-        FXUtils.bindBoolean(noGameCheckSwitch, versionSetting.notCheckGameProperty());
-        FXUtils.bindBoolean(noJVMCheckSwitch, versionSetting.notCheckJVMProperty());
-        FXUtils.bindBoolean(beGestureSwitch, versionSetting.beGestureProperty());
-        FXUtils.bindBoolean(vulkanDriverSystemSwitch, versionSetting.VKDriverSystemProperty());
-        FXUtils.bindSelection(javaSpinner, versionSetting.javaProperty());
-        FXUtils.bindSelection(rendererSpinner, versionSetting.rendererProperty());
-        scaleFactorSeekbar.percentProgressProperty().bindBidirectional(versionSetting.scaleFactorProperty());
-        maxMemory.bindBidirectional(versionSetting.maxMemoryProperty());
+        FXUtils.bindString(txtJVMArgs, versionSetting.getJavaArgsProperty());
+        FXUtils.bindString(txtGameArgs, versionSetting.getMinecraftArgsProperty());
+        FXUtils.bindString(txtMetaspace, versionSetting.getPermSizeProperty());
+        FXUtils.bindString(txtServerIP, versionSetting.getServerIpProperty());
+        FXUtils.bindBoolean(chkAutoAllocate, versionSetting.getAutoMemoryProperty());
+        FXUtils.bindBoolean(isolateWorkingDirSwitch, versionSetting.getIsolateGameDirProperty());
+        FXUtils.bindBoolean(noGameCheckSwitch, versionSetting.getNotCheckGameProperty());
+        FXUtils.bindBoolean(noJVMCheckSwitch, versionSetting.getNotCheckJVMProperty());
+        FXUtils.bindBoolean(beGestureSwitch, versionSetting.getBeGestureProperty());
+        FXUtils.bindBoolean(vulkanDriverSystemSwitch, versionSetting.getVkDriverSystemProperty());
+        FXUtils.bindSelection(javaSpinner, versionSetting.getJavaProperty());
+        FXUtils.bindSelection(rendererSpinner, versionSetting.getRendererProperty());
+        scaleFactorSeekbar.percentProgressProperty().bindBidirectional(versionSetting.getScaleFactorProperty());
+        maxMemory.bindBidirectional(versionSetting.getMaxMemoryProperty());
 
-        versionSetting.usesGlobalProperty().addListener(specificSettingsListener);
+        versionSetting.getUsesGlobalProperty().addListener(specificSettingsListener);
         if (versionId != null)
             enableSpecificSettings.set(!versionSetting.isUsesGlobal());
 
