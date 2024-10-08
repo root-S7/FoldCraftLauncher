@@ -376,6 +376,9 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         FXUtils.bindBoolean(showLogSwitch, menuSetting.getShowLogProperty());
 
         showFps.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isSimulated()) {
+                return;
+            }
             if (isChecked) {
                 showFpsThread = new Thread(() -> {
                     FCLBridge.getFps();
@@ -388,8 +391,10 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
                 }, "FPS");
                 showFpsThread.start();
             } else {
-                showFpsThread.interrupt();
-                showFpsThread = null;
+                if (showFpsThread != null) {
+                    showFpsThread.interrupt();
+                    showFpsThread = null;
+                }
                 fpsText.setText("");
             }
         });
@@ -555,6 +560,11 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
                         .setPrettyPrinting()
                         .create()
                         .fromJson(FileUtils.readText(new File(FCLPath.FILES_DIR + "/menu_setting.json")), MenuSetting.class);
+                //如果文件损坏，menuSetting可能为空
+                if (this.menuSetting == null) {
+                    this.menuSetting = new MenuSetting();
+                    new File(FCLPath.FILES_DIR + "/menu_setting.json").delete();
+                }
             } catch (IOException e) {
                 Logging.LOG.log(Level.WARNING, "Failed to load menu setting, use default", e);
                 this.menuSetting = new MenuSetting();
