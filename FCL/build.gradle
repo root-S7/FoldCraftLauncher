@@ -41,8 +41,8 @@ android {
         applicationId "com.hg.wreckfest"
         minSdk 26
         targetSdk 34
-        versionCode 1184
-        versionName "1.1.8.4"
+        versionCode 1185
+        versionName "1.1.8.5"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
