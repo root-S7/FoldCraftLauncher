@@ -1,21 +1,15 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal {
-            url "https://maven.aliyun.com/repository/gradle-plugin"
-        }
+        gradlePluginPortal()
         google()
-        mavenCentral {
-            url "https://maven.aliyun.com/repository/central"
-        }
+        mavenCentral()
     }
 }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
-        mavenCentral {
-            url "https://maven.aliyun.com/repository/central"
-        }
+        mavenCentral()
         maven {
             url "https://jitpack.io"
         }
