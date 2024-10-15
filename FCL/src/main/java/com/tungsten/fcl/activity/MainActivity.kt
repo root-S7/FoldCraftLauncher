@@ -24,6 +24,7 @@ import androidx.core.view.postDelayed
 import androidx.databinding.DataBindingUtil
 import com.mio.util.AnimUtil
 import com.mio.util.AnimUtil.Companion.interpolator
+import com.tungsten.fcl.FCLApplication
 import com.mio.util.AnimUtil.Companion.startAfter
 import com.mio.util.GuideUtil
 import com.tungsten.fcl.R
@@ -200,7 +201,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
 
                     setupAccountDisplay()
                     setupVersionDisplay()
-                    UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
+                    if (FCLApplication.appConfig.getProperty("check-update", "true") == "true") UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
                 }
                 playAnim()
                 uiLayout.postDelayed(1500) {

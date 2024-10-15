@@ -48,6 +48,7 @@ public class ThemeEngine {
             theme = Theme.getTheme(context);
             if (!theme.isModified()) {
                 theme.setColor(getWallpaperColor(context));
+                theme.setColor2(getWallpaperColor(context, "theme-second-color"));
             }
             runnables = new HashMap<>();
             initialized = true;
@@ -171,11 +172,18 @@ public class ThemeEngine {
     }
 
     public static int getWallpaperColor(Context context) {
-        int color = Color.parseColor("#7797CF");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-            WallpaperColors colors = WallpaperManager.getInstance(context).getWallpaperColors(WallpaperManager.FLAG_SYSTEM);
-            if (colors != null) {
-                color = colors.getPrimaryColor().toArgb();
+        return getWallpaperColor(context, "theme-first-color");
+    }
+
+    public static int getWallpaperColor(Context context, String configThemeColorName) {
+        int color;
+        try {
+            color = Color.parseColor(FCLPath.APP_CONFIG_PROPERTIES.getProperty(configThemeColorName,"#7797CF"));
+        }catch(IllegalArgumentException e) {
+            color = Color.parseColor("#7797CF");
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                WallpaperColors colors = WallpaperManager.getInstance(context).getWallpaperColors(WallpaperManager.FLAG_SYSTEM);
+                if (colors != null) color = colors.getPrimaryColor().toArgb();
             }
         }
         return color;

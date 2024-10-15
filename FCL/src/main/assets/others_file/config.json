@@ -1,0 +1,43 @@
+{
+  "configurations": {
+    "公有目录": {
+      "global": {
+        "javaArgs": "",
+        "minecraftArgs": "",
+        "maxMemory": -1,
+        "autoMemory": false,
+        "serverIp": "",
+        "java": "",
+        "scaleFactor": 1.0,
+        "notCheckGame": false,
+        "notCheckJVM": false,
+        "beGesture": false,
+        "vulkanDriverSystem": false,
+        "controller": "",
+        "renderer": 0,
+        "isolateGameDir": false
+      },
+      "selectedMinecraftVersion": ""
+    },
+    "私有目录": {
+      "global": {
+        "javaArgs": "",
+        "minecraftArgs": "",
+        "maxMemory": -1,
+        "autoMemory": false,
+        "serverIp": "",
+        "java": "",
+        "scaleFactor": 1.0,
+        "notCheckGame": false,
+        "notCheckJVM": false,
+        "beGesture": false,
+        "vulkanDriverSystem": false,
+        "controller": "",
+        "renderer": 0,
+        "isolateGameDir": false
+      },
+      "selectedMinecraftVersion": ""
+    }
+  },
+  "last": "私有目录"
+}

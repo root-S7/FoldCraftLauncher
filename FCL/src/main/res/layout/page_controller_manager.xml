@@ -111,7 +111,8 @@
             android:focusable="true"
             android:orientation="horizontal"
             android:padding="10dp"
-            android:stateListAnimator="@xml/anim_scale">
+            android:stateListAnimator="@xml/anim_scale"
+            android:visibility="gone" >
 
             <com.tungsten.fcllibrary.component.view.FCLImageView
                 android:layout_width="20dp"
@@ -300,7 +301,8 @@
                 android:layout_weight="1"
                 android:singleLine="true"
                 android:text="@string/control_upload"
-                app:ripple="true" />
+                app:ripple="true"
+                android:visibility="gone" />
 
             <com.tungsten.fcllibrary.component.view.FCLButton
                 android:id="@+id/share"
