@@ -6,6 +6,7 @@
         "minecraftArgs": "",
         "maxMemory": -1,
         "autoMemory": false,
+        "permSize": "",
         "serverIp": "",
         "java": "",
         "scaleFactor": 1.0,
@@ -15,7 +16,9 @@
         "vulkanDriverSystem": false,
         "controller": "",
         "renderer": 0,
-        "isolateGameDir": false
+        "isolateGameDir": false,
+        "customRenderer": "",
+        "pojavBigCore": false
       },
       "selectedMinecraftVersion": ""
     },
@@ -25,6 +28,7 @@
         "minecraftArgs": "",
         "maxMemory": -1,
         "autoMemory": false,
+        "permSize": "",
         "serverIp": "",
         "java": "",
         "scaleFactor": 1.0,
@@ -34,7 +38,9 @@
         "vulkanDriverSystem": false,
         "controller": "",
         "renderer": 0,
-        "isolateGameDir": false
+        "isolateGameDir": false,
+        "customRenderer": "",
+        "pojavBigCore": false
       },
       "selectedMinecraftVersion": ""
     }
