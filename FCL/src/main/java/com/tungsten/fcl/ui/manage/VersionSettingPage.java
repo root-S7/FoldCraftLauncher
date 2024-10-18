@@ -81,6 +81,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
     private FCLSwitch isolateWorkingDirSwitch;
     private FCLSwitch beGestureSwitch;
     private FCLSwitch vulkanDriverSystemSwitch;
+    private FCLSwitch pojavBigCoreSwitch;
     private FCLSwitch noGameCheckSwitch;
     private FCLSwitch noJVMCheckSwitch;
 
@@ -126,6 +127,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         isolateWorkingDirSwitch = findViewById(R.id.edit_game_dir);
         beGestureSwitch = findViewById(R.id.edit_controller_injector);
         vulkanDriverSystemSwitch = findViewById(R.id.vulkan_driver_system);
+        pojavBigCoreSwitch = findViewById(R.id.pojav_big_core);
         noGameCheckSwitch = findViewById(R.id.edit_not_check_game);
         noJVMCheckSwitch = findViewById(R.id.edit_not_check_java);
 
@@ -155,9 +157,6 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         rendererDataList.add(FCLConfig.Renderer.RENDERER_VGPU);
         rendererDataList.add(FCLConfig.Renderer.RENDERER_ZINK);
         rendererDataList.add(FCLConfig.Renderer.RENDERER_FREEDRENO);
-        if (!RendererPlugin.getRendererList().isEmpty()) {
-            rendererDataList.add(FCLConfig.Renderer.RENDERER_CUSTOM);
-        }
         rendererSpinner.setDataList(rendererDataList);
 
         // add spinner text
@@ -185,10 +184,11 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         rendererAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         rendererSpinner.setAdapter(rendererAdapter);
         rendererSpinner.setListener(pos -> {
-            if (pos > 5) {
+            int targetIndex = FCLConfig.Renderer.values().length - 1;
+            if (pos >= targetIndex) {
                 lastVersionSetting.setRenderer(FCLConfig.Renderer.RENDERER_CUSTOM);
-                lastVersionSetting.setCustomRenderer(RendererPlugin.getRendererList().get(pos - 6).getDes());
-                RendererPlugin.setSelected(RendererPlugin.getRendererList().get(pos - 6));
+                lastVersionSetting.setCustomRenderer(RendererPlugin.getRendererList().get(pos - targetIndex).getDes());
+                RendererPlugin.setSelected(RendererPlugin.getRendererList().get(pos - targetIndex));
             }
         });
 
@@ -321,6 +321,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
             FXUtils.unbind(txtServerIP, lastVersionSetting.getServerIpProperty());
             FXUtils.unbindBoolean(chkAutoAllocate, lastVersionSetting.getAutoMemoryProperty());
             FXUtils.unbindBoolean(isolateWorkingDirSwitch, lastVersionSetting.getIsolateGameDirProperty());
+            FXUtils.unbindBoolean(pojavBigCoreSwitch, lastVersionSetting.getPojavBigCoreProperty());
             FXUtils.unbindBoolean(noGameCheckSwitch, lastVersionSetting.getNotCheckGameProperty());
             FXUtils.unbindBoolean(noJVMCheckSwitch, lastVersionSetting.getNotCheckJVMProperty());
             FXUtils.unbindBoolean(beGestureSwitch, lastVersionSetting.getBeGestureProperty());
@@ -343,6 +344,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         FXUtils.bindString(txtServerIP, versionSetting.getServerIpProperty());
         FXUtils.bindBoolean(chkAutoAllocate, versionSetting.getAutoMemoryProperty());
         FXUtils.bindBoolean(isolateWorkingDirSwitch, versionSetting.getIsolateGameDirProperty());
+        FXUtils.bindBoolean(pojavBigCoreSwitch, versionSetting.getPojavBigCoreProperty());
         FXUtils.bindBoolean(noGameCheckSwitch, versionSetting.getNotCheckGameProperty());
         FXUtils.bindBoolean(noJVMCheckSwitch, versionSetting.getNotCheckJVMProperty());
         FXUtils.bindBoolean(beGestureSwitch, versionSetting.getBeGestureProperty());

@@ -448,6 +448,7 @@ public class DefaultLauncher extends Launcher {
                 finalArgs
         );
         config.setUseVKDriverSystem(options.isVKDriverSystem());
+        config.setPojavBigCore(options.isPojavBigCore());
         return FCLauncher.launchMinecraft(config);
     }
 
