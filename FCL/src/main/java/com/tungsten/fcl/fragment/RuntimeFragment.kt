@@ -183,7 +183,12 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 Thread {
                     try {
                         if ("false" == FCLApplication.appConfig.getProperty("download-authlib-injector-online", "false")) RuntimeUtils.copyAssetsFileToLocalDir(context, "others_file/authlib-injector.jar", FCLPath.PLUGIN_DIR + "/authlib-injector.jar")
-                        RuntimeUtils.copyAssetsDirToLocalDir(context, "others_file/background", FCLPath.BACKGROUND_DIR)
+                        RuntimeUtils.reloadSettingsLauncherPictures(context, linkedMapOf(
+                            "lt.png" to FCLPath.BACKGROUND_DIR,
+                            "dk.png" to FCLPath.BACKGROUND_DIR,
+                            "cursor.png" to FCLPath.FILES_DIR,
+                            "menu_icon.png" to FCLPath.FILES_DIR
+                        ))
                         ParseAuthlibInjectorServerFile(activity, "others_file/authlib-injector-server.json").parseFileAndConvert()
                         editor.putString("others_file_version", ReadTools.convertToString(context, "others_file/version"))
                         othersFile = true

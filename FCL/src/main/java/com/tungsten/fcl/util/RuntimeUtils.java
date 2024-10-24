@@ -4,31 +4,19 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.system.Os;
 import android.util.Log;
-
 import com.google.gson.*;
 import com.tungsten.fcl.R;
 import com.tungsten.fclauncher.FCLauncher;
-import com.tungsten.fclauncher.utils.Architecture;
-import com.tungsten.fclauncher.utils.FCLPath;
-import com.tungsten.fclcore.util.Logging;
-import com.tungsten.fclcore.util.Pack200Utils;
-import com.tungsten.fclcore.util.io.FileUtils;
-import com.tungsten.fclcore.util.io.IOUtils;
-import com.tungsten.fclcore.util.io.Unzipper;
-import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import com.tungsten.fclauncher.utils.*;
+import com.tungsten.fclcore.util.*;
+import com.tungsten.fclcore.util.io.*;
+import org.apache.commons.compress.archivers.tar.*;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.nio.file.*;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
@@ -133,25 +121,22 @@ public class RuntimeUtils {
         }
     }
 
-    public static void copyAssetsFileToLocalDir(Context context, String assetsFile, String savePath){
-        try {
-            InputStream is = context.getAssets().open(assetsFile);
-            FileOutputStream fos = new FileOutputStream(savePath);
-            byte[] buffer = new byte[1024];
-            int byteCount = 0;
-            // 循环从输入流读取
-            while ((byteCount = is.read(buffer)) != -1) {
-                // 将读取的输入流写入到输出流
-                fos.write(buffer, 0, byteCount);
-            }
-            // 刷新缓冲区
-            fos.flush();
-            is.close();
-            fos.close();
-        }catch(IOException e) {
-            throw new RuntimeException(e);
+    public static void copyAssetsFileToLocalDir(Context context, String assetsFile, String savePath) throws IOException {
+        InputStream is = context.getAssets().open(assetsFile);
+        FileOutputStream fos = new FileOutputStream(savePath);
+        byte[] buffer = new byte[1024];
+        int byteCount = 0;
+        // 循环从输入流读取
+        while ((byteCount = is.read(buffer)) != -1) {
+            // 将读取的输入流写入到输出流
+            fos.write(buffer, 0, byteCount);
         }
+        // 刷新缓冲区
+        fos.flush();
+        is.close();
+        fos.close();
     }
+
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void uncompressTarXZ(final InputStream tarFileInputStream, final File dest) throws IOException {
         dest.mkdirs();
@@ -376,6 +361,24 @@ public class RuntimeUtils {
             RuntimeUtils.copyAssets(context, "others_file/menu_setting.json", FCLPath.FILES_DIR + "/menu_setting.json");
         }catch (JsonSyntaxException | JsonIOException | IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void reloadSettingsLauncherPictures(Context context, Map<String, String> importRuleTable) throws IOException {
+        if (context == null || importRuleTable == null || importRuleTable.isEmpty()) return;
+
+        // 获取assets目录中"others_file/settings_launcher_pictures"的文件列表
+        String[] assetFiles = context.getAssets().list("others_file/settings_launcher_pictures");
+
+        Set<String> keys = importRuleTable.keySet();
+        for(String s : keys) {
+            try {
+                if(Arrays.asList(assetFiles).contains(s)) copyAssetsFileToLocalDir(context, "others_file/settings_launcher_pictures/" + s, importRuleTable.get(s) + "/" + s);
+            }catch(FileNotFoundException e) {
+                Log.d("事件", "文件未找到：" + s);
+            }catch(IOException e) {
+                Log.d("事件", "处理文件时发生错误：" + s);
+            }
         }
     }
 
