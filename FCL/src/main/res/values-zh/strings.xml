@@ -90,7 +90,7 @@
     <string name="action_share">分享</string>
     <string name="action_skip">跳过</string>
 
-    <string name="announcement">公告：%s</string>
+    <string name="announcement">%s</string>
     <string name="announcement_significant">此公告为重要公告，隐藏前请确认你已阅读此公告，是否继续隐藏？</string>
 
     <string name="archive_author">作者</string>

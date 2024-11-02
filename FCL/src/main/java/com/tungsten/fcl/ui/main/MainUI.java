@@ -149,22 +149,27 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
                             false,
                             -1,
                             -1,
-                            new ArrayList<>(Collections.singletonList("")),
+                            new ArrayList<>(),
                             new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))),
                             new SimpleDateFormat("yyyy.MM.dd").format(new Date()),
                             new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题")))
                     );
                 }
             });
-            future.thenAccept(announcement -> {
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    this.announcement = announcement;
+            future.thenAccept(announcement -> new Handler(Looper.getMainLooper()).post(() -> {
+                this.announcement = announcement;
+                try {
                     announcementContainer.setVisibility(View.VISIBLE);
                     title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", this.announcement.getDisplayTitle(getContext())));
                     announcementView.setText(this.announcement.getDisplayContent(getContext()));
                     date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", this.announcement.getDate()));
-                });
-            });
+                }catch(Exception e) {
+                    announcementContainer.setVisibility(View.VISIBLE);
+                    title.setText("异常");
+                    announcementView.setText("无法获取公告，也许是网络问题");
+                    date.setText(new SimpleDateFormat("yyyy.MM.dd").format(new Date()));
+                }
+            }));
         }else announcementContainer.setVisibility(View.INVISIBLE);
     }
 
