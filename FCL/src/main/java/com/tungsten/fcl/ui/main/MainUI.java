@@ -152,7 +152,7 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
                             new ArrayList<>(),
                             new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "异常"))),
                             new SimpleDateFormat("yyyy.MM.dd").format(new Date()),
-                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，也许是网络问题")))
+                            new ArrayList<>(Collections.singletonList(new Announcement.Content("en", "无法获取公告，原因：无效的公告地址或JSON文件格式无效")))
                     );
                 }
             });
@@ -166,7 +166,7 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
                 }catch(Exception e) {
                     announcementContainer.setVisibility(View.VISIBLE);
                     title.setText("异常");
-                    announcementView.setText("无法获取公告，也许是网络问题");
+                    announcementView.setText("无法获取公告，原因：无效的JSON文件格式");
                     date.setText(new SimpleDateFormat("yyyy.MM.dd").format(new Date()));
                 }
             }));
