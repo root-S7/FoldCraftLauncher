@@ -120,6 +120,10 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                     override fun loadVersions(modRepository: RemoteModRepository): Stream<RemoteMod.Version> {
                         throw IOException()
                     }
+
+                    override fun loadScreenshots(modRepository: RemoteModRepository): MutableList<RemoteMod.Screenshot> {
+                        throw IOException()
+                    }
                 })
         )
 
@@ -494,7 +498,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
 
     private fun playAnim() {
         bind.apply {
-            val speed = ThemeEngine.getInstance().getTheme().animationSpeed
+            val speed = 8
             AnimUtil.playTranslationX(
                 listOf(leftMenu),
                 speed * 100L,
