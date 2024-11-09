@@ -23,11 +23,7 @@ android {
                 keyPassword "FCL-Debug"
             }
         }
-        ndk{
-            abiFilter "arm64-v8a"
-        }
-        aaptOptions{
-            ignoreAssetsPattern '!.svn:!.git:<dir>_*:!CVS:!thumbs.db:!picasa.ini:!*.scc:*~'
+        aaptOptions {
             ignoreAssetsPattern '!bin-arm.tar.xz*:!bin-x86.tar.xz*:!bin-x86_64.tar.xz*'
         }
         //包名建议使用"个人域名反写+服务器名称取每个字第一个字母"
@@ -51,6 +47,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            ndk {
+                abiFilter "arm64-v8a"
+            }
         }
         configureEach {
             resValue "string", "app_version", "${defaultConfig.versionName}"
