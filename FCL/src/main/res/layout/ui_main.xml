@@ -83,7 +83,7 @@
             android:layout_marginTop="10dp"
             android:text="@string/button_hide"
             app:ripple="true"
-            android:visibility="invisible"/>
+            android:visibility="gone"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

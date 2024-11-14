@@ -159,18 +159,16 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
             future.thenAccept(announcement -> new Handler(Looper.getMainLooper()).post(() -> {
                 this.announcement = announcement;
                 try {
-                    announcementContainer.setVisibility(View.VISIBLE);
                     title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", this.announcement.getDisplayTitle(getContext())));
                     announcementView.setText(this.announcement.getDisplayContent(getContext()));
                     date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", this.announcement.getDate()));
                 }catch(Exception e) {
-                    announcementContainer.setVisibility(View.VISIBLE);
                     title.setText("异常");
                     announcementView.setText("无法获取公告，原因：无效的JSON文件格式");
                     date.setText(new SimpleDateFormat("yyyy.MM.dd").format(new Date()));
                 }
             }));
-        }else announcementContainer.setVisibility(View.INVISIBLE);
+        }else announcementContainer.setVisibility(View.GONE);
     }
 
     private void hideAnnouncement() {
