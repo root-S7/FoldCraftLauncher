@@ -12,6 +12,7 @@ import android.graphics.drawable.BitmapDrawable;
 
 import androidx.core.graphics.ColorUtils;
 
+import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.property.BooleanProperty;
 import com.tungsten.fclcore.fakefx.beans.property.IntegerProperty;
 import com.tungsten.fclcore.fakefx.beans.property.ObjectProperty;
@@ -80,7 +81,7 @@ public class Theme {
     }
 
     public int getAutoHintTint() {
-        return ColorUtils.calculateLuminance(getColor()) >= 0.5 ? Color.parseColor("#99000000") : Color.parseColor("#99FFFFFF");
+        return ColorUtils.calculateLuminance(getColor()) >= 0.5 ? Color.parseColor("#99000000") : Color.parseColor("#99686767");
     }
 
     public boolean isFullscreen() {
@@ -169,7 +170,7 @@ public class Theme {
         this.dkColor.set(Color.HSVToColor(dkHsv));
         this.autoTint.set(ColorUtils.calculateLuminance(color) >= 0.5 ? Color.parseColor("#FF000000") : Color.parseColor("#FFFFFFFF"));
         this.color.set(color);
-        this.color2.set(color);
+        //this.color2.set(color);
     }
 
     public void setColor2(int color) {
@@ -201,7 +202,7 @@ public class Theme {
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
         int color = sharedPreferences.getInt("theme_color", Color.parseColor("#7797CF"));
         int color2 = sharedPreferences.getInt("theme_color2", Color.parseColor("#7797CF"));
-        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", false);
+        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.APP_CONFIG_PROPERTIES.getProperty("fullscreen", "true").equals("true"));
         boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", false);
         boolean modified = sharedPreferences.getBoolean("modified", false);
         int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
