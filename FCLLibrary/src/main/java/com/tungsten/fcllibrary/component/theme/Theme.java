@@ -203,7 +203,7 @@ public class Theme {
         int color = sharedPreferences.getInt("theme_color", Color.parseColor("#7797CF"));
         int color2 = sharedPreferences.getInt("theme_color2", Color.parseColor("#7797CF"));
         boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.APP_CONFIG_PROPERTIES.getProperty("fullscreen", "true").equals("true"));
-        boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", false);
+        boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", FCLPath.APP_CONFIG_PROPERTIES.getProperty("close-skin-model", "true").equals("true"));
         boolean modified = sharedPreferences.getBoolean("modified", false);
         int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
         Bitmap lt = !new File(context.getFilesDir().getAbsolutePath() + "/background/lt.png").exists() ? ConvertUtils.getBitmapFromRes(context, R.drawable.background_light) : BitmapFactory.decodeFile(context.getFilesDir().getAbsolutePath() + "/background/lt.png");
