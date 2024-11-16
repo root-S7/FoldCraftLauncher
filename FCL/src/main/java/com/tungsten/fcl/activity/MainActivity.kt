@@ -498,7 +498,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
 
     private fun playAnim() {
         bind.apply {
-            val speed = 8
+            val speed = ThemeEngine.getInstance().theme.animationSpeed
             AnimUtil.playTranslationX(
                 listOf(leftMenu),
                 speed * 100L,

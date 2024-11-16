@@ -32,12 +32,13 @@ public class Theme {
     private final IntegerProperty dkColor = new SimpleIntegerProperty();
     private final IntegerProperty autoTint = new SimpleIntegerProperty();
     private final BooleanProperty fullscreen = new SimpleBooleanProperty();
+    private final BooleanProperty closeSkinModel = new SimpleBooleanProperty();
     private final BooleanProperty modified = new SimpleBooleanProperty();
     private final IntegerProperty animationSpeed = new SimpleIntegerProperty();
     private final ObjectProperty<BitmapDrawable> backgroundLt = new SimpleObjectProperty<>();
     private final ObjectProperty<BitmapDrawable> backgroundDk = new SimpleObjectProperty<>();
 
-    public Theme(int color, int color2, boolean fullscreen, int animationSpeed, BitmapDrawable backgroundLt, BitmapDrawable backgroundDk, boolean modified) {
+    public Theme(int color, int color2, boolean fullscreen, boolean closeSkinModel, int animationSpeed, BitmapDrawable backgroundLt, BitmapDrawable backgroundDk, boolean modified) {
         float[] ltHsv = new float[3];
         Color.colorToHSV(color, ltHsv);
         ltHsv[1] -= (1 - ltHsv[1]) * 0.3f;
@@ -51,6 +52,7 @@ public class Theme {
         this.ltColor.set(Color.HSVToColor(ltHsv));
         this.dkColor.set(Color.HSVToColor(dkHsv));
         this.fullscreen.set(fullscreen);
+        this.closeSkinModel.set(closeSkinModel);
         this.modified.set(modified);
         this.animationSpeed.set(animationSpeed);
         this.autoTint.set(ColorUtils.calculateLuminance(color) >= 0.5 ? Color.parseColor("#FF000000") : Color.parseColor("#FFFFFFFF"));
@@ -84,6 +86,10 @@ public class Theme {
 
     public boolean isFullscreen() {
         return fullscreen.get();
+    }
+
+    public boolean isCloseSkinModel() {
+        return closeSkinModel.get();
     }
 
     public boolean isModified() {
@@ -123,6 +129,10 @@ public class Theme {
     }
 
     public BooleanProperty fullscreenProperty() {
+        return fullscreen;
+    }
+
+    public BooleanProperty ignoreSkinContainerProperty() {
         return fullscreen;
     }
 
@@ -171,6 +181,10 @@ public class Theme {
         this.fullscreen.set(fullscreen);
     }
 
+    public void setiIgnoreSkinContainer(boolean ignoreSkinContainer) {
+        this.closeSkinModel.set(ignoreSkinContainer);
+    }
+
     public void setAnimationSpeed(int animationSpeed) {
         this.animationSpeed.set(animationSpeed);
     }
@@ -189,13 +203,14 @@ public class Theme {
         int color = sharedPreferences.getInt("theme_color", Color.parseColor("#7797CF"));
         int color2 = sharedPreferences.getInt("theme_color2", Color.parseColor("#7797CF"));
         boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.APP_CONFIG_PROPERTIES.getProperty("fullscreen", "true").equals("true"));
+        boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", false);
         boolean modified = sharedPreferences.getBoolean("modified", false);
         int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
         Bitmap lt = !new File(context.getFilesDir().getAbsolutePath() + "/background/lt.png").exists() ? ConvertUtils.getBitmapFromRes(context, R.drawable.background_light) : BitmapFactory.decodeFile(context.getFilesDir().getAbsolutePath() + "/background/lt.png");
         BitmapDrawable backgroundLt = new BitmapDrawable(lt);
         Bitmap dk = !new File(context.getFilesDir().getAbsolutePath() + "/background/dk.png").exists() ? ConvertUtils.getBitmapFromRes(context, R.drawable.background_dark) : BitmapFactory.decodeFile(context.getFilesDir().getAbsolutePath() + "/background/dk.png");
         BitmapDrawable backgroundDk = new BitmapDrawable(dk);
-        return new Theme(color, color2, fullscreen, animationSpeed, backgroundLt, backgroundDk, modified);
+        return new Theme(color, color2, fullscreen, closeSkinModel, animationSpeed, backgroundLt, backgroundDk, modified);
     }
 
     public static void saveTheme(Context context, Theme theme) {
@@ -211,6 +226,7 @@ public class Theme {
         editor.putInt("theme_color2", theme.getColor2());
         editor.putBoolean("fullscreen", theme.isFullscreen());
         editor.putInt("animation_speed", theme.getAnimationSpeed());
+        editor.putBoolean("close_skin_model",theme.isCloseSkinModel());
         editor.putBoolean("modified", modified);
         editor.apply();
     }
