@@ -94,8 +94,8 @@ public final class Profiles {
             Profile home = new Profile(FCLPath.CONTEXT.getString(R.string.profile_private), new File(FCLPath.PRIVATE_COMMON_DIR));
             profiles.addAll(current, home);
 
-            edit.putString("this_game_resources_directory", config().getConfigurations().get(config().getSelectedProfile()).getGameDir().getAbsolutePath());
-            edit.apply();
+            //edit.putString("this_game_resources_directory", config().getConfigurations().get(config().getSelectedProfile()).getGameDir().getAbsolutePath());
+            //edit.apply();
         }
     }
 
