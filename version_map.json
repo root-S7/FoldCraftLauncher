@@ -1,9 +1,9 @@
 [
   {
     "type": "release",
-    "versionCode": 1191,
-    "versionName": "1.1.9.1",
-    "date": "2024.11.28",
+    "versionCode": 1193,
+    "versionName": "1.1.9.3",
+    "date": "2024.12.12",
     "description": [
       {
         "lang": "en",
@@ -11,10 +11,10 @@
       },
       {
         "lang": "zh_CN",
-        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复聊天界面使用Ctrl+V会导致游戏卡住的bug\n2.更新Turnip驱动至24.3.0\n3.修复Forge mod信息识别错误的bug\n4.新增功能：启动时打印mods文件夹内的jar文件\n5.新增功能：下载版本页面可以直接跳转至对于版本的MC百科\n6.修复部分bug"
+        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复隐藏菜单和隐藏控件同时使用时造成侧滑失效的Bug\n2.修复部分机型使用VulkanMod时打开F3闪退的Bug\n3.修复OAuth登录时轮询过于频繁的问题\n4.更新下载页面的“游戏版本”列表\n5.增加5.15.0版本的JNA Native库文件"
       }
     ],
-    "netdiskUrl": "https://pan.quark.cn/s/fa18443a70eb",
-    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.1.9.1/FCL-release-1.1.9.1-all.apk"
+    "netdiskUrl": "https://pan.quark.cn/s/621a6575a6d9",
+    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.1.9.3/FCL-release-1.1.9.3-all.apk"
   }
 ]

@@ -37,8 +37,8 @@ android {
         applicationId "com.hg.wreckfest"
         minSdk 26
         targetSdk 34
-        versionCode 1191
-        versionName "1.1.9.1"
+        versionCode 1193
+        versionName "1.1.9.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -69,8 +69,8 @@ android {
     packagingOptions {
         jniLibs {
             useLegacyPackaging true
+            pickFirsts += ['**/libbytehook.so']
         }
-        pickFirst '**/libbytehook.so'
     }
     kotlinOptions {
         jvmTarget = "1.8"
