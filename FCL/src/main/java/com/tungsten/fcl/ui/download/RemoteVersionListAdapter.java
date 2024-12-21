@@ -31,6 +31,7 @@ import com.tungsten.fcllibrary.component.view.FCLLinearLayout;
 import com.tungsten.fcllibrary.component.view.FCLTextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class RemoteVersionListAdapter extends FCLAdapter {
 
@@ -89,7 +90,7 @@ public class RemoteVersionListAdapter extends FCLAdapter {
         viewHolder.tag.setText(getTag(remoteVersion));
         viewHolder.date.setVisibility(remoteVersion.getReleaseDate() == null ? View.GONE : View.VISIBLE);
         viewHolder.date.setText(remoteVersion.getReleaseDate() == null ? "" : formatDateTime(getContext(), remoteVersion.getReleaseDate()));
-        if (remoteVersion.getVersionType() == RemoteVersion.Type.RELEASE || remoteVersion.getVersionType() == RemoteVersion.Type.SNAPSHOT) {
+        if (remoteVersion instanceof GameRemoteVersion && (remoteVersion.getVersionType() == RemoteVersion.Type.RELEASE || remoteVersion.getVersionType() == RemoteVersion.Type.SNAPSHOT)) {
             viewHolder.wiki.setVisibility(View.VISIBLE);
             viewHolder.wiki.setOnClickListener(v -> AndroidUtils.openLink(getContext(), remoteVersion.getVersionType() == RemoteVersion.Type.RELEASE ? String.format(getContext().getString(R.string.wiki_release), remoteVersion.getGameVersion()) : String.format(getContext().getString(R.string.wiki_snapshot), remoteVersion.getGameVersion())));
         } else {
@@ -140,6 +141,10 @@ public class RemoteVersionListAdapter extends FCLAdapter {
         } else {
             return remoteVersion.getGameVersion();
         }
+    }
+
+    public List<RemoteVersion> getList() {
+        return list;
     }
 
     public interface OnRemoteVersionSelectListener {
