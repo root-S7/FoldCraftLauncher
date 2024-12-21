@@ -1,6 +1,9 @@
 package com.tungsten.fcl.util;
 
+import static com.tungsten.fclauncher.utils.FCLPath.*;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.system.Os;
 
 import com.tungsten.fclauncher.FCLauncher;
@@ -20,16 +23,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class RuntimeUtils {
 
     public static boolean isLatest(String targetDir, String srcDir) throws IOException {
         File targetFile = new File(targetDir + "/version");
-        long version = Long.parseLong(IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")));
-        return targetFile.exists() && Long.parseLong(FileUtils.readText(targetFile)) == version;
+        String version = IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version"));
+        return targetFile.exists() && FileUtils.readText(targetFile).equals(version);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -37,6 +41,51 @@ public class RuntimeUtils {
         FileUtils.deleteDirectory(new File(targetDir));
         new File(targetDir).mkdirs();
         copyAssets(context, srcDir, targetDir);
+    }
+
+    private final static InstallResources installResources = new InstallResources();
+    public static void installGameFiles(Context context, String oldInstallDir, String srcDir,final SharedPreferences.Editor editor) throws IOException, ExecutionException, InterruptedException {
+        installResources.installGameFiles(context, oldInstallDir, srcDir);
+
+        if(editor != null) {
+            editor.putBoolean("isFirstInstall", false);
+            editor.apply();
+        }
+    }
+
+    public static void installConfigFiles(Context context, String targetDir, String srcDir) throws IOException {
+        installResources.installConfigFiles(context, targetDir, srcDir);
+    }
+
+    protected static class InstallResources {
+        private final CountDownLatch countDownLatch;
+
+        public InstallResources() {
+            this.countDownLatch = new CountDownLatch(1);
+        }
+
+        public void installGameFiles(Context context, String oldInstallDir, String srcDir) throws IOException, ExecutionException, InterruptedException {
+            FileUtils.deleteDirectory(new File(FCLPath.SHARED_COMMON_DIR)); // 先删除默认目录中的按键和日志内容
+
+            FileUtils.deleteDirectory(new File(oldInstallDir)); // 如果config.json文件修改后则删除旧的config.json文件中目录资源
+
+            countDownLatch.await(); // 等待配置文件线程关键文件操作完毕后才能继续往下操作
+
+            install(context, ConfigUtils.getGameDirectory(), srcDir); // 安装游戏资源
+        }
+
+        public void installConfigFiles(Context context, String targetDir, String srcDir) throws IOException {
+            FileUtils.batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), context.getCacheDir(), context.getCodeCacheDir());
+
+            createDeviceConfigurationFiles();
+
+            countDownLatch.countDown(); // CountDownLatch计数器为0时，调用await()的线程不会阻塞
+            RuntimeUtils.copyAssets(context, srcDir + "/version", targetDir + "/version");
+        }
+
+        protected void createDeviceConfigurationFiles() {
+
+        }
     }
 
     public static void installJna(Context context, String targetDir, String srcDir) throws IOException {
@@ -61,34 +110,52 @@ public class RuntimeUtils {
         patchJava(context, targetDir);
     }
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void copyAssets(Context context, String src, String dest) throws IOException {
+        // 获取指定路径下的文件或目录列表
         String[] fileNames = context.getAssets().list(src);
-        if (fileNames.length > 0) {
-            File file = new File(dest);
-            if (!file.exists())
-                file.mkdirs();
+
+        if (fileNames != null && fileNames.length > 0) { // 当前路径为目录
+            File destDir = new File(dest);
+
+            // 确保目标目录存在
+            if (!destDir.exists() && !destDir.mkdirs()) {
+                throw new IOException("Failed to create directory: " + dest);
+            }
+
+            // 遍历目录下的文件/子目录
             for (String fileName : fileNames) {
-                if (!src.equals("")) {
-                    copyAssets(context, src + File.separator + fileName, dest + File.separator + fileName);
-                } else {
-                    copyAssets(context, fileName, dest + File.separator + fileName);
-                }
+                String newSrc = src.isEmpty() ? fileName : src + File.separator + fileName;
+                String newDest = dest + File.separator + fileName;
+
+                // 递归复制
+                copyAssets(context, newSrc, newDest);
             }
-        } else {
+        } else { // 当前路径为文件
             File outFile = new File(dest);
-            InputStream is = context.getAssets().open(src);
-            FileOutputStream fos = new FileOutputStream(outFile);
-            byte[] buffer = new byte[1024];
-            int byteCount;
-            while ((byteCount = is.read(buffer)) != -1) {
-                fos.write(buffer, 0, byteCount);
+
+            // 确保父目录存在
+            File parentDir = outFile.getParentFile();
+            if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) {
+                throw new IOException("Failed to create parent directory: " + parentDir.getAbsolutePath());
             }
-            fos.flush();
-            is.close();
-            fos.close();
+
+            // 使用 try-with-resources 确保资源关闭
+            try (InputStream is = context.getAssets().open(src);
+                 FileOutputStream fos = new FileOutputStream(outFile)) {
+
+                // 以缓冲区形式复制文件
+                byte[] buffer = new byte[1024];
+                int byteCount;
+                while ((byteCount = is.read(buffer)) != -1) {
+                    fos.write(buffer, 0, byteCount);
+                }
+
+                // 确保数据刷新到文件
+                fos.flush();
+            }
         }
     }
+
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void uncompressTarXZ(final InputStream tarFileInputStream, final File dest) throws IOException {

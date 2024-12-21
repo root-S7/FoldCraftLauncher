@@ -240,6 +240,7 @@ public final class FileUtils {
         }
     }
 
+
     public static boolean deleteDirectoryQuietly(File directory) {
         try {
             deleteDirectory(directory);
@@ -473,5 +474,34 @@ public final class FileUtils {
         }
 
         Files.move(tmpFile, file, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
+     * 判断给定路径是否是文件/文件夹，并且具有读写权限
+     *
+     * @param path 文件或文件夹路径
+     * @return 如果是文件或文件夹且有读写权限，返回true，否则返回false
+    **/
+    public static boolean checkFileOrDirectoryPermission(String path) {
+        if(path == null || path.isEmpty() || path.isBlank()) return false;
+
+        File file = new File(path);
+
+        // 判断文件或文件夹是否存在
+        if (!file.exists()) return false;
+
+        // 判断是文件或文件夹并检查读写权限
+        if (file.isFile() || file.isDirectory()) return file.canRead() && file.canWrite();
+
+        return false;
+    }
+
+    public static void batchDelete(File... files) {
+        if(files != null) {
+            for(File file : files) {
+                if (file.isFile()) file.delete();
+                else deleteDirectoryQuietly(file);
+            }
+        }
     }
 }

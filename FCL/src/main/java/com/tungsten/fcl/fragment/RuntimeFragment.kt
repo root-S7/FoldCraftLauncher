@@ -1,6 +1,6 @@
 package com.tungsten.fcl.fragment
 
-import android.graphics.Color
+import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +9,7 @@ import androidx.appcompat.content.res.AppCompatResources
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.SplashActivity
 import com.tungsten.fcl.databinding.FragmentRuntimeBinding
+import com.tungsten.fcl.util.ConfigUtils
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.task.Schedulers
@@ -21,6 +22,8 @@ import java.util.Locale
 
 class RuntimeFragment : FCLFragment(), View.OnClickListener {
     private lateinit var bind: FragmentRuntimeBinding
+    var gameFiles: Boolean = false
+    var configFiles: Boolean = false
     var lwjgl: Boolean = false
     var cacio: Boolean = false
     var cacio11: Boolean = false
@@ -30,6 +33,10 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     var java17: Boolean = false
     var java21: Boolean = false
     var jna: Boolean = false
+
+    private val assumeIsOldDir = ConfigUtils.getGameDirectory()
+
+    private val sharedPreferences = FCLPath.CONTEXT.getSharedPreferences("launcher", MODE_PRIVATE)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +58,14 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
 
     private fun initState() {
         try {
+            gameFiles = RuntimeUtils.isLatest(
+                assumeIsOldDir,
+                "/assets/.minecraft"
+            ) && !sharedPreferences.getBoolean("isFirstInstall", true)
+            configFiles = RuntimeUtils.isLatest(
+                FCLPath.CONFIG_DIR,
+                "/assets/app_config"
+            ) && gameFiles
             lwjgl = RuntimeUtils.isLatest(
                 FCLPath.LWJGL_DIR,
                 "/assets/app_runtime/lwjgl"
@@ -87,10 +102,9 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             val stateDone =
                 AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_done_24)
 
-            stateUpdate?.setTint(Color.GRAY)
-            stateDone?.setTint(Color.GRAY)
-
             bind.apply {
+                gameFileState.setBackgroundDrawable(if (gameFiles) stateDone else stateUpdate)
+                configFileState.setBackgroundDrawable(if (configFiles) stateDone else stateUpdate)
                 lwjglState.setBackgroundDrawable(if (lwjgl) stateDone else stateUpdate)
                 cacioState.setBackgroundDrawable(if (cacio) stateDone else stateUpdate)
                 cacio11State.setBackgroundDrawable(if (cacio11) stateDone else stateUpdate)
@@ -105,7 +119,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     }
 
     private val isLatest: Boolean
-        get() = lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna
+        get() = gameFiles && configFiles && lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna
 
     private fun check() {
         if (isLatest) {
@@ -117,9 +131,42 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
 
     private fun install() {
         if (installing) return
+        if (installing) return
 
         bind.apply {
             installing = true
+            if (!gameFiles) {
+                gameFileState.visibility = View.GONE
+                gameFilesProgress.visibility = View.VISIBLE
+                Thread {
+                    try {
+                        RuntimeUtils.installGameFiles(context, assumeIsOldDir, ".minecraft", sharedPreferences.edit())
+                        gameFiles = true
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                    activity?.runOnUiThread {
+                        gameFileState.visibility = View.VISIBLE
+                        gameFilesProgress.visibility = View.GONE
+                        refreshDrawables()
+                        check()
+                    }
+                }.start()
+            }
+            if (!configFiles) {
+                configFileState.visibility = View.GONE
+                configFilesProgress.visibility = View.VISIBLE
+                Thread {
+                    RuntimeUtils.installConfigFiles(context, FCLPath.CONFIG_DIR, "app_config")
+                    configFiles = true
+                    activity?.runOnUiThread {
+                        configFileState.visibility = View.VISIBLE
+                        configFilesProgress.visibility = View.GONE
+                        refreshDrawables()
+                        check()
+                    }
+                }.start()
+            }
             if (!lwjgl) {
                 lwjglState.visibility = View.GONE
                 lwjglProgress.visibility = View.VISIBLE
@@ -241,21 +288,14 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_11_PATH,
                             "app_runtime/java/jre11"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_11_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
+                        FileUtils.writeText(
+                            File(FCLPath.JAVA_11_PATH + "/resolv.conf"),
+                            String.format(
+                                "nameserver %s\nnameserver %s",
+                                FCLPath.GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
+                                FCLPath.GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
                             )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_11_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        )
                         java11 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -278,21 +318,14 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_17_PATH,
                             "app_runtime/java/jre17"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_17_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
+                        FileUtils.writeText(
+                            File(FCLPath.JAVA_17_PATH + "/resolv.conf"),
+                            String.format(
+                                "nameserver %s\nnameserver %s",
+                                FCLPath.GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
+                                FCLPath.GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
                             )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_17_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        )
                         java17 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -315,21 +348,14 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_21_PATH,
                             "app_runtime/java/jre21"
                         )
-                        if (LocaleUtils.getSystemLocale().displayName != Locale.CHINA.displayName) {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_21_PATH + "/resolv.conf"), """
-     nameserver 1.1.1.1
-     nameserver 1.0.0.1
-     """.trimIndent()
+                        FileUtils.writeText(
+                            File(FCLPath.JAVA_21_PATH + "/resolv.conf"),
+                            String.format(
+                                "nameserver %s\nnameserver %s",
+                                FCLPath.GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
+                                FCLPath.GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
                             )
-                        } else {
-                            FileUtils.writeText(
-                                File(FCLPath.JAVA_21_PATH + "/resolv.conf"), """
-     nameserver 8.8.8.8
-     nameserver 8.8.4.4
-     """.trimIndent()
-                            )
-                        }
+                        )
                         java21 = true
                     } catch (e: IOException) {
                         e.printStackTrace()

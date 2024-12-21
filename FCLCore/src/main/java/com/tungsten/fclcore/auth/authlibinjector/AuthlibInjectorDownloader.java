@@ -21,14 +21,19 @@ import static com.tungsten.fclcore.util.Logging.LOG;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
+import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.download.DownloadProvider;
 import com.tungsten.fclcore.task.FileDownloadTask;
 import com.tungsten.fclcore.util.io.HttpRequest;
+import com.tungsten.fclcore.util.io.IOUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -93,13 +98,25 @@ public class AuthlibInjectorDownloader implements AuthlibInjectorArtifactProvide
         }
 
         try {
-            new FileDownloadTask(downloadProvider.get().injectURLWithCandidates(latest.downloadUrl), artifactLocation.toFile(),
-                    Optional.ofNullable(latest.checksums.get("sha256"))
-                            .map(checksum -> new FileDownloadTask.IntegrityCheck("SHA-256", checksum))
-                            .orElse(null))
-                    .run();
+            String downloadUrl = latest.downloadUrl;
+
+            Path sourceFile = Paths.get(downloadUrl);
+            if (Files.exists(sourceFile) && Files.isRegularFile(sourceFile)) { // 如果downloadUrl是路径点
+                Files.copy(sourceFile, new File(FCLPath.AUTHLIB_INJECTOR_PATH).toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.delete(new File(downloadUrl).toPath());
+            } else { // 如果downloadUrl是链接
+                try {
+                    new FileDownloadTask(downloadProvider.get().injectURLWithCandidates(latest.downloadUrl), artifactLocation.toFile(),
+                            Optional.ofNullable(latest.checksums.get("sha256"))
+                                    .map(checksum -> new FileDownloadTask.IntegrityCheck("SHA-256", checksum))
+                                    .orElse(null))
+                            .run();
+                } catch (Exception e) {
+                    throw new IOException("Failed to download authlib-injector", e);
+                }
+            }
         } catch (Exception e) {
-            throw new IOException("Failed to download authlib-injector", e);
+            throw new IOException("Failed to download or copy authlib-injector", e);
         }
 
         LOG.info("Updated authlib-injector to " + latest.version);
@@ -109,7 +126,9 @@ public class AuthlibInjectorDownloader implements AuthlibInjectorArtifactProvide
         IOException exception = null;
         for (URL url : downloadProvider.get().injectURLWithCandidates(LATEST_BUILD_URL)) {
             try {
-                return HttpRequest.GET(url.toExternalForm()).getJson(AuthlibInjectorVersionInfo.class);
+                boolean needOnlineDownload = FCLPath.GENERAL_SETTING.getProperty("download-online-authlib-injector", "false").equals("true");
+                AuthlibInjectorArtifactInfo from = AuthlibInjectorArtifactInfo.from();
+                return needOnlineDownload ? HttpRequest.GET(url.toExternalForm()).getJson(AuthlibInjectorVersionInfo.class) : new AuthlibInjectorVersionInfo(from.getBuildNumber(), from.getVersion(), from.getLocation().toString(), Map.of("sha256", IOUtils.calculateSHA256(from.getLocation())));
             } catch (IOException | JsonParseException e) {
                 if (exception == null) {
                     exception = new IOException("Failed to fetch authlib-injector artifact info");
@@ -152,6 +171,15 @@ public class AuthlibInjectorDownloader implements AuthlibInjectorArtifactProvide
 
         @SerializedName("checksums")
         public Map<String, String> checksums;
+
+        public AuthlibInjectorVersionInfo() {}
+
+        public AuthlibInjectorVersionInfo(int buildNumber, String version, String downloadUrl, Map<String, String> checksums) {
+            this.buildNumber = buildNumber;
+            this.version = version;
+            this.downloadUrl = downloadUrl;
+            this.checksums = checksums;
+        }
     }
 
 }

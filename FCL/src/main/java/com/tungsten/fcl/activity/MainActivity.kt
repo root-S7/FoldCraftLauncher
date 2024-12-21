@@ -45,6 +45,7 @@ import com.tungsten.fcl.util.WeakListenerHolder
 import com.tungsten.fclauncher.FCLConfig
 import com.tungsten.fclauncher.bridge.FCLBridge
 import com.tungsten.fclauncher.plugins.RendererPlugin
+import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.auth.Account
 import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorAccount
 import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorServer
@@ -205,7 +206,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
 
                     setupAccountDisplay()
                     setupVersionDisplay()
-                    UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
+                    if(FCLPath.GENERAL_SETTING.getProperty("automatic-update-detection", "true").equals("true")) UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
                 }
                 playAnim()
                 uiLayout.postDelayed(1500) {

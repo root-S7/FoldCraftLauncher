@@ -32,12 +32,18 @@ public class MemoryUtils {
         int totalDeviceMemory = getTotalDeviceMemory(context);
         if (totalDeviceMemory <= 1024) {
             return 512;
-        } else if (totalDeviceMemory <= 6144) {
-            return Architecture.is32BitsDevice() ? 768 : 1024;
-        } else if (totalDeviceMemory <= 12288) {
-            return Architecture.is32BitsDevice() ? 768 : 2048;
+        } else if (totalDeviceMemory <= 3072) {
+            return 1024;
+        } else if (totalDeviceMemory <= 4096) {
+            return Architecture.is32BitsDevice() ? 1024 : 1536;
+        } else if (totalDeviceMemory <= 7168) {
+            return Architecture.is32BitsDevice() ? 1024 : 2560;
+        } else if (totalDeviceMemory <= 10240) {
+            return Architecture.is32BitsDevice() ? 1024 : 3072;
+        } else if (totalDeviceMemory <= 13312) {
+            return Architecture.is32BitsDevice() ? 1024 : 4096;
         } else {
-            return Architecture.is32BitsDevice() ? 768 : 4096;
+            return Architecture.is32BitsDevice() ? 1024 : 5120;
         }
     }
 

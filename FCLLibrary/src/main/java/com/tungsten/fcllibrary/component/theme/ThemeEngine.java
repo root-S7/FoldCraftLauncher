@@ -48,7 +48,8 @@ public class ThemeEngine {
             handler = new Handler();
             theme = Theme.getTheme(context);
             if (!theme.isModified()) {
-                theme.setColor(getWallpaperColor(context));
+                theme.setColor(autoWallpaperColor(context, FCLPath.GENERAL_SETTING.getProperty("default-theme-first-color", "#7797CF")));
+                theme.setColor2(autoWallpaperColor(context, FCLPath.GENERAL_SETTING.getProperty("default-theme-second-color", "#7797CF")));
             }
             runnables = new HashMap<>();
             initialized = true;
@@ -171,6 +172,22 @@ public class ThemeEngine {
             if (colors != null) {
                 color = colors.getPrimaryColor().toArgb();
             }
+        }
+        return color;
+    }
+
+    /**
+     * 优先解析DEFAULT_COLOR颜色信息
+     * 若解析失败则尝试根据当前系统主题颜色选择，若还是失败则解析某个固定颜色值（#7797CF）
+     *
+     * @return 返回一个颜色值
+    **/
+    public static int autoWallpaperColor(Context context, final String DEFAULT_COLOR) {
+        int color;
+        try {
+            color = Color.parseColor(DEFAULT_COLOR);
+        }catch(IllegalArgumentException e) {
+            color = getWallpaperColor(context);
         }
         return color;
     }
