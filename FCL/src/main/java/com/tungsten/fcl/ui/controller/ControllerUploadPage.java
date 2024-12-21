@@ -128,7 +128,7 @@ public class ControllerUploadPage extends FCLTempPage implements View.OnClickLis
         }).start();
     }
 
-    private final static String QQ_GROUP_KEY = "y9zEb5_DHSGdOYyigFdwsNHx9-9kALbX";
+    private final static String QQ_GROUP_KEY = FCLPath.GENERAL_SETTING.getProperty("qq-group-key", "1azSqG2kZxf3Cn5gis7wi_LYd519OUre");
 
     public boolean joinQQGroup(String key) {
         Intent intent = new Intent();

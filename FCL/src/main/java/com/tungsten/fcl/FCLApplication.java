@@ -8,6 +8,8 @@ import android.os.StrictMode;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.tungsten.fclauncher.utils.FCLPath;
+
 import java.lang.ref.WeakReference;
 
 public class FCLApplication extends Application implements Application.ActivityLifecycleCallbacks {
@@ -19,6 +21,7 @@ public class FCLApplication extends Application implements Application.ActivityL
         super.onCreate();
         this.registerActivityLifecycleCallbacks(this);
 //        PerfUtil.install();
+        FCLPath.loadPaths(this);
     }
 
     public static Activity getCurrentActivity() {

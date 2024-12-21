@@ -22,6 +22,7 @@ import static com.tungsten.fcl.util.FXUtils.onInvalidating;
 import static com.tungsten.fclcore.fakefx.collections.FXCollections.observableArrayList;
 
 import com.tungsten.fcl.R;
+import com.tungsten.fcl.util.ConfigUtils;
 import com.tungsten.fcl.util.WeakListenerHolder;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.event.EventBus;
@@ -96,7 +97,8 @@ public final class Profiles {
         if (profiles.isEmpty()) {
             Profile current = new Profile(FCLPath.CONTEXT.getString(R.string.profile_shared), new File(FCLPath.SHARED_COMMON_DIR), new VersionSetting(), null);
             Profile home = new Profile(FCLPath.CONTEXT.getString(R.string.profile_private), new File(FCLPath.PRIVATE_COMMON_DIR));
-            profiles.addAll(current, home);
+            if(ConfigUtils.artificiallyDefinedDefaultSelectedProfile.equals(FCLPath.CONTEXT.getString(R.string.profile_private))) profiles.addAll(home, current);
+            else profiles.addAll(current, home);
         }
     }
 
