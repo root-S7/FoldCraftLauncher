@@ -513,7 +513,7 @@ public class FCLauncher {
         return bridge;
     }
 
-    private static String getSocName() {
+    public static String getSocName() {
         try {
             Process process = Runtime.getRuntime().exec("getprop ro.soc.model");
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
