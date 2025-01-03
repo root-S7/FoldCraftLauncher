@@ -60,7 +60,7 @@ public class AuthlibInjectorArtifactInfo {
      * @throws IOException
     **/
     public static AuthlibInjectorArtifactInfo from() throws IOException {
-        IOUtils.copyAssets(FCLPath.ASSETS_AUTHLIB_INJECTOR, FCLPath.CACHE_DIR + "/authlib-injector.jar");
+        IOUtils.copyAssets(FCLPath.ASSETS_AUTHLIB_INJECTOR_JAR, FCLPath.CACHE_DIR + "/authlib-injector.jar");
 
         return from(new File(FCLPath.CACHE_DIR + "/authlib-injector.jar").toPath());
     }

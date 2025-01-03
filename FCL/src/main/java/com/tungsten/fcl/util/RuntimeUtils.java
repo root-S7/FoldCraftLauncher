@@ -2,6 +2,7 @@ package com.tungsten.fcl.util;
 
 import static com.tungsten.fclauncher.utils.FCLPath.*;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.system.Os;
@@ -14,6 +15,7 @@ import com.tungsten.fclcore.util.Pack200Utils;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
 import com.tungsten.fclcore.util.io.Unzipper;
+import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -23,7 +25,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
@@ -44,8 +48,8 @@ public class RuntimeUtils {
     }
 
     private final static InstallResources installResources = new InstallResources();
-    public static void installGameFiles(Context context, String oldInstallDir, String srcDir,final SharedPreferences.Editor editor) throws IOException, ExecutionException, InterruptedException {
-        installResources.installGameFiles(context, oldInstallDir, srcDir);
+    public static void installGameFiles(Activity activity, String oldInstallDir, String srcDir,final SharedPreferences.Editor editor) throws IOException, ExecutionException, InterruptedException {
+        installResources.installGameFiles(activity, oldInstallDir, srcDir);
 
         if(editor != null) {
             editor.putBoolean("isFirstInstall", false);
@@ -53,38 +57,52 @@ public class RuntimeUtils {
         }
     }
 
-    public static void installConfigFiles(Context context, String targetDir, String srcDir) throws IOException {
-        installResources.installConfigFiles(context, targetDir, srcDir);
+    public static void installConfigFiles(Activity activity, String targetDir, String srcDir) throws IOException {
+        installResources.installConfigFiles(activity, targetDir, srcDir);
     }
 
     protected static class InstallResources {
         private final CountDownLatch countDownLatch;
 
         public InstallResources() {
-            this.countDownLatch = new CountDownLatch(1);
+            this.countDownLatch = new CountDownLatch(CheckFileFormat.defaultCheckFiles.size() + 1);
         }
 
-        public void installGameFiles(Context context, String oldInstallDir, String srcDir) throws IOException, ExecutionException, InterruptedException {
+        public void installGameFiles(Activity activity, String oldInstallDir, String srcDir) throws IOException, ExecutionException, InterruptedException {
             FileUtils.deleteDirectory(new File(FCLPath.SHARED_COMMON_DIR)); // 先删除默认目录中的按键和日志内容
 
             FileUtils.deleteDirectory(new File(oldInstallDir)); // 如果config.json文件修改后则删除旧的config.json文件中目录资源
 
             countDownLatch.await(); // 等待配置文件线程关键文件操作完毕后才能继续往下操作
 
-            install(context, ConfigUtils.getGameDirectory(), srcDir); // 安装游戏资源
+            install(activity, ConfigUtils.getGameDirectory(), srcDir); // 安装游戏资源
         }
 
-        public void installConfigFiles(Context context, String targetDir, String srcDir) throws IOException {
-            FileUtils.batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), context.getCacheDir(), context.getCodeCacheDir());
+        public void installConfigFiles(Activity activity, String targetDir, String srcDir) throws IOException {
+            FileUtils.batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), activity.getCacheDir(), activity.getCodeCacheDir());
 
-            createDeviceConfigurationFiles();
-
-            countDownLatch.countDown(); // CountDownLatch计数器为0时，调用await()的线程不会阻塞
-            RuntimeUtils.copyAssets(context, srcDir + "/version", targetDir + "/version");
+            Set<CheckFileFormat.FileInfo> defaultCheckFiles = CheckFileFormat.defaultCheckFiles;
+            for(CheckFileFormat.FileInfo file : defaultCheckFiles) {
+                Path externalPath = file.getExternalPath();
+                try {
+                    copyAssets(activity, file.getInternalPath(), externalPath == null ? null : externalPath.toString());
+                    countDownLatch.countDown(); // CountDownLatch计数器为0时，调用await()的线程不会阻塞
+                } catch (IOException e) {
+                    enableAlertDialog(activity, countDownLatch, AndroidUtils.catchExceptionErrorText(e));
+                }
+            }
+            RuntimeUtils.copyAssets(activity, srcDir + "/version", targetDir + "/version");
+            countDownLatch.countDown();
         }
 
-        protected void createDeviceConfigurationFiles() {
-
+        private void enableAlertDialog(Activity activity, final CountDownLatch latch, String message) {
+            activity.runOnUiThread(() -> new FCLAlertDialog.Builder(activity)
+                    .setTitle("警告")
+                    .setMessage(message)
+                    .setPositiveButton("确定", latch::countDown)
+                    .setCancelable(false)
+                    .create()
+                    .show());
         }
     }
 
@@ -111,6 +129,8 @@ public class RuntimeUtils {
     }
 
     public static void copyAssets(Context context, String src, String dest) throws IOException {
+        if(context == null || src == null || dest == null) return;
+
         // 获取指定路径下的文件或目录列表
         String[] fileNames = context.getAssets().list(src);
 

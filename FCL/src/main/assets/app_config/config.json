@@ -8,7 +8,7 @@
         "usesGlobal": true,
         "javaArgs": "",
         "minecraftArgs": "",
-        "maxMemory": 2048,
+        "maxMemory": -1,
         "autoMemory": true,
         "permSize": "",
         "serverIp": "",
@@ -23,14 +23,16 @@
         "isolateGameDir": false,
         "customRenderer": "",
         "pojavBigCore": false
-      }
+      },
+      "gameDir": "/storage/emulated/0/FCL-Server/.minecraft",
+      "selectedMinecraftVersion": ""
     },
     "私有目录": {
       "global": {
         "usesGlobal": true,
         "javaArgs": "",
         "minecraftArgs": "",
-        "maxMemory": 2048,
+        "maxMemory": -1,
         "autoMemory": true,
         "permSize": "",
         "serverIp": "",
@@ -45,7 +47,9 @@
         "isolateGameDir": false,
         "customRenderer": "",
         "pojavBigCore": false
-      }
+      },
+      "gameDir": "/storage/emulated/0/Android/data/com.tungsten.fcl/files/.minecraft",
+      "selectedMinecraftVersion": ""
     }
   },
   "downloadThreads": 64,

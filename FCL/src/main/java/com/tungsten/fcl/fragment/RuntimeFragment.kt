@@ -140,7 +140,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 gameFilesProgress.visibility = View.VISIBLE
                 Thread {
                     try {
-                        RuntimeUtils.installGameFiles(context, assumeIsOldDir, ".minecraft", sharedPreferences.edit())
+                        RuntimeUtils.installGameFiles(activity, assumeIsOldDir, ".minecraft", sharedPreferences.edit())
                         gameFiles = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -157,7 +157,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 configFileState.visibility = View.GONE
                 configFilesProgress.visibility = View.VISIBLE
                 Thread {
-                    RuntimeUtils.installConfigFiles(context, FCLPath.CONFIG_DIR, "app_config")
+                    RuntimeUtils.installConfigFiles(activity, FCLPath.CONFIG_DIR, "app_config")
                     configFiles = true
                     activity?.runOnUiThread {
                         configFileState.visibility = View.VISIBLE

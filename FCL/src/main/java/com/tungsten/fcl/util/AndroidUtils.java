@@ -34,10 +34,12 @@ import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -230,6 +232,20 @@ public class AndroidUtils {
         EGL14.eglTerminate(eglDisplay);
         Logging.LOG.log(Level.SEVERE, "CheckVendor: Running on Adreno GPU:" + isAdreno);
         return isAdreno;
+    }
+
+    public static String catchExceptionErrorText(Exception e) {
+        if(e == null) return "";
+
+        try(ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos)) {
+
+            e.printStackTrace(ps);
+
+            return baos.toString(); // 获取堆栈跟踪信息的字符串
+        } catch (IOException ex) {
+            return "无法捕获异常！";
+        }
     }
 
 }
