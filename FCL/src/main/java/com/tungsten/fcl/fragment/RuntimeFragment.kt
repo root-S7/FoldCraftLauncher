@@ -21,7 +21,7 @@ import java.io.IOException
 import java.util.Locale
 
 class RuntimeFragment : FCLFragment(), View.OnClickListener {
-    lateinit var  bind: FragmentRuntimeBinding
+    private lateinit var  bind: FragmentRuntimeBinding
     var gameFiles: Boolean = false
     var configFiles: Boolean = false
     var lwjgl: Boolean = false
