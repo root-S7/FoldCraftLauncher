@@ -21,7 +21,7 @@ import java.io.IOException
 import java.util.Locale
 
 class RuntimeFragment : FCLFragment(), View.OnClickListener {
-    private lateinit var bind: FragmentRuntimeBinding
+    lateinit var  bind: FragmentRuntimeBinding
     var gameFiles: Boolean = false
     var configFiles: Boolean = false
     var lwjgl: Boolean = false
@@ -157,7 +157,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 configFileState.visibility = View.GONE
                 configFilesProgress.visibility = View.VISIBLE
                 Thread {
-                    RuntimeUtils.installConfigFiles(activity, FCLPath.CONFIG_DIR, "app_config")
+                    RuntimeUtils.installConfigFiles(activity, bind.backgroundInstallView, FCLPath.CONFIG_DIR, "app_config")
                     configFiles = true
                     activity?.runOnUiThread {
                         configFileState.visibility = View.VISIBLE

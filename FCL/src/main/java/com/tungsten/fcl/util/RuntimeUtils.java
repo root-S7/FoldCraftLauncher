@@ -6,7 +6,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.system.Os;
+import android.view.View;
 
+import com.tungsten.fcl.R;
+import com.tungsten.fcl.setting.Config;
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.utils.Architecture;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -16,12 +19,14 @@ import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
 import com.tungsten.fclcore.util.io.Unzipper;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
+import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,8 +62,8 @@ public class RuntimeUtils {
         }
     }
 
-    public static void installConfigFiles(Activity activity, String targetDir, String srcDir) throws IOException {
-        installResources.installConfigFiles(activity, targetDir, srcDir);
+    public static void installConfigFiles(Activity activity,View view , String targetDir, String srcDir) throws IOException {
+        installResources.installConfigFiles(activity, view, targetDir, srcDir);
     }
 
     protected static class InstallResources {
@@ -78,7 +83,7 @@ public class RuntimeUtils {
             install(activity, ConfigUtils.getGameDirectory(), srcDir); // 安装游戏资源
         }
 
-        public void installConfigFiles(Activity activity, String targetDir, String srcDir) throws IOException {
+        public void installConfigFiles(Activity activity, View needRefreshBackground, String targetDir, String srcDir) throws IOException {
             FileUtils.batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), activity.getCacheDir(), activity.getCodeCacheDir());
 
             Set<CheckFileFormat.FileInfo> defaultCheckFiles = CheckFileFormat.defaultCheckFiles;
@@ -87,10 +92,23 @@ public class RuntimeUtils {
                 try {
                     copyAssets(activity, file.getInternalPath(), externalPath == null ? null : externalPath.toString());
                     countDownLatch.countDown(); // CountDownLatch计数器为0时，调用await()的线程不会阻塞
+                } catch (FileNotFoundException e) {
+                    enableAlertDialog(activity, countDownLatch, "未能在APK的assets目录中找到该文件“" + file.getInternalPath() + "”");
                 } catch (IOException e) {
-                    enableAlertDialog(activity, countDownLatch, AndroidUtils.catchExceptionErrorText(e));
+                    enableAlertDialog(activity, countDownLatch, "尝试读取/写入文件时发生致命错误：" + e);
+                } catch (Exception e) {
+                    enableAlertDialog(activity, countDownLatch, "未知错误：" + e);
                 }
             }
+            if(needRefreshBackground != null) {
+                activity.runOnUiThread(() -> ThemeEngine.getInstance().applyAndSave(
+                        activity,
+                        needRefreshBackground,
+                        FCLPath.LT_BACKGROUND_PATH,
+                        FCLPath.DK_BACKGROUND_PATH
+                ));
+            }
+            ParseAuthlibInjectorServerUtils.parseUrlAndWriteToFile(ConfigUtils.getNoProblemConfig(true, new Config()));
             RuntimeUtils.copyAssets(activity, srcDir + "/version", targetDir + "/version");
             countDownLatch.countDown();
         }

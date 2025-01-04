@@ -106,7 +106,7 @@ public final class ConfigHolder {
         }
     });
 
-    private static void writeToConfig(String content) throws IOException {
+    public static void writeToConfig(String content) throws IOException {
         LOG.info("Saving config");
         synchronized (CONFIG_PATH) {
             FileUtils.saveSafely(CONFIG_PATH, content);

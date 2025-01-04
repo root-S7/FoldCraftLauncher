@@ -4,6 +4,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/background_install_view"
         xmlns:app="http://schemas.android.com/apk/res-auto">
 
         <ScrollView
@@ -352,8 +353,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/splash_runtime_java17"
-                        android:layout_gravity="center"
-                        android:textColor="@color/black"/>
+                        android:layout_gravity="center"/>
 
                     <View
                         android:layout_width="0dp"
