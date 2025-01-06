@@ -99,16 +99,20 @@ public class Announcement {
     }
 
     public boolean shouldDisplay(Context context) {
-        if (outdated)
-            return false;
-        if (minVersion != -1 && minVersion > UpdateChecker.getCurrentVersionCode(context))
-            return false;
-        if (maxVersion != -1 && maxVersion < UpdateChecker.getCurrentVersionCode(context))
-            return false;
-        if (specificLang.size() != 0 && !specificLang.contains(LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString()))
-            return false;
-        SharedPreferences sharedPreferences = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
-        return sharedPreferences.getInt("ignore_announcement", 0) < id;
+        try {
+            if (outdated)
+                return false;
+            if (minVersion != -1 && minVersion > UpdateChecker.getCurrentVersionCode(context))
+                return false;
+            if (maxVersion != -1 && maxVersion < UpdateChecker.getCurrentVersionCode(context))
+                return false;
+            if (specificLang.size() != 0 && !specificLang.contains(LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString()))
+                return false;
+            SharedPreferences sharedPreferences = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
+            return sharedPreferences.getInt("ignore_announcement", 0) < id;
+        }catch(Exception e) {
+            return true;
+        }
     }
 
     public void hide(Context context) {

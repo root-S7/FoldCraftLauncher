@@ -171,7 +171,8 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
                     announcementView.setText("无法获取公告，原因：无效的JSON文件格式");
                     date.setText(new SimpleDateFormat("yyyy.MM.dd").format(new Date()));
                 }
-                announcementContainer.setVisibility(View.VISIBLE);
+
+                if(announcement.shouldDisplay(getContext())) announcementContainer.setVisibility(View.VISIBLE);
             }));
         }else announcementContainer.setVisibility(View.GONE);
     }
