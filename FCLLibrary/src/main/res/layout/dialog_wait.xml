@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:minWidth="333dp"
+    android:minHeight="111dp"
+    android:padding="8dp"
+    android:id="@+id/wait_view">
+
+    <!-- 转圈圈动画 -->
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:layout_marginBottom="20dp"
+        android:progressTint="#005881"/>
+
+    <!-- 描述文字 -->
+    <ScrollView
+        android:id="@+id/wait_text_scroll"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+
+        <com.tungsten.fcllibrary.component.view.FCLTextView
+            android:id="@+id/wait_dialog_text"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </ScrollView>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

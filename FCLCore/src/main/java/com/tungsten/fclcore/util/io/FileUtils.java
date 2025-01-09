@@ -90,6 +90,19 @@ public final class FileUtils {
         return StringUtils.substringAfterLast(getName(file), '.');
     }
 
+    public static String getExtension(String fileName) {
+        if (fileName == null || fileName.isEmpty()) return "";
+
+        int lastSlashIndex = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+
+        String fileNameWithoutPath = (lastSlashIndex == -1) ? fileName : fileName.substring(lastSlashIndex + 1);
+
+        String extension = StringUtils.substringAfterLast(fileNameWithoutPath, '.');
+
+        return extension.isEmpty() ? "" : extension;
+    }
+
+
     /**
      * This method is for normalizing ZipPath since Path.normalize of ZipFileSystem does not work properly.
      */

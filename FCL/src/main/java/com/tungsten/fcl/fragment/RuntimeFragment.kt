@@ -131,16 +131,16 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
 
     private fun install() {
         if (installing) return
-        if (installing) return
 
         bind.apply {
+            val installResources = RuntimeUtils.InstallResources(activity, activity?.findViewById(R.id.background_install_view))
             installing = true
             if (!gameFiles) {
                 gameFileState.visibility = View.GONE
                 gameFilesProgress.visibility = View.VISIBLE
                 Thread {
                     try {
-                        RuntimeUtils.installGameFiles(activity, assumeIsOldDir, ".minecraft", sharedPreferences.edit())
+                        installResources.installGameFiles(assumeIsOldDir, ".minecraft", sharedPreferences.edit())
                         gameFiles = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -157,7 +157,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 configFileState.visibility = View.GONE
                 configFilesProgress.visibility = View.VISIBLE
                 Thread {
-                    RuntimeUtils.installConfigFiles(activity, bind.backgroundInstallView, FCLPath.CONFIG_DIR, "app_config")
+                    installResources.installConfigFiles(FCLPath.CONFIG_DIR, "app_config")
                     configFiles = true
                     activity?.runOnUiThread {
                         configFileState.visibility = View.VISIBLE
