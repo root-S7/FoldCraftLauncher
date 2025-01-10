@@ -2,8 +2,12 @@ package com.tungsten.fcl.util;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
+
+import com.google.gson.Gson;
 import com.mio.util.ImageUtil;
+import com.tungsten.fcl.setting.ConfigAsFake;
 import com.tungsten.fcl.setting.ConfigHolder;
+import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
@@ -27,7 +31,7 @@ public class CheckFileFormat {
     /**
      * 检查文件格式是否正确
     **/
-    protected final Set<FileInfo> defaultCheckFiles;
+    protected final Set<FileInfo<?>> defaultCheckFiles;
     protected Set<String> extraNeedCheckInternalFile = new HashSet<>();
     protected final Activity activity;
 
@@ -42,17 +46,17 @@ public class CheckFileFormat {
 
         this.activity = activity;
         defaultCheckFiles = Set.of(
-                new FileInfo(FCLPath.ASSETS_CONFIG_JSON, ConfigHolder.CONFIG_PATH),
-                new FileInfo(FCLPath.ASSETS_MENU_SETTING_JSON, Paths.get(FCLPath.FILES_DIR + "/menu_setting.json")),
-                new FileInfo(FCLPath.ASSETS_AUTH_INJECTOR_SERVER_JSON, null),
-                new FileInfo(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/lt.png", Paths.get(FCLPath.LT_BACKGROUND_PATH)),
-                new FileInfo(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/dk.png", Paths.get(FCLPath.DK_BACKGROUND_PATH)),
-                new FileInfo(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/cursor.png", Paths.get(FCLPath.FILES_DIR + "/cursor.png")),
-                new FileInfo(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/menu_icon.png", Paths.get(FCLPath.FILES_DIR + "/menu_icon.png"))
+                new FileInfo<>(FCLPath.ASSETS_CONFIG_JSON, ConfigHolder.CONFIG_PATH, ConfigAsFake.class),
+                new FileInfo<>(FCLPath.ASSETS_MENU_SETTING_JSON, Paths.get(FCLPath.FILES_DIR + "/menu_setting.json"), MenuSetting.class),
+                new FileInfo<>(FCLPath.ASSETS_AUTH_INJECTOR_SERVER_JSON, null, null),
+                new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/lt.png", Paths.get(FCLPath.LT_BACKGROUND_PATH), null),
+                new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/dk.png", Paths.get(FCLPath.DK_BACKGROUND_PATH), null),
+                new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/cursor.png", Paths.get(FCLPath.FILES_DIR + "/cursor.png"), null),
+                new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/menu_icon.png", Paths.get(FCLPath.FILES_DIR + "/menu_icon.png"), null)
         );
     }
 
-    public Set<FileInfo> getDefaultCheckFiles() {
+    public Set<FileInfo<?>> getDefaultCheckFiles() {
         return defaultCheckFiles;
     }
 
@@ -119,7 +123,7 @@ public class CheckFileFormat {
      * @param fileExtension 文件信息，String是对应assets目录下文件名称，FileType为文件类型的枚举型
      * @return 只要有一个文件不合法则返回“false”
     **/
-    protected boolean checkAllFileExist(LinkedHashMap<String, FileType> fileExtension) {
+    protected boolean checkAllFileExist(final LinkedHashMap<String, FileType> fileExtension) {
         Set<String> strings = fileExtension.keySet();
 
         for(String s : strings) {
@@ -132,15 +136,32 @@ public class CheckFileFormat {
                     }
                     bitmap.get().recycle();
                 }else if(fileExtension.get(s) == FileType.JSON) {
-                    try {
-                        new JSONObject(IOUtils.readFullyAsString(open));
-                    }catch(JSONException e) {
-                        waitConvertErrorAlertDialog(null, "文件“" + s + "解析错误，请尝试重新制作你的APK直装包！");
+                    //new JSONObject(IOUtils.readFullyAsString(open));
+                    // 使用 Stream 查找匹配的 FileInfo 对象
+                    Optional<FileInfo<?>> matchedFile = defaultCheckFiles.stream().filter(
+                            fileInfo -> fileInfo.getInternalPath().equals(s)
+                    ).findFirst();  // 获取第一个匹配的文件信息
+
+                    if(matchedFile.isPresent()) {
+                        Class<?> configFileType = matchedFile.get().configFileType;
+                        try {
+                            Object  o;
+
+                            if(configFileType != null) o = new Gson().fromJson(IOUtils.readFullyAsString(open), configFileType);
+                            else o = new JSONObject(IOUtils.readFullyAsString(open));
+
+                            o = null;
+                        }catch(RuntimeException | JSONException e){
+                            waitConvertErrorAlertDialog(null, "文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
+                            return false;
+                        }
+                    }else {
+                        waitConvertErrorAlertDialog(null, "不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");
                         return false;
                     }
                 }
             }catch(IOException e) {
-                waitConvertErrorAlertDialog(null, "文件“" + s + "不存在，请尝试重新制作你的APK直装包！");
+                waitConvertErrorAlertDialog(null, "文件“" + s + "”不存在，请尝试重新制作你的APK直装包！");
                 return false;
             }
         }
@@ -185,13 +206,15 @@ public class CheckFileFormat {
     /**
      * 文件对照位置；比如“APK”中，在“assets”目录下的某个文件对应在外部存储哪个路径中
     **/
-    public static class FileInfo {
+    public static class FileInfo<T> {
         private final String internalPath;
         private Path externalPath;
+        private final Class<T> configFileType;
 
-        public FileInfo(String internalPath, Path externalPath) {
+        public FileInfo(String internalPath, Path externalPath, Class<T> configFileType) {
             this.internalPath = internalPath;
             this.externalPath = externalPath;
+            this.configFileType = configFileType;
         }
 
         public String getInternalPath() {
@@ -204,6 +227,10 @@ public class CheckFileFormat {
 
         public void setExternalPath(Path externalPath) {
             this.externalPath = externalPath;
+        }
+
+        public Class<T> getConfigFileType() {
+            return configFileType;
         }
     }
 

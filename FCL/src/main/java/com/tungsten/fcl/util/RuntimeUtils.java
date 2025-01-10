@@ -85,8 +85,8 @@ public class RuntimeUtils {
         public void installConfigFiles(String targetDir, String srcDir) throws IOException {
             FileUtils.batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), thisActivity.getCacheDir(), thisActivity.getCodeCacheDir());
 
-            Set<CheckFileFormat.FileInfo> defaultCheckFiles = checkFileFormat.getDefaultCheckFiles();
-            for(CheckFileFormat.FileInfo file : defaultCheckFiles) {
+            Set<CheckFileFormat.FileInfo<?>> defaultCheckFiles = checkFileFormat.getDefaultCheckFiles();
+            for(CheckFileFormat.FileInfo<?> file : defaultCheckFiles) {
                 Path externalPath = file.getExternalPath();
                 try {
                     copyAssets(thisActivity, file.getInternalPath(), externalPath == null ? null : externalPath.toString());

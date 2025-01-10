@@ -20,6 +20,7 @@
         "vulkanDriverSystem": false,
         "controller": "00000000",
         "renderer": 0,
+        "driver": "",
         "isolateGameDir": false,
         "customRenderer": "",
         "pojavBigCore": false
@@ -44,6 +45,7 @@
         "vulkanDriverSystem": false,
         "controller": "00000000",
         "renderer": 0,
+        "driver": "",
         "isolateGameDir": false,
         "customRenderer": "",
         "pojavBigCore": false
