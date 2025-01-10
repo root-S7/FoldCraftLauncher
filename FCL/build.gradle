@@ -30,7 +30,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.tungsten.fcl"
+        applicationId "com.tungsten.fcl.server"
         minSdk 26
         targetSdk 34
         versionCode 1199
