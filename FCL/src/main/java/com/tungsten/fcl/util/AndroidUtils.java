@@ -28,15 +28,13 @@ import android.webkit.CookieManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.WebActivity;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -263,13 +261,15 @@ public class AndroidUtils {
      * @param <T> 泛型，保证Class为任意
     **/
     public static <T> Object tryDeserialize(String data, Class<T> tClass, boolean errorElseJSONObject) {
+        Gson gson = new Gson();
+
         try {
-            return tClass != null ? new Gson().fromJson(data, tClass) : new JSONObject(data);
-        }catch(RuntimeException | JSONException e) {
+            return gson.fromJson(data, tClass != null ? tClass : JsonObject.class);
+        }catch(RuntimeException e) {
             if(errorElseJSONObject && tClass!= null) {
                 try{
-                    return new JSONObject(data);
-                }catch(JSONException ex) {
+                    return gson.fromJson(data, JsonObject.class);
+                }catch(RuntimeException ex) {
                     return null;
                 }
             }
