@@ -98,7 +98,7 @@ public final class Profiles {
         if (profiles.isEmpty()) {
             Profile current = new Profile(FCLPath.CONTEXT.getString(R.string.profile_shared), new File(FCLPath.SHARED_COMMON_DIR), new VersionSetting(), null);
             Profile home = new Profile(FCLPath.CONTEXT.getString(R.string.profile_private), new File(FCLPath.PRIVATE_COMMON_DIR));
-            if(ConfigUtils.artificiallyDefinedDefaultSelectedProfile.equals(FCLPath.CONTEXT.getString(R.string.profile_private))) profiles.addAll(home, current);
+            if(ConfigUtils.DEFINE_DEFAULT_SELECT_PROFILE.equals(FCLPath.CONTEXT.getString(R.string.profile_private))) profiles.addAll(home, current);
             else profiles.addAll(current, home);
         }
     }

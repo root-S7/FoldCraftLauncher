@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
 
 public class ConfigUtils {
     // 定义选中哪个名称（具有强制性），当“config.json”文件内设置的选中名称找不到时会替换成该名称
-    public final static String artificiallyDefinedDefaultSelectedProfile = FCLPath.CONTEXT.getString(R.string.profile_private);
+    public final static String DEFINE_DEFAULT_SELECT_PROFILE = FCLPath.CONTEXT.getString(R.string.profile_private);
 
     /**
      * 返回一个没有没有问题的Config对象
@@ -89,8 +89,8 @@ public class ConfigUtils {
                 );
             }
         } else {
-            config.setSelectedProfile(artificiallyDefinedDefaultSelectedProfile);
-            configurations.put(artificiallyDefinedDefaultSelectedProfile, new Profile("global", artificiallyDefinedDefaultSelectedProfile.equals(FCLPath.PRIVATE_COMMON_DIR) ? new File(FCLPath.PRIVATE_COMMON_DIR) : new File(FCLPath.SHARED_COMMON_DIR)));
+            config.setSelectedProfile(DEFINE_DEFAULT_SELECT_PROFILE);
+            configurations.put(DEFINE_DEFAULT_SELECT_PROFILE, new Profile("global", DEFINE_DEFAULT_SELECT_PROFILE.equals(FCLPath.PRIVATE_COMMON_DIR) ? new File(FCLPath.PRIVATE_COMMON_DIR) : new File(FCLPath.SHARED_COMMON_DIR)));
         }
 
         return config;
