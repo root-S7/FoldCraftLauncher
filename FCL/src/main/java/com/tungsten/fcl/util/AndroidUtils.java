@@ -27,12 +27,16 @@ import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.WebActivity;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -248,4 +252,43 @@ public class AndroidUtils {
         }
     }
 
+    /**
+     * 将文本反序列化成某个对象
+     * 若“tClass”参数为“null”，则尝试“new JSONObject”操作
+     *
+     * @param data 需要反序列化的文本
+     * @param tClass 反序列化成什么类型
+     * @param errorElseJSONObject 如果“new Gson()”反序列化操作失败，是否尝试JSONObject操作
+     * @return 返回一个成功解析的对象，如果序列化失败则返回“null”
+     * @param <T> 泛型，保证Class为任意
+    **/
+    public static <T> Object tryDeserialize(String data, Class<T> tClass, boolean errorElseJSONObject) {
+        try {
+            return tClass != null ? new Gson().fromJson(data, tClass) : new JSONObject(data);
+        }catch(RuntimeException | JSONException e) {
+            if(errorElseJSONObject && tClass!= null) {
+                try{
+                    return new JSONObject(data);
+                }catch(JSONException ex) {
+                    return null;
+                }
+            }
+            else return null;
+        }
+    }
+
+    /**
+     * 将文本反序列化成某个对象
+     * 若“tClass”参数为“null”，则尝试“new JSONObject”操作
+     *
+     * @param inputStream 文件流
+     * @param tClass 反序列化成什么类型
+     * @param errorElseJSONObject 如果“new Gson()”反序列化操作失败，是否尝试JSONObject操作
+     * @return 返回一个成功解析的对象，如果序列化失败则返回“null”
+     * @param <T> 泛型，保证Class为任意
+     * @throws IOException InputStream的异常
+    **/
+    public static <T> Object tryDeserialize(InputStream inputStream, Class<T> tClass, boolean errorElseJSONObject) throws IOException {
+        return tryDeserialize(IOUtils.readFullyAsString(inputStream), tClass, errorElseJSONObject);
+    }
 }

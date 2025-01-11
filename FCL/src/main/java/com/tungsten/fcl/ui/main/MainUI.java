@@ -145,7 +145,11 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
         if(FCLPath.GENERAL_SETTING.getProperty("enable-announcement-component", "true").equals("true")){
             @SuppressLint("SimpleDateFormat") CompletableFuture<Announcement> future = CompletableFuture.supplyAsync(() -> {
                 try {
-                    return new Gson().fromJson(NetworkUtils.doGet(NetworkUtils.toURL(ANNOUNCEMENT_URL), DeviceConfigUtils.toText()), Announcement.class);
+                    return (Announcement) AndroidUtils.tryDeserialize(
+                            NetworkUtils.doGet(NetworkUtils.toURL(ANNOUNCEMENT_URL), DeviceConfigUtils.toText()),
+                            Announcement.class,
+                            false
+                    );
                 }catch (Exception e) {
                     return new Announcement(
                             -1,

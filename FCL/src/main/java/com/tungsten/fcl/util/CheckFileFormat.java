@@ -136,22 +136,12 @@ public class CheckFileFormat {
                     }
                     bitmap.get().recycle();
                 }else if(fileExtension.get(s) == FileType.JSON) {
-                    //new JSONObject(IOUtils.readFullyAsString(open));
-                    // 使用 Stream 查找匹配的 FileInfo 对象
-                    Optional<FileInfo<?>> matchedFile = defaultCheckFiles.stream().filter(
+                    Optional<FileInfo<?>> matchedFile = defaultCheckFiles.stream().filter( // 使用 Stream 查找匹配的 FileInfo 对象
                             fileInfo -> fileInfo.getInternalPath().equals(s)
                     ).findFirst();  // 获取第一个匹配的文件信息
 
                     if(matchedFile.isPresent()) {
-                        Class<?> configFileType = matchedFile.get().configFileType;
-                        try {
-                            Object  o;
-
-                            if(configFileType != null) o = new Gson().fromJson(IOUtils.readFullyAsString(open), configFileType);
-                            else o = new JSONObject(IOUtils.readFullyAsString(open));
-
-                            o = null;
-                        }catch(RuntimeException | JSONException e){
+                        if(AndroidUtils.tryDeserialize(open, matchedFile.get().configFileType, false) == null) {
                             waitConvertErrorAlertDialog(null, "文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
                             return false;
                         }
@@ -169,6 +159,12 @@ public class CheckFileFormat {
         return true;
     }
 
+    /**
+     * 如果“FCLWaitDialog”存在则尝试关闭它并显示错误弹窗
+     *
+     * @param fclWaitDialog 等待弹窗对象
+     * @param errorMessage 需要展示的错误内容
+    **/
     protected void waitConvertErrorAlertDialog(FCLWaitDialog fclWaitDialog, String errorMessage) {
         if(fclWaitDialog == null) {
             enableAlertDialog(errorMessage);
@@ -180,6 +176,11 @@ public class CheckFileFormat {
         enableAlertDialog(errorMessage);
     }
 
+    /**
+     * 新建一个错误弹窗，该弹窗点击“确认”后直接退出应用
+     *
+     * @param message 弹窗显示内容
+    **/
     protected void enableAlertDialog(String message) {
         activity.runOnUiThread(() -> new FCLAlertDialog.Builder(activity)
                 .setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
@@ -191,6 +192,12 @@ public class CheckFileFormat {
                 .show());
     }
 
+    /**
+     * 新建一个等待弹窗，提醒用户目前存在耗时操作
+     *
+     * @param message 弹窗显示内容
+     * @return 返回一个等待弹窗上下文
+    **/
     protected FCLWaitDialog enableWaitDialog(String message) {
         FCLWaitDialog fclWaitDialog = new FCLWaitDialog.Builder(activity)
                 .setMessage(message)
