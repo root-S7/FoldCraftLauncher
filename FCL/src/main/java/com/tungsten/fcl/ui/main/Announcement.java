@@ -75,7 +75,7 @@ public class Announcement {
     }
 
     public String getDisplayTitle(Context context) {
-        if (title.size() == 0) {
+        if (title.isEmpty()) {
             throw new IllegalStateException("No title list!");
         }
         for (Content c : title) {
@@ -87,7 +87,7 @@ public class Announcement {
     }
 
     public String getDisplayContent(Context context) {
-        if (content.size() == 0) {
+        if (content.isEmpty()) {
             throw new IllegalStateException("No content list!");
         }
         for (Content c : content) {
@@ -99,20 +99,25 @@ public class Announcement {
     }
 
     public boolean shouldDisplay(Context context) {
-        try {
-            if (outdated)
+        if (outdated)
+            return false;
+        if (minVersion != -1 && minVersion > UpdateChecker.getCurrentVersionCode(context))
+            return false;
+        if (maxVersion != -1 && maxVersion < UpdateChecker.getCurrentVersionCode(context))
+            return false;
+        if (!specificLang.isEmpty()) {
+            boolean cancel = true;
+            for (String lang : specificLang) {
+                if (LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString().contains(lang)) {
+                    cancel = false;
+                    break;
+                }
+            }
+            if (cancel)
                 return false;
-            if (minVersion != -1 && minVersion > UpdateChecker.getCurrentVersionCode(context))
-                return false;
-            if (maxVersion != -1 && maxVersion < UpdateChecker.getCurrentVersionCode(context))
-                return false;
-            if (specificLang.size() != 0 && !specificLang.contains(LocaleUtils.getLocale(LocaleUtils.getLanguage(context)).toString()))
-                return false;
-            SharedPreferences sharedPreferences = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
-            return sharedPreferences.getInt("ignore_announcement", 0) < id;
-        }catch(Exception e) {
-            return true;
         }
+        SharedPreferences sharedPreferences = context.getSharedPreferences("launcher", Context.MODE_PRIVATE);
+        return sharedPreferences.getInt("ignore_announcement", 0) < id;
     }
 
     public void hide(Context context) {

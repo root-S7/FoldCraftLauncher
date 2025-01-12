@@ -35,6 +35,7 @@ import com.tungsten.fcllibrary.component.view.FCLTextView;
 import com.tungsten.fcllibrary.component.view.FCLUILayout;
 import com.tungsten.fcllibrary.skin.SkinCanvas;
 import com.tungsten.fcllibrary.skin.SkinRenderer;
+import com.tungsten.fcllibrary.util.LocaleUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import java.util.logging.Level;
 public class MainUI extends FCLCommonUI implements View.OnClickListener {
 
     public static final String ANNOUNCEMENT_URL = FCLPath.GENERAL_SETTING.getProperty("announcement-url", "https://icraft.ren:90/titles/FCL/Releases_Version/1.1.9.1/announcement.txt");
+    public static final String ANNOUNCEMENT_URL_CN = FCLPath.GENERAL_SETTING.getProperty("announcement-url", "https://icraft.ren:90/titles/FCL/Releases_Version/1.1.9.1/announcement.txt");
 
     private LinearLayoutCompat announcementContainer;
     private LinearLayoutCompat announcementLayout;
