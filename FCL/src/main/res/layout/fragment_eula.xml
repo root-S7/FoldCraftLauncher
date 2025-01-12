@@ -19,7 +19,8 @@
             android:id="@+id/eula"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"/>
+            android:textSize="15sp"
+            android:padding="11dp"/>
 
     </ScrollView>
 

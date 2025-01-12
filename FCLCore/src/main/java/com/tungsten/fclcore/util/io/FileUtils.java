@@ -30,6 +30,8 @@ import java.util.function.Predicate;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import android.content.Context;
+
 import com.tungsten.fclcore.util.Lang;
 import com.tungsten.fclcore.util.StringUtils;
 import com.tungsten.fclcore.util.function.ExceptionalConsumer;
@@ -515,6 +517,27 @@ public final class FileUtils {
                 if (file.isFile()) file.delete();
                 else deleteDirectoryQuietly(file);
             }
+        }
+    }
+
+    /**
+     * 判断 assets 下某个文件夹是否存在
+     * @param context 应用的上下文
+     * @param folderNames 需要判断的文件夹名称
+     * @return 如果文件夹存在，返回 true；否则返回 false
+    **/
+    public static boolean assetsDirExist(Context context, String... folderNames) {
+        if (folderNames == null || folderNames.length == 0) return false;
+
+        try {
+            for(String folderName : folderNames) {
+                String[] fileList = context.getAssets().list(folderName);
+                if(fileList == null || fileList.length == 0) return false;
+            }
+            // 如果所有文件夹都存在，返回 true
+            return true;
+        } catch (IOException e) {
+            return false;
         }
     }
 }

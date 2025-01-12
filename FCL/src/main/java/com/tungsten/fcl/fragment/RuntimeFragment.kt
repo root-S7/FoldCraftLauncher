@@ -66,30 +66,30 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 FCLPath.CONFIG_DIR,
                 "/assets/app_config"
             ) && gameFiles
-            lwjgl = RuntimeUtils.isLatest(
+            lwjgl = !FileUtils.assetsDirExist(context, "app_runtime/lwjgl", "app_runtime/lwjgl-boat") || (RuntimeUtils.isLatest(
                 FCLPath.LWJGL_DIR,
                 "/assets/app_runtime/lwjgl"
             ) && RuntimeUtils.isLatest(
                 FCLPath.LWJGL_DIR + "-boat",
                 "/assets/app_runtime/lwjgl-boat"
-            )
-            cacio = RuntimeUtils.isLatest(
+            ))
+            cacio = !FileUtils.assetsDirExist(context, "app_runtime/caciocavallo") || (RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_8_DIR,
                 "/assets/app_runtime/caciocavallo"
-            )
-            cacio11 = RuntimeUtils.isLatest(
+            ))
+            cacio11 = !FileUtils.assetsDirExist(context, "app_runtime/caciocavallo11") ||  (RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_11_DIR,
                 "/assets/app_runtime/caciocavallo11"
-            )
-            cacio17 = RuntimeUtils.isLatest(
+            ))
+            cacio17 = !FileUtils.assetsDirExist(context, "app_runtime/caciocavallo17") || (RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_17_DIR,
                 "/assets/app_runtime/caciocavallo17"
-            )
-            java8 = RuntimeUtils.isLatest(FCLPath.JAVA_8_PATH, "/assets/app_runtime/java/jre8")
-            java11 = RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11")
-            java17 = RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
-            java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
-            jna = RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
+            ))
+            java8 = !FileUtils.assetsDirExist(context, "app_runtime/java/jre8") || RuntimeUtils.isLatest(FCLPath.JAVA_8_PATH, "/assets/app_runtime/java/jre8")
+            java11 = !FileUtils.assetsDirExist(context, "app_runtime/java/jre11") || RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11")
+            java17 = !FileUtils.assetsDirExist(context, "app_runtime/java/jre17") || RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
+            java21 = !FileUtils.assetsDirExist(context, "app_runtime/java/jre21") || RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
+            jna = !FileUtils.assetsDirExist(context, "app_runtime/jna") || RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
         } catch (e: IOException) {
             e.printStackTrace()
         }

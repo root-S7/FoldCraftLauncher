@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 public final class Profiles {
@@ -140,6 +141,11 @@ public final class Profiles {
         if (initialized)
             return;
 
+        try {
+            ConfigUtils.getGameDirectory();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException("任务超时，请尝试重启应用，如果仍出现该提示请记得反馈启动器BUG！");
+        }
         HashSet<String> names = new HashSet<>();
         config().getConfigurations().forEach((name, profile) -> {
             if (!names.add(name)) return;

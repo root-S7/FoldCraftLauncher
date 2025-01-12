@@ -90,7 +90,14 @@ public class ConfigUtils {
             }
         } else {
             config.setSelectedProfile(DEFINE_DEFAULT_SELECT_PROFILE);
-            configurations.put(DEFINE_DEFAULT_SELECT_PROFILE, new Profile("global", DEFINE_DEFAULT_SELECT_PROFILE.equals(FCLPath.PRIVATE_COMMON_DIR) ? new File(FCLPath.PRIVATE_COMMON_DIR) : new File(FCLPath.SHARED_COMMON_DIR)));
+            configurations.put(DEFINE_DEFAULT_SELECT_PROFILE, new Profile(
+                    "global",
+                    DEFINE_DEFAULT_SELECT_PROFILE.equals(
+                            FCLPath.CONTEXT.getString(R.string.profile_private)) ?
+                            new File(FCLPath.PRIVATE_COMMON_DIR) :
+                            new File(FCLPath.SHARED_COMMON_DIR)
+                    )
+            );
         }
 
         return config;
