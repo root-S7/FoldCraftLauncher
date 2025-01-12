@@ -509,7 +509,7 @@ public class FCLauncher {
         return bridge;
     }
 
-    private static String getSocName() {
+    public static String getSocName() {
         String name = null;
         try {
             Process process = Runtime.getRuntime().exec("getprop ro.soc.model");

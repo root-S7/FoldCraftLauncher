@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.tungsten.fcl.R;
+import com.tungsten.fcl.util.DeviceConfigUtils;
+import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.task.Schedulers;
 import com.tungsten.fclcore.task.Task;
 import com.tungsten.fclcore.util.gson.JsonUtils;
@@ -19,8 +21,8 @@ import java.util.ArrayList;
 
 public class UpdateChecker {
 
-    public static final String UPDATE_CHECK_URL = "https://raw.githubusercontent.com/FCL-Team/FoldCraftLauncher/main/version_map.json";
-    public static final String UPDATE_CHECK_URL_CN = "http://101.43.66.4:1145/api/getupdate";
+    public static final String UPDATE_CHECK_URL = FCLPath.GENERAL_SETTING.getProperty("update-detection-url", "https://icraft.ren:90/titles/FCL/Update/version_map.json");
+    public static final String UPDATE_CHECK_URL_CN = FCLPath.GENERAL_SETTING.getProperty("update-detection-url", "https://icraft.ren:90/titles/FCL/Update/version_map.json");
 
     private static UpdateChecker instance;
 
@@ -55,7 +57,7 @@ public class UpdateChecker {
             if (showAlert) {
                 Schedulers.androidUIThread().execute(() -> Toast.makeText(context, context.getString(R.string.update_checking), Toast.LENGTH_SHORT).show());
             }
-            String res = NetworkUtils.doGet(NetworkUtils.toURL(LocaleUtils.isChinese(context) ? UPDATE_CHECK_URL_CN : UPDATE_CHECK_URL));
+            String res = NetworkUtils.doGet(NetworkUtils.toURL(LocaleUtils.isChinese(context) ? UPDATE_CHECK_URL_CN : UPDATE_CHECK_URL), DeviceConfigUtils.toText());
             ArrayList<RemoteVersion> versions = JsonUtils.GSON.fromJson(res, new TypeToken<ArrayList<RemoteVersion>>(){}.getType());
             for (RemoteVersion version : versions) {
                 if (version.getVersionCode() > getCurrentVersionCode(context)) {

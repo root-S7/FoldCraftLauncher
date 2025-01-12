@@ -27,16 +27,21 @@ import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.WebActivity;
+import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -99,7 +104,7 @@ public class AndroidUtils {
     public static int getScreenWidth(Activity context) {
         SharedPreferences sharedPreferences;
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
-        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", false);
+        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.GENERAL_SETTING.getProperty("default-fullscreen", "true").equals("true"));
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Point point = new Point();
         wm.getDefaultDisplay().getRealSize(point);
@@ -231,4 +236,59 @@ public class AndroidUtils {
         return isAdreno;
     }
 
+    public static String catchExceptionErrorText(Exception e) {
+        if(e == null) return "";
+
+        try(ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(baos)) {
+
+            e.printStackTrace(ps);
+
+            return baos.toString(); // 获取堆栈跟踪信息的字符串
+        } catch (IOException ex) {
+            return "无法捕获异常！";
+        }
+    }
+
+    /**
+     * 将文本反序列化成某个对象
+     * 若“tClass”参数为“null”，则尝试“new JSONObject”操作
+     *
+     * @param data 需要反序列化的文本
+     * @param tClass 反序列化成什么类型
+     * @param errorElseJSONObject 如果“new Gson()”反序列化操作失败，是否尝试JSONObject操作
+     * @return 返回一个成功解析的对象，如果序列化失败则返回“null”
+     * @param <T> 泛型，保证Class为任意
+    **/
+    public static <T> Object tryDeserialize(String data, Class<T> tClass, boolean errorElseJSONObject) {
+        Gson gson = new Gson();
+
+        try {
+            return gson.fromJson(data, tClass != null ? tClass : JsonObject.class);
+        }catch(RuntimeException e) {
+            if(errorElseJSONObject && tClass!= null) {
+                try{
+                    return gson.fromJson(data, JsonObject.class);
+                }catch(RuntimeException ex) {
+                    return null;
+                }
+            }
+            else return null;
+        }
+    }
+
+    /**
+     * 将文本反序列化成某个对象
+     * 若“tClass”参数为“null”，则尝试“new JSONObject”操作
+     *
+     * @param inputStream 文件流
+     * @param tClass 反序列化成什么类型
+     * @param errorElseJSONObject 如果“new Gson()”反序列化操作失败，是否尝试JSONObject操作
+     * @return 返回一个成功解析的对象，如果序列化失败则返回“null”
+     * @param <T> 泛型，保证Class为任意
+     * @throws IOException InputStream的异常
+    **/
+    public static <T> Object tryDeserialize(InputStream inputStream, Class<T> tClass, boolean errorElseJSONObject) throws IOException {
+        return tryDeserialize(IOUtils.readFullyAsString(inputStream), tClass, errorElseJSONObject);
+    }
 }

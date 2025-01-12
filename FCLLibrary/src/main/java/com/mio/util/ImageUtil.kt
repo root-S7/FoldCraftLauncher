@@ -3,6 +3,7 @@ package com.mio.util
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import java.io.File
+import java.io.InputStream
 import java.util.Optional
 
 class ImageUtil {
@@ -16,8 +17,22 @@ class ImageUtil {
         }
 
         @JvmStatic
+        fun getSize(inputStream: InputStream): Pair<Int, Int> {
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeStream(inputStream, null, options)
+            return Pair(options.outWidth, options.outHeight)
+        }
+
+        @JvmStatic
         fun getBitmapMemorySize(path: String): Long {
             val size = getSize(path)
+            return size.first * size.second * 4L
+        }
+
+        @JvmStatic
+        fun getBitmapMemorySize(inputStream: InputStream): Long {
+            val size = getSize(inputStream)
             return size.first * size.second * 4L
         }
 
@@ -28,5 +43,22 @@ class ImageUtil {
             }
             return Optional.of(BitmapFactory.decodeFile(path))
         }
+
+        @JvmStatic
+        fun load(inputStream: InputStream): Optional<Bitmap> {
+            try {
+                val memorySize = getBitmapMemorySize(inputStream)
+                if (memorySize > 104857600) return Optional.empty<Bitmap>()
+
+                inputStream.reset()
+
+                val decodeStream = BitmapFactory.decodeStream(inputStream)
+
+                return Optional.ofNullable(decodeStream)
+            } catch (e: Exception) {
+                return Optional.empty<Bitmap>()
+            }
+        }
+
     }
 }

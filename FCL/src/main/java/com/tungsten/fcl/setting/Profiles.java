@@ -22,6 +22,7 @@ import static com.tungsten.fcl.util.FXUtils.onInvalidating;
 import static com.tungsten.fclcore.fakefx.collections.FXCollections.observableArrayList;
 
 import com.tungsten.fcl.R;
+import com.tungsten.fcl.util.ConfigUtils;
 import com.tungsten.fcl.util.WeakListenerHolder;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.event.EventBus;
@@ -42,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 public final class Profiles {
@@ -97,7 +99,8 @@ public final class Profiles {
         if (profiles.isEmpty()) {
             Profile current = new Profile(FCLPath.CONTEXT.getString(R.string.profile_shared), new File(FCLPath.SHARED_COMMON_DIR), new VersionSetting(), null);
             Profile home = new Profile(FCLPath.CONTEXT.getString(R.string.profile_private), new File(FCLPath.PRIVATE_COMMON_DIR));
-            profiles.addAll(current, home);
+            if(ConfigUtils.DEFINE_DEFAULT_SELECT_PROFILE.equals(FCLPath.CONTEXT.getString(R.string.profile_private))) profiles.addAll(home, current);
+            else profiles.addAll(current, home);
         }
     }
 
@@ -138,6 +141,11 @@ public final class Profiles {
         if (initialized)
             return;
 
+        try {
+            ConfigUtils.getGameDirectory();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new RuntimeException("任务超时，请尝试重启应用，如果仍出现该提示请记得反馈启动器BUG！");
+        }
         HashSet<String> names = new HashSet<>();
         config().getConfigurations().forEach((name, profile) -> {
             if (!names.add(name)) return;

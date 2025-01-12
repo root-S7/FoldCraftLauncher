@@ -44,14 +44,14 @@ public final class ConfigHolder {
 
     public static Config config() {
         if (configInstance == null) {
-            throw new IllegalStateException("Configuration hasn't been loaded");
+            throw new IllegalStateException("config.json文件只会在进入启动器主界面时候才会解析，你在主界面之前读取该配置文件属于非法操作！");
         }
         return configInstance;
     }
 
     public static GlobalConfig globalConfig() {
         if (globalConfigInstance == null) {
-            throw new IllegalStateException("Configuration hasn't been loaded");
+            throw new IllegalStateException("global_config.json文件只会在进入启动器主界面时候才会解析，你在主界面之前读取该配置文件属于非法操作！");
         }
         return globalConfigInstance;
     }
@@ -106,7 +106,7 @@ public final class ConfigHolder {
         }
     });
 
-    private static void writeToConfig(String content) throws IOException {
+    public static void writeToConfig(String content) throws IOException {
         LOG.info("Saving config");
         synchronized (CONFIG_PATH) {
             FileUtils.saveSafely(CONFIG_PATH, content);

@@ -409,10 +409,10 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
             }));
         }
         if (v == resetTheme) {
-            ThemeEngine.getInstance().applyAndSave(getContext(), ThemeEngine.getWallpaperColor(getContext()), false);
+            ThemeEngine.getInstance().applyAndSave(getContext(), ThemeEngine.autoWallpaperColor(getContext(), FCLPath.GENERAL_SETTING.getProperty("default-theme-first-color", "#7797CF")), false);
         }
         if (v == resetTheme2) {
-            ThemeEngine.getInstance().applyAndSave2(getContext(), ThemeEngine.getWallpaperColor(getContext()), false);
+            ThemeEngine.getInstance().applyAndSave2(getContext(), ThemeEngine.autoWallpaperColor(getContext(), FCLPath.GENERAL_SETTING.getProperty("default-theme-second-color", "#7797CF")), false);
         }
         if (v == resetLtBackground) {
             new Thread(() -> {

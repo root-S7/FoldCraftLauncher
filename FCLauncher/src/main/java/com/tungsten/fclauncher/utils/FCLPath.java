@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 public class FCLPath {
 
@@ -25,6 +27,10 @@ public class FCLPath {
     public static String CACIOCAVALLO_11_DIR;
     public static String CACIOCAVALLO_17_DIR;
 
+    public static String CONFIG_DIR;
+
+    public static Properties GENERAL_SETTING = new Properties();
+
     public static String FILES_DIR;
     public static String PLUGIN_DIR;
     public static String BACKGROUND_DIR;
@@ -38,6 +44,15 @@ public class FCLPath {
     public static String MIO_LAUNCH_WRAPPER;
     public static String LT_BACKGROUND_PATH;
     public static String DK_BACKGROUND_PATH;
+
+    public static String ASSETS_AUTHLIB_INJECTOR_JAR = "game/authlib-injector.jar";
+    public static String ASSETS_GENERAL_SETTING_PROPERTIES = "app_config/general_setting.properties";
+    public static String ASSETS_CONFIG_JSON = "app_config/config.json";
+    public static String ASSETS_MENU_SETTING_JSON = "app_config/menu_setting.json";
+    public static String ASSETS_GLOBAL_CONFIG_JSON = "app_config/global_config.json";
+    public static String ASSETS_AUTH_INJECTOR_SERVER_JSON = "app_config/authlib_injector_server.json";
+
+    public static String ASSETS_SETTING_LAUNCHER_PICTURES = "app_config/settings_launcher_pictures";
 
     public static void loadPaths(Context context) {
         CONTEXT = context;
@@ -57,6 +72,14 @@ public class FCLPath {
         CACIOCAVALLO_8_DIR = RUNTIME_DIR + "/caciocavallo";
         CACIOCAVALLO_11_DIR = RUNTIME_DIR + "/caciocavallo11";
         CACIOCAVALLO_17_DIR = RUNTIME_DIR + "/caciocavallo17";
+
+        CONFIG_DIR = context.getDir("config", 0).getAbsolutePath();
+
+        try {
+            GENERAL_SETTING.load(context.getAssets().open("app_config/general_setting.properties"));
+        }catch(IOException e) {
+            GENERAL_SETTING = new Properties();
+        }
 
         FILES_DIR = context.getFilesDir().getAbsolutePath();
         PLUGIN_DIR = FILES_DIR + "/plugins";
@@ -82,6 +105,7 @@ public class FCLPath {
         init(CACIOCAVALLO_8_DIR);
         init(CACIOCAVALLO_11_DIR);
         init(CACIOCAVALLO_17_DIR);
+        init(CONFIG_DIR);
         init(FILES_DIR);
         init(PLUGIN_DIR);
         init(BACKGROUND_DIR);

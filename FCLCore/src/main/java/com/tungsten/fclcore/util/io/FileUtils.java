@@ -30,6 +30,8 @@ import java.util.function.Predicate;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import android.content.Context;
+
 import com.tungsten.fclcore.util.Lang;
 import com.tungsten.fclcore.util.StringUtils;
 import com.tungsten.fclcore.util.function.ExceptionalConsumer;
@@ -89,6 +91,19 @@ public final class FileUtils {
     public static String getExtension(Path file) {
         return StringUtils.substringAfterLast(getName(file), '.');
     }
+
+    public static String getExtension(String fileName) {
+        if (fileName == null || fileName.isEmpty()) return "";
+
+        int lastSlashIndex = Math.max(fileName.lastIndexOf('/'), fileName.lastIndexOf('\\'));
+
+        String fileNameWithoutPath = (lastSlashIndex == -1) ? fileName : fileName.substring(lastSlashIndex + 1);
+
+        String extension = StringUtils.substringAfterLast(fileNameWithoutPath, '.');
+
+        return extension.isEmpty() ? "" : extension;
+    }
+
 
     /**
      * This method is for normalizing ZipPath since Path.normalize of ZipFileSystem does not work properly.
@@ -239,6 +254,7 @@ public final class FileUtils {
             throw new IOException(message);
         }
     }
+
 
     public static boolean deleteDirectoryQuietly(File directory) {
         try {
@@ -473,5 +489,55 @@ public final class FileUtils {
         }
 
         Files.move(tmpFile, file, StandardCopyOption.REPLACE_EXISTING);
+    }
+
+    /**
+     * 判断给定路径是否是文件/文件夹，并且具有读写权限
+     *
+     * @param path 文件或文件夹路径
+     * @return 如果是文件或文件夹且有读写权限，返回true，否则返回false
+    **/
+    public static boolean checkFileOrDirectoryPermission(String path) {
+        if(path == null || path.isEmpty() || path.isBlank()) return false;
+
+        File file = new File(path);
+
+        // 判断文件或文件夹是否存在
+        if (!file.exists()) return false;
+
+        // 判断是文件或文件夹并检查读写权限
+        if (file.isFile() || file.isDirectory()) return file.canRead() && file.canWrite();
+
+        return false;
+    }
+
+    public static void batchDelete(File... files) {
+        if(files != null) {
+            for(File file : files) {
+                if (file.isFile()) file.delete();
+                else deleteDirectoryQuietly(file);
+            }
+        }
+    }
+
+    /**
+     * 判断 assets 下某个文件夹是否存在
+     * @param context 应用的上下文
+     * @param folderNames 需要判断的文件夹名称
+     * @return 如果文件夹存在，返回 true；否则返回 false
+    **/
+    public static boolean assetsDirExist(Context context, String... folderNames) {
+        if (folderNames == null || folderNames.length == 0) return false;
+
+        try {
+            for(String folderName : folderNames) {
+                String[] fileList = context.getAssets().list(folderName);
+                if(fileList == null || fileList.length == 0) return false;
+            }
+            // 如果所有文件夹都存在，返回 true
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 }

@@ -17,7 +17,16 @@
  */
 package com.tungsten.fclcore.util.io;
 
+import android.content.Context;
+import android.content.res.AssetManager;
+
+import com.tungsten.fclauncher.utils.FCLPath;
+import com.tungsten.fclcore.util.DigestUtils;
+
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.zip.GZIPInputStream;
 
 /**
@@ -87,5 +96,57 @@ public final class IOUtils {
 
     public static InputStream wrapFromGZip(InputStream inputStream) throws IOException {
         return new GZIPInputStream(inputStream);
+    }
+
+    public static void copyAssets(String assetFileName, String targetPath) throws IOException {
+        AssetManager assetManager = FCLPath.CONTEXT.getAssets();
+        InputStream inputStream = null;
+        FileOutputStream fileOutputStream = null;
+
+        try {
+            // 打开 assets 文件输入流
+            inputStream = assetManager.open(assetFileName);
+
+            // 创建目标文件输出流
+            File outFile = new File(targetPath);
+            File parentDir = outFile.getParentFile();
+            if(parentDir != null && !parentDir.exists()) parentDir.mkdirs(); // 确保父目录存在
+
+            fileOutputStream = new FileOutputStream(outFile);
+
+            // 调用 copyTo 方法进行文件拷贝
+            copyTo(inputStream, fileOutputStream, new byte[DEFAULT_BUFFER_SIZE]);
+        }finally {
+            if(inputStream != null) inputStream.close();
+            if(fileOutputStream != null) fileOutputStream.close();
+        }
+    }
+
+    public static String calculateSHA256(InputStream inputStream) throws IOException {
+        // 创建 SHA-256 MessageDigest 实例
+        MessageDigest digest = DigestUtils.getDigest("SHA-256");
+
+        byte[] buffer = new byte[8192];  // 缓冲区大小，可以根据需要调整
+        int bytesRead;
+
+        // 逐块读取 InputStream 数据并更新 MessageDigest
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
+            digest.update(buffer, 0, bytesRead);
+        }
+
+        // 获取计算出的 SHA-256 哈希字节数组
+        byte[] hashBytes = digest.digest();
+
+        // 将字节数组转换为十六进制字符串
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashBytes) {
+            hexString.append(String.format("%02x", b));  // 每个字节转换为两位的十六进制数
+        }
+
+        return hexString.toString();  // 返回最终的 SHA-256 哈希值
+    }
+
+    public static String calculateSHA256(Path path) throws IOException {
+        return calculateSHA256(Files.newInputStream(path));
     }
 }

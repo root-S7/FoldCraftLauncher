@@ -24,6 +24,7 @@ import androidx.core.content.ContextCompat;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.fragment.EulaFragment;
 import com.tungsten.fcl.fragment.RuntimeFragment;
+import com.tungsten.fcl.util.CheckFileFormat;
 import com.tungsten.fcl.util.RequestCodes;
 import com.tungsten.fclauncher.plugins.DriverPlugin;
 import com.tungsten.fclauncher.plugins.RendererPlugin;
@@ -111,7 +112,19 @@ public class SplashActivity extends FCLActivity {
         if (sharedPreferences.getBoolean("isFirstLaunch", true)) {
             getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim).replace(R.id.fragment, EulaFragment.class, null).commit();
         } else {
-            getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim).replace(R.id.fragment, RuntimeFragment.class, null).commit();
+            new CheckFileFormat(
+                    this,
+                    FCLPath.ASSETS_GENERAL_SETTING_PROPERTIES,
+                    "app_config/version",
+                    ".minecraft/version"
+            ).checkFileFormat(true, new CheckFileFormat.CheckFileCallBack() {
+                @Override
+                public <T> void onSuccess(T data) {
+                    getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim).replace(R.id.fragment, RuntimeFragment.class, null).commit();
+                }
+                @Override
+                public void onFail(Exception e) {}
+            });
         }
     }
 

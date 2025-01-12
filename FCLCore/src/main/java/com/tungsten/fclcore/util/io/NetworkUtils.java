@@ -199,6 +199,17 @@ public final class NetworkUtils {
         return IOUtils.readFullyAsString(con.getInputStream());
     }
 
+    public static String doGet(URL url, String agent) throws IOException {
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestProperty("User-Agent", agent);
+
+        conn.setConnectTimeout(5555);  // 连接超时
+        conn.setReadTimeout(5555);     // 读取超时
+
+        return IOUtils.readFullyAsString(conn.getInputStream());
+    }
+
     public static String doPost(URL u, Map<String, String> params) throws IOException {
         StringBuilder sb = new StringBuilder();
         if (params != null) {

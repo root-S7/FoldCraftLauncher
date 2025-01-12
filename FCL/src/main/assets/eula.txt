@@ -1,20 +1,20 @@
-Fold Craft Launcher end-user license agreements
+FoldCraftLauncher — 整合包一键安装版
 
-Before you using the software, please read the eula first.
-The software is developed by FCL-Team.
 
-1. User's obligations
-1) Get a qualified device, FCL requires Android 8.0 or higher.
-2) Pay for the cost of Internet access and other services.
-3) Take responsibility for all the consequences of your own use of the software.
+  1. 你可以尝试修改APK的『assets/eula.txt』文件来改变该页面显示内容
 
-2. Disclaimer
-1) The risk caused by the user's use of this software shall be borne by the user.
-2) The software is not guaranteed to meet all user needs.
-3) The software is not responsible for the correctness, security, legality, etc. of these third-party services.
-4) The developer is not responsible for any problems caused by users' use of third-party services, and will not and cannot assume any legal responsibility.
+  2. 该启动器一般用于『服务器客户端』或『个人整合包』的一键安装。
 
-3. Copyright
-1) The copyright, patent rights and other intellectual property rights of the software are owned by the developer or the designated copyright owner.
-2) The third-party components used by the software are owned by the relevant copyright owners.
-3) The software is fully open source, please follow the open source license of the software.
+  3. 只接受启动器功能缺陷报告，不接受游戏崩溃报告；手机上不是所有MOD都能运行，不要用Java软件是跨平台来反驳（因为这样回答显得你很弱智）
+
+  4. 游戏资源默认安装到当前APK的私有目录下，即『/storage/emulated/0/Android/data/com.tungsten.fcl.server/files/.minecraft/』路径下。
+
+  5. 每次安装前会删除原路径下所有的游戏文件，某些人制作的APK可能会把你原公有目录下资源删除，你需要自行甄别！
+
+  6. 该启动器的所有设置选项可以在APK的『assets/app_config』目录下进行修改；修改前请确保对应文件格式正确，且尽量使用英文值。
+
+  7. APK的默认包名是『com.tungsten.fcl.server』，如果你需要修改包名请根据群文件要求来；千万不要使用『NP/MT』管理器自带的『APK共存』功能！！！
+
+  8. 在APK的『assets』目录下，有些目录内自带的『version』文件请不要删除，否则会造成应用崩溃或卡加载！
+
+  9. 禁止直接反编译APK的dex文件；请使用Git克隆该项目源码，并使用IDE集成开发环境进行修改

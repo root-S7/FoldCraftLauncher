@@ -17,6 +17,10 @@
  */
 package com.tungsten.fclcore.auth.authlibinjector;
 
+import com.tungsten.fclauncher.utils.FCLPath;
+import com.tungsten.fclcore.util.io.IOUtils;
+
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -49,6 +53,18 @@ public class AuthlibInjectorArtifactInfo {
             return new AuthlibInjectorArtifactInfo(buildNumber, version, location.toAbsolutePath());
         }
     }
+
+    /**
+     * 从APK内部读取“authlib-injector.jar”文件，并读取它里面的MANIFEST.MF文件信息
+     * @return 返回一个AuthlibInjectorArtifactInfo类型
+     * @throws IOException
+    **/
+    public static AuthlibInjectorArtifactInfo from() throws IOException {
+        IOUtils.copyAssets(FCLPath.ASSETS_AUTHLIB_INJECTOR_JAR, FCLPath.CACHE_DIR + "/authlib-injector.jar");
+
+        return from(new File(FCLPath.CACHE_DIR + "/authlib-injector.jar").toPath());
+    }
+
 
     private int buildNumber;
     private String version;
