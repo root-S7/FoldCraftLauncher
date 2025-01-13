@@ -31,7 +31,6 @@ public class CheckFileFormat {
     protected final Set<FileInfo<?>> defaultCheckFiles;
     protected Set<String> extraNeedCheckInternalFile = new HashSet<>();
     protected final Activity activity;
-    protected final Set<FileInfo<?>> jsonFileExtraStep; // 存储的是文本类型文件的接下来操作
 
     public CheckFileFormat(Activity activity, String... extraNeedFile) {
         if(extraNeedFile != null && (extraNeedFile.length > 0)) {
@@ -43,7 +42,6 @@ public class CheckFileFormat {
         FCLPath.loadPaths(activity);
 
         this.activity = activity;
-        this.jsonFileExtraStep = new HashSet<>();
         defaultCheckFiles = Set.of(
                 new FileInfo<>(FCLPath.ASSETS_CONFIG_JSON, ConfigHolder.CONFIG_PATH, ConfigAsFake.class),
                 new FileInfo<>(FCLPath.ASSETS_MENU_SETTING_JSON, Paths.get(FCLPath.FILES_DIR + "/menu_setting.json"), MenuSetting.class),
@@ -164,9 +162,6 @@ public class CheckFileFormat {
                             waitConvertErrorAlertDialog(null, "文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
                             return false;
                         }
-
-                        // 如果json文件能正常解析，则进行接下来操作
-                        jsonFileExtraStep.add(matchedFile.get().setFileObject(o));
                     }else {
                         waitConvertErrorAlertDialog(null, "不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");
                         return false;
