@@ -255,6 +255,13 @@ public final class FileUtils {
         }
     }
 
+    public static void deleteDirectory(String... directory)
+            throws IOException {
+        for(String dir : directory) {
+            deleteDirectory(new File(dir));
+        }
+    }
+
 
     public static boolean deleteDirectoryQuietly(File directory) {
         try {

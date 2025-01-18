@@ -68,7 +68,7 @@ public class RuntimeUtils {
         }
 
         public void installGameFiles(String oldInstallDir, String srcDir, final SharedPreferences.Editor editor) throws IOException, ExecutionException, InterruptedException {
-            FileUtils.deleteDirectory(new File(FCLPath.SHARED_COMMON_DIR)); // 先删除默认目录中的按键和日志内容
+            FileUtils.deleteDirectory(FCLPath.LOG_DIR, FCLPath.CONTROLLER_DIR); // 先删除默认目录中的按键和日志内容
 
             FileUtils.deleteDirectory(new File(oldInstallDir)); // 如果config.json文件修改后则删除旧的config.json文件中目录资源
 
