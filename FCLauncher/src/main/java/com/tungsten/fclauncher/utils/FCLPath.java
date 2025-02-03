@@ -57,6 +57,12 @@ public class FCLPath {
     public static void loadPaths(Context context) {
         CONTEXT = context;
 
+        try {
+            GENERAL_SETTING.load(context.getAssets().open("app_config/general_setting.properties"));
+        }catch(Exception e) {
+            GENERAL_SETTING = new Properties();
+        }
+
         NATIVE_LIB_DIR = context.getApplicationInfo().nativeLibraryDir;
 
         LOG_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FCL/log";
@@ -75,16 +81,10 @@ public class FCLPath {
 
         CONFIG_DIR = context.getDir("config", 0).getAbsolutePath();
 
-        try {
-            GENERAL_SETTING.load(context.getAssets().open("app_config/general_setting.properties"));
-        }catch(IOException e) {
-            GENERAL_SETTING = new Properties();
-        }
-
         FILES_DIR = context.getFilesDir().getAbsolutePath();
         PLUGIN_DIR = FILES_DIR + "/plugins";
         BACKGROUND_DIR = FILES_DIR + "/background";
-        CONTROLLER_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/FCL/control";
+        CONTROLLER_DIR = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + GENERAL_SETTING.getProperty("controller-dir", "FCL-Server") + "/control";
 
         PRIVATE_COMMON_DIR = context.getExternalFilesDir(".minecraft").getAbsolutePath();
 

@@ -24,45 +24,15 @@
     },
     {
       "name": "左上",
-      "textColor": -8421505,
+      "textColor": -28416,
       "textSize": 14,
-      "strokeColor": -16745729,
-      "strokeWidth": 10,
+      "strokeColor": -14264421,
+      "strokeWidth": 15,
       "cornerRadius": 100,
       "fillColor": 0,
       "textColorPressed": -1,
       "textSizePressed": 14,
       "strokeColorPressed": -16760705,
-      "strokeWidthPressed": 10,
-      "cornerRadiusPressed": 100,
-      "fillColorPressed": 1593835520
-    },
-    {
-      "name": "键盘",
-      "textColor": -8421505,
-      "textSize": 13,
-      "strokeColor": -65372,
-      "strokeWidth": 10,
-      "cornerRadius": 100,
-      "fillColor": 0,
-      "textColorPressed": -1,
-      "textSizePressed": 13,
-      "strokeColorPressed": -8454064,
-      "strokeWidthPressed": 10,
-      "cornerRadiusPressed": 100,
-      "fillColorPressed": 1593835520
-    },
-    {
-      "name": "切换布局",
-      "textColor": -8421505,
-      "textSize": 15,
-      "strokeColor": -65536,
-      "strokeWidth": 10,
-      "cornerRadius": 100,
-      "fillColor": 0,
-      "textColorPressed": -1,
-      "textSizePressed": 15,
-      "strokeColorPressed": -5308416,
       "strokeWidthPressed": 10,
       "cornerRadiusPressed": 100,
       "fillColorPressed": 1593835520
@@ -111,6 +81,21 @@
       "strokeWidthPressed": 10,
       "cornerRadiusPressed": 100,
       "fillColorPressed": 1061109567
+    },
+    {
+      "name": "切换布局",
+      "textColor": -10077223,
+      "textSize": 15,
+      "strokeColor": -65536,
+      "strokeWidth": 10,
+      "cornerRadius": 100,
+      "fillColor": 0,
+      "textColorPressed": -1,
+      "textSizePressed": 15,
+      "strokeColorPressed": -5308416,
+      "strokeWidthPressed": 10,
+      "cornerRadiusPressed": 100,
+      "fillColorPressed": 1593835520
     }
   ],
   "directionStyles": [
@@ -383,7 +368,7 @@
             "style": "左上",
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 278,
+              "xPosition": 277,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
@@ -533,14 +518,14 @@
             "style": "左上",
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 352,
+              "xPosition": 349,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 175
+                "size": 160
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
@@ -830,10 +815,10 @@
           {
             "id": "ed3c2149-7c48-46ae-86c9-5f931251c308",
             "text": "呼出键盘",
-            "style": "键盘",
+            "style": "左上",
             "baseInfo": {
               "visibilityType": "ALWAYS",
-              "xPosition": 518,
+              "xPosition": 531,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
@@ -903,7 +888,7 @@
           {
             "id": "43606f98-b410-44de-b7d0-b36a17e54089",
             "text": "全键盘",
-            "style": "切换布局",
+            "style": "左上",
             "baseInfo": {
               "visibilityType": "ALWAYS",
               "xPosition": 1000,
@@ -913,7 +898,7 @@
               "absoluteHeight": 50,
               "percentageWidth": {
                 "reference": "SCREEN_HEIGHT",
-                "size": 200
+                "size": 160
               },
               "percentageHeight": {
                 "reference": "SCREEN_HEIGHT",
@@ -982,7 +967,7 @@
             "style": "左上",
             "baseInfo": {
               "visibilityType": "IN_GAME",
-              "xPosition": 139,
+              "xPosition": 138,
               "yPosition": 0,
               "sizeType": "PERCENTAGE",
               "absoluteWidth": 50,
