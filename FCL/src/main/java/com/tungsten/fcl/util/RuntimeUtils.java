@@ -40,8 +40,12 @@ public class RuntimeUtils {
 
     public static boolean isLatest(String targetDir, String srcDir) throws IOException {
         File targetFile = new File(targetDir + "/version");
-        String version = IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version"));
-        return targetFile.exists() && FileUtils.readText(targetFile).equals(version);
+        try {
+            String version = IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version"));
+            return targetFile.exists() && FileUtils.readText(targetFile).equals(version);
+        }catch(Exception e) {
+            return true;
+        }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -273,7 +277,7 @@ public class RuntimeUtils {
     public static void patchJava(Context context, String javaPath) throws IOException {
         Pack200Utils.unpack(context.getApplicationInfo().nativeLibraryDir, javaPath);
         File dest = new File(javaPath);
-        if(!dest.exists())
+        if (!dest.exists())
             return;
         String libFolder = FCLauncher.getJreLibDir(javaPath);
         File ftIn = new File(dest, libFolder + "/libfreetype.so.6");
