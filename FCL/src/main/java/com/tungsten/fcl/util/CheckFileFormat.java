@@ -51,7 +51,7 @@ public class CheckFileFormat {
                 new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/dk.png", Paths.get(FCLPath.DK_BACKGROUND_PATH), null),
                 new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/cursor.png", Paths.get(FCLPath.FILES_DIR + "/cursor.png"), null),
                 new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/menu_icon.png", Paths.get(FCLPath.FILES_DIR + "/menu_icon.png"), null),
-                new FileInfo<>(FCLPath.ASSETS_DEFAULT_CONTROLLER, Paths.get(FCLPath.CONTROLLER_DIR + "/00000000.json"), Controller.class)
+                new FileInfo<>(FCLPath.ASSETS_DEFAULT_CONTROLLER, null, Controller.class)
         );
     }
 
