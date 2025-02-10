@@ -41,7 +41,7 @@ public class Controllers {
         if (controllers.isEmpty()) {
             try {
                 if (DEFAULT_CONTROLLER == null) {
-                    String str = IOUtils.readFullyAsString(Controllers.class.getResourceAsStream("/assets/controllers/00000000.json"));
+                    String str = IOUtils.readFullyAsString(Controllers.class.getResourceAsStream("/assets/" + FCLPath.ASSETS_DEFAULT_CONTROLLER));
                     DEFAULT_CONTROLLER = new GsonBuilder()
                             .registerTypeAdapterFactory(new JavaFxPropertyTypeAdapterFactory(true, true))
                             .setPrettyPrinting()

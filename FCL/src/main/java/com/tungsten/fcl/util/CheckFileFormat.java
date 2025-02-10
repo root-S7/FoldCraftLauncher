@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import com.mio.util.ImageUtil;
 import com.tungsten.fcl.setting.ConfigAsFake;
 import com.tungsten.fcl.setting.ConfigHolder;
+import com.tungsten.fcl.setting.Controller;
 import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.io.FileUtils;
@@ -49,7 +50,8 @@ public class CheckFileFormat {
                 new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/lt.png", Paths.get(FCLPath.LT_BACKGROUND_PATH), null),
                 new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/dk.png", Paths.get(FCLPath.DK_BACKGROUND_PATH), null),
                 new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/cursor.png", Paths.get(FCLPath.FILES_DIR + "/cursor.png"), null),
-                new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/menu_icon.png", Paths.get(FCLPath.FILES_DIR + "/menu_icon.png"), null)
+                new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/menu_icon.png", Paths.get(FCLPath.FILES_DIR + "/menu_icon.png"), null),
+                new FileInfo<>(FCLPath.ASSETS_DEFAULT_CONTROLLER, Paths.get(FCLPath.CONTROLLER_DIR + "/00000000.json"), Controller.class)
         );
     }
 
