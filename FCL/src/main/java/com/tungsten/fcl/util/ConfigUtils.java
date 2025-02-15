@@ -33,7 +33,7 @@ public class ConfigUtils {
      * @param provideBackupConfig 你所提供的一个没有问题的Config对象（一般情况是通过new出来的）
      * @return 返回一个没有问题的Config
      **/
-    public static Config getNoProblemConfig(boolean checkAppInternalFile, Config provideBackupConfig) {
+    public static synchronized Config getNoProblemConfig(boolean checkAppInternalFile, Config provideBackupConfig) {
         Config config;
 
         try {

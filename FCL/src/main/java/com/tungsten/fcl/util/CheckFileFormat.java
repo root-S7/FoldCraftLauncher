@@ -33,6 +33,11 @@ public class CheckFileFormat {
     protected Set<String> extraNeedCheckInternalFile = new HashSet<>();
     protected final Activity activity;
 
+    /**
+     * 创建一个对象
+     * @param activity 当前活动页
+     * @param extraNeedFile 需要额外检查的文件
+    **/
     public CheckFileFormat(Activity activity, String... extraNeedFile) {
         if(extraNeedFile != null && (extraNeedFile.length > 0)) {
             Arrays.stream(extraNeedFile)
@@ -43,6 +48,8 @@ public class CheckFileFormat {
         FCLPath.loadPaths(activity);
 
         this.activity = activity;
+
+        // 以下文件是必须要检查的
         defaultCheckFiles = Set.of(
                 new FileInfo<>(FCLPath.ASSETS_CONFIG_JSON, ConfigHolder.CONFIG_PATH, ConfigAsFake.class),
                 new FileInfo<>(FCLPath.ASSETS_MENU_SETTING_JSON, Paths.get(FCLPath.FILES_DIR + "/menu_setting.json"), MenuSetting.class),

@@ -12,6 +12,11 @@ import java.io.StringReader;
 
 public class ParseAuthlibInjectorServerUtils {
 
+
+    /**
+     * 将APK中的“authlib_injector_server.json”文件中所有地址解析后并转存
+     * @param config 提供一个需要修改的Config对象
+    **/
     public static void parseUrlAndWriteToFile(Config config) {
 
         try(StringReader jsonReader = new StringReader(parseFile())) {
@@ -28,6 +33,11 @@ public class ParseAuthlibInjectorServerUtils {
         }catch(Exception ignored) { }
     }
 
+    /**
+     * 读取“authlib_injector_server.json”内容
+     * @return 返回内容
+     * @throws IOException 读取失败异常
+    **/
     public static String parseFile() throws IOException {
         return IOUtils.readFullyAsString(
                 ParseAuthlibInjectorServerUtils.class.getResourceAsStream(
