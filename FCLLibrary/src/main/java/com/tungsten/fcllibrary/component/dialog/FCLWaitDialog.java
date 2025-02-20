@@ -18,9 +18,9 @@ public class FCLWaitDialog extends FCLDialog {
 
     private String titleString;
 
-    private View parent;
-    private FCLTextView message;
-    private ScrollView scrollView;
+    private final View parent;
+    private final FCLTextView message;
+    private final ScrollView scrollView;
     private boolean isClosed = true;
 
     public FCLWaitDialog(@NonNull Context context) {

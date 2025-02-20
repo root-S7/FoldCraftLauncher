@@ -497,6 +497,7 @@
     <string name="launch_state_logging_in">Logging in</string>
     <string name="launch_state_waiting_launching">Waiting for the game to launch</string>
     <string name="launch_state_done">Completing launch</string>
+    <string name="launch_state_device" translatable="false">检查设备配置</string>
 
     <string name="menu_controls">Controller</string>
     <string name="menu_controls_current">Current Controller</string>

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -122,11 +123,10 @@ public class CheckFileFormat {
         FCLWaitDialog fclWaitDialog = enableWaitDialog("正在检测内部文件格式中，请稍等…");
 
         new Thread(() -> {
-            try {
-                Thread.sleep(888);
+            LinkedHashMap<String, FileType> fileExtension = getFileExtension(needCheckExtraFiles);
 
-                LinkedHashMap<String, FileType> fileExtension = getFileExtension(needCheckExtraFiles);
-                if(fileExtension.isEmpty()) {
+            activity.runOnUiThread(() -> {
+                if(fileExtension == null || fileExtension.isEmpty()) {
                     fclWaitDialog.dismiss();
                     checkFileCallBack.onFail(null);
                     return;
@@ -134,11 +134,9 @@ public class CheckFileFormat {
 
                 if(checkAllFileLegal(fileExtension)) checkFileCallBack.onSuccess(fileExtension);
                 else checkFileCallBack.onFail(null);
-                
+
                 fclWaitDialog.dismiss();
-            } catch (InterruptedException e) {
-                checkFileCallBack.onFail(null);
-            }
+            });
         }).start();
     }
 
@@ -156,8 +154,7 @@ public class CheckFileFormat {
                 if(fileExtension.get(s) == FileType.IMAGE) {
                     Optional<Bitmap> bitmap = ImageUtil.load(open);
                     if(bitmap.isEmpty()) {
-                        waitConvertErrorAlertDialog(null, "图片“" + s + "存在问题，请确保该图片大小和分辨率符合要求！");
-                        return false;
+                        throw new FileParseException("图片“" + s + "存在问题，请确保该图片大小和分辨率符合要求！");
                     }
                     bitmap.get().recycle();
                 }else if(fileExtension.get(s) == FileType.JSON) {
@@ -168,16 +165,17 @@ public class CheckFileFormat {
                     if(matchedFile.isPresent()) {
                         Object o = AndroidUtils.tryDeserialize(open, matchedFile.get().configFileType, false);
                         if(o == null) {
-                            waitConvertErrorAlertDialog(null, "文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
-                            return false;
+                            throw new FileParseException("文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
                         }
                     }else {
-                        waitConvertErrorAlertDialog(null, "不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");
-                        return false;
+                        throw new FileParseException("不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");
                     }
                 }
             }catch(IOException e) {
-                waitConvertErrorAlertDialog(null, "文件“" + s + "”不存在，请尝试重新制作你的APK直装包！");
+                activity.runOnUiThread(() -> waitConvertErrorAlertDialog(null, "文件“" + s + "”不存在，请尝试重新制作你的APK直装包！"));
+                return false;
+            }catch(FileParseException e) {
+                activity.runOnUiThread(() -> waitConvertErrorAlertDialog(null, e.getMessage()));
                 return false;
             }
         }

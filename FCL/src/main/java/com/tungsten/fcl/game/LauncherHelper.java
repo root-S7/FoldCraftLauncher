@@ -65,6 +65,7 @@ import com.tungsten.fclcore.util.LibFilter;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.StringUtils;
 import com.tungsten.fclcore.util.io.ResponseCodeException;
+import com.tungsten.fclcore.util.platform.MemoryUtils;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.dialog.FCLDialog;
 import com.tungsten.fcllibrary.component.view.FCLButton;
@@ -144,6 +145,7 @@ public final class LauncherHelper {
                             Task.composeAsync(() -> null)
                     );
                 }).withStage("launch.state.dependencies")
+                .thenComposeAsync(() -> checkHardware(context)).withStage("launch.state.device")
                 .thenComposeAsync(() -> {
                     try (InputStream input = LauncherHelper.class.getResourceAsStream("/assets/game/MioLibPatcher.jar")) {
                         Files.copy(input, new File(FCLPath.LIB_PATCHER_PATH).toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -198,6 +200,7 @@ public final class LauncherHelper {
                 .withStagesHint(Lang.immutableListOf(
                         "launch.state.java",
                         "launch.state.dependencies",
+                        "launch.state.device",
                         "launch.state.logging_in",
                         "launch.state.waiting_launching"))
                 .executor();
@@ -260,6 +263,8 @@ public final class LauncherHelper {
                                     message = getLocalizedText(context, "download_failed", url, responseCode);
                             } else if (ex instanceof AccessDeniedException) {
                                 message = getLocalizedText(context, "exception_access_denied", ((AccessDeniedException) ex).getFile());
+                            } else if (ex instanceof RuntimeException) {
+                                message = ex.getMessage();
                             } else {
                                 if (ex == null) {
                                     message = "Task failed without exception!";
@@ -361,6 +366,27 @@ public final class LauncherHelper {
                 });
                 return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
             }
+        });
+    }
+
+    private static Task<Boolean> checkHardware(Context context) {
+        return Task.composeAsync(() -> {
+            String memoryRequirement = FCLPath.GENERAL_SETTING.getProperty("min-memory-requirement", "4");
+            Float thisTotalMemory = (float) Math.ceil((double) MemoryUtils.getTotalDeviceMemory(context) / 1024);
+
+            int comparisonResult;
+            try {
+                comparisonResult = Float.valueOf(memoryRequirement).compareTo(thisTotalMemory);
+            } catch (Exception e) {
+                comparisonResult = Float.valueOf(4).compareTo(thisTotalMemory);
+            }
+
+            if(comparisonResult <= 0) return Task.completed(true);
+            else throw new RuntimeException(String.format(
+                    "当前设备硬件配置不符合要求\n\n运行内存至少要%sGB，而你的设备只有%dGB\n\n\n\n注：设备上的虚拟内存不能算作运行内存！",
+                    memoryRequirement,
+                    thisTotalMemory.intValue()
+            ));
         });
     }
 
