@@ -40,6 +40,7 @@ android {
 
         aaptOptions {
             ignoreAssetsPattern '!bin-arm.tar.xz*:!bin-x86.tar.xz*:!bin-x86_64.tar.xz*'
+            ignoreAssetsPattern '<dir>_*:*~|!.*'
         }
     }
 
