@@ -39,8 +39,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         aaptOptions {
-            ignoreAssetsPattern '!bin-arm.tar.xz*:!bin-x86.tar.xz*:!bin-x86_64.tar.xz*'
-            ignoreAssetsPattern '<dir>_*:*~|!.*'
+            ignoreAssetsPattern '!bin-arm.tar.xz*:!bin-x86.tar.xz*:!bin-x86_64.tar.xz*:<dir>_*:*~|!.*'
         }
     }
 
