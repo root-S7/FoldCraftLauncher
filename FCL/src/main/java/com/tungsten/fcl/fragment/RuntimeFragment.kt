@@ -34,8 +34,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     var java21: Boolean = false
     var jna: Boolean = false
 
-    private val assumeIsOldDir = ConfigUtils.getGameDirectory()
-
     private val sharedPreferences = FCLPath.CONTEXT.getSharedPreferences("launcher", MODE_PRIVATE)
 
     override fun onCreateView(
@@ -57,42 +55,17 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     }
 
     private fun initState() {
-        try {
-            gameFiles = RuntimeUtils.isLatest(
-                assumeIsOldDir,
-                "/assets/.minecraft"
-            ) && !sharedPreferences.getBoolean("isFirstInstall", true)
-            configFiles = RuntimeUtils.isLatest(
-                FCLPath.CONFIG_DIR,
-                "/assets/app_config"
-            ) && gameFiles
-            lwjgl = !FileUtils.assetsDirExist(context, "app_runtime/lwjgl", "app_runtime/lwjgl-boat") || (RuntimeUtils.isLatest(
-                FCLPath.LWJGL_DIR,
-                "/assets/app_runtime/lwjgl"
-            ) && RuntimeUtils.isLatest(
-                FCLPath.LWJGL_DIR + "-boat",
-                "/assets/app_runtime/lwjgl-boat"
-            ))
-            cacio = !FileUtils.assetsDirExist(context, "app_runtime/caciocavallo") || (RuntimeUtils.isLatest(
-                FCLPath.CACIOCAVALLO_8_DIR,
-                "/assets/app_runtime/caciocavallo"
-            ))
-            cacio11 = !FileUtils.assetsDirExist(context, "app_runtime/caciocavallo11") ||  (RuntimeUtils.isLatest(
-                FCLPath.CACIOCAVALLO_11_DIR,
-                "/assets/app_runtime/caciocavallo11"
-            ))
-            cacio17 = !FileUtils.assetsDirExist(context, "app_runtime/caciocavallo17") || (RuntimeUtils.isLatest(
-                FCLPath.CACIOCAVALLO_17_DIR,
-                "/assets/app_runtime/caciocavallo17"
-            ))
-            java8 = !FileUtils.assetsDirExist(context, "app_runtime/java/jre8") || RuntimeUtils.isLatest(FCLPath.JAVA_8_PATH, "/assets/app_runtime/java/jre8")
-            java11 = !FileUtils.assetsDirExist(context, "app_runtime/java/jre11") || RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11")
-            java17 = !FileUtils.assetsDirExist(context, "app_runtime/java/jre17") || RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
-            java21 = !FileUtils.assetsDirExist(context, "app_runtime/java/jre21") || RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
-            jna = !FileUtils.assetsDirExist(context, "app_runtime/jna") || RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+        gameFiles = (activity as SplashActivity).gameFiles
+        configFiles = (activity as SplashActivity).configFiles
+        lwjgl = (activity as SplashActivity).lwjgl
+        cacio = (activity as SplashActivity).cacio
+        cacio11 = (activity as SplashActivity).cacio11
+        cacio17 = (activity as SplashActivity).cacio17
+        java8 = (activity as SplashActivity).java8
+        java11 = (activity as SplashActivity).java11
+        java17 = (activity as SplashActivity).java17
+        java21 = (activity as SplashActivity).java21
+        jna = (activity as SplashActivity).jna
     }
 
     private fun refreshDrawables() {
@@ -140,7 +113,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 gameFilesProgress.visibility = View.VISIBLE
                 Thread {
                     try {
-                        installResources.installGameFiles(assumeIsOldDir, ".minecraft", sharedPreferences.edit())
+                        installResources.installGameFiles(ConfigUtils.getGameDirectory(), ".minecraft", sharedPreferences.edit())
                         gameFiles = true
                     } catch (e: IOException) {
                         e.printStackTrace()
