@@ -3,6 +3,7 @@ package com.tungsten.fcl.activity
 import android.Manifest.permission
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -15,6 +16,8 @@ import androidx.core.content.ContextCompat
 import com.tungsten.fcl.R
 import com.tungsten.fcl.fragment.EulaFragment
 import com.tungsten.fcl.fragment.RuntimeFragment
+import com.tungsten.fcl.util.CheckFileFormat
+import com.tungsten.fcl.util.ConfigUtils
 import com.tungsten.fcl.util.RequestCodes
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.plugins.DriverPlugin
@@ -36,6 +39,8 @@ import kotlin.system.exitProcess
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
 
+    var gameFiles: Boolean = false
+    var configFiles: Boolean = false
     var lwjgl: Boolean = false
     var cacio: Boolean = false
     var cacio11: Boolean = false
@@ -46,9 +51,13 @@ class SplashActivity : FCLActivity() {
     var java21: Boolean = false
     var jna: Boolean = false
 
+    private lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
+
+        sharedPreferences = getSharedPreferences("launcher", MODE_PRIVATE)
 
         val background = findViewById<ConstraintLayout>(R.id.background)
         background.background = ThemeEngine.getInstance().getTheme().getBackground(this)
@@ -143,7 +152,7 @@ class SplashActivity : FCLActivity() {
         Task.runAsync {
             initState()
         }.whenComplete(Schedulers.androidUIThread()) {
-            if (lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna) {
+            if (gameFiles && configFiles && lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna) {
                 enterLauncher()
             } else {
                 start()
@@ -152,15 +161,25 @@ class SplashActivity : FCLActivity() {
     }
 
     fun start() {
-        val sharedPreferences = getSharedPreferences("launcher", MODE_PRIVATE)
         if (sharedPreferences.getBoolean("isFirstLaunch", true)) {
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
                 .replace(R.id.fragment, EulaFragment::class.java, null).commit()
         } else {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
-                .replace(R.id.fragment, RuntimeFragment::class.java, null).commit()
+            CheckFileFormat(
+                this,
+                FCLPath.ASSETS_GENERAL_SETTING_PROPERTIES,
+                "app_config/version",
+                ".minecraft/version"
+            ).checkFileFormat(true, object : CheckFileFormat.CheckFileCallBack {
+                override fun <T> onSuccess(data: T) {
+                    supportFragmentManager.beginTransaction()
+                        .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
+                        .replace(R.id.fragment, RuntimeFragment::class.java, null).commit()
+                }
+                override fun onFail(e: Exception) {
+                }
+            })
         }
     }
 
@@ -256,30 +275,38 @@ class SplashActivity : FCLActivity() {
 
     private fun initState() {
         try {
-            lwjgl = RuntimeUtils.isLatest(
+            gameFiles = RuntimeUtils.isLatest(
+                ConfigUtils.getGameDirectory(),
+                "/assets/.minecraft"
+            ) && !sharedPreferences.getBoolean("isFirstInstall", true)
+            configFiles = RuntimeUtils.isLatest(
+                FCLPath.CONFIG_DIR,
+                "/assets/app_config"
+            ) && gameFiles
+            lwjgl = !FileUtils.assetsDirExist(this, "app_runtime/lwjgl", "app_runtime/lwjgl-boat") || (RuntimeUtils.isLatest(
                 FCLPath.LWJGL_DIR,
                 "/assets/app_runtime/lwjgl"
             ) && RuntimeUtils.isLatest(
                 FCLPath.LWJGL_DIR + "-boat",
                 "/assets/app_runtime/lwjgl-boat"
-            )
-            cacio = RuntimeUtils.isLatest(
+            ))
+            cacio = !FileUtils.assetsDirExist(this, "app_runtime/caciocavallo") || (RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_8_DIR,
                 "/assets/app_runtime/caciocavallo"
-            )
-            cacio11 = RuntimeUtils.isLatest(
+            ))
+            cacio11 = !FileUtils.assetsDirExist(this, "app_runtime/caciocavallo11") ||  (RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_11_DIR,
                 "/assets/app_runtime/caciocavallo11"
-            )
-            cacio17 = RuntimeUtils.isLatest(
+            ))
+            cacio17 = !FileUtils.assetsDirExist(this, "app_runtime/caciocavallo17") || (RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_17_DIR,
                 "/assets/app_runtime/caciocavallo17"
-            )
-            java8 = RuntimeUtils.isLatest(FCLPath.JAVA_8_PATH, "/assets/app_runtime/java/jre8")
-            java11 = RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11")
-            java17 = RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
-            java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
-            jna = RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
+            ))
+            java8 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre8") || RuntimeUtils.isLatest(FCLPath.JAVA_8_PATH, "/assets/app_runtime/java/jre8")
+            java11 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre11") || RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11")
+            java17 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre17") || RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
+            java21 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre21") || RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
+            jna = !FileUtils.assetsDirExist(this, "app_runtime/jna") || RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
         } catch (e: IOException) {
             e.printStackTrace()
         }
