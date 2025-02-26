@@ -2,83 +2,51 @@
     <img width="75" src="/FCL/src/main/res/drawable/img_app.png"></img>
 </div>
 
-<h1 align="center">Fold Craft Launcher</h1>
+<h1 align="center">Fold Craft Launcher —— 直装版</h1>
 
 <div align="center">
 
-![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
-[![Discord](https://img.shields.io/badge/Discord-4903FC?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/ffhvuXTwyV)
-[![QQ](https://img.shields.io/badge/QQ-4903FC?style=for-the-badge&logoColor=white)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=LwxydGEvBZJnn09sXOjkQo9tuuLcYwx5&authKey=seyY5pPUCIHMWS5FqVryq926T0G2GarSXetpxxV9DJxBVt%2FPcg1vxN%2F%2FXpsCowyk&noverify=0&group_code=762054349)
+[![QQ](https://img.shields.io/badge/QQ-4903FC?style=for-the-badge&logoColor=white)](https://qm.qq.com/q/EHHDtWjdFS)
 ![Downloads](https://img.shields.io/github/downloads/FCL-Team/FoldCraftLauncher/total?color=green&style=for-the-badge)
-
 [![Sponsor](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://afdian.com/@tungs)
 
 </div>
 
-- [Fold Craft Launcher](https://fcl-team.github.io/):
-  The software attempts to launch Minecraft: Java Edition on Android devices, allowing players to manage Games, Mods, Controls and More.
+- 该启动器属于第三方分支，主要用于制作『直装整合包』并分发给用户。
 
-- **Run Minecraft: Java Edition directly on your Android device**, with mod support and all versions of the Game.
+- 当用户下载好『制作后的APK』可直接一键安装游戏资源并启动游戏
 
-<h1 align="center">Features</h1>
+<h1 align="center">新增功能（相较于官方分支）</h1>
 
-- [x] Run Minecraft on all versions
-- [x] Run Forge, NeoForge, LiteLoader, OptiFine, Fabric, Quilt and others
-- [x] Java 8, Java 11, Java 17 and Java 21
-- [x] Mouse Virtual
-- [x] Download Mods, ModPacks, ResourcePacks and Worlds
-- [x] Using Shaders (with VirGL/Zink)
-- [x] Create custom controllers
-- [x] Customizable launcher themes and colors
-- [x] And much more!
+- [x] 可自定义按键存放位置
+- [x] 可自定义首次安装时皮肤站列表
+- [x] 可自定义默认背景图和某些图片
+- [x] 可自定义APK中运行环境打包项（详情见群文件说明）
+- [x] 可自定义『config.json』和『menu_setting.json』文件配置项
+- [x] 可在『general_setting.properties』文件中修改部分启动器设置选项
+- [x] 打开应用后可自动检查配置文件格式是否正确
+- [x] 以及更多内容！
 
-<h1 align="center">Screenshots</h1>
+<h1 align="center">截图</h1>
 
-![GameScreen1](/.github/images/ui_main_light.jpg)
-![GameScreen2](/.github/images/ui_main_dark.jpg)
-![GameScreen3](/.github/images/game.jpg)
+![GameScreen1](https://icraft.ren:90/tmp/FCL-image/1_1.jpg)
+![GameScreen2](https://icraft.ren:90/tmp/FCL-image/1_2.jpg)
+![GameScreen3](https://icraft.ren:90/tmp/FCL-image/1_3.jpg)
 
-<h1 align="center">Compilation</h1>
+<h1 align="center">如何构建项目</h1>
 
-You can compile the software using **Android Studio**, with the **Android SDK & NDK** packages.
-Clone the remote repository from the following URL:
-```
-https://github.com/FCL-Team/FoldCraftLauncher.git
-```
-After that, use Android Studio to compile the code.
-
-<h1 align="center">License</h1>
-
-The software is distributed under [GPL-v3](https://www.gnu.org/licenses/gpl-3.0.html).
-```
-Fold Craft Launcher is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-Fold Craft Launcher is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with Fold Craft Launcher.  If not, see <https://www.gnu.org/licenses/>.
-```
-
-<h1 align="center">Third Party Components</h1>
-
-- [HMCL](https://github.com/HMCL-dev/HMCL)
-
-- [Boat and related projects](https://github.com/AOF-Dev/Boat)
-
-- [PojavLauncher and related projects](https://github.com/PojavLauncherTeam/PojavLauncher)
-
-- [authlib-injector](https://github.com/yushijinhun/authlib-injector)
-
-<h1 align="center">Sponsor</h1>
-
-<div align="center">
-
-[![Sponsor](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://afdian.com/@tungs)
+建议加群下载最新版即可；如果你偏要自行构建，那么按照下面步骤做即可
+1. 首先下载一个Android Studio并配置环境
+2. 使用git命令克隆该项目（git clone ....）
+   ![2_1](https://icraft.ren:90/tmp/FCL-image/2_1.jpg)
+4. 将项目导入到Android Studio中
+5. 修改项目根目录下的『local.properties』
+6. 在『local.properties』文件中增加以下键值对
+   * key-store-password
+   * oauth-api-key
+   * curse-api-key
+   ![2_2](https://icraft.ren:90/tmp/FCL-image/2_2.jpg)
+7. 找到『Build』 —> 『Generate Signed App Bundle / APK…』选项，并编译该项目
+   ![2_3](https://icraft.ren:90/tmp/FCL-image/2_3.jpg)
 
 </div>
