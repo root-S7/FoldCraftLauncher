@@ -29,9 +29,9 @@
 
 <h1 align="center">截图</h1>
 
-![GameScreen1](https://icraft.ren:90/tmp/FCL-image/1_1.jpg)
-![GameScreen2](https://icraft.ren:90/tmp/FCL-image/1_2.jpg)
-![GameScreen3](https://icraft.ren:90/tmp/FCL-image/1_3.jpg)
+![GameScreen1](https://icraft.ren:90/tmp/FCL-image/1.jpg)
+![GameScreen2](https://icraft.ren:90/tmp/FCL-image/2.jpg)
+![GameScreen3](https://icraft.ren:90/tmp/FCL-image/3.jpg)
 
 <h1 align="center">如何构建项目</h1>
 
