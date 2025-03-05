@@ -47,6 +47,10 @@ android {
 
     }
 
+    aaptOptions {
+        ignoreAssetsPattern = "<dir>_*:*~|!.*"
+    }
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
