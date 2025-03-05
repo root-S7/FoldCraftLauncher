@@ -177,7 +177,7 @@ class SplashActivity : FCLActivity() {
                         .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
                         .replace(R.id.fragment, RuntimeFragment::class.java, null).commit()
                 }
-                override fun onFail(e: Exception) {
+                override fun onFail(e: Exception?) {
                 }
             })
         }

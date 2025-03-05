@@ -18,9 +18,9 @@ android {
         localProperty = Properties()
         file("${rootDir}/local.properties").inputStream().use { localProperty.load(it) }
     }
-    val pwd = System.getenv("FCL_KEYSTORE_PASSWORD") ?: localProperty?.getProperty("pwd")
-    val curseApiKey = System.getenv("CURSE_API_KEY") ?: localProperty?.getProperty("curse.api.key")
-    val oauthApiKey = System.getenv("OAUTH_API_KEY") ?: localProperty?.getProperty("oauth.api.key")
+    val pwd = localProperty?.getProperty("key-store-password", "null")
+    val curseApiKey = localProperty?.getProperty("curse-api-key", "null")
+    val oauthApiKey = localProperty?.getProperty("oauth-api-key", "null")
 
     signingConfigs {
         create("FCLKey") {
@@ -38,22 +38,19 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.tungsten.fcl"
+        applicationId = "com.tungsten.fcl.server"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1209
         versionName = "1.2.0.9"
+
+
     }
 
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("FCLKey")
-        }
-        create("fordebug") {
-            initWith(getByName("debug"))
-            applicationIdSuffix = ".debug"
-            signingConfig = signingConfigs.getByName("FCLDebugKey")
         }
         configureEach {
             resValue("string", "app_version", android.defaultConfig.versionName.toString())
@@ -152,39 +149,4 @@ dependencies {
     implementation("com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3")
     implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation("top.fifthlight.touchcontroller:proxy-client-android:0.0.2")
-}
-
-tasks.register("updateMap") {
-    doLast {
-        val list = mutableListOf<String>()
-        val mapFile = file("${rootDir}/version_map.json")
-        mapFile.forEachLine {
-            list.add(
-                when {
-                    it.contains("versionCode") -> it.replace(
-                        Regex("[0-9]+"),
-                        android.defaultConfig.versionCode.toString()
-                    )
-
-                    it.contains("versionName") -> it.replace(
-                        Regex("\\d+(\\.\\d+)+"),
-                        android.defaultConfig.versionName.toString()
-                    )
-
-                    it.contains("date") -> it.replace(
-                        Regex("\\d{4}\\.\\d{2}\\.\\d{2}"),
-                        SimpleDateFormat("yyyy.MM.dd").format(Date())
-                    )
-
-                    it.contains("url") -> it.replace(
-                        Regex("\\d+(\\.\\d+)+"),
-                        android.defaultConfig.versionName.toString()
-                    )
-
-                    else -> it
-                }
-            )
-        }
-        mapFile.writeText(list.joinToString("\n"), Charsets.UTF_8)
-    }
 }
