@@ -189,8 +189,8 @@ public class Theme {
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
         int color = sharedPreferences.getInt("theme_color", ThemeEngine.autoWallpaperColor(context, FCLPath.GENERAL_SETTING.getProperty("default-theme-second-color", "#7797CF")));
         int color2 = sharedPreferences.getInt("theme_color2", ThemeEngine.autoWallpaperColor(context, FCLPath.GENERAL_SETTING.getProperty("default-theme-second-color", "#7797CF")));
-        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", false);
-        boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", false);
+        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.GENERAL_SETTING.getProperty("default-fullscreen", "true").equals("true"));
+        boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", FCLPath.GENERAL_SETTING.getProperty("default-close-skin-model", "true").equals("true"));
         int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
         Bitmap lt = ImageUtil.load(context.getFilesDir().getAbsolutePath() + "/background/lt.png").orElse(ConvertUtils.getBitmapFromRes(context, R.drawable.background_light));
         BitmapDrawable backgroundLt = new BitmapDrawable(context.getResources(), lt);
