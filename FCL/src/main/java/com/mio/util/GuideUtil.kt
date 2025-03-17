@@ -42,11 +42,9 @@ class GuideUtil {
             )
         }
 
-        private fun addTag(tag:String) {
+        private fun addTag(tag: String) {
             tagList.add(tag)
-            tagList.forEach {
-                file.writeText(it)
-            }
+            file.writeText(tagList.joinToString("\n"))
         }
 
         fun show(activity: Activity, view: View, title: String, tag: String) {
