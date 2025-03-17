@@ -19,6 +19,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.gson.GsonBuilder;
 import com.mio.TouchController;
+import com.mio.util.ImageUtil;
 import com.tungsten.fcl.BuildConfig;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
@@ -48,7 +49,6 @@ import com.tungsten.fclauncher.bridge.FCLBridgeCallback;
 import com.tungsten.fclauncher.keycodes.FCLKeycodes;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener;
-import com.tungsten.fclcore.fakefx.beans.binding.Bindings;
 import com.tungsten.fclcore.fakefx.beans.property.BooleanProperty;
 import com.tungsten.fclcore.fakefx.beans.property.IntegerProperty;
 import com.tungsten.fclcore.fakefx.beans.property.ObjectProperty;
@@ -68,10 +68,8 @@ import com.tungsten.fcllibrary.component.view.FCLImageView;
 import com.tungsten.fcllibrary.component.view.FCLLinearLayout;
 import com.tungsten.fcllibrary.component.view.FCLNumberSeekBar;
 import com.tungsten.fcllibrary.component.view.FCLProgressBar;
-import com.tungsten.fcllibrary.component.view.FCLSeekBar;
 import com.tungsten.fcllibrary.component.view.FCLSpinner;
 import com.tungsten.fcllibrary.component.view.FCLSwitch;
-import com.tungsten.fcllibrary.component.view.FCLTextView;
 import com.tungsten.fcllibrary.util.ConvertUtils;
 
 import java.io.File;
@@ -82,7 +80,6 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import fr.spse.gamepad_remapper.Remapper;
 import kotlin.Unit;
 
 public class GameMenu implements MenuCallback, View.OnClickListener {
@@ -544,7 +541,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         cursorView = findViewById(R.id.cursor);
 
         if (!isSimulated()) {
-            baseLayout.setBackground(ThemeEngine.getInstance().getTheme().getBackground(activity));
+            ImageUtil.loadInto(baseLayout, ThemeEngine.getInstance().getTheme().getBackground(activity));
             launchProgress.setVisibility(View.VISIBLE);
             touchPad.post(() -> gameItemBar.setup(this));
         }
@@ -751,7 +748,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         if (v == sendKeycode) {
             ObservableList<Integer> list = FXCollections.observableList(new ArrayList<>());
             new SelectKeycodeDialog(getActivity(), list, false, true, (dialog) -> {
-                Schedulers.io().execute(()->{
+                Schedulers.io().execute(() -> {
                     list.forEach(key -> getInput().sendKeyEvent(key, true));
                     try {
                         Thread.sleep(50);
@@ -763,11 +760,10 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
             }).show();
         }
         if (v == gamepadResetMapper) {
-            Remapper.wipePreferences(getActivity());
-            getInput().resetMapper();
+
         }
         if (v == gamepadButtonBinding) {
-            new GamepadButtonBindingDialog(getActivity(), menuSetting.getGamepadButtonBindingProperty()).show();
+
         }
         if (v == forceExit) {
             FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(activity);

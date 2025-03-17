@@ -59,9 +59,6 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
         menu.setup(this, fclBridge);
         textureView = findViewById(R.id.texture_view);
         textureView.setSurfaceTextureListener(this);
-        if (menuType == MenuType.GAME) {
-            menu.getInput().initExternalController(textureView);
-        }
 
         addContentView(menu.getLayout(), new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
@@ -100,6 +97,7 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
         int width = menuType == MenuType.GAME ? (int) ((i + ((GameMenu) menu).getMenuSetting().getCursorOffset()) * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_WIDTH;
         int height = menuType == MenuType.GAME ? (int) (i1 * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_HEIGHT;
         if (menuType == MenuType.GAME) {
+            menu.getInput().initExternalController(textureView);
             GameOption gameOption = new GameOption(Objects.requireNonNull(menu.getBridge()).getGameDir());
             gameOption.set("fullscreen", "false");
             gameOption.set("overrideWidth", String.valueOf(width));
@@ -182,15 +180,6 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
                     return true;
                 }
             }
-        }
-        return handleEvent;
-    }
-
-    @Override
-    public boolean dispatchGenericMotionEvent(MotionEvent event) {
-        boolean handleEvent = true;
-        if (menu != null && menuType == MenuType.GAME) {
-            handleEvent = menu.getInput().handleGenericMotionEvent(event);
         }
         return handleEvent;
     }

@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -13,11 +14,14 @@ import android.provider.Settings
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.mio.JavaManager
+import com.mio.util.ImageUtil
 import com.tungsten.fcl.R
 import com.tungsten.fcl.fragment.EulaFragment
 import com.tungsten.fcl.fragment.RuntimeFragment
 import com.tungsten.fcl.util.CheckFileFormat
 import com.tungsten.fcl.util.ConfigUtils
+import com.tungsten.fcl.setting.ConfigHolder
 import com.tungsten.fcl.util.RequestCodes
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.plugins.DriverPlugin
@@ -32,8 +36,12 @@ import com.tungsten.fcllibrary.component.ResultListener
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.ButtonListener
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
+import com.tungsten.fcllibrary.util.LocaleUtils
+import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
+import java.util.Locale
+import java.util.logging.Level
 import kotlin.system.exitProcess
 
 @SuppressLint("CustomSplashScreen")
@@ -60,7 +68,10 @@ class SplashActivity : FCLActivity() {
         sharedPreferences = getSharedPreferences("launcher", MODE_PRIVATE)
 
         val background = findViewById<ConstraintLayout>(R.id.background)
-        background.background = ThemeEngine.getInstance().getTheme().getBackground(this)
+        ImageUtil.loadInto(
+            background,
+            ThemeEngine.getInstance().getTheme().getBackground(this)
+        )
 
         checkPermission()
     }
@@ -195,11 +206,25 @@ class SplashActivity : FCLActivity() {
     }
 
     fun enterLauncher() {
-        RendererPlugin.init(this)
-        DriverPlugin.init(this)
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
+        Task.runAsync {
+            RendererPlugin.init(this)
+            DriverPlugin.init(this)
+            JavaManager.init()
+            try {
+                ConfigHolder.init()
+            } catch (e: IOException) {
+                Logging.LOG.log(Level.WARNING, e.message)
+            }
+        }.whenComplete(Schedulers.androidUIThread()) {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, 0, 0, Color.TRANSPARENT)
+            } else {
+                overridePendingTransition(0, 0)
+            }
+            finish()
+        }.start()
     }
 
     override fun onRequestPermissionsResult(
@@ -307,6 +332,16 @@ class SplashActivity : FCLActivity() {
             java17 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre17") || RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
             java21 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre21") || RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
             jna = !FileUtils.assetsDirExist(this, "app_runtime/jna") || RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
+            if (!File(FCLPath.JAVA_PATH, "resolv.conf").exists()) {
+                FileUtils.writeText(
+                    File(FCLPath.JAVA_PATH + "/resolv.conf"),
+                    String.format(
+                        "nameserver %s\nnameserver %s",
+                        FCLPath.GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
+                        FCLPath.GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
+                    )
+                )
+            }
         } catch (e: IOException) {
             e.printStackTrace()
         }

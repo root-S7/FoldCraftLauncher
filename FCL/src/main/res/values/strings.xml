@@ -483,7 +483,7 @@
     <string name="jar_executor_crash_title">Jar Executor Crashed</string>
     <string name="jar_executor_crash_reason">Jar Executor crash reason analyse is not supported now.</string>
 
-    <string name="launch">Pojav</string>
+    <string name="launch_pojav">Pojav</string>
     <string name="launch_boat">Boat</string>
     <string name="launch_error_java">You are using a deprecated Java version, are you sure you want to continue?</string>
     <string name="launch_error_java_auto">Auto select</string>
@@ -825,8 +825,9 @@
     <string name="settings_launcher_launcher_log_export">Export launcher logs</string>
     <string name="settings_launcher_launcher_log_export_failed">Unable to export logs</string>
     <string name="settings_launcher_launcher_log_export_success">Logs have been exported to %s</string>
-    <string name="settings_launcher_theme">Theme</string>
-    <string name="settings_launcher_theme2">Theme2</string>
+    <string name="settings_launcher_theme">Main Theme Color</string>
+    <string name="settings_launcher_theme2">Secondary Theme Color</string>
+    <string name="settings_launcher_theme_fetch_background">Extract from background image</string>
     <string name="settings_launcher_background_lt">Light Mode Launcher Background (Max 5120x5120)</string>
     <string name="settings_launcher_background_dk">Dark Mode Launcher Background (Max 5120x5120)</string>
     <string name="settings_launcher_cursor">Cursor Picture</string>
@@ -992,7 +993,7 @@
     <string name="edit">Edit</string>
     <string name="modpack_download_warn_title">Notice</string>
     <string name="modpack_download_warn_msg">Before installation, you should understand that most modpacks are designed for PC, so there is a high probability that you will encounter crashes or other issues when trying to launch. This is often not a problem that can be solved at the launcher level. Therefore, you need to understand the relevant knowledge and try to solve the problem yourself or seek help from others (do not ask the launcher developer!).</string>
-    <string name="guide_theme2">If you find the color of the text on the right side is not clear, you can click here, then click \"Launcher Settings\", and select \"Theme 2\"</string>
+    <string name="guide_theme2">If you find the color of the text on the right side is not clear, you can click here, then click \"Launcher Settings\", and select \"Secondary Theme Color\"</string>
     <string name="joystick_l">Left joystick</string>
     <string name="gamepad_dpad">DPAD</string>
     <string name="gamepad_button_binding">Gamepad button binding</string>
@@ -1017,4 +1018,15 @@
     <string name="mod_check_valkyrienskies">Valkyrien Skies/Valkyrien Warfare mod (%s) cannot work directly in single player mode. You must use a server, otherwise it will crash the game.</string>
     <string name="mod_check_yes_steve_model">Yes Steve Model mod (%s) 2.2.2+ cannot work on Android.</string>
     <string name="mod_check_imblocker">IMBlocker (%s) is not for Android. It must make the game crash.</string>
+
+    <string name="internal">Internal</string>
+    <string name="import_java">Import Java</string>
+    <string name="import_java_wrong_file">Only supports importing the tar.xz file.</string>
+    <string name="import_java_error">It has been detected that the Java you imported may not be intended for use on the current device. Launching with it may cause the program to crash. Do you wish to continue with the import?</string>
+
+    <string name="manage_version">Manage Versions</string>
+    <string name="select_renderer">Select Renderer</string>
+    <string name="open_link_failed">Failed to automatically redirect to the browser. The link has been copied automatically. Please manually open the browser and paste it in.</string>
+
+    <string name="launch">Launch</string>
 </resources>

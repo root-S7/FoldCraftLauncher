@@ -42,6 +42,10 @@ public final class ConfigHolder {
     private static GlobalConfig globalConfigInstance;
     private static boolean newlyCreated;
 
+    public static boolean isInit() {
+        return configInstance != null;
+    }
+
     public static Config config() {
         if (configInstance == null) {
             throw new IllegalStateException("config.json文件只会在进入启动器主界面时候才会解析，你在主界面之前读取该配置文件属于非法操作！");

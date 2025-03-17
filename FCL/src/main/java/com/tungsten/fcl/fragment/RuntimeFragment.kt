@@ -13,12 +13,8 @@ import com.tungsten.fcl.util.ConfigUtils
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.task.Schedulers
-import com.tungsten.fclcore.util.io.FileUtils
 import com.tungsten.fcllibrary.component.FCLFragment
-import com.tungsten.fcllibrary.util.LocaleUtils
-import java.io.File
 import java.io.IOException
-import java.util.Locale
 
 class RuntimeFragment : FCLFragment(), View.OnClickListener {
     private lateinit var  bind: FragmentRuntimeBinding
@@ -106,7 +102,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         if (installing) return
 
         bind.apply {
-            val installResources = RuntimeUtils.InstallResources(activity, activity?.findViewById(R.id.background_install_view))
+            val installResources = RuntimeUtils.InstallResources(activity, bind.backgroundInstallView)
             installing = true
             if (!gameFiles) {
                 gameFileState.visibility = View.GONE
@@ -261,14 +257,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_11_PATH,
                             "app_runtime/java/jre11"
                         )
-                        FileUtils.writeText(
-                            File(FCLPath.JAVA_11_PATH + "/resolv.conf"),
-                            String.format(
-                                "nameserver %s\nnameserver %s",
-                                FCLPath.GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
-                                FCLPath.GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
-                            )
-                        )
                         java11 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -291,14 +279,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             FCLPath.JAVA_17_PATH,
                             "app_runtime/java/jre17"
                         )
-                        FileUtils.writeText(
-                            File(FCLPath.JAVA_17_PATH + "/resolv.conf"),
-                            String.format(
-                                "nameserver %s\nnameserver %s",
-                                FCLPath.GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
-                                FCLPath.GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
-                            )
-                        )
                         java17 = true
                     } catch (e: IOException) {
                         e.printStackTrace()
@@ -320,14 +300,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             context,
                             FCLPath.JAVA_21_PATH,
                             "app_runtime/java/jre21"
-                        )
-                        FileUtils.writeText(
-                            File(FCLPath.JAVA_21_PATH + "/resolv.conf"),
-                            String.format(
-                                "nameserver %s\nnameserver %s",
-                                FCLPath.GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
-                                FCLPath.GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
-                            )
                         )
                         java21 = true
                     } catch (e: IOException) {

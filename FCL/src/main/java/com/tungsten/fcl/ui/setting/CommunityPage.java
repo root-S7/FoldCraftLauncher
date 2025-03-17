@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.view.View;
 
 import com.tungsten.fcl.R;
+import com.tungsten.fcl.util.AndroidUtils;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.task.Task;
 import com.tungsten.fcllibrary.component.ui.FCLCommonPage;
@@ -38,9 +39,7 @@ public class CommunityPage extends FCLCommonPage implements View.OnClickListener
     @Override
     public void onClick(View v) {
         if (v == discord) {
-            Uri uri = Uri.parse(FCLPath.GENERAL_SETTING.getProperty("discord-url", "https://icraft.ren:90/titles/Discord"));
-            Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-            getContext().startActivity(intent);
+            AndroidUtils.openLink(getContext(), FCLPath.GENERAL_SETTING.getProperty("discord-url", "https://icraft.ren:90/titles/Discord"));
         }
         if (v == qq) {
             joinQQGroup(QQ_GROUP_KEY);

@@ -28,6 +28,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.mio.JavaManager;
 import com.mio.minecraft.ModCheckException;
 import com.mio.minecraft.ModChecker;
 import com.tungsten.fcl.R;
@@ -350,18 +351,23 @@ public final class LauncherHelper {
     }
 
     private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version) {
+        Task<JavaVersion> task = Task.composeAsync(() -> Task.supplyAsync(Schedulers.androidUIThread(), () -> {
+            if (setting.getJava().equals("Auto")) {
+                return JavaManager.getSuitableJavaVersion(version);
+            } else {
+                return JavaManager.getJavaFromVersionName(setting.getJava());
+            }
+        }));
         if (setting.isNotCheckJVM()) {
-            return Task.composeAsync(() -> setting.getJavaVersion(version))
-                    .withStage("launch.state.java");
+            return task.withStage("launch.state.java");
         }
 
-        return Task.composeAsync(() -> setting.getJavaVersion(version))
-                .thenComposeAsync(javaVersion -> Task.allOf(Task.completed(javaVersion), Task.supplyAsync(() -> JavaVersion.getSuitableJavaVersion(version))))
+        return task.thenComposeAsync(javaVersion -> Task.allOf(Task.completed(javaVersion), Task.supplyAsync(() -> JavaVersion.getSuitableJavaVersion(version))))
                 .thenComposeAsync(Schedulers.androidUIThread(), javaVersions -> {
                     JavaVersion javaVersion = (JavaVersion) javaVersions.get(0);
                     JavaVersion suggestedJavaVersion = (JavaVersion) javaVersions.get(1);
-                    if (setting.getJava().equals(JavaVersion.JAVA_AUTO.getVersionName()) || javaVersion.getVersion() == suggestedJavaVersion.getVersion()) {
-                        return Task.completed(suggestedJavaVersion);
+                    if (setting.getJava().equals("Auto") || javaVersion.getVersion() == suggestedJavaVersion.getVersion()) {
+                        return Task.completed(setting.getJava().equals("Auto") ? suggestedJavaVersion : javaVersion);
                     }
 
                     CompletableFuture<JavaVersion> future = new CompletableFuture<>();
@@ -370,7 +376,7 @@ public final class LauncherHelper {
                     builder.setCancelable(false);
                     builder.setMessage(context.getString(R.string.launch_error_java));
                     builder.setPositiveButton(context.getString(R.string.launch_error_java_auto), () -> {
-                        setting.setJava(JavaVersion.JAVA_AUTO.getVersionName());
+                        setting.setJava(JavaVersion.JAVA_AUTO.getName());
                         future.complete(suggestedJavaVersion);
                     });
                     builder.setNegativeButton(context.getString(R.string.launch_error_java_continue), continueAction::run);
