@@ -18,6 +18,7 @@
 package com.tungsten.fcl.setting
 
 import com.tungsten.fcl.R
+import com.tungsten.fcl.util.ConfigUtils
 import com.tungsten.fcl.util.FXUtils
 import com.tungsten.fcl.util.WeakListenerHolder
 import com.tungsten.fclauncher.utils.FCLPath
@@ -30,8 +31,6 @@ import com.tungsten.fclcore.fakefx.beans.property.ReadOnlyStringWrapper
 import com.tungsten.fclcore.fakefx.beans.property.SimpleObjectProperty
 import com.tungsten.fclcore.fakefx.collections.FXCollections
 import java.io.File
-import java.util.ArrayList
-import java.util.HashSet
 import java.util.Optional
 import java.util.TreeMap
 import java.util.function.Consumer
@@ -79,7 +78,9 @@ object Profiles {
                 FCLPath.CONTEXT.getString(R.string.profile_private),
                 File(FCLPath.PRIVATE_COMMON_DIR)
             )
-            profiles.addAll(current, home)
+            if (ConfigUtils.DEFINE_DEFAULT_SELECT_PROFILE == FCLPath.CONTEXT.getString(R.string.profile_private))
+                profiles.addAll(home, current)
+            else profiles.addAll(current, home)
         }
     }
 
@@ -119,6 +120,11 @@ object Profiles {
     fun init() {
         if (initialized) return
 
+        try {
+            ConfigUtils.getGameDirectory()
+        } catch (e: Exception) {
+            throw RuntimeException("任务超时，请尝试重启应用，如果仍出现该提示请记得反馈启动器BUG！")
+        }
         val names = HashSet<String>()
         ConfigHolder.config().configurations.forEach { (name, profile) ->
             if (!names.add(name)) return@forEach
