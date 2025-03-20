@@ -187,7 +187,7 @@ public class Theme {
     public static Theme getTheme(Context context) {
         SharedPreferences sharedPreferences;
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
-        int color = sharedPreferences.getInt("theme_color", ThemeEngine.autoWallpaperColor(context, FCLPath.GENERAL_SETTING.getProperty("default-theme-second-color", "#7797CF")));
+        int color = sharedPreferences.getInt("theme_color", ThemeEngine.autoWallpaperColor(context, FCLPath.GENERAL_SETTING.getProperty("default-theme-first-color", "#7797CF")));
         int color2 = sharedPreferences.getInt("theme_color2", ThemeEngine.autoWallpaperColor(context, FCLPath.GENERAL_SETTING.getProperty("default-theme-second-color", "#7797CF")));
         boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.GENERAL_SETTING.getProperty("default-fullscreen", "true").equals("true"));
         boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", FCLPath.GENERAL_SETTING.getProperty("default-close-skin-model", "true").equals("true"));
