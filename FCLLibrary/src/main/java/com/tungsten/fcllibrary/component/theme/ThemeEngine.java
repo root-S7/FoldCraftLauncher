@@ -187,7 +187,7 @@ public class ThemeEngine {
         return color;
     }
 
-    public static int autoWallpaperColor(Context context, String defaultColor, int errorColor) {
+    public static int autoWallpaperColor(String defaultColor, int errorColor) {
         int color;
         try {
             color = Color.parseColor(defaultColor);
