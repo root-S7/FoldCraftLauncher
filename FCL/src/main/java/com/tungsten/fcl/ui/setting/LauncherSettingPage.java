@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.view.View;
 import android.view.WindowManager;
@@ -403,10 +404,10 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
             }));
         }
         if (v == resetTheme) {
-            ThemeEngine.getInstance().applyAndSave(getContext(), ThemeEngine.autoWallpaperColor(getContext(), FCLPath.GENERAL_SETTING.getProperty("default-theme-first-color", "#7797CF"), getContext().getColor(R.color.default_theme_color)));
+            ThemeEngine.getInstance().applyAndSave(getContext(), ThemeEngine.autoWallpaperColor(FCLPath.GENERAL_SETTING.getProperty("default-theme-first-color", "#7797CF"), getContext().getColor(R.color.default_theme_color)));
         }
         if (v == resetTheme2) {
-            ThemeEngine.getInstance().applyAndSave2(getContext(), ThemeEngine.autoWallpaperColor(getContext(), FCLPath.GENERAL_SETTING.getProperty("default-theme-second-color", "#7797CF"), getContext().getColor(R.color.default_theme_color)));
+            ThemeEngine.getInstance().applyAndSave2(getContext(), ThemeEngine.autoWallpaperColor(FCLPath.GENERAL_SETTING.getProperty("default-theme-second-color", "#000000"), getContext().getColor(R.color.black)));
         }
         if (v == fetchBackgroundColor || v == fetchBackgroundColor2) {
             boolean isDarkMode = (getContext().getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES;

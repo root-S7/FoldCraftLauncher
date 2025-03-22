@@ -44,8 +44,8 @@ android {
         aaptOptions {
             ignoreAssetsPattern = "<dir>_*:*~|!.*"
         }
-        versionCode = 1214
-        versionName = "1.2.1.4"
+        versionCode = 1215
+        versionName = "1.2.1.5"
     }
 
     buildTypes {
@@ -54,7 +54,7 @@ android {
             signingConfig = signingConfigs.getByName("FCLKey")
         }
         configureEach {
-            resValue("string", "app_version", android.defaultConfig.versionName.toString())
+            resValue("string", "app_version", defaultConfig.versionName.toString())
             resValue("string", "curse_api_key", curseApiKey.toString())
             resValue("string", "oauth_api_key", oauthApiKey.toString())
         }

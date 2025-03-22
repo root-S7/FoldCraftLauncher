@@ -45,8 +45,13 @@
    * key-store-password
    * oauth-api-key
    * curse-api-key
-   ![2_2](https://icraft.ren:90/tmp/FCL-image/2_2.jpg)
-7. 找到『Build』 —> 『Generate Signed App Bundle / APK…』选项，并编译该项目
-   ![2_3](https://icraft.ren:90/tmp/FCL-image/2_3.jpg)
-
-</div>
+     ![2_2](https://icraft.ren:90/tmp/FCL-image/2_2.jpg)
+7. 在『Android Studio』右侧菜单栏找到『Gradle』
+   ![2_3](https://icraft.ren:90/tmp/FCL-image/2_3.png)
+   ![2_4](https://icraft.ren:90/tmp/FCL-image/2_4.png)
+8. 在输入框输入『gradlew assemblerelease -Darch=arm64』并回车
+   ![2_5](https://icraft.ren:90/tmp/FCL-image/2_5.png)
+   ![2_6](https://icraft.ren:90/tmp/FCL-image/2_6.png)
+   ![2_7](https://icraft.ren:90/tmp/FCL-image/2_7.png)
+9. 在项目的『FCL/build/outputs/apk/release』下找到生成的APK文件
+   ![2_8](https://icraft.ren:90/tmp/FCL-image/2_8.png)
