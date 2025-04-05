@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.gson.GsonBuilder;
@@ -130,6 +131,10 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
     public void setMenuView(MenuView menuView) {
         this.menuView = menuView;
+    }
+
+    public MenuView getMenuView() {
+        return menuView;
     }
 
     public FCLActivity getActivity() {
@@ -319,6 +324,12 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
             getController().addListener(i -> refreshViewGroupList(currentViewGroupSpinner));
         });
 
+        hideAllViewsProperty.addListener(i -> {
+            if (isHideAllViews()) {
+                Toast.makeText(activity, R.string.tip_hide_menu_view, Toast.LENGTH_SHORT).show();
+            }
+        });
+
         editLayout.visibilityProperty().bind(editModeProperty);
 
         manageViewGroups.setOnClickListener(this);
@@ -348,6 +359,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         FCLSwitch disableSoftKeyAdjustSwitch = findViewById(R.id.switch_soft_keyboard_adjust);
         FCLSwitch disableGestureSwitch = findViewById(R.id.switch_gesture);
         FCLSwitch disableBEGestureSwitch = findViewById(R.id.switch_be_gesture);
+        FCLSwitch disableLeftTouchSwitch = findViewById(R.id.switch_left_touch);
         FCLSwitch gyroSwitch = findViewById(R.id.switch_gyro);
         FCLSwitch showLogSwitch = findViewById(R.id.switch_show_log);
 
@@ -374,13 +386,14 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         FXUtils.bindBoolean(disableSoftKeyAdjustSwitch, menuSetting.getDisableSoftKeyAdjustProperty());
         FXUtils.bindBoolean(disableGestureSwitch, menuSetting.getDisableGestureProperty());
         FXUtils.bindBoolean(disableBEGestureSwitch, menuSetting.getDisableBEGestureProperty());
+        FXUtils.bindBoolean(disableLeftTouchSwitch, menuSetting.getDisableLeftTouchProperty());
         FXUtils.bindBoolean(gyroSwitch, menuSetting.getEnableGyroscopeProperty());
         FXUtils.bindBoolean(showLogSwitch, menuSetting.getShowLogProperty());
 
-        menuSetting.getHideMenuViewViewProperty().addListener(observable -> {
+        menuSetting.getHideMenuViewViewProperty().addListener(i -> {
             menuView.setVisibility(menuSetting.isHideMenuView() ? View.INVISIBLE : View.VISIBLE);
-            if (!isHideAllViews()) {
-                ((DrawerLayout) getLayout()).setDrawerLockMode(menuSetting.isHideMenuView() ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            if (menuSetting.isHideMenuView()) {
+                Toast.makeText(activity, R.string.tip_hide_menu_view, Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -44,8 +44,8 @@ android {
         aaptOptions {
             ignoreAssetsPattern = "<dir>_*:*~|!.*"
         }
-        versionCode = 1216
-        versionName = "1.2.1.6"
+        versionCode = 1218
+        versionName = "1.2.1.8"
     }
 
     buildTypes {
