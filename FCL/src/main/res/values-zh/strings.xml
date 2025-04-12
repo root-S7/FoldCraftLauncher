@@ -960,6 +960,7 @@
     <string name="wiki_snapshot">https://zh.minecraft.wiki/w/%s?variant=zh-cn</string>
     <string name="installed">已安装</string>
     <string name="message_install_plugin">你可以通过以下方式获取插件。</string>
+    <string name="message_install_java">你可以通过以下方式获取Java。</string>
 
     <string name="shaderpack">光影</string>
     <string name="recommend_version">推荐的版本</string>
@@ -971,6 +972,7 @@
     <string name="mod_check_yes_steve_model">是，史蒂夫模型（%s）2.2.2+无法在安卓系统上运行。</string>
     <string name="mod_check_imblocker">输入法冲突修复/游戏内输入法 (%s) 不适用于安卓。它会使游戏在启动阶段崩溃。</string>
     <string name="mod_check_replay">Replay (%s)需要FFmpeg插件，似乎你并没有安装。你可以从谷歌商店下载或者这里下载（ %s 或者 %s ）（长按复制）</string>
+    <string name="mod_check_borderlesswindow">无边框全屏 (%s) 不适用于安卓。它会使游戏在启动阶段崩溃。</string>
 
     <string name="internal">内置的</string>
     <string name="import_java">导入Java</string>
@@ -982,4 +984,5 @@
     <string name="open_link_failed">未能自动跳转至浏览器，已自动复制链接，请手动打开浏览器粘贴进入。</string>
     <string name="launch">启动</string>
     <string name="tip_hide_menu_view">菜单按键已隐藏，按下音量键打开菜单。</string>
+    <string name="modloader">模组加载器</string>
 </resources>
