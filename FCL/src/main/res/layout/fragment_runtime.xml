@@ -44,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/splash_runtime_lwjgl" />
+                    android:text="游戏资源" />
 
                 <View
                     android:layout_width="0dp"
@@ -83,7 +83,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/splash_runtime_lwjgl" />
+                    android:text="配置文件" />
 
                 <View
                     android:layout_width="0dp"
