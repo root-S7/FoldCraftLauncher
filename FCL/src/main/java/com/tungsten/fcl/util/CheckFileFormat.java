@@ -227,7 +227,6 @@ public class CheckFileFormat {
                 .setMessage(message)
                 .setCancelable(false)
                 .create();
-        fclWaitDialog.show();
 
         activity.runOnUiThread(fclWaitDialog::show);
 
