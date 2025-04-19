@@ -225,7 +225,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                     if(FCLPath.GENERAL_SETTING.getProperty("automatic-update-detection", "true").equals("true")) UpdateChecker.getInstance().checkAuto(this@MainActivity).start()
                 }
                 getSharedPreferences("launcher", MODE_PRIVATE).apply {
-                    backend.setPosition(if (getBoolean("backend", false)) 1 else 0, true)
+                    backend.setPosition(if (getBoolean("backend", FCLPath.GENERAL_SETTING.getProperty("first-select-launcher", "Pojav").equals("Boat"))) 1 else 0, true)
                     backend.setOnPositionChangedListener {
                         edit().apply {
                             putBoolean("backend", it == 1)
