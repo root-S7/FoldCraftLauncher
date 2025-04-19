@@ -129,10 +129,12 @@ public class CheckFileFormat {
                 if(fileExtension == null || fileExtension.isEmpty()) {
                     fclWaitDialog.dismiss();
                     checkFileCallBack.onFail(null);
-                    return;
                 }
+            });
 
-                if(checkAllFileLegal(fileExtension)) checkFileCallBack.onSuccess(fileExtension);
+            boolean result = checkAllFileLegal(fileExtension);
+            activity.runOnUiThread(() -> {
+                if(result) checkFileCallBack.onSuccess(fileExtension);
                 else checkFileCallBack.onFail(null);
 
                 fclWaitDialog.dismiss();
@@ -153,28 +155,24 @@ public class CheckFileFormat {
             try(InputStream open = activity.getAssets().open(s)) {
                 if(fileExtension.get(s) == FileType.IMAGE) {
                     Optional<Bitmap> bitmap = ImageUtil.load(open);
-                    if(bitmap.isEmpty()) {
-                        throw new FileParseException("图片“" + s + "存在问题，请确保该图片大小和分辨率符合要求！");
-                    }
+                    if(bitmap.isEmpty()) throw new FileParseException("图片“" + s + "存在问题，请确保该图片大小和分辨率符合要求！");
+
                     bitmap.get().recycle();
                 }else if(fileExtension.get(s) == FileType.JSON) {
-                    Optional<FileInfo<?>> matchedFile = defaultCheckFiles.stream().filter( // 使用 Stream 查找匹配的 FileInfo 对象
+                    Optional<FileInfo<?>> matchedFile = defaultCheckFiles.stream().filter(
                             fileInfo -> fileInfo.getInternalPath().equals(s)
-                    ).findFirst();  // 获取第一个匹配的文件信息
+                    ).findFirst();
 
                     if(matchedFile.isPresent()) {
                         Object o = AndroidUtils.tryDeserialize(open, matchedFile.get().configFileType, false);
-                        if(o == null) {
-                            throw new FileParseException("文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
-                        }
-                    }else {
-                        throw new FileParseException("不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");
-                    }
+                        if(o == null) throw new FileParseException("文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
+
+                    }else throw new FileParseException("不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");
                 }
             }catch(IOException e) {
                 activity.runOnUiThread(() -> waitConvertErrorAlertDialog(null, "文件“" + s + "”不存在，请尝试重新制作你的APK直装包！"));
                 return false;
-            }catch(FileParseException e) {
+            }catch(Exception e) {
                 activity.runOnUiThread(() -> waitConvertErrorAlertDialog(null, e.getMessage()));
                 return false;
             }
@@ -195,8 +193,7 @@ public class CheckFileFormat {
             return;
         }
 
-        if(!fclWaitDialog.isClosed()) fclWaitDialog.dismiss();
-
+        fclWaitDialog.dismiss();
         enableAlertDialog(errorMessage);
     }
 
@@ -223,14 +220,11 @@ public class CheckFileFormat {
      * @return 返回一个等待弹窗上下文
     **/
     protected FCLWaitDialog enableWaitDialog(String message) {
-        FCLWaitDialog fclWaitDialog = new FCLWaitDialog.Builder(activity)
+        return new FCLWaitDialog.Builder(activity)
                 .setMessage(message)
                 .setCancelable(false)
-                .create();
-
-        activity.runOnUiThread(fclWaitDialog::show);
-
-        return fclWaitDialog;
+                .create()
+                .showDialog();
     }
 
     /**

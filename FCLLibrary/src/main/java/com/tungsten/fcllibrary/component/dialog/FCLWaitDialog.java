@@ -15,13 +15,9 @@ import com.tungsten.fcllibrary.component.view.FCLTextView;
 import com.tungsten.fcllibrary.util.ConvertUtils;
 
 public class FCLWaitDialog extends FCLDialog {
-
-    private String titleString;
-
     private final View parent;
     private final FCLTextView message;
     private final ScrollView scrollView;
-    private boolean isClosed = true;
 
     public FCLWaitDialog(@NonNull Context context) {
         super(context);
@@ -50,46 +46,41 @@ public class FCLWaitDialog extends FCLDialog {
         }));
     }
 
-    public void setMessage(String message) {
+    public FCLWaitDialog setMessage(String message) {
         this.message.setText(message);
         checkHeight();
+
+        return this;
     }
 
-    public void setMessage(CharSequence message) {
+    public FCLWaitDialog setMessage(CharSequence message) {
         this.message.setText(message);
         checkHeight();
+
+        return this;
     }
 
-    public void setMessage(Spanned message) {
+    public FCLWaitDialog setMessage(Spanned message) {
         this.message.setText(message);
         checkHeight();
+
+        return this;
     }
 
     public void dismiss() {
         super.dismiss();
-        isClosed = true;
     }
 
-    public void show() {
+    public FCLWaitDialog showDialog() {
         super.show();
-        isClosed = false;
-    }
 
-    public boolean isClosed() {
-        return isClosed;
-    }
-
-    public void setClosed(boolean closed) {
-        isClosed = closed;
+        return this;
     }
 
     public static class Builder {
-
-        private Context context;
-        private FCLWaitDialog dialog;
+        private final FCLWaitDialog dialog;
 
         public Builder(Context context) {
-            this.context = context;
             dialog = new FCLWaitDialog(context);
         }
 
