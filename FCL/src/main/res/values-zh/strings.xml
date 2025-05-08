@@ -542,6 +542,7 @@
     <string name="menu_settings_soft_keyboard_adjust">禁用软键盘自适应</string>
     <string name="menu_settings_item_bar_scale">物品栏缩放</string>
     <string name="menu_settings_show_log">显示日志</string>
+    <string name="menu_settings_performance_mode">持续性能模式</string>
 
     <string name="message_cancelled">操作已取消</string>
     <string name="message_copy">复制成功！</string>
@@ -974,6 +975,7 @@
     <string name="mod_check_imblocker">输入法冲突修复/游戏内输入法 (%s) 不适用于安卓。它会使游戏在启动阶段崩溃。</string>
     <string name="mod_check_replay">Replay (%s)需要FFmpeg插件，似乎你并没有安装。你可以从谷歌商店下载或者这里下载（ %s 或者 %s ）（长按复制）</string>
     <string name="mod_check_borderlesswindow">无边框全屏 (%s) 不适用于安卓。它会使游戏在启动阶段崩溃。</string>
+    <string name="mod_check_axiom">当前使用的Axiom模组（%s）未经修补，启动后将会崩溃。</string>
 
     <string name="internal">内置的</string>
     <string name="import_java">导入Java</string>
