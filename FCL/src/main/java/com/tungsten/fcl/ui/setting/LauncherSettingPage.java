@@ -148,6 +148,13 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         resetCursor.setOnClickListener(this);
         resetMenuIcon.setOnClickListener(this);
 
+        theme.setSelected(true);
+        theme2.setSelected(true);
+        resetTheme.setSelected(true);
+        resetTheme2.setSelected(true);
+        fetchBackgroundColor.setSelected(true);
+        fetchBackgroundColor2.setSelected(true);
+
         ArrayList<String> languageList = new ArrayList<>();
         languageList.add(getContext().getString(R.string.settings_launcher_language_system));
         languageList.add(getContext().getString(R.string.settings_launcher_language_english));
@@ -155,6 +162,8 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
         languageList.add(getContext().getString(R.string.settings_launcher_language_russian));
         languageList.add(getContext().getString(R.string.settings_launcher_language_brazilian_portuguese));
         languageList.add(getContext().getString(R.string.settings_launcher_language_persian));
+        languageList.add(getContext().getString(R.string.settings_launcher_language_ukrainian));
+        languageList.add(getContext().getString(R.string.settings_launcher_language_german));
         ArrayAdapter<String> languageAdapter = new ArrayAdapter<>(getContext(), R.layout.item_spinner_auto_tint, languageList);
         languageAdapter.setDropDownViewResource(R.layout.item_spinner_dropdown);
         language.setAdapter(languageAdapter);

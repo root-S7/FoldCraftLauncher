@@ -1,20 +1,20 @@
 [
   {
     "type": "release",
-    "versionCode": 1227,
-    "versionName": "1.2.2.7",
-    "date": "2025.05.17",
+    "versionCode": 1235,
+    "versionName": "1.2.3.5",
+    "date": "2025.06.24",
     "description": [
       {
         "lang": "en",
-        "text": "See Github for details."
+        "text": "(Translated from Chinese by AI)\n1. Add storage permission-related prompts  \n2. Fix missing translations for Modrinth resource pack categories  \n3. Add compatibility checks between GL4ES and Sodium/Embeddium  \n4. Fix CustomSkinLoader errors on the offline skins page"
       },
       {
         "lang": "zh_CN",
-        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复复制游戏实例里的“复制存档”选项失效问题\n2.修复 LiteLoader 下载相关问题\n3.修复 Fabric Metadata 无效时 FabricInstallTask空指针异常的问题\n4.调整账户类型显示效果\n5.调整部分翻译"
+        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.增加储存权限相关提醒\n2.修复Modrinth资源包类别翻译缺失的问题\n3.增加GL4ES与Sodium/Embeddium的兼容性检查\n4.修复离线皮肤页面CustomSkinLoader报错"
       }
     ],
-    "netdiskUrl": "https://pan.quark.cn/s/7b0cbd222578",
-    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.2.7/FCL-release-1.2.2.7-all.apk"
+    "netdiskUrl": "https://pan.quark.cn/s/17cbfecdc8a5",
+    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.3.5/FCL-release-1.2.3.5-all.apk"
   }
 ]

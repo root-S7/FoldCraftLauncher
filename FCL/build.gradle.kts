@@ -41,8 +41,8 @@ android {
         applicationId = "com.tungsten.fcl.server"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1227
-        versionName = "1.2.2.7"
+        versionCode = 1235
+        versionName = "1.2.3.5"
     }
 
     androidResources {
@@ -146,6 +146,7 @@ dependencies {
     implementation("com.github.steveice10:opennbt:1.5")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.2.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")

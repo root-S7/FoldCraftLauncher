@@ -5,8 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -18,6 +16,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import com.mio.JavaManager
 import com.mio.util.ImageUtil
 import com.tungsten.fcl.R
@@ -30,8 +31,6 @@ import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.plugins.DriverPlugin
 import com.tungsten.fclauncher.plugins.RendererPlugin
 import com.tungsten.fclauncher.utils.FCLPath
-import com.tungsten.fclcore.task.Schedulers
-import com.tungsten.fclcore.task.Task
 import com.tungsten.fclcore.util.Logging
 import com.tungsten.fclcore.util.io.FileUtils
 import com.tungsten.fcllibrary.component.FCLActivity
@@ -39,11 +38,16 @@ import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.ButtonListener
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
 import com.tungsten.fcllibrary.util.LocaleUtils
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
 import java.util.Locale
 import java.util.logging.Level
+import androidx.core.content.edit
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
@@ -61,15 +65,13 @@ class SplashActivity : FCLActivity() {
     var java17: Boolean = false
     var java21: Boolean = false
     var jna: Boolean = false
-
     private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         setContentView(R.layout.activity_splash)
-
         sharedPreferences = getSharedPreferences("launcher", MODE_PRIVATE)
-
         val background = findViewById<ConstraintLayout>(R.id.background)
         ImageUtil.loadInto(
             background,
@@ -84,7 +86,21 @@ class SplashActivity : FCLActivity() {
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
                 checkPermission()
             }
-        checkPermission()
+        if (sharedPreferences.getBoolean("isAgree", false)) {
+            checkPermission()
+        } else {
+            FCLAlertDialog.Builder(this).apply {
+                setCancelable(false)
+                setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
+                setMessage(getString(R.string.splash_agreement))
+                setPositiveButton {
+                    sharedPreferences.edit { putBoolean("isAgree", true) }
+                    checkPermission()
+                }
+                setNegativeButton(getString(com.tungsten.fcllibrary.R.string.crash_reporter_close)) { finish() }
+                create().show()
+            }
+        }
     }
 
     private fun checkPermission() {
@@ -96,24 +112,25 @@ class SplashActivity : FCLActivity() {
             setCancelable(false)
             setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
             setMessage(getString(R.string.splash_permission_msg))
-            setPositiveButton(ButtonListener { requestPermission() })
-            setNegativeButton(ButtonListener { finish() })
+            setPositiveButton { requestPermission() }
+            setNegativeButton { finish() }
             create().show()
         }
     }
 
     private fun init() {
-        FCLPath.loadPaths(this)
-        Logging.start(Paths.get(FCLPath.LOG_DIR))
-        Task.runAsync {
-            initState()
-        }.whenComplete(Schedulers.androidUIThread()) {
+        lifecycleScope.launch {
+            async(Dispatchers.IO) {
+                FCLPath.loadPaths(this@SplashActivity)
+                Logging.start(Paths.get(FCLPath.LOG_DIR))
+                initState()
+            }.await()
             if (gameFiles && configFiles && lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna) {
                 enterLauncher()
             } else {
                 start()
             }
-        }.start()
+        }
     }
 
     fun start() {
@@ -141,29 +158,28 @@ class SplashActivity : FCLActivity() {
 
 
     fun enterLauncher() {
-        Task.runAsync {
-            RendererPlugin.init(this)
-            DriverPlugin.init(this)
-            JavaManager.init()
-            try {
-                ConfigHolder.init()
-            } catch (e: IOException) {
-                Logging.LOG.log(Level.WARNING, e.message)
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                RendererPlugin.init(this@SplashActivity)
+                DriverPlugin.init(this@SplashActivity)
+                JavaManager.init()
+                runCatching { ConfigHolder.init() }.exceptionOrNull()?.let {
+                    Logging.LOG.log(Level.WARNING, it.message)
+                }
             }
-        }.whenComplete(Schedulers.androidUIThread()) {
             startActivity(
-                Intent(this, MainActivity::class.java),
-                ActivityOptionsCompat.makeCustomAnimation(this, 0, 0).toBundle()
+                Intent(this@SplashActivity, MainActivity::class.java),
+                ActivityOptionsCompat.makeCustomAnimation(this@SplashActivity, 0, 0).toBundle()
             )
             finish()
-        }.start()
+        }
     }
 
     private fun requestPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
-                    data = Uri.parse("package:$packageName")
+                    data = "package:$packageName".toUri()
                     activityResultLauncher.launch(this)
                 }
             } catch (_: Exception) {
@@ -188,7 +204,7 @@ class SplashActivity : FCLActivity() {
                 Toast.makeText(this, R.string.splash_permission_settings_msg, Toast.LENGTH_LONG)
                     .show()
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.parse("package:$packageName")
+                    data = "package:$packageName".toUri()
                     activityResultLauncher.launch(this)
                 }
             }

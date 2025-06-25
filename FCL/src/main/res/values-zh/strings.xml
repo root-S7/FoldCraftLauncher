@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="splash_agreement">FCL需要储存权限以管理/读取游戏文件，FCL在GitHub上完全开源，请不用担心您的数据安全。权限仅用于正常运行游戏，无任何安全问题。</string>
     <string name="splash_permission_msg">没有存储权限，请授予 Fold Craft Launcher 权限。</string>
     <string name="splash_permission_grant">授予</string>
     <string name="splash_permission_title">需要存储权限</string>
@@ -67,6 +68,7 @@
     <string name="account_methods_microsoft_error_add_family">你尚未满 18 岁，需要一位成年将你加入至家庭中。</string>
     <string name="account_methods_microsoft_error_country_unavailable">Xbox Live 不支持您所在的国家/地区。</string>
     <string name="account_methods_microsoft_error_missing_xbox_account">你的微软账户没有链接到 Xbox 账户，请先创建。</string>
+    <string name="account_methods_microsoft_error_banned">你的账户可能被 Xbox Live 封禁。</string>
     <string name="account_methods_microsoft_error_unknown">登录失败</string>
     <string name="account_methods_microsoft_error_wrong_verify_method">请在 Microsoft 账户登陆页面使用账户(非Outlook邮箱一般是手机号) + 密码登录。请不要使用验证码登录。</string>
     <string name="account_methods_microsoft_error_no_character">你的账户尚未获取 Minecraft : Java Edition</string>
@@ -273,6 +275,9 @@
     <string name="curse_category_4550">任务</string>
     <string name="curse_category_4555">世界生成</string>
     <string name="curse_category_4552">脚本</string>
+    <string name="curse_category_6555">原版风格</string>
+    <string name="curse_category_6554">幻想</string>
+    <string name="curse_category_6553">写实</string>
 
     <string name="curse_sort_author">作者</string>
     <string name="curse_sort_date_created">创建日期</string>
@@ -529,6 +534,7 @@
     <string name="menu_settings_mouse_sensitivity">鼠标灵敏度</string>
     <string name="menu_settings_mouse_cursor_sensitivity">鼠标灵敏度（当指针可见时）</string>
     <string name="menu_settings_mouse_size">鼠标尺寸</string>
+    <string name="menu_settings_physical_mouse_mode">实体鼠标控制</string>
     <string name="menu_settings_gamepad">手柄</string>
     <string name="menu_settings_gamepad_reset_mapper">重置映射</string>
     <string name="menu_settings_gamepad_reset">重置</string>
@@ -542,6 +548,7 @@
     <string name="menu_settings_soft_keyboard_adjust">禁用软键盘自适应</string>
     <string name="menu_settings_item_bar_scale">物品栏缩放</string>
     <string name="menu_settings_show_log">显示日志</string>
+    <string name="menu_settings_show_log_auto">自动显示日志</string>
     <string name="menu_settings_performance_mode">持续性能模式</string>
 
     <string name="message_cancelled">操作已取消</string>
@@ -666,6 +673,38 @@
     <string name="modrinth_category_worldgen">世界生成</string>
     <string name="modrinth_category_datapack">数据包</string>
     <string name="modrinth_category_folia">Folia</string>
+    <!--  shader pack  -->
+    <string name="modrinth_category_atmosphere">氛围</string>
+    <string name="modrinth_category_bloom">泛光</string>
+    <string name="modrinth_category_cartoon">卡通</string>
+    <string name="modrinth_category_colored_lighting">彩色光照</string>
+    <string name="modrinth_category_fantasy">幻想</string>
+    <string name="modrinth_category_foliage">植被</string>
+    <string name="modrinth_category_high">高</string>
+    <string name="modrinth_category_low">低</string>
+    <string name="modrinth_category_medium">中</string>
+    <string name="modrinth_category_path_tracing">路径追踪</string>
+    <string name="modrinth_category_potato">极低</string>
+    <string name="modrinth_category_realistic">写实</string>
+    <string name="modrinth_category_reflections">反射</string>
+    <string name="modrinth_category_screenshot">极高</string>
+    <string name="modrinth_category_semi_realistic">半写实</string>
+    <string name="modrinth_category_shadows">阴影</string>
+    <string name="modrinth_category_vanilla_like">原版风格</string>
+    <!--  resource pack  -->
+    <string name="modrinth_category_audio">声音</string>
+    <string name="modrinth_category_blocks">方块</string>
+    <string name="modrinth_category_core_shaders">核心着色器</string>
+    <string name="modrinth_category_entities">实体</string>
+    <string name="modrinth_category_environment">环境</string>
+    <string name="modrinth_category_fonts">字体</string>
+    <string name="modrinth_category_items">物品</string>
+    <string name="modrinth_category_locale">本地化</string>
+    <string name="modrinth_category_modded">修改</string>
+    <string name="modrinth_category_models">模型</string>
+    <string name="modrinth_category_simplistic">简约</string>
+    <string name="modrinth_category_themed">主题</string>
+    <string name="modrinth_category_tweaks">优化</string>
 
     <string name="mods">模组</string>
     <string name="mods_add">添加模组</string>
@@ -720,6 +759,7 @@
     <string name="quick_input_title">快捷输入</string>
     <string name="quick_input_add">添加新文本</string>
     <string name="quick_input_text">快捷输入文本</string>
+    <string name="quick_input_remarks">备注（可空）</string>
     <string name="quick_input_exist">该文本已存在！</string>
     <string name="quick_input_empty">请先填写文本！</string>
 
@@ -976,6 +1016,7 @@
     <string name="mod_check_replay">Replay (%s)需要FFmpeg插件，似乎你并没有安装。你可以从谷歌商店下载或者这里下载（ %s 或者 %s ）（长按复制）</string>
     <string name="mod_check_borderlesswindow">无边框全屏 (%s) 不适用于安卓。它会使游戏在启动阶段崩溃。</string>
     <string name="mod_check_axiom">当前使用的Axiom模组（%s）未经修补，启动后将会崩溃。</string>
+    <string name="mod_check_sodium">当前使用的GL4ES渲染器可能无法运行模组Sodium/Embeddium（%s），继续启动可能会导致游戏崩溃，建议下载并使用MobileGlues渲染器（https://github.com/MobileGL-Dev/MobileGlues-release/releases）。</string>
 
     <string name="internal">内置的</string>
     <string name="import_java">导入Java</string>

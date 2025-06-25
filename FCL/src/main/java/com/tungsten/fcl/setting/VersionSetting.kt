@@ -33,19 +33,13 @@ import com.tungsten.fclauncher.plugins.RendererPlugin
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener
 import com.tungsten.fclcore.fakefx.beans.property.BooleanProperty
-import com.tungsten.fclcore.fakefx.beans.property.DoubleProperty
 import com.tungsten.fclcore.fakefx.beans.property.IntegerProperty
 import com.tungsten.fclcore.fakefx.beans.property.ObjectProperty
 import com.tungsten.fclcore.fakefx.beans.property.SimpleBooleanProperty
-import com.tungsten.fclcore.fakefx.beans.property.SimpleDoubleProperty
 import com.tungsten.fclcore.fakefx.beans.property.SimpleIntegerProperty
 import com.tungsten.fclcore.fakefx.beans.property.SimpleObjectProperty
 import com.tungsten.fclcore.fakefx.beans.property.SimpleStringProperty
 import com.tungsten.fclcore.fakefx.beans.property.StringProperty
-import com.tungsten.fclcore.game.JavaVersion
-import com.tungsten.fclcore.game.Version
-import com.tungsten.fclcore.task.Schedulers
-import com.tungsten.fclcore.task.Task
 import com.tungsten.fclcore.util.Lang
 import com.tungsten.fclcore.util.platform.MemoryUtils
 import java.lang.reflect.Type
@@ -177,12 +171,10 @@ class VersionSetting : Cloneable {
             serverIpProperty.set(serverIp)
         }
 
-    val scaleFactorProperty: DoubleProperty = SimpleDoubleProperty(this, "scaleFactor", 1.0)
-    var scaleFactor: Double
+    val scaleFactorProperty: IntegerProperty = SimpleIntegerProperty(this, "newScaleFactor", 100)
+    var scaleFactor: Int
         get() = scaleFactorProperty.get()
-        set(scaleFactor) {
-            scaleFactorProperty.set(scaleFactor)
-        }
+        set(v) = scaleFactorProperty.set(v)
 
     /**
      * 0 - .minecraft<br></br>
@@ -330,7 +322,7 @@ class VersionSetting : Cloneable {
                 addProperty("permSize", src.permSize)
                 addProperty("serverIp", src.serverIp)
                 addProperty("java", src.java)
-                addProperty("scaleFactor", src.scaleFactor)
+                addProperty("newScaleFactor", src.scaleFactor)
                 addProperty("notCheckGame", src.isNotCheckGame)
                 addProperty("notCheckJVM", src.isNotCheckJVM)
                 addProperty("beGesture", src.isBeGesture)
@@ -369,7 +361,7 @@ class VersionSetting : Cloneable {
                 vs.java =
                     JavaManager.javaList.find { it.name == json["java"]?.asString }?.name
                         ?: "Auto"
-                vs.scaleFactor = json["scaleFactor"]?.asDouble ?: 1.0
+                vs.scaleFactor = json["newScaleFactor"]?.asInt ?: 100
                 vs.isNotCheckGame = json["notCheckGame"]?.asBoolean ?: false
                 vs.isNotCheckJVM = json["notCheckJVM"]?.asBoolean ?: false
                 vs.isBeGesture = json["beGesture"]?.asBoolean ?: false
@@ -382,9 +374,11 @@ class VersionSetting : Cloneable {
                 vs.isIsolateGameDir = json["isolateGameDir"]?.asBoolean ?: false
                 vs.customRenderer = json["customRenderer"]?.asString ?: ""
                 vs.isPojavBigCore = json["pojavBigCore"]?.asBoolean ?: false
-                if (!RendererPlugin.isAvailable() && vs.customRenderer != "") {
-                    vs.renderer = FCLConfig.Renderer.entries.toTypedArray()[0]
-                    vs.customRenderer = ""
+                if (vs.renderer == FCLConfig.Renderer.RENDERER_CUSTOM) {
+                    if (!RendererPlugin.isAvailable() || RendererPlugin.rendererList.find { it.des == vs.customRenderer } == null) {
+                        vs.renderer = FCLConfig.Renderer.entries.toTypedArray()[0]
+                        vs.customRenderer = ""
+                    }
                 }
             }
         }
