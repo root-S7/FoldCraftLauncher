@@ -25,7 +25,6 @@ import com.tungsten.fcl.R
 import com.tungsten.fcl.fragment.EulaFragment
 import com.tungsten.fcl.fragment.RuntimeFragment
 import com.tungsten.fcl.util.CheckFileFormat
-import com.tungsten.fcl.util.ConfigUtils
 import com.tungsten.fcl.setting.ConfigHolder
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.plugins.DriverPlugin
@@ -48,6 +47,7 @@ import java.nio.file.Paths
 import java.util.Locale
 import java.util.logging.Level
 import androidx.core.content.edit
+import com.tungsten.fcl.setting.ConfigHolder.initWithTemp
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
@@ -123,6 +123,7 @@ class SplashActivity : FCLActivity() {
             async(Dispatchers.IO) {
                 FCLPath.loadPaths(this@SplashActivity)
                 Logging.start(Paths.get(FCLPath.LOG_DIR))
+                initWithTemp()
                 initState()
             }.await()
             if (gameFiles && configFiles && lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna) {
@@ -160,6 +161,7 @@ class SplashActivity : FCLActivity() {
     fun enterLauncher() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
+                ConfigHolder.setNull()
                 RendererPlugin.init(this@SplashActivity)
                 DriverPlugin.init(this@SplashActivity)
                 JavaManager.init()
@@ -227,7 +229,7 @@ class SplashActivity : FCLActivity() {
     private fun initState() {
         try {
             gameFiles = RuntimeUtils.isLatest(
-                ConfigUtils.getGameDirectory(),
+                ConfigHolder.getSelectedPath(ConfigHolder.config()).absolutePath,
                 "/assets/.minecraft"
             ) && !sharedPreferences.getBoolean("isFirstInstall", true)
             configFiles = RuntimeUtils.isLatest(

@@ -50,7 +50,6 @@ public class FCLPath {
     public static String ASSETS_GENERAL_SETTING_PROPERTIES = "app_config/general_setting.properties";
     public static String ASSETS_CONFIG_JSON = "app_config/config.json";
     public static String ASSETS_MENU_SETTING_JSON = "app_config/menu_setting.json";
-    public static String ASSETS_GLOBAL_CONFIG_JSON = "app_config/global_config.json";
     public static String ASSETS_AUTH_INJECTOR_SERVER_JSON = "app_config/authlib_injector_server.json";
     public static String ASSETS_DEFAULT_CONTROLLER = "controllers/00000000.json";
 

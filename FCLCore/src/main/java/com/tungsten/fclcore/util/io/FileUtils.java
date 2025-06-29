@@ -32,6 +32,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.tungsten.fclcore.util.Lang;
 import com.tungsten.fclcore.util.StringUtils;
 import com.tungsten.fclcore.util.function.ExceptionalConsumer;
@@ -245,12 +247,14 @@ public final class FileUtils {
         if (!directory.exists())
             return;
 
+        // 修复：正确判断是否为目录，而不是依赖文件名
+        if(!directory.isDirectory()) throw new IllegalArgumentException("Path is not a directory: " + directory);
+
         if (!isSymlink(directory))
             cleanDirectory(directory);
 
-        if (!directory.delete()) {
+        if(!directory.delete()) {
             String message = "Unable to delete directory " + directory + ".";
-
             throw new IOException(message);
         }
     }
@@ -500,22 +504,52 @@ public final class FileUtils {
 
     /**
      * 判断给定路径是否是文件/文件夹，并且具有读写权限
+     * 如果文件/文件夹不存在，则尝试创建目录来检查权限
      *
      * @param path 文件或文件夹路径
      * @return 如果是文件或文件夹且有读写权限，返回true，否则返回false
     **/
-    public static boolean checkFileOrDirectoryPermission(String path) {
-        if(path == null || path.isEmpty() || path.isBlank()) return false;
-
+    public static boolean checkPermission(String path) {
+        if(path == null || path.isBlank()) return false;
         File file = new File(path);
 
-        // 判断文件或文件夹是否存在
-        if (!file.exists()) return false;
+        if(file.exists()) {
+            if(file.isFile() || file.isDirectory()) return file.canRead() && file.canWrite();
+            return false;
+        }
 
-        // 判断是文件或文件夹并检查读写权限
-        if (file.isFile() || file.isDirectory()) return file.canRead() && file.canWrite();
+        // 文件或文件夹不存在时，进行权限检查
+        String testPath;
+        String extension = getExtension(path);
 
-        return false;
+        if (!extension.isEmpty()) {
+            File parentFile = file.getParentFile();
+            testPath = (parentFile != null) ? parentFile.getAbsolutePath() : ".";
+        }else testPath = path;
+        return canCreateDirectory(testPath);
+    }
+
+    /**
+     * 强制删除文件或目录（静默版本，不抛出异常）
+     *
+     * @param file 要删除的文件或目录
+     * @return true 如果删除成功，false 如果删除失败
+    **/
+    public static boolean forceDeleteQuietly(File file) {
+        try {
+            forceDelete(file);
+            return true;
+        }catch(IOException e) {
+            return false;
+        }
+    }
+
+    public static void forceDelete(String... files) {
+        for(String file : files) {
+            try {
+                forceDelete(new File(file));
+            }catch(Exception ignored) {}
+        }
     }
 
     public static void batchDelete(File... files) {

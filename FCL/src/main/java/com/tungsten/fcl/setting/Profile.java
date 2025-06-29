@@ -21,10 +21,8 @@ import static com.tungsten.fcl.util.FXUtils.onInvalidating;
 
 import com.google.gson.*;
 import com.google.gson.annotations.JsonAdapter;
-import com.tungsten.fcl.R;
 import com.tungsten.fcl.game.FCLCacheRepository;
 import com.tungsten.fcl.game.FCLGameRepository;
-import com.tungsten.fcl.util.ConfigUtils;
 import com.tungsten.fcl.util.WeakListenerHolder;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.download.DefaultDependencyManager;
@@ -106,7 +104,7 @@ public final class Profile implements Observable {
     }
 
     public Profile(String name) {
-        this(name, new File(ConfigUtils.DEFINE_DEFAULT_SELECT_PROFILE.equals(FCLPath.CONTEXT.getString(R.string.profile_private)) ? FCLPath.PRIVATE_COMMON_DIR : FCLPath.SHARED_COMMON_DIR));
+        this(name, new File(FCLPath.SHARED_COMMON_DIR));
     }
 
     public Profile(String name, File initialGameDir) {

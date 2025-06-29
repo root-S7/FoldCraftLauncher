@@ -3,9 +3,8 @@ package com.tungsten.fcl.util;
 import android.app.Activity;
 import android.graphics.Bitmap;
 
+import com.google.gson.JsonObject;
 import com.mio.util.ImageUtil;
-import com.tungsten.fcl.setting.ConfigAsFake;
-import com.tungsten.fcl.setting.ConfigHolder;
 import com.tungsten.fcl.setting.Controller;
 import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -52,7 +50,7 @@ public class CheckFileFormat {
 
         // 以下文件是必须要检查的
         defaultCheckFiles = Set.of(
-                new FileInfo<>(FCLPath.ASSETS_CONFIG_JSON, ConfigHolder.CONFIG_PATH, ConfigAsFake.class),
+                new FileInfo<>(FCLPath.ASSETS_CONFIG_JSON, null, JsonObject.class),
                 new FileInfo<>(FCLPath.ASSETS_MENU_SETTING_JSON, Paths.get(FCLPath.FILES_DIR + "/menu_setting.json"), MenuSetting.class),
                 new FileInfo<>(FCLPath.ASSETS_AUTH_INJECTOR_SERVER_JSON, null, null),
                 new FileInfo<>(FCLPath.ASSETS_SETTING_LAUNCHER_PICTURES + "/lt.png", Paths.get(FCLPath.LT_BACKGROUND_PATH), null),
@@ -128,14 +126,14 @@ public class CheckFileFormat {
             activity.runOnUiThread(() -> {
                 if(fileExtension == null || fileExtension.isEmpty()) {
                     fclWaitDialog.dismiss();
-                    checkFileCallBack.onFail(null);
+                    if(checkFileCallBack != null) checkFileCallBack.onFail(null);
                 }
             });
 
             boolean result = checkAllFileLegal(fileExtension);
             activity.runOnUiThread(() -> {
-                if(result) checkFileCallBack.onSuccess(fileExtension);
-                else checkFileCallBack.onFail(null);
+                if(result && checkFileCallBack != null) checkFileCallBack.onSuccess(fileExtension);
+                else if(checkFileCallBack != null) checkFileCallBack.onFail(null);
 
                 fclWaitDialog.dismiss();
             });

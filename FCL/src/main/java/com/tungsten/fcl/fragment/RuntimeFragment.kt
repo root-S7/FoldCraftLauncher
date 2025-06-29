@@ -10,7 +10,9 @@ import androidx.lifecycle.lifecycleScope
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.SplashActivity
 import com.tungsten.fcl.databinding.FragmentRuntimeBinding
-import com.tungsten.fcl.util.ConfigUtils
+import com.tungsten.fcl.setting.ConfigHolder.config
+import com.tungsten.fcl.setting.ConfigHolder.getSelectedPath
+import com.tungsten.fcl.util.InstallResources
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.task.Schedulers
@@ -105,7 +107,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         if (installing) return
 
         bind.apply {
-            val installResources = RuntimeUtils.InstallResources(activity, bind.backgroundInstallView)
+            val installResources = InstallResources(activity, bind.backgroundInstallView)
             installing = true
             if (!gameFiles) {
                 gameFileState.visibility = View.GONE
@@ -113,7 +115,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         runCatching {
-                            installResources.installGameFiles(ConfigUtils.getGameDirectory(), ".minecraft", sharedPreferences.edit())
+                            installResources.installGameFiles(getSelectedPath(config()).absolutePath, ".minecraft", sharedPreferences.edit())
                             gameFiles = true
                         }.onFailure {
                             it.printStackTrace()

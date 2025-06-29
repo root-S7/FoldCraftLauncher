@@ -1,14 +1,11 @@
 package com.tungsten.fcl.util;
 
-import static com.tungsten.fclauncher.utils.FCLPath.*;
+import static com.tungsten.fclcore.util.io.FileUtils.forceDeleteQuietly;
+import static com.tungsten.fclcore.util.io.FileUtils.writeText;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.system.Os;
-import android.view.View;
 
-import com.tungsten.fcl.setting.Config;
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.utils.Architecture;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -17,30 +14,23 @@ import com.tungsten.fclcore.util.Pack200Utils;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
 import com.tungsten.fclcore.util.io.Unzipper;
-import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
-import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 
 public class RuntimeUtils {
 
-    public static boolean isLatest(String targetDir, String srcDir) throws IOException {
-        File targetFile = new File(targetDir + "/version");
+    public static boolean isLatest(String targetDir, String srcDir) {
         try {
+            File targetFile = new File(targetDir + "/version");
             String version = IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version"));
             return targetFile.exists() && FileUtils.readText(targetFile).equals(version);
         }catch(Exception e) {
@@ -50,120 +40,13 @@ public class RuntimeUtils {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void install(Context context, String targetDir, String srcDir) throws IOException {
-        FileUtils.deleteDirectory(new File(targetDir));
+        forceDeleteQuietly(new File(targetDir));
         new File(targetDir).mkdirs();
         copyAssets(context, srcDir, targetDir);
     }
 
-    public static class InstallResources {
-        private final CountDownLatch countDownLatch;
-        private final CheckFileFormat checkFileFormat;
-        private final Activity thisActivity;
-        private View needRefreshBackground;
-
-        public InstallResources(Activity activity, View needRefreshBackground ) {
-            if(activity == null) throw new NullPointerException("错误，无效的活动页面。请将该问题反馈给原始制造商！");
-            if(needRefreshBackground != null && activity.findViewById(needRefreshBackground.getId()) == null) throw new IllegalArgumentException("在“" + activity.getClass().getName() + "”视图未找到名叫“" + needRefreshBackground.getClass().getName() + "”的组件");
-
-            this.thisActivity = activity;
-            this.needRefreshBackground = needRefreshBackground;
-            this.checkFileFormat = new CheckFileFormat(activity);
-            this.countDownLatch = new CountDownLatch(checkFileFormat.getDefaultCheckFiles().size() + 1);
-        }
-
-        public void installGameFiles(String oldInstallDir, String srcDir, final SharedPreferences.Editor editor) throws IOException, ExecutionException, InterruptedException {
-            FileUtils.deleteDirectory(FCLPath.LOG_DIR, FCLPath.CONTROLLER_DIR); // 先删除默认目录中的按键和日志内容
-
-            FileUtils.deleteDirectory(new File(oldInstallDir)); // 如果config.json文件修改后则删除旧的config.json文件中目录资源
-
-            countDownLatch.await(); // 等待配置文件线程关键文件操作完毕后才能继续往下操作
-
-            install(thisActivity, ConfigUtils.getGameDirectory(), srcDir); // 安装游戏资源
-
-            if(editor != null) {
-                editor.putBoolean("isFirstInstall", false);
-                editor.apply();
-            }
-        }
-
-        public void installConfigFiles(String targetDir, String srcDir) throws IOException {
-            FileUtils.batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), thisActivity.getCacheDir(), thisActivity.getCodeCacheDir());
-
-            Set<CheckFileFormat.FileInfo<?>> defaultCheckFiles = checkFileFormat.getDefaultCheckFiles();
-            for(CheckFileFormat.FileInfo<?> file : defaultCheckFiles) {
-                Path externalPath = file.getExternalPath();
-                try {
-                    copyAssets(thisActivity, file.getInternalPath(), externalPath == null ? null : externalPath.toString());
-                    countDownLatch.countDown(); // CountDownLatch计数器为0时，调用await()的线程不会阻塞
-                } catch (FileNotFoundException e) {
-                    enableAlertDialog(thisActivity, countDownLatch, "未能在APK的assets目录中找到该文件“" + file.getInternalPath() + "”");
-                } catch (IOException e) {
-                    enableAlertDialog(thisActivity, countDownLatch, "尝试读取/写入文件时发生致命错误：" + e);
-                } catch (Exception e) {
-                    enableAlertDialog(thisActivity, countDownLatch, "未知错误：" + e);
-                }
-            }
-
-            if(needRefreshBackground != null) {
-                thisActivity.runOnUiThread(() -> ThemeEngine.getInstance().applyAndSave(
-                        thisActivity,
-                        needRefreshBackground,
-                        FCLPath.LT_BACKGROUND_PATH,
-                        FCLPath.DK_BACKGROUND_PATH
-                ));
-            }
-            ParseAuthlibInjectorServerUtils.parseUrlAndWriteToFile(ConfigUtils.getNoProblemConfig(true, new Config()));
-            RuntimeUtils.copyAssets(thisActivity, srcDir + "/version", targetDir + "/version");
-
-            countDownLatch.countDown();
-        }
-
-        private void enableAlertDialog(Activity activity, final CountDownLatch latch, String message) {
-            activity.runOnUiThread(() -> new FCLAlertDialog.Builder(activity)
-                    .setTitle("警告")
-                    .setMessage(message)
-                    .setPositiveButton("确定", latch::countDown)
-                    .setCancelable(false)
-                    .create()
-                    .show());
-        }
-
-        public CountDownLatch getCountDownLatch() {
-            return countDownLatch;
-        }
-
-        public CheckFileFormat getCheckFileFormat() {
-            return checkFileFormat;
-        }
-
-        public Activity getThisActivity() {
-            return thisActivity;
-        }
-
-        public void setNeedRefreshBackground(View needRefreshBackground) {
-            if(checkView(thisActivity, needRefreshBackground)) throw new NullPointerException("错误，无效的活动页面。请将该问题反馈给原始制造商！");
-
-            this.needRefreshBackground = needRefreshBackground;
-        }
-
-        /**
-         * 传入的“activity”种是否存在该“view”
-         *
-         * @param activity 当前页面
-         * @param view 当前页面哪个组件（需要绑定id）
-         * @return 返回是否包含
-        **/
-        protected static boolean checkView(Activity activity, View view) {
-            try {
-                return activity != null && view != null && activity.findViewById(view.getId()) != null;
-            }catch(Exception e) {
-                return false;
-            }
-        }
-    }
-
     public static void installJna(Context context, String targetDir, String srcDir) throws IOException {
-        FileUtils.deleteDirectory(new File(targetDir));
+        forceDeleteQuietly(new File(targetDir));
         new File(targetDir).mkdirs();
         copyAssets(context, srcDir, targetDir);
         File file = new File(FCLPath.JNA_PATH, "jna-arm64.zip");
@@ -173,14 +56,14 @@ public class RuntimeUtils {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void installJava(Context context, String targetDir, String srcDir) throws IOException {
-        FileUtils.deleteDirectory(new File(targetDir));
+        forceDeleteQuietly(new File(targetDir));
         new File(targetDir).mkdirs();
         String universalPath = srcDir + "/universal.tar.xz";
         String archPath = srcDir + "/bin-" + Architecture.archAsString(Architecture.getDeviceArchitecture()) + ".tar.xz";
         String version = IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream("/assets/" + srcDir + "/version"));
         uncompressTarXZ(context.getAssets().open(universalPath), new File(targetDir));
         uncompressTarXZ(context.getAssets().open(archPath), new File(targetDir));
-        FileUtils.writeText(new File(targetDir + "/version"), version);
+        writeText(new File(targetDir + "/version"), version);
         patchJava(context, targetDir);
     }
 
