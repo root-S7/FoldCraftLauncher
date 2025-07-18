@@ -24,7 +24,6 @@ import com.mio.util.ImageUtil
 import com.tungsten.fcl.R
 import com.tungsten.fcl.fragment.EulaFragment
 import com.tungsten.fcl.fragment.RuntimeFragment
-import com.tungsten.fcl.util.CheckFileFormat
 import com.tungsten.fcl.setting.ConfigHolder
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.plugins.DriverPlugin
@@ -47,7 +46,9 @@ import java.nio.file.Paths
 import java.util.Locale
 import java.util.logging.Level
 import androidx.core.content.edit
+import com.mio.manager.RendererManager
 import com.tungsten.fcl.setting.ConfigHolder.initWithTemp
+import com.tungsten.fcl.util.CheckFileFormat
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
@@ -164,6 +165,7 @@ class SplashActivity : FCLActivity() {
                 ConfigHolder.setNull()
                 RendererPlugin.init(this@SplashActivity)
                 DriverPlugin.init(this@SplashActivity)
+                RendererManager.init(this@SplashActivity)
                 JavaManager.init()
                 runCatching { ConfigHolder.init() }.exceptionOrNull()?.let {
                     Logging.LOG.log(Level.WARNING, it.message)
