@@ -19,10 +19,9 @@
         "beGesture": true,
         "vulkanDriverSystem": false,
         "controller": "00000000",
-        "renderer": 0,
+        "renderer": "",
         "driver": "",
         "isolateGameDir": false,
-        "customRenderer": "",
         "pojavBigCore": false
       },
       "gameDir": "/storage/emulated/0/FCL-Server/.minecraft",
@@ -44,10 +43,9 @@
         "beGesture": true,
         "vulkanDriverSystem": false,
         "controller": "00000000",
-        "renderer": 0,
+        "renderer": "",
         "driver": "",
         "isolateGameDir": false,
-        "customRenderer": "",
         "pojavBigCore": false
       },
       "gameDir": "/storage/emulated/0/Android/data/com.tungsten.fcl.server/files/.minecraft",
