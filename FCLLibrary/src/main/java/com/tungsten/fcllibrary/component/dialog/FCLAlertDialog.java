@@ -3,7 +3,9 @@ package com.tungsten.fcllibrary.component.dialog;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.text.Spanned;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -23,6 +25,9 @@ public class FCLAlertDialog extends FCLDialog implements View.OnClickListener {
 
     private ButtonListener positiveListener;
     private ButtonListener negativeListener;
+
+    private float widthPercentage = -1f;
+    private float heightPercentage = -1f;
 
     private View parent;
     private ImageFilterView icon;
@@ -64,14 +69,29 @@ public class FCLAlertDialog extends FCLDialog implements View.OnClickListener {
             WindowManager wm = getWindow().getWindowManager();
             Point point = new Point();
             wm.getDefaultDisplay().getSize(point);
-            int maxHeight = point.y - ConvertUtils.dip2px(getContext(), 30);
-            if (parent.getMeasuredHeight() < maxHeight) {
-                ViewGroup.LayoutParams layoutParams = scrollView.getLayoutParams();
-                layoutParams.height = message.getMeasuredHeight();
-                scrollView.setLayoutParams(layoutParams);
-                getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            if (widthPercentage > 0.22f || heightPercentage > 0.22f) {
+                int dialogWidth = widthPercentage > 0 ?
+                        (int) (point.x * widthPercentage) : WindowManager.LayoutParams.WRAP_CONTENT;
+                int dialogHeight = heightPercentage > 0 ?
+                        (int) (point.y * heightPercentage) : WindowManager.LayoutParams.WRAP_CONTENT;
+
+                if (heightPercentage > 0) {
+                    ViewGroup.LayoutParams layoutParams = scrollView.getLayoutParams();
+                    layoutParams.height = dialogHeight - ConvertUtils.dip2px(getContext(), 120);
+                    scrollView.setLayoutParams(layoutParams);
+                }
+
+                getWindow().setLayout(dialogWidth, dialogHeight);
             } else {
-                getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, maxHeight);
+                int maxHeight = point.y - ConvertUtils.dip2px(getContext(), 30);
+                if (parent.getMeasuredHeight() < maxHeight) {
+                    ViewGroup.LayoutParams layoutParams = scrollView.getLayoutParams();
+                    layoutParams.height = message.getMeasuredHeight();
+                    scrollView.setLayoutParams(layoutParams);
+                    getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT);
+                } else {
+                    getWindow().setLayout(WindowManager.LayoutParams.WRAP_CONTENT, maxHeight);
+                }
             }
         }));
     }
@@ -142,6 +162,47 @@ public class FCLAlertDialog extends FCLDialog implements View.OnClickListener {
         negativeListener = listener;
     }
 
+    /**
+     * 补充：设置弹窗的百分比大小
+     * @param widthPercentage 宽度百分比
+     * @param heightPercentage 高度百分比
+    **/
+    public void setPercentageSize(float widthPercentage, float heightPercentage) {
+        this.widthPercentage = widthPercentage;
+        this.heightPercentage = heightPercentage;
+        checkHeight();
+    }
+
+    /**
+     * 补充：设置消息文本字体大小（单位为SP）
+     * @param textSize 字体大小
+    **/
+    public void setMessageTextSize(float textSize) {
+        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+        checkHeight();
+    }
+
+    /**
+     * 补充：设置消息文本是否加粗
+     * @param bold 是否加粗
+    **/
+    public void setMessageTextBold(boolean bold) {
+        if(bold) message.setTypeface(message.getTypeface(), Typeface.BOLD);
+        else message.setTypeface(message.getTypeface(), Typeface.NORMAL);
+    }
+
+    /**
+     * 扩展：同时设置消息文本大小和加粗
+     * @param textSize 字体大小
+     * @param bold 是否加粗
+    **/
+    public void setMessageTextStyle(float textSize, boolean bold) {
+        message.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+        if(bold) message.setTypeface(message.getTypeface(), Typeface.BOLD);
+        else message.setTypeface(message.getTypeface(), Typeface.NORMAL);
+        checkHeight();
+    }
+
     public static class Builder {
 
         private Context context;
@@ -198,6 +259,26 @@ public class FCLAlertDialog extends FCLDialog implements View.OnClickListener {
 
         public Builder setNegativeButton(String text, ButtonListener listener) {
             dialog.setNegativeButton(text, listener);
+            return this;
+        }
+
+        public Builder setPercentageSize(float widthPercentage, float heightPercentage) {
+            dialog.setPercentageSize(widthPercentage, heightPercentage);
+            return this;
+        }
+
+        public Builder setMessageTextSize(float textSize) {
+            dialog.setMessageTextSize(textSize);
+            return this;
+        }
+
+        public Builder setMessageTextBold(boolean bold) {
+            dialog.setMessageTextBold(bold);
+            return this;
+        }
+
+        public Builder setMessageTextStyle(float textSize, boolean bold) {
+            dialog.setMessageTextStyle(textSize, bold);
             return this;
         }
     }

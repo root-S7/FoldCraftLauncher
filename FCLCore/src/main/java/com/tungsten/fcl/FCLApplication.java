@@ -21,7 +21,7 @@ public class FCLApplication extends Application implements Application.ActivityL
         super.onCreate();
         this.registerActivityLifecycleCallbacks(this);
 //        PerfUtil.install();
-        FCLPath.loadPaths(this);
+        FCLPath.loadPaths(getApplicationContext());
     }
 
     public static Activity getCurrentActivity() {

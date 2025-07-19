@@ -23,6 +23,7 @@ import com.tungsten.fcl.R;
 
 public enum LoadingState {
     DEVICE(R.string.launch_state_device),
+    RULE(R.string.launch_state_rule),
     DEPENDENCIES(R.string.launch_state_dependencies),
     MODS(R.string.launch_state_modpack),
     LOGGING_IN(R.string.launch_state_logging_in),

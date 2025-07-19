@@ -4,6 +4,8 @@ import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 
+import static com.tungsten.fclcore.util.io.IOUtils.readFullyAsString;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
@@ -46,8 +48,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.logging.Level;
+import java.util.regex.Pattern;
 
 @SuppressLint("DiscouragedApi")
 public class AndroidUtils {
@@ -321,6 +325,31 @@ public class AndroidUtils {
      * @throws IOException InputStream的异常
     **/
     public static <T> Object tryDeserialize(InputStream inputStream, Class<T> tClass, boolean errorElseJSONObject) throws IOException {
-        return tryDeserialize(IOUtils.readFullyAsString(inputStream), tClass, errorElseJSONObject);
+        return tryDeserialize(readFullyAsString(inputStream), tClass, errorElseJSONObject);
+    }
+
+    public static boolean isRegexMatch(String string, String pattern) {
+        try {
+            return Pattern.matches(pattern, string);
+        }catch(Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 从集合中获取第一个非null的元素，如果集合为null、为空或所有元素均为null则返回指定的默认值。
+     *
+     * @param collection   要查找的集合，可以为 null
+     * @param defaultValue 如果未找到有效元素则返回的默认值
+     * @param <T>          元素的类型
+     * @return 集合中第一个非 null 的元素，或 defaultValue（如果没有）
+    **/
+    public static <T> T getFirstOrDefault(Collection<T> collection, T defaultValue) {
+        if(collection == null) return defaultValue;
+
+        return collection.stream()
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(defaultValue);
     }
 }

@@ -1,5 +1,7 @@
 package com.tungsten.fcl.util;
 
+import static com.tungsten.fcl.util.AndroidUtils.tryDeserialize;
+
 import android.app.Activity;
 import android.graphics.Bitmap;
 
@@ -162,7 +164,7 @@ public class CheckFileFormat {
                     ).findFirst();
 
                     if(matchedFile.isPresent()) {
-                        Object o = AndroidUtils.tryDeserialize(open, matchedFile.get().configFileType, false);
+                        Object o = tryDeserialize(open, matchedFile.get().configFileType, false);
                         if(o == null) throw new FileParseException("文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
 
                     }else throw new FileParseException("不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");

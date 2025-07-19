@@ -19,12 +19,16 @@ package com.tungsten.fcl.game;
 
 import static com.tungsten.fcl.util.AndroidUtils.getLocalizedText;
 import static com.tungsten.fcl.util.AndroidUtils.hasStringId;
+import static com.tungsten.fcl.util.RuleCheckState.isNormal;
 import static com.tungsten.fclcore.util.Logging.LOG;
+import static com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.AlertLevel.ALERT;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -39,6 +43,11 @@ import com.tungsten.fcl.control.MenuType;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.setting.Profiles;
 import com.tungsten.fcl.setting.VersionSetting;
+import com.tungsten.fcl.setting.rules.LauncherRules;
+import com.tungsten.fcl.setting.rules.extend.JavaRule;
+import com.tungsten.fcl.setting.rules.extend.MemoryRule;
+import com.tungsten.fcl.setting.rules.extend.RendererRule;
+import com.tungsten.fcl.setting.rules.extend.VersionRule;
 import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclauncher.bridge.FCLBridge;
@@ -105,6 +114,7 @@ public final class LauncherHelper {
     private final String selectedVersion;
     private final VersionSetting setting;
     private final TaskDialog launchingStepsPane;
+    private final VersionRule rule;
 
     public LauncherHelper(Context context, Profile profile, Account account, String selectedVersion) {
         this.context = Objects.requireNonNull(context);
@@ -113,6 +123,7 @@ public final class LauncherHelper {
         this.selectedVersion = Objects.requireNonNull(selectedVersion);
         this.setting = profile.getVersionSetting(selectedVersion);
         this.launchingStepsPane = new TaskDialog(context, TaskCancellationAction.NORMAL);
+        this.rule = LauncherRules.fromJson(context).getVersionRule(selectedVersion);
         this.launchingStepsPane.setTitle(context.getString(R.string.version_launch));
     }
 
@@ -156,6 +167,7 @@ public final class LauncherHelper {
                     );
                 }).withStage("launch.state.dependencies")
                 .thenComposeAsync(() -> checkHardware(context)).withStage("launch.state.device")
+                .thenComposeAsync(() -> setGameRule(context, setting, rule)).withStage("launch.state.rule")
                 .thenComposeAsync(() -> {
                     try (InputStream input = LauncherHelper.class.getResourceAsStream("/assets/game/MioLibPatcher.jar")) {
                         Files.copy(input, new File(FCLPath.LIB_PATCHER_PATH).toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -215,6 +227,7 @@ public final class LauncherHelper {
                         "launch.state.java",
                         "launch.state.dependencies",
                         "launch.state.device",
+                        "launch.state.rule",
                         "launch.state.logging_in",
                         "launch.state.waiting_launching"))
                 .executor();
@@ -291,11 +304,12 @@ public final class LauncherHelper {
                             }
 
                             FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context);
-                            builder.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT);
+                            builder.setAlertLevel(ALERT);
                             builder.setCancelable(false);
                             builder.setTitle(context.getString(R.string.launch_failed));
                             builder.setMessage(message);
                             builder.setNegativeButton(context.getString(com.tungsten.fcllibrary.R.string.dialog_positive), null);
+                            builder.setPositiveButton("测试", () -> System.exit(0));
                             builder.create().show();
                         });
                     }
@@ -466,6 +480,55 @@ public final class LauncherHelper {
                     memoryRequirement,
                     thisTotalMemory.intValue()
             ));
+        });
+    }
+
+    private static Task<Boolean> setGameRule(@NonNull Context context, VersionSetting setting, VersionRule rule) {
+        return Task.composeAsync(() -> {
+            if (rule == null || rule.getRenderer() == null) return Task.completed(true);
+
+            try {
+                MemoryRule memory = rule.getMemory();
+                if(memory != null && !isNormal(memory.setRule(setting))) throw new RuleException(memory.getTip(), null);
+
+                JavaRule java = rule.getJava();
+                if(java != null && !isNormal(java.setRule(setting))) throw new RuleException(java.getTip(), null);
+
+                RendererRule renderer = rule.getRenderer();
+                if(renderer != null && !isNormal(renderer.setRule(setting))) throw new RuleException(renderer.getTip(), renderer.getDownloadURL());
+
+                return Task.completed(true);
+            }catch(RuleException ex) {
+                return Task.supplyAsync(Schedulers.androidUIThread(), () -> {
+                    CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+                    String tip = ex.getMessage() == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : ex.getMessage();
+                    FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context)
+                            .setCancelable(false)
+                            .setMessage(tip)
+                            .setAlertLevel(ALERT)
+                            .setTitle("规则异常")
+                            .setNegativeButton(ex.getUrl() != null ? "下载" : "确定", () -> {
+                                if(ex.getUrl() != null) {
+                                    try {
+                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(ex.getUrl().toString()));
+                                        context.startActivity(intent);
+                                    }catch(Exception e) {
+                                        Toast.makeText(context, "未安装浏览器应用", Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                                future.completeExceptionally(new CancellationException(ex.getUrl() != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
+                            })
+                            .setPercentageSize(0.88f, 0.77f)
+                            .setMessageTextStyle(14f, true);
+                    if(ex.getUrl() != null) builder.setPositiveButton("取消", () -> future.completeExceptionally(new CancellationException("用户强行终止了启动")));
+                    builder.create().show();
+
+                    return future;
+                }).thenComposeAsync(Task::fromCompletableFuture);
+            }catch(Exception ex) {
+                throw new Exception("测试");
+            }
         });
     }
 

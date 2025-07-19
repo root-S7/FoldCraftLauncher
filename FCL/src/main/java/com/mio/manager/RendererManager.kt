@@ -130,4 +130,8 @@ object RendererManager {
         return rendererList.find { it.id == id } ?: RENDERER_GL4ES
     }
 
+    @JvmStatic
+    fun getRendererOrNull(id: String): Renderer? {
+        return rendererList.find { it.id == id }
+    }
 }
