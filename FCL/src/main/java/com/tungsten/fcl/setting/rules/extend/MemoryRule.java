@@ -19,7 +19,6 @@ public class MemoryRule extends RuleBase {
         super(null);
         this.minMemory = -1;
     }
-
     public MemoryRule(int minMemory, String tip) {
         super(tip);
         this.minMemory = minMemory;
