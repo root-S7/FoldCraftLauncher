@@ -24,6 +24,7 @@
 - [x] 可自定义『config.json』和『menu_setting.json』文件配置项
 - [x] 可在『general_setting.properties』文件中修改部分启动器设置选项
 - [x] 可自定义特定版本启动规则『launcher_rules.json』
+- [x] 可根据自己整合包情况删减无用Java运行环境
 - [x] 打开应用后可自动检查配置文件格式是否正确
 - [x] 以及更多内容！
 
