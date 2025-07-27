@@ -4,8 +4,7 @@ import static com.tungsten.fcl.setting.ConfigHolder.getSelectedPath;
 import static com.tungsten.fcl.setting.ConfigHolder.innerConfig;
 import static com.tungsten.fcl.util.RuntimeUtils.copyAssets;
 import static com.tungsten.fcl.util.RuntimeUtils.install;
-import static com.tungsten.fclauncher.utils.FCLPath.CONFIG_DIR;
-import static com.tungsten.fclauncher.utils.FCLPath.FILES_DIR;
+import static com.tungsten.fclauncher.utils.FCLPath.*;
 import static com.tungsten.fclcore.util.io.FileUtils.batchDelete;
 import static com.tungsten.fclcore.util.io.FileUtils.forceDelete;
 
@@ -17,7 +16,6 @@ import androidx.annotation.NonNull;
 
 import com.tungsten.fcl.setting.Config;
 import com.tungsten.fcl.setting.ConfigHolder;
-import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 
@@ -30,7 +28,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class InstallResources {
     private final CountDownLatch countDownLatch;
-    private final CheckFileFormat checkFileFormat;
+    private final Set<CheckFileFormat.FileInfo<?>> checkFiles;
     private final Activity thisActivity;
     private View needRefreshBackground;
 
@@ -40,12 +38,12 @@ public class InstallResources {
 
         this.thisActivity = activity;
         this.needRefreshBackground = needRefreshBackground;
-        this.checkFileFormat = new CheckFileFormat(activity);
-        this.countDownLatch = new CountDownLatch(checkFileFormat.getDefaultCheckFiles().size() + 1);
+        this.checkFiles = new CheckFileFormat(activity.getApplicationContext()).getDefaultCheckFiles();
+        this.countDownLatch = new CountDownLatch(checkFiles.size() + 1);
     }
 
     public void installGameFiles(String oldInstallDir, String srcDir, final SharedPreferences.Editor editor) throws IOException, InterruptedException {
-        forceDelete(FCLPath.LOG_DIR, FCLPath.CONTROLLER_DIR, oldInstallDir); // 先删除默认目录中的按键和日志内容，如果config.json文件修改后则删除旧的config.json文件中目录资源
+        forceDelete(LOG_DIR, CONTROLLER_DIR, oldInstallDir); // 先删除默认目录中的按键和日志内容，如果config.json文件修改后则删除旧的config.json文件中目录资源
 
         countDownLatch.await(); // 等待配置文件线程关键文件操作完毕后才能继续往下操作
         install(thisActivity, getSelectedPath(innerConfig()).getAbsolutePath(), srcDir); // 安装游戏资源
@@ -58,8 +56,7 @@ public class InstallResources {
     public void installConfigFiles(String targetDir, String srcDir) throws IOException {
         batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), thisActivity.getCacheDir(), thisActivity.getCodeCacheDir());
 
-        Set<CheckFileFormat.FileInfo<?>> defaultCheckFiles = checkFileFormat.getDefaultCheckFiles();
-        for(CheckFileFormat.FileInfo<?> file : defaultCheckFiles) {
+        for(CheckFileFormat.FileInfo<?> file : checkFiles) {
             Path externalPath = file.getExternalPath();
             try {
                 copyAssets(thisActivity, file.getInternalPath(), externalPath == null ? null : externalPath.toString());
@@ -80,8 +77,8 @@ public class InstallResources {
             thisActivity.runOnUiThread(() -> ThemeEngine.getInstance().applyAndSave(
                     thisActivity,
                     needRefreshBackground,
-                    FCLPath.LT_BACKGROUND_PATH,
-                    FCLPath.DK_BACKGROUND_PATH
+                    LT_BACKGROUND_PATH,
+                    DK_BACKGROUND_PATH
             ));
         }
         if(!installConfig(innerConfig())) {
@@ -111,10 +108,6 @@ public class InstallResources {
 
     public CountDownLatch getCountDownLatch() {
         return countDownLatch;
-    }
-
-    public CheckFileFormat getCheckFileFormat() {
-        return checkFileFormat;
     }
 
     public void setNeedRefreshBackground(View needRefreshBackground) {

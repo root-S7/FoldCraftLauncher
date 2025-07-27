@@ -49,6 +49,9 @@ import androidx.core.content.edit
 import com.mio.manager.RendererManager
 import com.tungsten.fcl.setting.ConfigHolder.initWithTemp
 import com.tungsten.fcl.util.CheckFileFormat
+import com.tungsten.fclauncher.utils.FCLPath.ASSETS_GENERAL_SETTING_PROPERTIES
+import com.tungsten.fcllibrary.component.dialog.FCLWaitDialog
+import kotlin.system.exitProcess
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
@@ -141,21 +144,41 @@ class SplashActivity : FCLActivity() {
                 .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
                 .replace(R.id.fragment, EulaFragment::class.java, null).commit()
         } else {
-            CheckFileFormat(
-                this,
-                FCLPath.ASSETS_GENERAL_SETTING_PROPERTIES,
-                "app_config/version",
-                ".minecraft/version"
-            ).checkFileFormat(true, object : CheckFileFormat.CheckFileCallBack {
-                override fun <T> onSuccess(data: T) {
+            lifecycleScope.launch {
+                val waitDialog = FCLWaitDialog.Builder(this@SplashActivity)
+                    .setMessage("正在检测内部文件格式中，请稍等…")
+                    .setCancelable(false)
+                    .create()
+                    .showDialog()
+                try {
+                    checkFile()
+                    waitDialog?.dismiss()
                     supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
                         .replace(R.id.fragment, RuntimeFragment::class.java, null).commit()
+                }catch(e: Exception) {
+                    waitDialog?.dismiss()
+                    FCLAlertDialog.Builder(this@SplashActivity)
+                        .setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
+                        .setTitle("严重错误")
+                        .setMessage(e.message)
+                        .setNegativeButton("确定") { exitProcess(-1) }
+                        .setCancelable(false)
+                        .create()
+                        .show()
                 }
-                override fun onFail(e: Exception?) {
-                }
-            })
+            }
         }
+    }
+
+    private suspend fun checkFile() = withContext(Dispatchers.IO) {
+        CheckFileFormat(
+            this@SplashActivity.applicationContext,
+            ASSETS_GENERAL_SETTING_PROPERTIES,
+            "app_config/version",
+            ".minecraft/version"
+        ).checkFileFormat(true)
+        System.gc()
     }
 
 
