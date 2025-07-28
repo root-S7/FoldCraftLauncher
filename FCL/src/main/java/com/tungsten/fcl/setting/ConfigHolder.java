@@ -220,6 +220,7 @@ public final class ConfigHolder {
             configInstance = null;
             return true;
         }catch(Exception e) {
+            configInstance = null;
             return false;
         }
     }

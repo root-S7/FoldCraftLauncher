@@ -12,6 +12,7 @@ import com.tungsten.fcl.activity.SplashActivity
 import com.tungsten.fcl.databinding.FragmentRuntimeBinding
 import com.tungsten.fcl.setting.ConfigHolder.config
 import com.tungsten.fcl.setting.ConfigHolder.getSelectedPath
+import com.tungsten.fcl.util.AndroidUtils.*
 import com.tungsten.fcl.util.InstallResources
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
@@ -22,6 +23,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
 
 class RuntimeFragment : FCLFragment(), View.OnClickListener {
     private lateinit var bind: FragmentRuntimeBinding
@@ -102,6 +104,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     }
 
     private var installing = false
+    private val showErrDialog = AtomicBoolean(false)
 
     private fun install() {
         if (installing) return
@@ -109,6 +112,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         bind.apply {
             val installResources = InstallResources(activity, bind.backgroundInstallView)
             installing = true
+            showErrDialog.set(false)
             if (!gameFiles) {
                 gameFileState.visibility = View.GONE
                 gameFilesProgress.visibility = View.VISIBLE
@@ -119,6 +123,11 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             gameFiles = true
                         }.onFailure {
                             it.printStackTrace()
+                            if (showErrDialog.compareAndSet(false, true)) {
+                                withContext(Dispatchers.Main) {
+                                    showErrorDialog(activity, it.message, true)
+                                }
+                            }
                         }
                     }
                     gameFileState.visibility = View.VISIBLE
@@ -136,6 +145,13 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                         runCatching {
                             installResources.installConfigFiles(FCLPath.CONFIG_DIR, "app_config")
                             configFiles = true
+                        }.onFailure {
+                            it.printStackTrace()
+                            if (showErrDialog.compareAndSet(false, true)) {
+                                withContext(Dispatchers.Main) {
+                                    showErrorDialog(activity, it.message, true)
+                                }
+                            }
                         }
                     }
                     configFileState.visibility = View.VISIBLE

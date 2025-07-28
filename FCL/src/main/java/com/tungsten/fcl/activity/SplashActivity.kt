@@ -48,6 +48,7 @@ import java.util.logging.Level
 import androidx.core.content.edit
 import com.mio.manager.RendererManager
 import com.tungsten.fcl.setting.ConfigHolder.initWithTemp
+import com.tungsten.fcl.util.AndroidUtils.showErrorDialog
 import com.tungsten.fcl.util.CheckFileFormat
 import com.tungsten.fclauncher.utils.FCLPath.ASSETS_GENERAL_SETTING_PROPERTIES
 import com.tungsten.fcllibrary.component.dialog.FCLWaitDialog
@@ -158,14 +159,7 @@ class SplashActivity : FCLActivity() {
                         .replace(R.id.fragment, RuntimeFragment::class.java, null).commit()
                 }catch(e: Exception) {
                     waitDialog?.dismiss()
-                    FCLAlertDialog.Builder(this@SplashActivity)
-                        .setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
-                        .setTitle("严重错误")
-                        .setMessage(e.message)
-                        .setNegativeButton("确定") { exitProcess(-1) }
-                        .setCancelable(false)
-                        .create()
-                        .show()
+                    showErrorDialog(this@SplashActivity, e.message, false)
                 }
             }
         }

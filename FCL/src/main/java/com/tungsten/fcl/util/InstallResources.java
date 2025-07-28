@@ -14,9 +14,9 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.JsonParseException;
 import com.tungsten.fcl.setting.Config;
 import com.tungsten.fcl.setting.ConfigHolder;
-import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 
 import java.io.File;
@@ -30,7 +30,7 @@ public class InstallResources {
     private final CountDownLatch countDownLatch;
     private final Set<CheckFileFormat.FileInfo<?>> checkFiles;
     private final Activity thisActivity;
-    private View needRefreshBackground;
+    private final View needRefreshBackground;
 
     public InstallResources(Activity activity, View needRefreshBackground) {
         if(activity == null) throw new NullPointerException("错误，无效的活动页面。请将该问题反馈给原始制造商！");
@@ -46,30 +46,27 @@ public class InstallResources {
         forceDelete(LOG_DIR, CONTROLLER_DIR, oldInstallDir); // 先删除默认目录中的按键和日志内容，如果config.json文件修改后则删除旧的config.json文件中目录资源
 
         countDownLatch.await(); // 等待配置文件线程关键文件操作完毕后才能继续往下操作
-        install(thisActivity, getSelectedPath(innerConfig()).getAbsolutePath(), srcDir); // 安装游戏资源
+        install(thisActivity.getApplicationContext(), getSelectedPath(innerConfig()).getAbsolutePath(), srcDir); // 安装游戏资源
         if(editor != null) {
             editor.putBoolean("isFirstInstall", false);
             editor.apply();
         }
     }
 
-    public void installConfigFiles(String targetDir, String srcDir) throws IOException {
+    public void installConfigFiles(String targetDir, String srcDir) throws Exception {
         batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), thisActivity.getCacheDir(), thisActivity.getCodeCacheDir());
 
         for(CheckFileFormat.FileInfo<?> file : checkFiles) {
             Path externalPath = file.getExternalPath();
             try {
-                copyAssets(thisActivity, file.getInternalPath(), externalPath == null ? null : externalPath.toString());
+                copyAssets(thisActivity.getApplicationContext(), file.getInternalPath(), externalPath == null ? null : externalPath.toString());
                 countDownLatch.countDown(); // CountDownLatch计数器为0时，调用await()的线程不会阻塞
             } catch (FileNotFoundException e) {
-                enableAlertDialog(thisActivity, "未能在APK的assets目录中找到该文件“" + file.getInternalPath() + "”");
-                break;
+                throw new FileNotFoundException("未能在APK的assets目录中找到该文件“" + file.getInternalPath() + "”");
             } catch (IOException e) {
-                enableAlertDialog(thisActivity, "尝试读取/写入文件时发生致命错误：" + e);
-                break;
+                throw new IOException("尝试读取/写入文件时发生致命错误：" + e);
             } catch (Exception e) {
-                enableAlertDialog(thisActivity, "未知错误：" + e);
-                break;
+                throw new Exception("未知错误：" + e);
             }
         }
 
@@ -81,53 +78,21 @@ public class InstallResources {
                     DK_BACKGROUND_PATH
             ));
         }
-        if(!installConfig(innerConfig())) {
-            enableAlertDialog(thisActivity, "配置文件安装失败，请联系客户端制造商！");
-            return;
-        }
-        copyAssets(thisActivity, srcDir + "/version", targetDir + "/version");
 
-        countDownLatch.countDown();
+        if(!installConfig(innerConfig())) throw new JsonParseException("配置文件安装失败，请联系客户端制造商！");
+        else {
+            copyAssets(thisActivity.getApplicationContext(), srcDir + "/version", targetDir + "/version");
+            countDownLatch.countDown();
+        }
     }
 
     private boolean installConfig(@NonNull Config config) {
-        ParseAuthlibInjectorServerUtils.parseUrlAndWriteToFile(config);
+        ParseAuthlibInjectorServerUtils.parseUrlToConfig(config);
 
         return ConfigHolder.saveConfig(config);
     }
 
-    private void enableAlertDialog(Activity activity, String message) {
-        activity.runOnUiThread(() -> new FCLAlertDialog.Builder(activity)
-                .setTitle("警告")
-                .setMessage(message + "\n由于该错误是致命性的，点击“确定”按钮后将关闭应用")
-                .setPositiveButton("确定", () -> System.exit(-1))
-                .setCancelable(false)
-                .create()
-                .show());
-    }
-
     public CountDownLatch getCountDownLatch() {
         return countDownLatch;
-    }
-
-    public void setNeedRefreshBackground(View needRefreshBackground) {
-        if(!checkView(thisActivity, needRefreshBackground)) throw new IllegalArgumentException("错误，无效的活动页面。请将该问题反馈给原始制造商！");
-
-        this.needRefreshBackground = needRefreshBackground;
-    }
-
-    /**
-     * 传入的“activity”种是否存在该“view”
-     *
-     * @param activity 当前页面
-     * @param view 当前页面哪个组件（需要绑定id）
-     * @return 返回是否包含
-     **/
-    protected static boolean checkView(Activity activity, View view) {
-        try {
-            return activity != null && view != null && activity.findViewById(view.getId()) != null;
-        }catch(Exception e) {
-            return false;
-        }
     }
 }
