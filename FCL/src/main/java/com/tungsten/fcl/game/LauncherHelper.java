@@ -309,7 +309,7 @@ public final class LauncherHelper {
                             builder.setTitle(context.getString(R.string.launch_failed));
                             builder.setMessage(message);
                             builder.setNegativeButton(context.getString(com.tungsten.fcllibrary.R.string.dialog_positive), null);
-                            builder.setPositiveButton("测试", () -> System.exit(0));
+                            builder.setPositiveButton("关闭应用", () -> System.exit(0));
                             builder.create().show();
                         });
                     }
@@ -499,9 +499,8 @@ public final class LauncherHelper {
 
                 return Task.completed(true);
             }catch(RuleException ex) {
-                return Task.supplyAsync(Schedulers.androidUIThread(), () -> {
-                    CompletableFuture<Boolean> future = new CompletableFuture<>();
-
+                CompletableFuture<Task<Boolean>> future = new CompletableFuture<>();
+                Schedulers.androidUIThread().execute(() -> {
                     String tip = ex.getMessage() == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : ex.getMessage();
                     FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context)
                             .setCancelable(false)
@@ -523,11 +522,10 @@ public final class LauncherHelper {
                             .setMessageTextStyle(14f, true);
                     if(ex.getUrl() != null) builder.setPositiveButton("取消", () -> future.completeExceptionally(new CancellationException("用户强行终止了启动")));
                     builder.create().show();
-
-                    return future;
-                }).thenComposeAsync(Task::fromCompletableFuture);
+                });
+                return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
             }catch(Exception ex) {
-                throw new Exception("测试");
+                throw new Exception(ex.getMessage());
             }
         });
     }
