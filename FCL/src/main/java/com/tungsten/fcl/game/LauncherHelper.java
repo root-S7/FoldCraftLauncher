@@ -325,23 +325,27 @@ public final class LauncherHelper {
             try {
                 CompletableFuture<Task<FCLBridge>> future = new CompletableFuture<>();
                 if (!version.isEmpty()) {
-                    if (!renderer.getMinMCver().isEmpty()) {
-                        if (VersionNumber.compare(version, renderer.getMinMCver()) < 0) {
-                            Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
-                                    .setCancelable(false)
-                                    .setMessage(context.getString(R.string.message_check_renderer, renderer.getName()))
-                                    .setPositiveButton(context.getString(R.string.button_cancel), () -> future.completeExceptionally(new CancellationException()))
-                                    .setNegativeButton(context.getString(R.string.mod_check_continue), () -> future.complete(Task.completed(bridge))).create().show());
+                    if (rule != null && rule.getRenderer() != null) {
+                        try {
+                            RendererRule ruleRender = rule.getRenderer();
+                            if(!isNormal(ruleRender.setRule(setting))) throw new RuleException(ruleRender.getTip(), ruleRender.getDownloadURL());
+                        } catch (RuleException ex) {
+                            Schedulers.androidUIThread().execute(() -> errRuleDialog(context, ex.getMessage(), ex.getUrl(), future).create().show());
                             return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
                         }
-                    }
-                    if (!renderer.getMaxMCver().isEmpty()) {
-                        if (VersionNumber.compare(version, renderer.getMaxMCver()) > 0) {
-                            Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
-                                    .setCancelable(false)
-                                    .setMessage(context.getString(R.string.message_check_renderer, renderer.getName()))
-                                    .setPositiveButton(context.getString(R.string.button_cancel), () -> future.completeExceptionally(new CancellationException()))
-                                    .setNegativeButton(context.getString(R.string.mod_check_continue), () -> future.complete(Task.completed(bridge))).create().show());
+                    }else {
+                        boolean isVersionIncompatible =
+                                (!renderer.getMinMCver().isEmpty() && VersionNumber.compare(version, renderer.getMinMCver()) < 0) ||
+                                        (!renderer.getMaxMCver().isEmpty() && VersionNumber.compare(version, renderer.getMaxMCver()) > 0);
+                        if (isVersionIncompatible) {
+                            Schedulers.androidUIThread().execute(() ->
+                                    new FCLAlertDialog.Builder(context)
+                                            .setCancelable(false)
+                                            .setMessage(context.getString(R.string.message_check_renderer, renderer.getName()))
+                                            .setPositiveButton(context.getString(R.string.button_cancel), () -> future.completeExceptionally(new CancellationException()))
+                                            .setNegativeButton(context.getString(R.string.mod_check_continue), () -> future.complete(Task.completed(bridge)))
+                                            .create()
+                                            .show());
                             return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
                         }
                     }
@@ -494,40 +498,39 @@ public final class LauncherHelper {
                 JavaRule java = rule.getJava();
                 if(java != null && !isNormal(java.setRule(setting))) throw new RuleException(java.getTip(), null);
 
-                RendererRule renderer = rule.getRenderer();
-                if(renderer != null && !isNormal(renderer.setRule(setting))) throw new RuleException(renderer.getTip(), renderer.getDownloadURL());
-
                 return Task.completed(true);
             }catch(RuleException ex) {
                 CompletableFuture<Task<Boolean>> future = new CompletableFuture<>();
-                Schedulers.androidUIThread().execute(() -> {
-                    String tip = ex.getMessage() == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : ex.getMessage();
-                    FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context)
-                            .setCancelable(false)
-                            .setMessage(tip)
-                            .setAlertLevel(ALERT)
-                            .setTitle("规则异常")
-                            .setNegativeButton(ex.getUrl() != null ? "下载" : "确定", () -> {
-                                if(ex.getUrl() != null) {
-                                    try {
-                                        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(ex.getUrl().toString()));
-                                        context.startActivity(intent);
-                                    }catch(Exception e) {
-                                        Toast.makeText(context, "未安装浏览器应用", Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                                future.completeExceptionally(new CancellationException(ex.getUrl() != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
-                            })
-                            .setPercentageSize(0.88f, 0.77f)
-                            .setMessageTextStyle(14f, true);
-                    if(ex.getUrl() != null) builder.setPositiveButton("取消", () -> future.completeExceptionally(new CancellationException("用户强行终止了启动")));
-                    builder.create().show();
-                });
+                Schedulers.androidUIThread().execute(() -> errRuleDialog(context, ex.getMessage(), ex.getUrl(), future).create().show());
                 return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
-            }catch(Exception ex) {
-                throw new Exception(ex.getMessage());
             }
         });
+    }
+
+    public static FCLAlertDialog.Builder errRuleDialog(@NonNull Context context, String msg, URL url, @NonNull CompletableFuture<?> future) {
+        String tip = msg == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : msg;
+
+        FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context)
+                .setCancelable(false)
+                .setMessage(tip)
+                .setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
+                .setTitle("规则异常")
+                .setNegativeButton(url != null ? "下载" : "确定", () -> {
+                    if (url != null) {
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.toString()));
+                            context.startActivity(intent);
+                        } catch (Exception e) {
+                            Toast.makeText(context, "未安装浏览器或无效链接", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    future.completeExceptionally(new CancellationException(url != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
+                })
+                .setPercentageSize(0.8f, 0.7f)
+                .setMessageTextStyle(14f, true);
+
+        if (url != null) builder.setPositiveButton("取消", () -> future.completeExceptionally(new CancellationException("用户强行终止了启动")));
+        return builder;
     }
 
     static class SkipLoginDialog extends FCLDialog implements View.OnClickListener {
