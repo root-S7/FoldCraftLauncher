@@ -4,6 +4,8 @@
     "重要说明2": "请严格按照Json文件格式编写，若出现错误则任何规则都不会识别",
     "重要说明3": "请注意，只要是数组数据结构的一律有使用优先级；也就是谁在前谁就会优先使用",
     "重要说明4": "如果某个版本有多个适用规则则只会读取第一个有效的，其余均无效",
+    "重要说明5": "支持使用正则表达式对游戏名称（即 minecraft/versions 目录下的文件夹名称）进行匹配校验",
+    "重要说明5-1": "如『^1\\.17(\\.\\d{1,2})?$』可匹配所有以『1.17』开头的游戏目录，用于启动前进行校验",
     "内存项说明": {
       "说明1": "『minMemory』项的值不能低于“1024”，否则该项检测会自动失效"
     },
@@ -19,24 +21,29 @@
       "说明3": "若是自定义渲染器，则需要在『useRenderer』字段中填写对象型数据，详细格式如下：",
       "说明3-1": {"packageName": "ren.test.com", "name": "Renderer name"},
       "说明3-2": "『packageName』是app的包名，『name』是该渲染器别名",
-      "说明3-3": "且这两个key的值必须有合法的，不合法的将不被解析；获取包名方式请百度，这里不会介绍如何获取"
+      "说明3-3": "且这两个key的值必须有合法的，不合法的将不被解析；获取包名方式请百度，这里不会介绍如何获取",
+      "说明4": "『forceChange』说明如下：",
+      "说明4-1": "开启『forceChange』选项后，即使当前使用的渲染器已包含在『useRenderer』列表中",
+      "说明4-2": "启动器在进行规则检查时仍会从列表中的第一个渲染器开始依次检查，直到找到一个可用的渲染器，并强制设置为该渲染器"
     },
     "Java项说明": {
       "说明1": "该功能暂未启用，预计下周正式启用！"
     }
   },
   "launcherRules": {
-    "1.17": {
+    "^1\\.17(\\.\\d{1,2})?$": {
       "memory": {
         "minMemory": 3072,
         "tip": "内存最低要求为“${minMemory}MB”\n由于你的设备总运行内存只有“${totalMemory}GB”，不满足最低配置要求！"
       },
       "renderer": {
-        "useRenderer": [{"packageName": "com.fcl.plugin.mobileglues", "name": "MobileGlues"}],
+        "forceChange": false,
+        "useRenderer": [{"packageName": "com.fcl.plugin.mobileglues", "name": "MobileGlues"}, "f7e985d8-6d4c-f63c-d9f1-06074dab823a", "417a7a93-d9b4-98b9-ec6e-1ea400259c1f"],
         "downloadURL": "https://icraft.ren:90",
         "tip": "当前所使用的渲染器为『${setRenderer}』，要求的渲染器必须为『${requiredRenderer}』\n\n检测到您未安装该渲染器，请点击右下角按钮安装额外渲染器，否则游戏将不能启动！！！"
       },
       "java": {
+        "forceChange": false,
         "useJava": ["jre8"],
         "downloadURL": "https://icraft.ren:90",
         "tip": "当前所使用的Java为“${useJava}”，要求必须是使用如下Java才可以启动游戏：\n${requiredJava}"

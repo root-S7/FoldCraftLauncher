@@ -22,6 +22,9 @@ public class RendererRule extends RuleBase {
     private final LinkedHashSet<Renderer> useRenderer;
     @SerializedName("downloadURL")
     private final URL downloadURL;
+    @SerializedName("forceChange")
+    private final boolean fChange;
+
     private transient String requiredRenderer, setRenderer;
     private static final Renderer D_RENDERER = RENDERER_GL4ES;
 
@@ -29,12 +32,14 @@ public class RendererRule extends RuleBase {
         super(null);
         this.useRenderer = new LinkedHashSet<>();
         this.downloadURL = null;
+        this.fChange = false;
     }
 
-    public RendererRule(LinkedHashSet<Renderer> useRenderer, LinkedHashSet<String> customRenderer, URL downloadURL, String tip) {
+    public RendererRule(LinkedHashSet<Renderer> useRenderer, URL downloadURL, String tip, boolean fChange) {
         super(tip);
         this.useRenderer = useRenderer;
         this.downloadURL = downloadURL;
+        this.fChange = fChange;
     }
 
     public LinkedHashSet<Renderer> getUseRenderer() {
@@ -45,6 +50,10 @@ public class RendererRule extends RuleBase {
         return downloadURL;
     }
 
+    public boolean isChange() {
+        return fChange;
+    }
+
     @Override
     public boolean canDetectRule() {
         return useRenderer != null && !useRenderer.isEmpty();
@@ -53,18 +62,27 @@ public class RendererRule extends RuleBase {
     @Override
     public RuleCheckState setRule(@NonNull VersionSetting setting) {
         super.setRule(setting);
-        if(!canDetectRule()) return NO_CHANGE;
-        RendererManager.INSTANCE.refresh(CONTEXT);
+        boolean shouldContinue = Optional.of(setting)
+                .filter(s -> canDetectRule())
+                .map(s -> { RendererManager.INSTANCE.refresh(CONTEXT); return s; })
+                .filter(s -> fChange || !isCurrentRendererValid(s))
+                .isPresent();
+        if(!shouldContinue) return NO_CHANGE;
 
-        for(Renderer renderer : useRenderer) {
-            if(renderer == null) continue;
+        return useRenderer.stream()
+                .filter(Objects::nonNull)
+                .filter(renderer -> getRendererOrNull(renderer.getId()) != null)
+                .findFirst()
+                .map(renderer -> {
+                    setting.setRenderer(renderer.getId());
+                    return SUCCESS;
+                })
+                .orElse(UNKNOWN);
+    }
 
-            if(getRendererOrNull(renderer.getId()) != null) {
-                setting.setRenderer(renderer.getId());
-                return SUCCESS;
-            }
-        }
-        return UNKNOWN;
+    private boolean isCurrentRendererValid(VersionSetting setting) {
+        return getRendererOrNull(setting.getRenderer()) != null &&
+                useRenderer.stream().anyMatch(r -> r != null && r.isEqual(setting.getRenderer()));
     }
 
     @Override
