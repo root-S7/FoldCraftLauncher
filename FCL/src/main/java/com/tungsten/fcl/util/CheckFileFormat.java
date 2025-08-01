@@ -77,9 +77,11 @@ public class CheckFileFormat {
      * @return 返回一个“Set<String>”数据结构
     **/
     protected Set<String> transformDataStructure(boolean needCheckExtraFiles) {
-        Set<String> collect = defaultCheckFiles.stream().filter(
-                fileInfo -> fileInfo != null && fileInfo.getInternalPath() != null && !fileInfo.getInternalPath().isEmpty()
-        ).map(FileInfo::getInternalPath).collect(Collectors.toSet());
+        Set<String> collect = defaultCheckFiles
+                .stream()
+                .filter(fileInfo -> fileInfo != null && fileInfo.getInternalPath() != null && !fileInfo.getInternalPath().isEmpty())
+                .map(FileInfo::getInternalPath)
+                .collect(Collectors.toSet());
 
         if(needCheckExtraFiles) collect.addAll(extraNeedCheckInternalFile);
 
@@ -92,18 +94,11 @@ public class CheckFileFormat {
      * @param needCheckExtraFiles 是否检测额外增加的文件
      * @return 返回一个map表，使用枚举型保存着所有文件类型；只要有一个文件后缀名不在FileType的范围内则反回空表
     **/
-    public LinkedHashMap<String, FileType> getFileExtension(boolean needCheckExtraFiles) throws Exception {
+    public LinkedHashMap<String, FileType> getFileExtension(boolean needCheckExtraFiles) {
         LinkedHashMap<String, FileType> fileExtension = new LinkedHashMap<>();
         Set<String> internalNeedCheckFiles = transformDataStructure(needCheckExtraFiles);
 
-        for(String fileType : internalNeedCheckFiles) {
-            try {
-                fileExtension.put(fileType, FileType.fromExtension(FileUtils.getExtension(fileType)));
-            }catch(Exception e) { // 如果出现异常则返回null或空
-                throw new Exception(e);
-            }
-        }
-
+        for(String fileType : internalNeedCheckFiles) fileExtension.put(fileType, FileType.fromExtension(FileUtils.getExtension(fileType)));
         return fileExtension;
     }
 
@@ -137,22 +132,18 @@ public class CheckFileFormat {
 
                     bitmap.get().recycle();
                 }else if(fileExtension.get(s) == FileType.JSON) {
-                    Optional<FileInfo<?>> matchedFile = defaultCheckFiles.stream().filter(
-                            fileInfo -> fileInfo.getInternalPath().equals(s)
-                    ).findFirst();
+                    Optional<FileInfo<?>> matchedFile = defaultCheckFiles
+                            .stream()
+                            .filter(fileInfo -> fileInfo.getInternalPath().equals(s))
+                            .findFirst();
 
                     if(matchedFile.isPresent()) {
                         Object o = tryDeserialize(open, matchedFile.get().configFileType, false);
                         if(o == null) throw new FileParseException("文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
-
                     }else throw new FileParseException("不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");
                 }
-            }catch(FileParseException e) {
-                throw e;
             }catch(IOException e) {
                 throw new FileNotFoundException("文件“" + s + "”不存在，请尝试重新制作你的APK直装包！");
-            }catch(Exception e) {
-                throw new Exception(e.getMessage());
             }
         }
 
