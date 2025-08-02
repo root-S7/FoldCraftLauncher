@@ -16,8 +16,11 @@ import com.tungsten.fcl.util.AndroidUtils.*
 import com.tungsten.fcl.util.InstallResources
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
+import com.tungsten.fclauncher.utils.FCLPath.DK_BACKGROUND_PATH
+import com.tungsten.fclauncher.utils.FCLPath.LT_BACKGROUND_PATH
 import com.tungsten.fclcore.task.Schedulers
 import com.tungsten.fcllibrary.component.FCLFragment
+import com.tungsten.fcllibrary.component.theme.ThemeEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -110,7 +113,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         if (installing) return
 
         bind.apply {
-            val installResources = InstallResources(activity, bind.backgroundInstallView)
+            val installResources = InstallResources(context)
             installing = true
             showErrDialog.set(false)
             if (!gameFiles) {
@@ -119,7 +122,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         runCatching {
-                            installResources.installGameFiles(getSelectedPath(config()).absolutePath, ".minecraft", sharedPreferences.edit())
+                            installResources.installGameFiles(getSelectedPath(config()).absolutePath, ".minecraft", sharedPreferences.edit(), context)
                             gameFiles = true
                         }.onFailure {
                             it.printStackTrace()
@@ -143,7 +146,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         runCatching {
-                            installResources.installConfigFiles(FCLPath.CONFIG_DIR, "app_config")
+                            installResources.installConfigFiles(FCLPath.CONFIG_DIR, "app_config", context)
                             configFiles = true
                         }.onFailure {
                             it.printStackTrace()
@@ -154,6 +157,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             }
                         }
                     }
+                    if(!installResources.isSuccess) ThemeEngine.getInstance().applyAndSave(activity, bind.backgroundInstallView, LT_BACKGROUND_PATH, DK_BACKGROUND_PATH)
                     configFileState.visibility = View.VISIBLE
                     configFilesProgress.visibility = View.GONE
                     refreshDrawables()

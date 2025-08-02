@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.WebActivity;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -365,7 +366,8 @@ public class AndroidUtils {
                 .setAlertLevel(ALERT)
                 .setMessage(errMsg + (extraTip ? "\n\n由于该错误是致命性的，点击“确定”按钮后将关闭应用" : ""))
                 .setNegativeButton("确定", () -> {
-                    activity.finishAndRemoveTask();
+                    Activity cActivity = FCLApplication.getCurrentActivity();
+                    if(cActivity != null) cActivity.finishAndRemoveTask();
                     System.exit(-1);
                 })
                 .setCancelable(false)
