@@ -275,48 +275,6 @@ public class AndroidUtils {
         return isAdreno;
     }
 
-    /**
-     * 将文本反序列化成某个对象
-     * 若“tClass”参数为“null”，则尝试“new JSONObject”操作
-     *
-     * @param data 需要反序列化的文本
-     * @param tClass 反序列化成什么类型
-     * @param errorElseJSONObject 如果“new Gson()”反序列化操作失败，是否尝试JSONObject操作
-     * @return 返回一个成功解析的对象，如果序列化失败则返回“null”
-     * @param <T> 泛型，保证Class为任意
-    **/
-    public static <T> Object tryDeserialize(String data, Class<T> tClass, boolean errorElseJSONObject) {
-        Gson gson = new Gson();
-
-        try {
-            return gson.fromJson(data, tClass != null ? tClass : JsonObject.class);
-        }catch(RuntimeException e) {
-            if(errorElseJSONObject && tClass!= null) {
-                try{
-                    return gson.fromJson(data, JsonObject.class);
-                }catch(RuntimeException ex) {
-                    return null;
-                }
-            }
-            else return null;
-        }
-    }
-
-    /**
-     * 将文本反序列化成某个对象
-     * 若“tClass”参数为“null”，则尝试“new JSONObject”操作
-     *
-     * @param inputStream 文件流
-     * @param tClass 反序列化成什么类型
-     * @param errorElseJSONObject 如果“new Gson()”反序列化操作失败，是否尝试JSONObject操作
-     * @return 返回一个成功解析的对象，如果序列化失败则返回“null”
-     * @param <T> 泛型，保证Class为任意
-     * @throws IOException InputStream的异常
-    **/
-    public static <T> Object tryDeserialize(InputStream inputStream, Class<T> tClass, boolean errorElseJSONObject) throws IOException {
-        return tryDeserialize(readFullyAsString(inputStream), tClass, errorElseJSONObject);
-    }
-
     public static boolean isRegexMatch(String string, String pattern) {
         try {
             return Pattern.matches(pattern, string);

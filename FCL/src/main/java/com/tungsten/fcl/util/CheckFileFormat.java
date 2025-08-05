@@ -1,8 +1,8 @@
 package com.tungsten.fcl.util;
 
-import static com.tungsten.fcl.util.AndroidUtils.tryDeserialize;
 import static com.tungsten.fcl.util.FileType.*;
 import static com.tungsten.fclauncher.utils.FCLPath.*;
+import static com.tungsten.fclcore.util.gson.JsonUtils.*;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,20 +11,11 @@ import androidx.annotation.*;
 
 import com.google.gson.JsonObject;
 import com.mio.util.ImageUtil;
-import com.tungsten.fcl.setting.Controller;
-import com.tungsten.fcl.setting.MenuSetting;
+import com.tungsten.fcl.setting.*;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CheckFileFormat {
@@ -35,7 +26,7 @@ public class CheckFileFormat {
     protected final Set<FileInfo<?>> defaultFiles = Set.of(
             new FileInfo<>(ASSETS_CONFIG_JSON, null, JsonObject.class),
             new FileInfo<>(ASSETS_MENU_SETTING_JSON, Paths.get(FILES_DIR + "/menu_setting.json"), MenuSetting.class),
-            new FileInfo<>(ASSETS_AUTH_INJECTOR_SERVER_JSON, null, null),
+            new FileInfo<>(ASSETS_AUTH_INJECTOR_SERVER_JSON, null, JsonObject.class),
             new FileInfo<>(ASSETS_SETTING_LAUNCHER_PICTURES + "/lt.png", Paths.get(LT_BACKGROUND_PATH), null),
             new FileInfo<>(ASSETS_SETTING_LAUNCHER_PICTURES + "/dk.png", Paths.get(DK_BACKGROUND_PATH), null),
             new FileInfo<>(ASSETS_SETTING_LAUNCHER_PICTURES + "/cursor.png", Paths.get(FILES_DIR + "/cursor.png"), null),
@@ -129,7 +120,10 @@ public class CheckFileFormat {
                             .findFirst();
 
                     if(matchedFile.isPresent()) {
-                        Object o = tryDeserialize(open, matchedFile.get().configFileType, false);
+                        Object o = null;
+                        try {
+                            o = fromJsonFully(open, matchedFile.get().configFileType);
+                        }catch(Exception ignored) {}
                         if(o == null) throw new FileParseException("文件“" + s + "”解析错误，请尝试重新制作你的APK直装包！");
                     }else throw new FileParseException("不合法的文件“" + s + "”，我认为你反编译了APK并修改了该模块逻辑导致程序执行错误！");
                 }
