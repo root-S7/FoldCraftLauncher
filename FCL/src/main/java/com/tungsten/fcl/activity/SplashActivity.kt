@@ -51,8 +51,8 @@ import com.tungsten.fcl.setting.ConfigHolder.initWithTemp
 import com.tungsten.fcl.util.AndroidUtils.showErrorDialog
 import com.tungsten.fcl.util.CheckFileFormat
 import com.tungsten.fclauncher.utils.FCLPath.ASSETS_GENERAL_SETTING_PROPERTIES
+import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
 import com.tungsten.fcllibrary.component.dialog.FCLWaitDialog
-import kotlin.system.exitProcess
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
@@ -255,37 +255,37 @@ class SplashActivity : FCLActivity() {
                 FCLPath.CONFIG_DIR,
                 "/assets/app_config"
             ) && gameFiles
-            lwjgl = !FileUtils.assetsDirExist(this, "app_runtime/lwjgl", "app_runtime/lwjgl-boat") || (RuntimeUtils.isLatest(
+            lwjgl = RuntimeUtils.isLatest(
                 FCLPath.LWJGL_DIR,
                 "/assets/app_runtime/lwjgl"
             ) && RuntimeUtils.isLatest(
                 FCLPath.LWJGL_DIR + "-boat",
                 "/assets/app_runtime/lwjgl-boat"
-            ))
-            cacio = !FileUtils.assetsDirExist(this, "app_runtime/caciocavallo") || (RuntimeUtils.isLatest(
+            )
+            cacio = RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_8_DIR,
                 "/assets/app_runtime/caciocavallo"
-            ))
-            cacio11 = !FileUtils.assetsDirExist(this, "app_runtime/caciocavallo11") ||  (RuntimeUtils.isLatest(
+            )
+            cacio11 = RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_11_DIR,
                 "/assets/app_runtime/caciocavallo11"
-            ))
-            cacio17 = !FileUtils.assetsDirExist(this, "app_runtime/caciocavallo17") || (RuntimeUtils.isLatest(
+            )
+            cacio17 = RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_17_DIR,
                 "/assets/app_runtime/caciocavallo17"
-            ))
-            java8 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre8") || RuntimeUtils.isLatest(FCLPath.JAVA_8_PATH, "/assets/app_runtime/java/jre8")
-            java11 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre11") || RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11")
-            java17 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre17") || RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
-            java21 = !FileUtils.assetsDirExist(this, "app_runtime/java/jre21") || RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
-            jna = !FileUtils.assetsDirExist(this, "app_runtime/jna") || RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
+            )
+            java8 = RuntimeUtils.isLatest(FCLPath.JAVA_8_PATH, "/assets/app_runtime/java/jre8")
+            java11 = RuntimeUtils.isLatest(FCLPath.JAVA_11_PATH, "/assets/app_runtime/java/jre11")
+            java17 = RuntimeUtils.isLatest(FCLPath.JAVA_17_PATH, "/assets/app_runtime/java/jre17")
+            java21 = RuntimeUtils.isLatest(FCLPath.JAVA_21_PATH, "/assets/app_runtime/java/jre21")
+            jna = RuntimeUtils.isLatest(FCLPath.JNA_PATH, "/assets/app_runtime/jna")
             if (!File(FCLPath.JAVA_PATH, "resolv.conf").exists()) {
                 FileUtils.writeText(
                     File(FCLPath.JAVA_PATH + "/resolv.conf"),
                     String.format(
                         "nameserver %s\nnameserver %s",
-                        FCLPath.GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
-                        FCLPath.GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
+                        GENERAL_SETTING.getProperty("primary-nameserver", "119.29.29.29"),
+                        GENERAL_SETTING.getProperty("secondary-nameserver", "8.8.8.8")
                     )
                 )
             }
