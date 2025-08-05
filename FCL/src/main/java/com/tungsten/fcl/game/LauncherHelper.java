@@ -19,6 +19,7 @@ package com.tungsten.fcl.game;
 
 import static com.tungsten.fcl.util.AndroidUtils.getLocalizedText;
 import static com.tungsten.fcl.util.AndroidUtils.hasStringId;
+import static com.tungsten.fcl.util.AndroidUtils.openLink;
 import static com.tungsten.fcl.util.RuleCheckState.isNormal;
 import static com.tungsten.fclcore.util.Logging.LOG;
 import static com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.AlertLevel.ALERT;
@@ -49,6 +50,7 @@ import com.tungsten.fcl.setting.rules.extend.MemoryRule;
 import com.tungsten.fcl.setting.rules.extend.RendererRule;
 import com.tungsten.fcl.setting.rules.extend.VersionRule;
 import com.tungsten.fcl.ui.TaskDialog;
+import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -144,7 +146,7 @@ public final class LauncherHelper {
 
         AtomicReference<JavaVersion> javaVersionRef = new AtomicReference<>();
 
-        TaskExecutor executor = checkGameState(context, setting, version.get())
+        TaskExecutor executor = checkGameState(context, setting, version.get(), rule.getJava())
                 .thenComposeAsync(javaVersion -> {
                     javaVersionRef.set(Objects.requireNonNull(javaVersion));
                     version.set(LibFilter.filter(version.get()));
@@ -405,7 +407,7 @@ public final class LauncherHelper {
         });
     }
 
-    private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version) {
+    private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version, JavaRule rule) {
         Task<JavaVersion> task = Task.composeAsync(() -> Task.supplyAsync(Schedulers.androidUIThread(), () -> {
             if (setting.getJava().equals("Auto")) {
                 return JavaManager.getSuitableJavaVersion(version);
@@ -417,7 +419,16 @@ public final class LauncherHelper {
             return task.withStage("launch.state.java");
         }
 
-        return task.thenComposeAsync(javaVersion -> Task.allOf(Task.completed(javaVersion), Task.supplyAsync(() -> JavaVersion.getSuitableJavaVersion(version))))
+        if (rule != null && rule.canDetectRule()) { // 如果规则可用，则根据规则要求进行设置Java
+            return task.thenComposeAsync(javaVersion -> Optional.ofNullable(rule.setRule(setting))
+                    .filter(RuleCheckState::isNormal)
+                    .map(r -> Task.completed("Auto".equals(setting.getJava()) ? JavaManager.getSuitableJavaVersion(version) : JavaManager.getJavaFromVersionName(setting.getJava())))
+                    .orElseGet(() -> {
+                        CompletableFuture<JavaVersion> future = new CompletableFuture<>();
+                        Schedulers.androidUIThread().execute(() -> errRuleDialog(context, rule.getTip(), rule.getDownloadURL(), future).create().show());
+                        return Task.fromCompletableFuture(future);
+                    })).withStage("launch.state.java");
+        }else return task.thenComposeAsync(javaVersion -> Task.allOf(Task.completed(javaVersion), Task.supplyAsync(() -> JavaVersion.getSuitableJavaVersion(version))))
                 .thenComposeAsync(Schedulers.androidUIThread(), javaVersions -> {
                     JavaVersion javaVersion = (JavaVersion) javaVersions.get(0);
                     JavaVersion suggestedJavaVersion = (JavaVersion) javaVersions.get(1);
@@ -489,14 +500,11 @@ public final class LauncherHelper {
 
     private static Task<Boolean> setGameRule(@NonNull Context context, VersionSetting setting, VersionRule rule) {
         return Task.composeAsync(() -> {
-            if (rule == null || rule.getRenderer() == null) return Task.completed(true);
+            if (rule == null) return Task.completed(true);
 
             try {
                 MemoryRule memory = rule.getMemory();
                 if(memory != null && !isNormal(memory.setRule(setting))) throw new RuleException(memory.getTip(), null);
-
-                JavaRule java = rule.getJava();
-                if(java != null && !isNormal(java.setRule(setting))) throw new RuleException(java.getTip(), null);
 
                 return Task.completed(true);
             }catch(RuleException ex) {
@@ -516,14 +524,7 @@ public final class LauncherHelper {
                 .setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
                 .setTitle("规则异常")
                 .setNegativeButton(url != null ? "下载" : "确定", () -> {
-                    if (url != null) {
-                        try {
-                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url.toString()));
-                            context.startActivity(intent);
-                        } catch (Exception e) {
-                            Toast.makeText(context, "未安装浏览器或无效链接", Toast.LENGTH_LONG).show();
-                        }
-                    }
+                    if(url != null) openLink(context, url.toString());
                     future.completeExceptionally(new CancellationException(url != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
                 })
                 .setPercentageSize(0.8f, 0.7f)

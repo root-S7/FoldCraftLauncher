@@ -275,20 +275,6 @@ public class AndroidUtils {
         return isAdreno;
     }
 
-    public static String catchExceptionErrorText(Exception e) {
-        if(e == null) return "";
-
-        try(ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            PrintStream ps = new PrintStream(baos)) {
-
-            e.printStackTrace(ps);
-
-            return baos.toString(); // 获取堆栈跟踪信息的字符串
-        } catch (IOException ex) {
-            return "无法捕获异常！";
-        }
-    }
-
     /**
      * 将文本反序列化成某个对象
      * 若“tClass”参数为“null”，则尝试“new JSONObject”操作

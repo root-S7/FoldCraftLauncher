@@ -79,4 +79,9 @@ object JavaManager {
         }
         return exact ?: closestGreater!!
     }
+
+    @JvmStatic
+    fun getJava(name: String): JavaVersion? {
+        return javaList.find { it.name == name }
+    }
 }

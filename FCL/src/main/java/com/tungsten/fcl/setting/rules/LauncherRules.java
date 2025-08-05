@@ -13,7 +13,9 @@ import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.mio.data.Renderer;
 import com.tungsten.fcl.setting.rules.extend.VersionRule;
+import com.tungsten.fcl.util.gson.RuleJavaSetAdapter;
 import com.tungsten.fcl.util.gson.RuleRendererSetAdapter;
+import com.tungsten.fclcore.game.JavaVersion;
 import com.tungsten.fclcore.util.gson.URLTypeAdapter;
 import com.tungsten.fclcore.util.io.IOUtils;
 
@@ -31,23 +33,25 @@ public class LauncherRules {
             .setPrettyPrinting()
             .registerTypeAdapter(URL.class, new URLTypeAdapter())
             .registerTypeAdapter(new TypeToken<LinkedHashSet<Renderer>>(){}.getType(), new RuleRendererSetAdapter())
+            .registerTypeAdapter(new TypeToken<LinkedHashSet<JavaVersion>>(){}.getType(), new RuleJavaSetAdapter())
             .create();
     public Map<String, VersionRule> getLauncherRules() {
         return launcherRules;
     }
 
     public VersionRule getVersionRule(String version) {
-        return launcherRules.getOrDefault(version,
-                launcherRules.entrySet().stream()
+        return launcherRules.getOrDefault(version, launcherRules.entrySet()
+                        .stream()
                         .filter(entry -> isRegexMatch(version, entry.getKey()))
                         .map(Map.Entry::getValue)
                         .findFirst()
-                        .orElse(null)
+                        .orElse(new VersionRule())
         );
     }
 
     public LinkedHashSet<VersionRule> getVersionRules(String version) {
-        return launcherRules.entrySet().stream()
+        return launcherRules.entrySet()
+                .stream()
                 .filter(entry -> version.equals(entry.getKey()) || isRegexMatch(version, entry.getKey()))
                 .map(Map.Entry::getValue)
                 .collect(Collectors.toCollection(LinkedHashSet::new));

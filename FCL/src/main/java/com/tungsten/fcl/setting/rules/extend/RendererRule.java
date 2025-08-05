@@ -30,7 +30,7 @@ public class RendererRule extends RuleBase {
 
     public RendererRule() {
         super(null);
-        this.useRenderer = new LinkedHashSet<>();
+        this.useRenderer = null;
         this.downloadURL = null;
         this.fChange = false;
     }
@@ -69,7 +69,8 @@ public class RendererRule extends RuleBase {
                 .isPresent();
         if(!shouldContinue) return NO_CHANGE;
 
-        return useRenderer.stream()
+        return Objects.requireNonNull(useRenderer)
+                .stream()
                 .filter(Objects::nonNull)
                 .filter(renderer -> getRendererOrNull(renderer.getId()) != null)
                 .findFirst()

@@ -1,5 +1,6 @@
 package com.tungsten.fcl.setting.rules.extend;
 
+import static com.tungsten.fcl.util.RuleCheckState.NO_CHANGE;
 import static com.tungsten.fcl.util.RuleCheckState.UNKNOWN;
 
 import androidx.annotation.CallSuper;
@@ -26,8 +27,11 @@ public abstract class RuleBase {
 
     @CallSuper
     public RuleCheckState setRule(@NonNull VersionSetting setting) {
-        initPlaceholders(setting);
-        return UNKNOWN;
+        if(!canDetectRule()) return NO_CHANGE;
+        else {
+            initPlaceholders(setting);
+            return UNKNOWN;
+        }
     }
 
     public Map<String, String> getProperties(@NonNull String... propertyNames) {

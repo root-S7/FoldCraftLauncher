@@ -63,8 +63,8 @@ public class InstallResources {
             if(!installConfig(innerConfig())) throw new JsonParseException("配置文件安装失败，请联系客户端制造商！");
             else {
                 copyAssets(context, srcDir + "/version", targetDir + "/version");
-                countDownLatch.countDown();
                 configSuccess = true;
+                countDownLatch.countDown();
             }
         }catch(Exception e) {
             while(countDownLatch.getCount() > 0) countDownLatch.countDown();
