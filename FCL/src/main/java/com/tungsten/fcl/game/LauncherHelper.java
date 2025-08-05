@@ -327,27 +327,24 @@ public final class LauncherHelper {
             try {
                 CompletableFuture<Task<FCLBridge>> future = new CompletableFuture<>();
                 if (!version.isEmpty()) {
-                    if (rule != null && rule.getRenderer() != null) {
-                        try {
-                            RendererRule ruleRender = rule.getRenderer();
-                            if(!isNormal(ruleRender.setRule(setting))) throw new RuleException(ruleRender.getTip(), ruleRender.getDownloadURL());
-                        } catch (RuleException ex) {
-                            Schedulers.androidUIThread().execute(() -> errRuleDialog(context, ex.getMessage(), ex.getUrl(), future).create().show());
+                    if (rule != null && rule.getRenderer() != null) return Task.completed(bridge);
+                    if (!renderer.getMinMCver().isEmpty()) {
+                        if (VersionNumber.compare(version, renderer.getMinMCver()) < 0) {
+                            Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
+                                    .setCancelable(false)
+                                    .setMessage(context.getString(R.string.message_check_renderer, renderer.getName()))
+                                    .setPositiveButton(context.getString(R.string.button_cancel), () -> future.completeExceptionally(new CancellationException()))
+                                    .setNegativeButton(context.getString(R.string.mod_check_continue), () -> future.complete(Task.completed(bridge))).create().show());
                             return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
                         }
-                    }else {
-                        boolean isVersionIncompatible =
-                                (!renderer.getMinMCver().isEmpty() && VersionNumber.compare(version, renderer.getMinMCver()) < 0) ||
-                                        (!renderer.getMaxMCver().isEmpty() && VersionNumber.compare(version, renderer.getMaxMCver()) > 0);
-                        if (isVersionIncompatible) {
-                            Schedulers.androidUIThread().execute(() ->
-                                    new FCLAlertDialog.Builder(context)
-                                            .setCancelable(false)
-                                            .setMessage(context.getString(R.string.message_check_renderer, renderer.getName()))
-                                            .setPositiveButton(context.getString(R.string.button_cancel), () -> future.completeExceptionally(new CancellationException()))
-                                            .setNegativeButton(context.getString(R.string.mod_check_continue), () -> future.complete(Task.completed(bridge)))
-                                            .create()
-                                            .show());
+                    }
+                    if (!renderer.getMaxMCver().isEmpty()) {
+                        if (VersionNumber.compare(version, renderer.getMaxMCver()) > 0) {
+                            Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
+                                    .setCancelable(false)
+                                    .setMessage(context.getString(R.string.message_check_renderer, renderer.getName()))
+                                    .setPositiveButton(context.getString(R.string.button_cancel), () -> future.completeExceptionally(new CancellationException()))
+                                    .setNegativeButton(context.getString(R.string.mod_check_continue), () -> future.complete(Task.completed(bridge))).create().show());
                             return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
                         }
                     }
@@ -505,6 +502,9 @@ public final class LauncherHelper {
             try {
                 MemoryRule memory = rule.getMemory();
                 if(memory != null && !isNormal(memory.setRule(setting))) throw new RuleException(memory.getTip(), null);
+
+                RendererRule renderer = rule.getRenderer();
+                if(renderer != null && !isNormal(renderer.setRule(setting))) throw new RuleException(renderer.getTip(), null);
 
                 return Task.completed(true);
             }catch(RuleException ex) {
