@@ -5,7 +5,8 @@ import java.util.Set;
 public enum FileType {
     IMAGE(Set.of("png", "jpg", "jpeg", "bmp", "gif", "webp")),
     JSON(Set.of("json")),
-    TEXT(Set.of("", "txt","properties"));
+    TEXT(Set.of("", "txt","properties")),
+    ZIP(Set.of("zip", "rar", "7z", "jar", "xz", "tar", "wim", "gzip"));
 
     private final Set<String> extensions;
 
@@ -21,12 +22,9 @@ public enum FileType {
     **/
     public static FileType fromExtension(String extension) {
         if(extension == null) throw new IllegalArgumentException("未知文件格式，请将问题反馈给整合包作者！");
-
-        // 遍历所有枚举值
         for(FileType fileType : FileType.values()) {
             if(fileType.extensions.contains(extension.toLowerCase())) return fileType;
         }
-        // 如果没有找到匹配的枚举类型
         throw new IllegalArgumentException("未知文件格式“" + extension + "”，请确保APK的“assets/app_config”目录下对应文件格式正确且有效！");
     }
 }

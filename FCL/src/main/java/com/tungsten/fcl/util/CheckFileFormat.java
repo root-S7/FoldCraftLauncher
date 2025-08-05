@@ -1,18 +1,18 @@
 package com.tungsten.fcl.util;
 
 import static com.tungsten.fcl.util.AndroidUtils.tryDeserialize;
+import static com.tungsten.fcl.util.FileType.*;
 import static com.tungsten.fclauncher.utils.FCLPath.*;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.*;
 
 import com.google.gson.JsonObject;
 import com.mio.util.ImageUtil;
 import com.tungsten.fcl.setting.Controller;
 import com.tungsten.fcl.setting.MenuSetting;
-import com.tungsten.fclcore.util.io.FileUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +32,7 @@ public class CheckFileFormat {
     /**
      * 检查文件格式是否正确
     **/
-    protected final Set<FileInfo<?>> defaultCheckFiles = Set.of(
+    protected final Set<FileInfo<?>> defaultFiles = Set.of(
             new FileInfo<>(ASSETS_CONFIG_JSON, null, JsonObject.class),
             new FileInfo<>(ASSETS_MENU_SETTING_JSON, Paths.get(FILES_DIR + "/menu_setting.json"), MenuSetting.class),
             new FileInfo<>(ASSETS_AUTH_INJECTOR_SERVER_JSON, null, null),
@@ -39,9 +40,12 @@ public class CheckFileFormat {
             new FileInfo<>(ASSETS_SETTING_LAUNCHER_PICTURES + "/dk.png", Paths.get(DK_BACKGROUND_PATH), null),
             new FileInfo<>(ASSETS_SETTING_LAUNCHER_PICTURES + "/cursor.png", Paths.get(FILES_DIR + "/cursor.png"), null),
             new FileInfo<>(ASSETS_SETTING_LAUNCHER_PICTURES + "/menu_icon.png", Paths.get(FILES_DIR + "/menu_icon.png"), null),
-            new FileInfo<>(ASSETS_DEFAULT_CONTROLLER, null, Controller.class)
+            new FileInfo<>(ASSETS_DEFAULT_CONTROLLER, null, Controller.class),
+            new FileInfo<>(ASSETS_LAUNCHER_RULES, null, JsonObject.class),
+            new FileInfo<>(ASSETS_GENERAL_SETTING_PROPERTIES, null, null),
+            new FileInfo<>(ASSETS_AUTHLIB_INJECTOR_JAR, null, null)
     );
-    protected Set<String> extraNeedCheckInternalFile = new HashSet<>();
+    protected Set<String> extraInternalFile = new HashSet<>();
 
     /**
      * 创建一个对象
@@ -51,67 +55,54 @@ public class CheckFileFormat {
     public CheckFileFormat(@NonNull Context context, String... extraNeedFile) {
         if(extraNeedFile != null && (extraNeedFile.length > 0)) {
             Arrays.stream(extraNeedFile)
-                    .filter(file -> file != null && !file.isEmpty())  // 排除 null 和 空字符串
-                    .forEach(extraNeedCheckInternalFile::add);  // 添加到集合中
+                    .filter(file -> file != null && !file.isEmpty())
+                    .forEach(extraInternalFile::add);
         }
 
         loadPaths(context.getApplicationContext());
     }
 
-    public Set<FileInfo<?>> getDefaultCheckFiles() {
-        return defaultCheckFiles;
+    public Set<FileInfo<?>> getDefaultFiles() {
+        return defaultFiles;
     }
 
-    public Set<String> getExtraNeedCheckInternalFile() {
-        return extraNeedCheckInternalFile;
+    public Set<String> getExtraInternalFile() {
+        return extraInternalFile;
     }
 
-    public void setExtraNeedCheckInternalFile(Set<String> extraNeedCheckInternalFile) {
-        this.extraNeedCheckInternalFile = extraNeedCheckInternalFile;
+    public void setExtraInternalFile(Set<String> extraNeedCheckInternalFile) {
+        this.extraInternalFile = extraNeedCheckInternalFile;
     }
 
     /**
-     * 将“defaultCheckFiles”数据结构转换成“Set<String>”
+     * 检测文件是否都合法
      *
-     * @param needCheckExtraFiles 额外增加的文件是否也加入到“Set<String>”
-     * @return 返回一个“Set<String>”数据结构
-    **/
-    protected Set<String> transformDataStructure(boolean needCheckExtraFiles) {
-        Set<String> collect = defaultCheckFiles
-                .stream()
-                .filter(fileInfo -> fileInfo != null && fileInfo.getInternalPath() != null && !fileInfo.getInternalPath().isEmpty())
+     * @param checkExtraFiles 是否检测额外增加的文件
+     * @throws Exception 只要有一个文件存在格式问题就抛出异常
+     **/
+    public void checkFileFormat(boolean checkExtraFiles) throws Exception {
+        LinkedHashMap<String, FileType> needCheck = defaultFiles.stream()
                 .map(FileInfo::getInternalPath)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(() -> {
+                    Set<String> result = new LinkedHashSet<>();
+                    if(checkExtraFiles && extraInternalFile != null) result.addAll(extraInternalFile);
+                    return result;
+                }))
+                .stream()
+                .filter(path -> path != null && !path.isEmpty())
+                .collect(Collectors.toMap(path -> path, path -> {
+                        String extension = "";
+                        int lastDotIndex = path.lastIndexOf('.');
+                        if(lastDotIndex > 0 && lastDotIndex < path.length() - 1) {
+                            extension = path.substring(lastDotIndex + 1);
+                        }
+                        return FileType.fromExtension(extension);
+                    }, (existing, replacement) -> existing, LinkedHashMap::new)
+                );
 
-        if(needCheckExtraFiles) collect.addAll(extraNeedCheckInternalFile);
+        if(needCheck.isEmpty()) throw new Exception("待检测文件为空，无法完成本次任务！");
 
-        return collect;
-    }
-
-    /**
-     * 获取所有“需要检测的文件”后缀名是什么
-     *
-     * @param needCheckExtraFiles 是否检测额外增加的文件
-     * @return 返回一个map表，使用枚举型保存着所有文件类型；只要有一个文件后缀名不在FileType的范围内则反回空表
-    **/
-    public LinkedHashMap<String, FileType> getFileExtension(boolean needCheckExtraFiles) {
-        LinkedHashMap<String, FileType> fileExtension = new LinkedHashMap<>();
-        Set<String> internalNeedCheckFiles = transformDataStructure(needCheckExtraFiles);
-
-        for(String fileType : internalNeedCheckFiles) fileExtension.put(fileType, FileType.fromExtension(FileUtils.getExtension(fileType)));
-        return fileExtension;
-    }
-
-    /**
-     * getFileExtension + checkAllFileLegal合体版
-     *
-     * @param needCheckExtraFiles 是否检测额外增加的文件
-    **/
-    public void checkFileFormat(boolean needCheckExtraFiles) throws Exception {
-        LinkedHashMap<String, FileType> fileExtension = getFileExtension(needCheckExtraFiles);
-        if(fileExtension == null) throw new Exception("待检测文件为空，无法完成本次任务！");
-
-        boolean result = checkAllFileLegal(fileExtension);
+        boolean result = checkAllFileLegal(needCheck);
         if(!result) throw new FileParseException("有一个文件存在错误，但不知晓具体错误和文件名称。请尝试重新制作APK！");
     }
 
@@ -126,13 +117,13 @@ public class CheckFileFormat {
 
         for(String s : strings) {
             try(InputStream open = CONTEXT.getAssets().open(s)) {
-                if(fileExtension.get(s) == FileType.IMAGE) {
+                if(fileExtension.get(s) == IMAGE) {
                     Optional<Bitmap> bitmap = ImageUtil.load(open);
                     if(bitmap.isEmpty()) throw new FileParseException("图片“" + s + "存在问题，请确保该图片大小和分辨率符合要求！");
 
                     bitmap.get().recycle();
-                }else if(fileExtension.get(s) == FileType.JSON) {
-                    Optional<FileInfo<?>> matchedFile = defaultCheckFiles
+                }else if(fileExtension.get(s) == JSON) {
+                    Optional<FileInfo<?>> matchedFile = defaultFiles
                             .stream()
                             .filter(fileInfo -> fileInfo.getInternalPath().equals(s))
                             .findFirst();
@@ -178,6 +169,17 @@ public class CheckFileFormat {
 
         public Class<T> getConfigFileType() {
             return configFileType;
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if(obj instanceof FileInfo) return internalPath.equals(((FileInfo<?>) obj).internalPath);
+            else return false;
+        }
+
+        @Override
+        public int hashCode() {
+            return internalPath.hashCode();
         }
     }
 }

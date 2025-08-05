@@ -27,7 +27,7 @@ public class InstallResources {
     private volatile boolean configSuccess = false;
 
     public InstallResources(Context context) {
-        this.checkFiles = new CheckFileFormat(context.getApplicationContext()).getDefaultCheckFiles();
+        this.checkFiles = new CheckFileFormat(context.getApplicationContext()).getDefaultFiles();
         this.countDownLatch = new CountDownLatch(checkFiles.size() + 1);
     }
 
