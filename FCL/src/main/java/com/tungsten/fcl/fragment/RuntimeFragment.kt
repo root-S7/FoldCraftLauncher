@@ -157,7 +157,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             }
                         }
                     }
-                    if(!installResources.isSuccess) ThemeEngine.getInstance().applyAndSave(activity, bind.backgroundInstallView, LT_BACKGROUND_PATH, DK_BACKGROUND_PATH)
+                    if(installResources.isSuccess) ThemeEngine.getInstance().applyAndSave(activity, bind.backgroundInstallView, LT_BACKGROUND_PATH, DK_BACKGROUND_PATH)
                     configFileState.visibility = View.VISIBLE
                     configFilesProgress.visibility = View.GONE
                     refreshDrawables()
