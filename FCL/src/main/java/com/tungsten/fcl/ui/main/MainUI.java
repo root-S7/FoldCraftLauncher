@@ -35,8 +35,8 @@ import java.util.logging.Level;
 
 public class MainUI extends FCLCommonUI implements View.OnClickListener {
 
-    public static final String ANNOUNCEMENT_URL = GENERAL_SETTING.getProperty("announcement-url", "https://icraft.ren:90/titles/FCL/Releases_Version/1.1.9.1/announcement.txt");
-    public static final String ANNOUNCEMENT_URL_CN = GENERAL_SETTING.getProperty("announcement-url", "https://icraft.ren:90/titles/FCL/Releases_Version/1.1.9.1/announcement.txt");
+    public static final String ANNOUNCEMENT_URL = GENERAL_SETTING.getProperty("announcement-url", "https://icraft.ren:90/titles/FCL/Releases_Version/1.2.4.5/announcement.txt");
+    public static final String ANNOUNCEMENT_URL_CN = GENERAL_SETTING.getProperty("announcement-url", "https://icraft.ren:90/titles/FCL/Releases_Version/1.2.4.5/announcement.txt");
 
     private LinearLayoutCompat announcementContainer;
     private LinearLayoutCompat announcementLayout;
