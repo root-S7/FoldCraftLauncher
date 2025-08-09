@@ -504,7 +504,7 @@ public final class LauncherHelper {
                 if(memory != null && !isNormal(memory.setRule(setting))) throw new RuleException(memory.getTip(), null);
 
                 RendererRule renderer = rule.getRenderer();
-                if(renderer != null && !isNormal(renderer.setRule(setting))) throw new RuleException(renderer.getTip(), null);
+                if(renderer != null && !isNormal(renderer.setRule(setting))) throw new RuleException(renderer.getTip(), renderer.getDownloadURL());
 
                 return Task.completed(true);
             }catch(RuleException ex) {
