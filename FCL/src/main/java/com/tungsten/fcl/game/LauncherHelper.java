@@ -44,7 +44,7 @@ import com.tungsten.fcl.control.MenuType;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.setting.Profiles;
 import com.tungsten.fcl.setting.VersionSetting;
-import com.tungsten.fcl.setting.rules.LauncherRules;
+import static com.tungsten.fcl.setting.rules.GameRulesManager.*;
 import com.tungsten.fcl.setting.rules.extend.JavaRule;
 import com.tungsten.fcl.setting.rules.extend.MemoryRule;
 import com.tungsten.fcl.setting.rules.extend.RendererRule;
@@ -125,7 +125,7 @@ public final class LauncherHelper {
         this.selectedVersion = Objects.requireNonNull(selectedVersion);
         this.setting = profile.getVersionSetting(selectedVersion);
         this.launchingStepsPane = new TaskDialog(context, TaskCancellationAction.NORMAL);
-        this.rule = LauncherRules.fromJson(context).getVersionRule(selectedVersion);
+        this.rule = fromJson(context).getVersionRule(selectedVersion);
         this.launchingStepsPane.setTitle(context.getString(R.string.version_launch));
     }
 

@@ -1,6 +1,6 @@
 package com.tungsten.fcl.setting.rules.extend;
 
-import static com.tungsten.fcl.setting.rules.LauncherRules.GSON;
+import static com.tungsten.fcl.setting.rules.GameRulesManager.*;
 
 import androidx.annotation.NonNull;
 
@@ -15,9 +15,9 @@ public class VersionRule {
     private final JavaRule java;
 
     public VersionRule() {
-        this.memory = new MemoryRule();
-        this.renderer = new RendererRule();
-        this.java = new JavaRule();
+        this.memory = null;
+        this.renderer = null;
+        this.java = null;
     }
 
     public VersionRule(MemoryRule memory, RendererRule renderer, JavaRule java) {
@@ -40,6 +40,6 @@ public class VersionRule {
 
     @NonNull @Override
     public String toString() {
-        return GSON.toJson(this);
+        return getGSON().toJson(this);
     }
 }
