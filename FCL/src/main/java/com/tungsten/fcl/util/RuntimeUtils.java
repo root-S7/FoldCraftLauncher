@@ -73,7 +73,7 @@ public class RuntimeUtils {
 
         if (fileNames != null && fileNames.length > 0) {
             File destDir = new File(dest);
-            if (!destDir.exists() && !destDir.mkdirs()) throw new IOException("无法创建目录: " + dest);
+            if (!destDir.exists() && !destDir.mkdirs()) throw new IOException("无法创建“" + dest + "”目录");
 
             for (String fileName : fileNames) {
                 String newSrc = src.isEmpty() ? fileName : src + "/" + fileName;
@@ -83,7 +83,7 @@ public class RuntimeUtils {
         } else {
             File outFile = new File(dest);
             File parentDir = outFile.getParentFile();
-            if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) throw new IOException("无法创建父目录: " + parentDir.getAbsolutePath());
+            if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) throw new IOException("无法创建父目录『" + parentDir.getAbsolutePath() + '』');
 
             try (BufferedInputStream bis = new BufferedInputStream(assetManager.open(src), 8192);
                  BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outFile), 8192)) {
