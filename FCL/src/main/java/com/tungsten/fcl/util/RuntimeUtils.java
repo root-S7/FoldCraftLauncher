@@ -4,6 +4,7 @@ import static com.tungsten.fclcore.util.io.FileUtils.forceDeleteQuietly;
 import static com.tungsten.fclcore.util.io.FileUtils.writeText;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.system.Os;
 
 import com.tungsten.fclauncher.FCLauncher;
@@ -19,10 +20,7 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -68,49 +66,33 @@ public class RuntimeUtils {
     }
 
     public static void copyAssets(Context context, String src, String dest) throws IOException {
-        if(context == null || src == null || dest == null) return;
+        if (context == null || src == null || dest == null) return;
 
-        // 获取指定路径下的文件或目录列表
-        String[] fileNames = context.getAssets().list(src);
+        AssetManager assetManager = context.getAssets();
+        String[] fileNames = assetManager.list(src);
 
-        if (fileNames != null && fileNames.length > 0) { // 当前路径为目录
+        if (fileNames != null && fileNames.length > 0) {
             File destDir = new File(dest);
+            if (!destDir.exists() && !destDir.mkdirs()) throw new IOException("无法创建目录: " + dest);
 
-            // 确保目标目录存在
-            if (!destDir.exists() && !destDir.mkdirs()) {
-                throw new IOException("Failed to create directory: " + dest);
-            }
-
-            // 遍历目录下的文件/子目录
             for (String fileName : fileNames) {
-                String newSrc = src.isEmpty() ? fileName : src + File.separator + fileName;
+                String newSrc = src.isEmpty() ? fileName : src + "/" + fileName;
                 String newDest = dest + File.separator + fileName;
-
-                // 递归复制
                 copyAssets(context, newSrc, newDest);
             }
-        } else { // 当前路径为文件
+        } else {
             File outFile = new File(dest);
-
-            // 确保父目录存在
             File parentDir = outFile.getParentFile();
-            if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) {
-                throw new IOException("Failed to create parent directory: " + parentDir.getAbsolutePath());
-            }
+            if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) throw new IOException("无法创建父目录: " + parentDir.getAbsolutePath());
 
-            // 使用 try-with-resources 确保资源关闭
-            try (InputStream is = context.getAssets().open(src);
-                 FileOutputStream fos = new FileOutputStream(outFile)) {
+            try (BufferedInputStream bis = new BufferedInputStream(assetManager.open(src), 8192);
+                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outFile), 8192)) {
 
-                // 以缓冲区形式复制文件
-                byte[] buffer = new byte[1024];
-                int byteCount;
-                while ((byteCount = is.read(buffer)) != -1) {
-                    fos.write(buffer, 0, byteCount);
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = bis.read(buffer)) != -1) {
+                    bos.write(buffer, 0, bytesRead);
                 }
-
-                // 确保数据刷新到文件
-                fos.flush();
             }
         }
     }
