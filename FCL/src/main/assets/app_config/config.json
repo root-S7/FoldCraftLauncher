@@ -3,7 +3,7 @@
   "autoDownloadThreads": true,
   "_version": 0,
   "configurations": {
-    "公有目录": {
+    "内部目录": {
       "global": {
         "usesGlobal": true,
         "javaArgs": "",
@@ -24,7 +24,7 @@
         "isolateGameDir": false,
         "pojavBigCore": false
       },
-      "gameDir": "/storage/emulated/0/FCL-Server/.minecraft",
+      "gameDir": "/data/data/com.tungsten.fcl.server/.minecraft",
       "selectedMinecraftVersion": ""
     },
     "私有目录": {
