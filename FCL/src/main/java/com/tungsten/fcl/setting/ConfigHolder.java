@@ -17,6 +17,7 @@
  */
 package com.tungsten.fcl.setting;
 
+import static com.tungsten.fclauncher.utils.FCLPath.*;
 import static com.tungsten.fclcore.util.Logging.LOG;
 import static com.tungsten.fclcore.util.io.FileUtils.checkPermission;
 
@@ -24,7 +25,6 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.JsonParseException;
 import com.tungsten.fcl.R;
-import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.property.MapProperty;
 import com.tungsten.fclcore.util.InvocationDispatcher;
 import com.tungsten.fclcore.util.Lang;
@@ -43,7 +43,7 @@ public final class ConfigHolder {
     private ConfigHolder() {
     }
 
-    public static final Path CONFIG_PATH = new File(FCLPath.FILES_DIR + "/config.json").toPath();
+    public static final Path CONFIG_PATH = new File(FILES_DIR + "/config.json").toPath();
 
     private static Config configInstance, innerConfigInstance;
     private static boolean newlyCreated;
@@ -122,7 +122,7 @@ public final class ConfigHolder {
             newlyCreated = true;
             return new Config();
         }else {
-            try(InputStream is = FCLPath.CONTEXT.getAssets().open(FCLPath.ASSETS_CONFIG_JSON)) {
+            try(InputStream is = CONTEXT.getAssets().open(ASSETS_CONFIG_JSON)) {
                 String innerString = IOUtils.readFullyAsString(is);
                 Config config = Config.fromJson(innerString);
 
@@ -180,8 +180,8 @@ public final class ConfigHolder {
             if(selected != null) configurations.remove(selected);
 
 
-            String privateName = FCLPath.CONTEXT.getString(R.string.profile_private);
-            Profile privateProfile = new Profile("global", new File(FCLPath.PRIVATE_COMMON_DIR));
+            String privateName = CONTEXT.getString(R.string.profile_private);
+            Profile privateProfile = new Profile("global", new File(PRIVATE_COMMON_DIR));
             configurations.put(privateName, privateProfile);
             config.setSelectedProfile(privateName);
         }
@@ -204,7 +204,7 @@ public final class ConfigHolder {
                 .map(configurations::get)
                 .map(Profile::getGameDir)
                 .filter(gameDir -> checkPermission(gameDir.getAbsolutePath()))
-                .orElse(new File(FCLPath.PRIVATE_COMMON_DIR));
+                .orElse(new File(PRIVATE_COMMON_DIR));
     }
 
     /**
