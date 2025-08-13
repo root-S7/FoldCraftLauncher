@@ -9,7 +9,7 @@ import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.tungsten.fcl.R;
-import com.tungsten.fcl.util.DeviceConfigUtils;
+import com.tungsten.fcl.util.DeviceInfo;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.task.Schedulers;
 import com.tungsten.fclcore.task.Task;
@@ -57,7 +57,7 @@ public class UpdateChecker {
             if (showAlert) {
                 Schedulers.androidUIThread().execute(() -> Toast.makeText(context, context.getString(R.string.update_checking), Toast.LENGTH_SHORT).show());
             }
-            String res = NetworkUtils.doGet(NetworkUtils.toURL(LocaleUtils.isChinese(context) ? UPDATE_CHECK_URL_CN : UPDATE_CHECK_URL), DeviceConfigUtils.toText());
+            String res = NetworkUtils.doGet(NetworkUtils.toURL(LocaleUtils.isChinese(context) ? UPDATE_CHECK_URL_CN : UPDATE_CHECK_URL), DeviceInfo.toText());
             ArrayList<RemoteVersion> versions = JsonUtils.GSON.fromJson(res, new TypeToken<ArrayList<RemoteVersion>>(){}.getType());
             for (RemoteVersion version : versions) {
                 if (version.getVersionCode() > getCurrentVersionCode(context)) {
