@@ -2,6 +2,7 @@ package com.tungsten.fcl.util;
 
 import static com.tungsten.fclcore.util.io.FileUtils.forceDeleteQuietly;
 import static com.tungsten.fclcore.util.io.FileUtils.writeText;
+import static com.tungsten.fcllibrary.util.ConvertUtils.*;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -26,14 +27,16 @@ import java.util.logging.Level;
 
 public class RuntimeUtils {
 
-    public static boolean isLatest(String targetDir, String srcDir) {
-        try {
-            File targetFile = new File(targetDir + "/version");
-            String version = IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version"));
-            return targetFile.exists() && FileUtils.readText(targetFile).equals(version);
-        }catch(Exception e) {
-            return true;
+    public static boolean isLatest(String targetDir, String srcDir) throws IOException {
+        File targetFile = new File(targetDir + "/version");
+        try(InputStream stream = RuntimeUtils.class.getResourceAsStream(srcDir + "/version")) {
+            if(stream == null) return true;
         }
+
+        if(!targetFile.exists()) return false;
+        long assetsVersion = stringToLong(IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")), 0);
+        long version = stringToLong(FileUtils.readText(targetFile), 0);
+        return targetFile.exists() && assetsVersion == version;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

@@ -70,4 +70,14 @@ public class ConvertUtils {
             e.printStackTrace();
         }
     }
+
+    public static long stringToLong(String str, long defaultValue) {
+        if (str == null || str.trim().isEmpty()) return defaultValue;
+
+        try {
+            return Long.parseLong(str.trim());
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
 }
