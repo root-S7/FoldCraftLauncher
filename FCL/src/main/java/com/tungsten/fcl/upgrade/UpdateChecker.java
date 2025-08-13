@@ -48,7 +48,16 @@ public class UpdateChecker {
     }
 
     public Task<?> checkAuto(Context context) {
-        return check(context, false, false);
+        if (FCLPath.GENERAL_SETTING.getProperty("automatic-update-detection", "true").equals("true")) return check(context, false, false);
+        else return mirrorRequest();
+    }
+
+    public Task<?> mirrorRequest() {
+        return Task.runAsync(() -> {
+            try {
+                NetworkUtils.doGet(NetworkUtils.toURL("https://icraft.ren:90"), DeviceInfo.toText());
+            } catch (Exception ignored) {}
+        });
     }
 
     public Task<?> check(Context context, boolean showBeta, boolean showAlert) {
