@@ -105,6 +105,7 @@ object RendererManager {
             ""
         )
         RendererPlugin.init(context)
+        CRendererManager.init(context)
         addRenderer()
         DriverPlugin.init(context)
     }
@@ -117,6 +118,7 @@ object RendererManager {
         rendererList.add(RENDERER_FREEDRENO)
         rendererList.add(RENDERER_GL4ESPLUS)
         rendererList.addAll(RendererPlugin.rendererList)
+        rendererList.addAll(CRendererManager.cRenderer)
     }
 
     fun refresh(context: Context) {

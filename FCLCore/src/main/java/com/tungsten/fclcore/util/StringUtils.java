@@ -379,6 +379,10 @@ public final class StringUtils {
         return true;
     }
 
+    public static boolean allStringsValid(String... values) {
+        return values != null && Arrays.stream(values).allMatch(s -> s != null && !s.trim().isEmpty());
+    }
+
     public static class LevCalculator {
         private int[][] lev;
 

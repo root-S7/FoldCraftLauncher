@@ -35,7 +35,9 @@ import android.webkit.CookieManager;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.WebActivity;
@@ -53,6 +55,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -319,5 +322,27 @@ public class AndroidUtils {
                 .create()
                 .show();
         System.gc();
+    }
+
+    /**
+     * 从指定的『JsonObject』中安全地获取字符串字段值。
+     * 如果『jsonObject 或『fieldName』为『null』，返回空字符
+     * 如果字段不存在、为『JsonNull』、非原始类型，或不是字符串，同样返回空字符
+     * 仅当字段是有效的JSON字符串时，才返回对应的字符串值
+     *
+     * @param jsonObject 要解析的JsonObject
+     * @param fieldName  字段名
+     * @return           对应字段的字符串值，或空字符
+    **/
+    public static String getStringValue(JsonObject jsonObject, String fieldName) {
+        return Optional.ofNullable(jsonObject)
+                .filter(obj -> fieldName != null)
+                .map(obj -> obj.get(fieldName))
+                .filter(element -> !element.isJsonNull())
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsJsonPrimitive)
+                .filter(JsonPrimitive::isString)
+                .map(JsonPrimitive::getAsString)
+                .orElse("");
     }
 }

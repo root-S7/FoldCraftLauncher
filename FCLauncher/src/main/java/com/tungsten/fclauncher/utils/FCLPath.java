@@ -54,7 +54,8 @@ public class FCLPath {
             ASSETS_AUTH_INJECTOR_SERVER_JSON = "app_config/authlib_injector_server.json",
             ASSETS_LAUNCHER_RULES = "app_config/launcher_rules.json",
             ASSETS_DEFAULT_CONTROLLER = "controllers/00000000.json",
-            ASSETS_SETTING_LAUNCHER_PICTURES = "app_config/settings_launcher_pictures";
+            ASSETS_SETTING_LAUNCHER_PICTURES = "app_config/settings_launcher_pictures",
+            ASSETS_CUSTOM_RENDERER = "app_config/custom_renderer.json";
 
     public static void loadPaths(Context context) {
         CONTEXT = context;

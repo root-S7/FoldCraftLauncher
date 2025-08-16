@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 
 import androidx.annotation.*;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mio.util.ImageUtil;
 import com.tungsten.fcl.setting.*;
@@ -34,7 +35,8 @@ public class CheckFileFormat {
             new FileInfo<>(ASSETS_DEFAULT_CONTROLLER, null, Controller.class),
             new FileInfo<>(ASSETS_LAUNCHER_RULES, null, JsonObject.class),
             new FileInfo<>(ASSETS_GENERAL_SETTING_PROPERTIES, null, null),
-            new FileInfo<>(ASSETS_AUTHLIB_INJECTOR_JAR, null, null)
+            new FileInfo<>(ASSETS_AUTHLIB_INJECTOR_JAR, null, null),
+            new FileInfo<>(ASSETS_CUSTOM_RENDERER, null, JsonObject.class)
     );
     protected Set<String> extraInternalFile = new HashSet<>();
 

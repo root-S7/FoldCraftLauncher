@@ -55,8 +55,8 @@ public class RuleRendererSetAdapter implements JsonSerializer<LinkedHashSet<Rend
      * @return 合法的『Renderer』对象或『null』
     **/
     private Renderer parseRendererObject(JsonObject obj) {
-        String name = tryGetString(obj, "name");
-        String packageName = tryGetString(obj, "packageName");
+        String name = getStringValue(obj, "name");
+        String packageName = getStringValue(obj, "packageName");
 
         return Optional.ofNullable(obj)
                 .filter(o -> name != null && !name.trim().isEmpty())
@@ -81,23 +81,5 @@ public class RuleRendererSetAdapter implements JsonSerializer<LinkedHashSet<Rend
         }catch(Exception ex) {
             return false;
         }
-    }
-
-    /**
-     * 从『JsonObject』安全提取指定『key』对应的字符串值
-     * 如果『key』不存在、对应值不是字符串，或发生异常，则返回『null』
-     *
-     * @param obj  JSON对象
-     * @param key  期望获取的字符串字段名
-     * @return key 对应的字符串值，或『null』
-    **/
-    private String tryGetString(JsonObject obj, String key) {
-        try {
-            JsonElement element = obj.get(key);
-            if(element != null && element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
-                return element.getAsString();
-            }
-        }catch(Exception ignored) {}
-        return null;
     }
 }
