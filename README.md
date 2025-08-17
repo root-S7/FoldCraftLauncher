@@ -18,14 +18,15 @@
 ## ✨新增功能『相较于官方分支』
 
 - [x] 可自定义按键存放位置
-- [x] 可自定义首次安装时皮肤站列表『authlib_injector_server.json』
 - [x] 可自定义默认背景图和某些图片
+- [x] 打开应用后可自动检查配置文件格式是否正确
+- [x] 可根据自己整合包情况删减无用Java运行环境
 - [x] 可自定义APK中运行环境打包项（详情见群文件说明）
 - [x] 可自定义『config.json』和『menu_setting.json』文件配置项
+- [x] 可自定义首次安装时皮肤站列表『authlib_injector_server.json』
+- [x] 可在『custom_renderer.json』内置特定渲染器（具体教程见群文件）
 - [x] 可在『general_setting.properties』文件中修改部分启动器设置选项
-- [x] 可自定义特定版本启动规则『launcher_rules.json』
-- [x] 可根据自己整合包情况删减无用Java运行环境
-- [x] 打开应用后可自动检查配置文件格式是否正确
+- [x] 可在『launcher_rules.json』自定义特定版本启动规则（支持对渲染器，Java，运行内存作要求）
 - [x] 以及更多内容！
 
 ## 🖼️截图
