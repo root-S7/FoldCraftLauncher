@@ -11,7 +11,6 @@ import com.google.gson.*;
 import com.tungsten.fclcore.util.StringUtils;
 
 import java.lang.reflect.Type;
-import java.util.stream.*;
 
 public class CustomRendererSetAdapter implements JsonSerializer<Set<Renderer>>, JsonDeserializer<Set<Renderer>> {
     private final String libDir;
@@ -43,23 +42,20 @@ public class CustomRendererSetAdapter implements JsonSerializer<Set<Renderer>>, 
             JsonObject rendererJson = rendererElement.getAsJsonObject();
             String des = getStringValue(rendererJson, "des");
             String renderer = getStringValue(rendererJson, "renderer");
-            String boatString = getStringValue(rendererJson, "boatEnv");
-            String pojavString = getStringValue(rendererJson, "pojavEnv");
+            String boatStr = getStringValue(rendererJson, "boatEnv");
+            String pojavStr = getStringValue(rendererJson, "pojavEnv");
             String minMCVer = getStringValue(rendererJson, "minMCVer");
             String maxMCVer = getStringValue(rendererJson, "maxMCVer");
             boolean success = StringUtils.allStringsValid(packageName, des, renderer);
-            if(!success || (boatString.trim().isEmpty() && pojavString.trim().isEmpty())) continue;
+            if(!success || (boatStr.trim().isEmpty() && pojavStr.trim().isEmpty())) continue;
 
-            String[] boatEnv = boatString.split(":");
-            String[] pojavEnv = pojavString.split(":");
             String[] renderEnv = renderer.split(":");
-            if(!checkSoFiles(Stream.of(renderEnv, boatEnv, pojavEnv)
-                    .flatMap(Arrays::stream)
-                    .toArray(String[]::new))) continue;
+            if(!checkSoFiles(boatStr, pojavStr, renderer)) continue;
 
             Renderer rendererObj = new Renderer(
                     renderEnv[0].trim(), des.trim(), renderEnv[1].trim(), renderEnv[2].trim(), libDir,
-                    List.of(boatEnv), List.of(pojavEnv), packageName.trim(), minMCVer.trim(), maxMCVer.trim()
+                    List.of(boatStr.split(":")), List.of(pojavStr.split(":")), packageName.trim(),
+                    minMCVer.trim(), maxMCVer.trim()
             );
             rendererSet.add(rendererObj);
         }
@@ -67,10 +63,15 @@ public class CustomRendererSetAdapter implements JsonSerializer<Set<Renderer>>, 
         return rendererSet;
     }
 
-    private boolean checkSoFiles(String... items) {
-        return Arrays.stream(items)
-                .filter(s -> s != null && s.endsWith(".so"))
-                .map(s -> new File(libDir, s))
+    private boolean checkSoFiles(String... envStrings) {
+        if (envStrings == null || envStrings.length == 0) return false;
+
+        return Arrays.stream(envStrings)
+                .filter(Objects::nonNull)
+                .flatMap(s -> Arrays.stream(s.split(":")))
+                .flatMap(s -> Arrays.stream(s.split("[^A-Za-z0-9_\\-.]+")))
+                .filter(name -> name.endsWith(".so"))
+                .map(name -> new File(libDir, name))
                 .allMatch(File::exists);
     }
 }
