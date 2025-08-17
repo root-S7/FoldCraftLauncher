@@ -111,6 +111,8 @@ object RendererManager {
     }
 
     private fun addRenderer() {
+        val rendererList = linkedSetOf<Renderer>()
+
         rendererList.add(RENDERER_GL4ES)
         rendererList.add(RENDERER_VIRGL)
         rendererList.add(RENDERER_VGPU)
@@ -119,6 +121,8 @@ object RendererManager {
         rendererList.add(RENDERER_GL4ESPLUS)
         rendererList.addAll(RendererPlugin.rendererList)
         rendererList.addAll(CRendererManager.cRenderer)
+
+        this.rendererList.addAll(rendererList)
     }
 
     fun refresh(context: Context) {
