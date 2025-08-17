@@ -1,0 +1,10 @@
+{
+  "com.mio.plugin.renderer.ltw": {
+    "des": "OpenLTW（OpenGL 4.6）",
+    "renderer": "LTW:libltw.so:libltw.so",
+    "boatEnv": "",
+    "pojavEnv": "LIBGL_ES=3:POJAV_RENDERER=opengles3_ltw",
+    "minMCVer": "1.17",
+    "maxMCVer": ""
+  }
+}
