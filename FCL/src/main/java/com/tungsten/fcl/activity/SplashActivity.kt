@@ -46,6 +46,7 @@ import java.nio.file.Paths
 import java.util.Locale
 import java.util.logging.Level
 import androidx.core.content.edit
+import com.mio.manager.CRendererManager
 import com.mio.manager.RendererManager
 import com.tungsten.fcl.setting.ConfigHolder.initWithTemp
 import com.tungsten.fcl.util.AndroidUtils.showErrorDialog
@@ -181,6 +182,7 @@ class SplashActivity : FCLActivity() {
             withContext(Dispatchers.IO) {
                 ConfigHolder.setNull()
                 RendererPlugin.init(this@SplashActivity)
+                CRendererManager.init(this@SplashActivity)
                 DriverPlugin.init(this@SplashActivity)
                 RendererManager.init(this@SplashActivity)
                 JavaManager.init()
