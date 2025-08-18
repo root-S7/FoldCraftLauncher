@@ -16,7 +16,7 @@ public class DeviceInfo {
 
     static {
         DEVICE_DATA = Map.of(
-                "Device", MANUFACTURER + "(" + PRODUCT + ")",
+                "Device", BRAND + "(" + MODEL + ")",
                 "Android-Version", RELEASE,
                 "Android-SDK", valueOf(SDK_INT),
                 "CPU", getSocName(),
