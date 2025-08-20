@@ -265,17 +265,10 @@ public class FCLauncher {
             }
             return;
         }
-        boolean useAngle = false;
         if (FCLBridge.BACKEND_IS_BOAT) {
             envMap.put("LIBGL_STRING", renderer.toString());
             envMap.put("LIBGL_NAME", renderer.getGlName());
-            if (useAngle && renderer.isEqual(Renderer.ID_GL4ESPLUS)) {
-                envMap.put("LIBEGL_NAME", "libEGL_angle.so");
-                envMap.put("LIBGL_BACKEND_ANGLE", "1");
-            } else {
-                envMap.put("LIBEGL_NAME", renderer.getEglName());
-                envMap.put("LIBGL_BACKEND_ANGLE", "0");
-            }
+            envMap.put("LIBEGL_NAME", renderer.getEglName());
         }
         if (renderer.isEqual(Renderer.ID_GL4ES) || renderer.isEqual(Renderer.ID_VGPU)) {
             envMap.put("LIBGL_ES", "2");
@@ -290,17 +283,18 @@ public class FCLauncher {
                     envMap.put("POJAV_RENDERER", "opengles2_vgpu");
                 }
             }
-        } else if (renderer.isEqual(Renderer.ID_GL4ESPLUS)) {
+        } else if (renderer.isEqual(Renderer.ID_NGGL4ES)) {
+            envMap.put("LIBGL_USE_MC_COLOR", "1");
+            envMap.put("DLOPEN", "libspirv-cross-c-shared.so");
+            envMap.put("LIBGL_GL", "30");
             envMap.put("LIBGL_ES", "3");
-            envMap.put("LIBGL_MIPMAP", "3");
             envMap.put("LIBGL_NORMALIZE", "1");
             envMap.put("LIBGL_NOINTOVLHACK", "1");
-            envMap.put("LIBGL_SHADERCONVERTER", "1");
-            envMap.put("LIBGL_GL", "21");
-            envMap.put("LIBGL_USEVBO", "1");
+            envMap.put("LIBGL_NOERROR", "1");
+            // TODO: set NGG_DIR_PATH to custom path
             if (!FCLBridge.BACKEND_IS_BOAT) {
                 envMap.put("POJAV_RENDERER", "opengles3");
-                envMap.put("POJAVEXEC_EGL", useAngle ? "libEGL_angle.so" : renderer.getEglName());
+                envMap.put("POJAVEXEC_EGL", "libEGL.so");
             }
         } else {
             envMap.put("MESA_GLSL_CACHE_DIR", config.getContext().getCacheDir().getAbsolutePath());
