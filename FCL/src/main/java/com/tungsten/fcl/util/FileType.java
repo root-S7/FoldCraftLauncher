@@ -6,7 +6,7 @@ public enum FileType {
     IMAGE(Set.of("png", "jpg", "jpeg", "bmp", "gif", "webp")),
     JSON(Set.of("json")),
     TEXT(Set.of("", "txt","properties")),
-    ZIP(Set.of("zip", "rar", "7z", "jar", "xz", "tar", "wim", "gzip"));
+    ZIP(Set.of("zip", "rar", "7z", "jar", "xz", "tar", "wim", "gzip", "gz", "bz2"));
 
     private final Set<String> extensions;
 
