@@ -11,6 +11,7 @@
 #include <android/log.h>
 #include <jni.h>
 #include "fcl_internal.h"
+#include "driver_helper/driver_helper.h"
 
 extern void installLwjglDlopenHook(JavaVM* vm);
 
@@ -19,13 +20,6 @@ void (*vtest_swap_buffers) (void);
 
 ANativeWindow_Buffer buf;
 int32_t stride;
-
-#ifndef FCL_NSBYPASS_H
-#define FCL_NSBYPASS_H
-
-void* loadTurnipVulkan();
-
-#endif
 
 void* makeContextCurrentEGL(void* win) {
     _GLFWwindow* window = win;
@@ -161,44 +155,19 @@ static int extensionSupportedOSMesa(const char* extension)
 //////                       GLFW internal API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-static void set_vulkan_ptr(void* ptr) {
-    char envval[64];
-    sprintf(envval, "%"PRIxPTR, (uintptr_t)ptr);
-    setenv("VULKAN_PTR", envval, 1);
-}
-
-void load_vulkan() {
-    if(getenv("VULKAN_DRIVER_SYSTEM") == NULL && android_get_device_api_level() >= 28) {
-#ifdef ADRENO_POSSIBLE
-        void* result = loadTurnipVulkan();
-        if(result != NULL) {
-            printf("AdrenoSupp: Loaded Turnip, loader address: %p\n", result);
-            set_vulkan_ptr(result);
-            return;
-        }
-#endif
-    }
-    printf("OSMDroid: loading vulkan regularly...\n");
-    void* vulkan_ptr = dlopen("libvulkan.so", RTLD_LAZY | RTLD_LOCAL);
-    printf("OSMDroid: loaded vulkan, ptr=%p\n", vulkan_ptr);
-    set_vulkan_ptr(vulkan_ptr);
-}
-
 GLFWbool _glfwInitOSMesa(void)
 {
     if (_glfw.osmesa.handle)
         return GLFW_TRUE;
 
+    load_vulkan();
+
     char *lib_name = getenv("LIB_MESA_NAME");
+    char *renderer = getenv("LIBGL_STRING");
     if (!lib_name) {
         lib_name = getenv("LIBGL_NAME");
     }
     _glfw.osmesa.handle = _glfw_dlopen(lib_name);
-
-    const char *renderer = getenv("LIBGL_STRING");
-    
-    if (!strcmp(renderer, "Zink") || !strcmp(renderer, "custom_gallium"))
-        load_vulkan();
 
     if (!_glfw.osmesa.handle)
     {
