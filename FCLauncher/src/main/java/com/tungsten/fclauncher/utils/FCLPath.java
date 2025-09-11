@@ -1,5 +1,7 @@
 package com.tungsten.fclauncher.utils;
 
+import static com.tungsten.fclauncher.utils.AssetsPath.SETTINGS;
+
 import android.content.Context;
 import android.os.Environment;
 
@@ -46,22 +48,11 @@ public class FCLPath {
     public static String LT_BACKGROUND_PATH;
     public static String DK_BACKGROUND_PATH;
 
-    public static final String
-            ASSETS_AUTHLIB_INJECTOR_JAR = "game/authlib-injector.jar",
-            ASSETS_GENERAL_SETTING_PROPERTIES = "app_config/general_setting.properties",
-            ASSETS_CONFIG_JSON = "app_config/config.json",
-            ASSETS_MENU_SETTING_JSON = "app_config/menu_setting.json",
-            ASSETS_AUTH_INJECTOR_SERVER_JSON = "app_config/authlib_injector_server.json",
-            ASSETS_LAUNCHER_RULES = "app_config/launcher_rules.json",
-            ASSETS_DEFAULT_CONTROLLER = "controllers/00000000.json",
-            ASSETS_SETTING_LAUNCHER_PICTURES = "app_config/settings_launcher_pictures",
-            ASSETS_CUSTOM_RENDERER = "app_config/custom_renderer.json";
-
     public static void loadPaths(Context context) {
         CONTEXT = context;
 
         try {
-            GENERAL_SETTING.load(context.getAssets().open(ASSETS_GENERAL_SETTING_PROPERTIES));
+            GENERAL_SETTING.load(context.getAssets().open(SETTINGS));
         }catch(Exception e) {
             GENERAL_SETTING = new Properties();
         }

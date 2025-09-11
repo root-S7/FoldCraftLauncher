@@ -9,7 +9,7 @@ import com.tungsten.fcl.setting.rules.extend.VersionRule
 import com.tungsten.fcl.util.AndroidUtils.isRegexMatch
 import com.tungsten.fcl.util.gson.RuleJavaSetAdapter
 import com.tungsten.fcl.util.gson.RuleRendererSetAdapter
-import com.tungsten.fclauncher.utils.FCLPath.*
+import com.tungsten.fclauncher.utils.AssetsPath.Companion.RULES
 import com.tungsten.fclcore.game.JavaVersion
 import com.tungsten.fclcore.util.gson.URLTypeAdapter
 import com.tungsten.fclcore.util.io.IOUtils
@@ -40,7 +40,7 @@ class GameRulesManager : LinkedHashMap<String, VersionRule>() {
         @JvmStatic
         fun fromJson(context: Context): GameRulesManager {
             return try {
-                context.assets.open(ASSETS_LAUNCHER_RULES).use { inputStream ->
+                context.assets.open(RULES).use { inputStream ->
                     fromJson(IOUtils.readFullyAsString(inputStream))
                 }
             }catch(_: Exception) {

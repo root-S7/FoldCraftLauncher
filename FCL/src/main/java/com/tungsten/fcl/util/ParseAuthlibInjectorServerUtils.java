@@ -1,10 +1,12 @@
 package com.tungsten.fcl.util;
 
+import static com.tungsten.fcl.util.AndroidUtils.*;
+import static com.tungsten.fclauncher.utils.AssetsPath.*;
+import static com.tungsten.fclcore.util.io.IOUtils.*;
+
 import com.google.gson.*;
 import com.tungsten.fcl.setting.Config;
-import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorServer;
-import com.tungsten.fclcore.util.io.IOUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -17,9 +19,9 @@ public class ParseAuthlibInjectorServerUtils {
     **/
     public static void parseUrlToConfig(Config config) {
 
-        try(StringReader jsonReader = new StringReader(parseFile())) {
-            JsonObject authlibInjectorServerObject = JsonParser.parseReader(jsonReader).getAsJsonObject();
-            JsonArray asJsonArray = authlibInjectorServerObject.getAsJsonArray("server-address");
+        try(StringReader jsonReader = new StringReader(readFullyAsString(openAssets(null, AUTH_SERVER)))) {
+            JsonObject authObject = JsonParser.parseReader(jsonReader).getAsJsonObject();
+            JsonArray asJsonArray = authObject.getAsJsonArray("server-address");
 
             for(JsonElement data : asJsonArray) {
                 try {
@@ -27,18 +29,5 @@ public class ParseAuthlibInjectorServerUtils {
                 }catch(IOException ignored) {}
             }
         }catch(Exception ignored) { }
-    }
-
-    /**
-     * 读取“authlib_injector_server.json”内容
-     * @return 返回内容
-     * @throws IOException 读取失败异常
-    **/
-    public static String parseFile() throws IOException {
-        return IOUtils.readFullyAsString(
-                ParseAuthlibInjectorServerUtils.class.getResourceAsStream(
-                        "/assets/" + FCLPath.ASSETS_AUTH_INJECTOR_SERVER_JSON
-                )
-        );
     }
 }

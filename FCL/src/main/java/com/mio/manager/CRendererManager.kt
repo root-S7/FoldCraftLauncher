@@ -1,12 +1,14 @@
 package com.mio.manager
 
 import android.content.Context
-import com.google.gson.*
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.mio.data.Renderer
+import com.tungsten.fcl.util.AndroidUtils.*
 import com.tungsten.fcl.util.gson.CustomRendererSetAdapter
+import com.tungsten.fclauncher.utils.AssetsPath.Companion.CUSTOM_RENDERER
 import com.tungsten.fclauncher.utils.FCLPath
-import com.tungsten.fclauncher.utils.FCLPath.ASSETS_CUSTOM_RENDERER
 import com.tungsten.fclcore.util.io.IOUtils
 
 object CRendererManager {
@@ -36,7 +38,7 @@ object CRendererManager {
                 )
                 .create()
 
-            val fileData = IOUtils.readFullyAsString(javaClass.getResourceAsStream("/assets/$ASSETS_CUSTOM_RENDERER"))
+            val fileData = IOUtils.readFullyAsString(openAssets(null, CUSTOM_RENDERER))
             val rendererSet: MutableSet<Renderer> = gson.fromJson(fileData, object : TypeToken<MutableSet<Renderer>>() {}.type)
             cRenderer.addAll(rendererSet)
         }.onFailure {

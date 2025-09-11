@@ -17,9 +17,10 @@
  */
 package com.tungsten.fcl.setting;
 
+import static com.tungsten.fcl.setting.Config.*;
 import static com.tungsten.fclauncher.utils.FCLPath.*;
 import static com.tungsten.fclcore.util.Logging.LOG;
-import static com.tungsten.fclcore.util.io.FileUtils.checkPermission;
+import static com.tungsten.fclcore.util.io.FileUtils.*;
 
 import androidx.annotation.NonNull;
 
@@ -29,11 +30,8 @@ import com.tungsten.fclcore.fakefx.beans.property.MapProperty;
 import com.tungsten.fclcore.util.InvocationDispatcher;
 import com.tungsten.fclcore.util.Lang;
 import com.tungsten.fclcore.util.io.FileUtils;
-import com.tungsten.fclcore.util.io.IOUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.*;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -45,7 +43,7 @@ public final class ConfigHolder {
 
     public static final Path CONFIG_PATH = new File(FILES_DIR + "/config.json").toPath();
 
-    private static Config configInstance, innerConfigInstance;
+    private static Config configInstance;
     private static boolean newlyCreated;
 
     public static boolean isInit() {
@@ -59,13 +57,6 @@ public final class ConfigHolder {
         return configInstance;
     }
 
-    public static Config innerConfig() {
-        if (innerConfigInstance == null) {
-            throw new IllegalStateException("APK内部的“config.json”文件需要进入到启动器安装步骤才能读取到，跳过该步骤将无效！");
-        }
-        return innerConfigInstance;
-    }
-
     public static boolean isNewlyCreated() {
         return newlyCreated;
     }
@@ -75,7 +66,7 @@ public final class ConfigHolder {
             return;
         }
 
-        configInstance = loadConfig(false);
+        configInstance = loadConfig();
         configInstance.addListener(source -> markConfigDirty());
 
         Settings.init();
@@ -86,51 +77,42 @@ public final class ConfigHolder {
     }
 
     /**
-     * 临时初始化内外部的config.json文件，使用完毕后需要手动释放
+     * 临时初始化外部的config.json文件并返回
+     * 注意，会先从configInstance获取
+     * 如果无法获取则通过CONFIG_PATH路径获取，若仍然无法获取则返回null
+     * 同时，若外部文件格式有异常则会尝试删除！
     **/
-    public synchronized static void initWithTemp() throws IOException {
-        if(configInstance == null) configInstance = loadConfig(false);
-        if(innerConfigInstance == null) innerConfigInstance = loadConfig(true);
+    public synchronized static Config initTempConfig() {
+        if(configInstance != null) return validateProfile(configInstance);
 
-        validateProfile(innerConfigInstance);
-        validateProfile(configInstance);
-    }
-
-    /**
-     * 读取配置文件
-     * @param innerConfig 若为“true”则读取APK内部的配置文件
-     * @return 成功读取的配置文件对象
-     * @throws IOException 读取错误
-    **/
-    private static Config loadConfig(boolean innerConfig) throws IOException {
-        if(!innerConfig) {
-            if (Files.exists(CONFIG_PATH)) {
-                try {
-                    String content = FileUtils.readText(CONFIG_PATH);
-                    Config deserialized = Config.fromJson(content);
-                    if (deserialized == null) {
-                        LOG.info("Config is empty");
-                    } else {
-                        return deserialized;
-                    }
-                } catch (JsonParseException e) {
-                    LOG.log(Level.WARNING, "Malformed config.", e);
-                }
-            }
-
-            LOG.info("Creating an empty config");
-            newlyCreated = true;
-            return new Config();
-        }else {
-            try(InputStream is = CONTEXT.getAssets().open(ASSETS_CONFIG_JSON)) {
-                String innerString = IOUtils.readFullyAsString(is);
-                Config config = Config.fromJson(innerString);
-
-                return config == null ? new Config() : config;
-            }catch(Exception e) {
-                return new Config();
+        try {
+            return fromJson(readText(CONFIG_PATH));
+        }catch(Exception ex) {
+            if(!(ex instanceof FileNotFoundException)) {
+                FileUtils.forceDelete();
             }
         }
+        return null;
+    }
+
+    private static Config loadConfig() throws IOException {
+        if (Files.exists(CONFIG_PATH)) {
+            try {
+                String content = readText(CONFIG_PATH);
+                Config deserialized = Config.fromJson(content);
+                if (deserialized == null) {
+                    LOG.info("Config is empty");
+                } else {
+                    return deserialized;
+                }
+            } catch (JsonParseException e) {
+                LOG.log(Level.WARNING, "Malformed config.", e);
+            }
+        }
+
+        LOG.info("Creating an empty config");
+        newlyCreated = true;
+        return new Config();
     }
 
     private static final InvocationDispatcher<String> configWriter = InvocationDispatcher.runOn(Lang::thread, content -> {
@@ -141,10 +123,17 @@ public final class ConfigHolder {
         }
     });
 
-    public static void writeToConfig(String content) throws IOException {
+    private static void writeToConfig(String content) throws IOException {
         LOG.info("Saving config");
         synchronized (CONFIG_PATH) {
             FileUtils.saveSafely(CONFIG_PATH, content);
+        }
+    }
+
+    public static void writeToConfig(@NonNull Config config) throws IOException {
+        LOG.info("Saving config");
+        synchronized (CONFIG_PATH) {
+            FileUtils.saveSafely(CONFIG_PATH, config.toJson());
         }
     }
 
@@ -163,20 +152,12 @@ public final class ConfigHolder {
      * 如果无效，则删除该配置，同时清空 selectedProfile，
      * 然后添加一个新的默认私有目录配置，并设置为 selectedProfile。
     **/
-    public static Config validateProfile(@NonNull Config config) {
+    public static Config validateProfile(Config config) {
+        if(config == null) config = new Config();
         String selected = config.getSelectedProfile();
         MapProperty<String, Profile> configurations = config.getConfigurations();
 
-        boolean valid = Optional.ofNullable(selected)
-                .filter(s -> !s.isBlank())
-                .filter(configurations::containsKey)
-                .map(configurations::get)
-                .map(Profile::getGameDir)
-                .map(File::getPath)
-                .map(FileUtils::checkPermission)
-                .orElse(false);
-
-        if (!valid) {
+        if (!validateSelectedPath(config)) {
             if(selected != null) configurations.remove(selected);
 
 
@@ -194,7 +175,8 @@ public final class ConfigHolder {
      * - 若 selectedProfile 有效（存在且目录有读写权限），返回其路径；
      * - 否则返回默认路径 FCLPath.PRIVATE_COMMON_DIR。
     **/
-    public static File getSelectedPath(@NonNull Config config) {
+    public static File getSelectedPath(Config config) {
+        if(config == null) config = new Config();
         String selected = config.getSelectedProfile();
         MapProperty<String, Profile> configurations = config.getConfigurations();
 
@@ -208,25 +190,22 @@ public final class ConfigHolder {
     }
 
     /**
-     * 将某个Config对象写入到外部文件
-     * @param config 提供一个Config（非空）
-     * @return 若成功则返回true
+     * 校验传入的路径是否有效：
+     * - 不为空
+     * - 对应目录存在
+     * - 拥有读写权限
     **/
-    public static boolean saveConfig(@NonNull Config config) {
-        try {
-            configInstance = validateProfile(config);
-            saveConfigSync();
+    public static boolean validateSelectedPath(@NonNull Config config) {
+        String selected = config.getSelectedProfile();
+        MapProperty<String, Profile> configurations = config.getConfigurations();
 
-            configInstance = null;
-            return true;
-        }catch(Exception e) {
-            configInstance = null;
-            return false;
-        }
-    }
-
-    public static void setNull() {
-        configInstance = null;
-        innerConfigInstance = null;
+        return Optional.ofNullable(selected)
+                .filter(s -> !s.isBlank())
+                .filter(configurations::containsKey)
+                .map(configurations::get)
+                .map(Profile::getGameDir)
+                .map(File::getPath)
+                .map(FileUtils::checkPermission)
+                .orElse(false);
     }
 }

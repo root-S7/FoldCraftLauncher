@@ -14,6 +14,7 @@ import java.lang.ref.WeakReference;
 
 public class FCLApplication extends Application implements Application.ActivityLifecycleCallbacks {
     private static WeakReference<Activity> currentActivity;
+    private static Application INSTANCE;
 
     @Override
     public void onCreate() {
@@ -22,6 +23,7 @@ public class FCLApplication extends Application implements Application.ActivityL
         this.registerActivityLifecycleCallbacks(this);
 //        PerfUtil.install();
         FCLPath.loadPaths(getApplicationContext());
+        INSTANCE = this;
     }
 
     public static Activity getCurrentActivity() {
@@ -83,5 +85,9 @@ public class FCLApplication extends Application implements Application.ActivityL
         if (currentActivity != null && currentActivity.get() == activity) {
             currentActivity = null;
         }
+    }
+
+    public static Application INSTANCE() {
+        return INSTANCE;
     }
 }

@@ -4,8 +4,12 @@ import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 
+import static com.tungsten.fcl.FCLApplication.INSTANCE;
+import static com.tungsten.fclauncher.utils.AssetsPath.addPrefix;
 import static com.tungsten.fclcore.util.io.IOUtils.readFullyAsString;
 import static com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.AlertLevel.ALERT;
+
+import static java.util.Objects.requireNonNullElse;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -49,6 +53,7 @@ import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -344,5 +349,33 @@ public class AndroidUtils {
                 .filter(JsonPrimitive::isString)
                 .map(JsonPrimitive::getAsString)
                 .orElse("");
+    }
+
+    /**
+     * 不使用context读取APK下assets内文件
+     * 注意，若APK特别大请勿使用该方法，否则导致性能异常
+     * @param assPath assets目录下对应文件
+     * @return 数据流
+     * @throws Exception 所有异常均抛出
+    **/
+    @Deprecated(since = "1.2.5.1", forRemoval = true)
+    public static InputStream openAssets(String assPath) throws Exception {
+        InputStream is = AndroidUtils.class.getResourceAsStream(addPrefix(assPath));
+        if(is == null) throw new FileNotFoundException("『" + assPath + "』文件不存在");
+        return is;
+    }
+
+    /**
+     * 全新的方式读取APK下assets内文件
+     * @param assPath assets目录下对应文件
+     * @return 数据流
+     * @throws Exception 所有异常均抛出
+    **/
+    public static InputStream openAssets(Context context, String assPath) throws Exception {
+        try {
+            return requireNonNullElse(context, INSTANCE()).getAssets().open(assPath);
+        }catch(FileNotFoundException e) {
+            throw new FileNotFoundException("『" + assPath + "』文件不存在");
+        }
     }
 }

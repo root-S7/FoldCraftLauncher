@@ -1,6 +1,7 @@
 package com.tungsten.fcl.setting;
 
 import static com.tungsten.fcl.util.FXUtils.onInvalidating;
+import static com.tungsten.fclauncher.utils.AssetsPath.DEF_CONTROL;
 import static com.tungsten.fclcore.fakefx.collections.FXCollections.observableArrayList;
 
 import com.google.gson.GsonBuilder;
@@ -41,7 +42,7 @@ public class Controllers {
         if (controllers.isEmpty()) {
             try {
                 if (DEFAULT_CONTROLLER == null) {
-                    String str = IOUtils.readFullyAsString(Controllers.class.getResourceAsStream("/assets/" + FCLPath.ASSETS_DEFAULT_CONTROLLER));
+                    String str = IOUtils.readFullyAsString(Controllers.class.getResourceAsStream("/assets/" + DEF_CONTROL));
                     DEFAULT_CONTROLLER = new GsonBuilder()
                             .registerTypeAdapterFactory(new JavaFxPropertyTypeAdapterFactory(true, true))
                             .setPrettyPrinting()

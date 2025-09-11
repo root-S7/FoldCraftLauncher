@@ -10,8 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.SplashActivity
 import com.tungsten.fcl.databinding.FragmentRuntimeBinding
-import com.tungsten.fcl.setting.ConfigHolder.config
-import com.tungsten.fcl.setting.ConfigHolder.getSelectedPath
 import com.tungsten.fcl.util.AndroidUtils.*
 import com.tungsten.fcl.util.InstallResources
 import com.tungsten.fcl.util.RuntimeUtils
@@ -122,7 +120,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         runCatching {
-                            installResources.installGameFiles(getSelectedPath(config()).absolutePath, ".minecraft", sharedPreferences.edit(), context)
+                            installResources.installGameFiles((activity as SplashActivity).oldSelectedPath, ".minecraft", sharedPreferences.edit(), context)
                             gameFiles = true
                         }.onFailure {
                             it.printStackTrace()
@@ -146,7 +144,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         runCatching {
-                            installResources.installConfigFiles(FCLPath.CONFIG_DIR, "app_config", context)
+                            installResources.installConfigFiles(context)
                             configFiles = true
                         }.onFailure {
                             it.printStackTrace()

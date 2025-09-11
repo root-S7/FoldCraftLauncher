@@ -48,10 +48,9 @@ import java.util.logging.Level
 import androidx.core.content.edit
 import com.mio.manager.CRendererManager
 import com.mio.manager.RendererManager
-import com.tungsten.fcl.setting.ConfigHolder.initWithTemp
+import com.tungsten.fcl.setting.ConfigHolder.*
 import com.tungsten.fcl.util.AndroidUtils.showErrorDialog
-import com.tungsten.fcl.util.CheckFileFormat
-import com.tungsten.fclauncher.utils.FCLPath.ASSETS_GENERAL_SETTING_PROPERTIES
+import com.tungsten.fcl.util.check.FileFormat
 import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
 import com.tungsten.fcllibrary.component.dialog.FCLWaitDialog
 
@@ -72,6 +71,7 @@ class SplashActivity : FCLActivity() {
     var java21: Boolean = false
     var jna: Boolean = false
     private lateinit var sharedPreferences: SharedPreferences
+    val oldSelectedPath: String = getSelectedPath(initTempConfig()).absolutePath
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -129,7 +129,6 @@ class SplashActivity : FCLActivity() {
             async(Dispatchers.IO) {
                 FCLPath.loadPaths(this@SplashActivity)
                 Logging.start(Paths.get(FCLPath.LOG_DIR))
-                initWithTemp()
                 initState()
             }.await()
             if (gameFiles && configFiles && lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna) {
@@ -167,12 +166,7 @@ class SplashActivity : FCLActivity() {
     }
 
     private suspend fun checkFile() = withContext(Dispatchers.IO) {
-        CheckFileFormat(
-            this@SplashActivity.applicationContext,
-            ASSETS_GENERAL_SETTING_PROPERTIES,
-            "app_config/version",
-            ".minecraft/version"
-        ).checkFileFormat(true)
+        FileFormat().checkFiles()
         System.gc()
     }
 
@@ -180,7 +174,6 @@ class SplashActivity : FCLActivity() {
     fun enterLauncher() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                ConfigHolder.setNull()
                 RendererPlugin.init(this@SplashActivity)
                 CRendererManager.init(this@SplashActivity)
                 DriverPlugin.init(this@SplashActivity)
@@ -189,6 +182,7 @@ class SplashActivity : FCLActivity() {
                 runCatching { ConfigHolder.init() }.exceptionOrNull()?.let {
                     Logging.LOG.log(Level.WARNING, it.message)
                 }
+                System.gc()
             }
             startActivity(
                 Intent(this@SplashActivity, MainActivity::class.java),
@@ -250,7 +244,7 @@ class SplashActivity : FCLActivity() {
     private fun initState() {
         try {
             gameFiles = RuntimeUtils.isLatest(
-                ConfigHolder.getSelectedPath(ConfigHolder.config()).absolutePath,
+                oldSelectedPath,
                 "/assets/.minecraft"
             ) && !sharedPreferences.getBoolean("isFirstInstall", true)
             configFiles = RuntimeUtils.isLatest(

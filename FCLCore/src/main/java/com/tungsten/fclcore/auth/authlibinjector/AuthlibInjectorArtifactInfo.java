@@ -17,6 +17,8 @@
  */
 package com.tungsten.fclcore.auth.authlibinjector;
 
+import static com.tungsten.fclauncher.utils.AssetsPath.AUTH_LIB;
+
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.io.IOUtils;
 
@@ -60,7 +62,7 @@ public class AuthlibInjectorArtifactInfo {
      * @throws IOException
     **/
     public static AuthlibInjectorArtifactInfo from() throws IOException {
-        IOUtils.copyAssets(FCLPath.ASSETS_AUTHLIB_INJECTOR_JAR, FCLPath.CACHE_DIR + "/authlib-injector.jar");
+        IOUtils.copyAssets(AUTH_LIB, FCLPath.CACHE_DIR + "/authlib-injector.jar");
 
         return from(new File(FCLPath.CACHE_DIR + "/authlib-injector.jar").toPath());
     }
