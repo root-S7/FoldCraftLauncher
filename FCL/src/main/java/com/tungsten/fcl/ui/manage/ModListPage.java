@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.LinearLayoutCompat;
@@ -87,7 +88,7 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
     private boolean isSearching = false;
 
     private FCLTextView warningText;
-    private LinearLayoutCompat left;
+    private ScrollView left;
     private RelativeLayout right;
     private FCLEditText searchBar;
     private FCLButton searchButton;
@@ -245,6 +246,8 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
                 cancelButton.setEnabled(false);
                 listView.setVisibility(View.GONE);
                 progressBar.setVisibility(View.VISIBLE);
+                enabled.setVisibility(View.GONE);
+                disabled.setVisibility(View.GONE);
             } else {
                 searchBar.setEnabled(true);
                 searchButton.setEnabled(true);
@@ -257,6 +260,8 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
                 cancelButton.setEnabled(true);
                 listView.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
+                enabled.setVisibility(View.VISIBLE);
+                disabled.setVisibility(View.VISIBLE);
                 cancelSearch();
             }
         });

@@ -6,7 +6,6 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import static com.tungsten.fcl.FCLApplication.INSTANCE;
 import static com.tungsten.fclauncher.utils.AssetsPath.addPrefix;
-import static com.tungsten.fclcore.util.io.IOUtils.readFullyAsString;
 import static com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.AlertLevel.ALERT;
 
 import static java.util.Objects.requireNonNullElse;
@@ -38,10 +37,10 @@ import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.mio.util.DisplayUtil;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.WebActivity;
@@ -51,13 +50,11 @@ import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
@@ -122,24 +119,11 @@ public class AndroidUtils {
 
 
     public static int getScreenHeight(Context context) {
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Point point = new Point();
-        wm.getDefaultDisplay().getRealSize(point);
-        return point.y;
+        return DisplayUtil.currentDisplayMetrics.heightPixels;
     }
 
     public static int getScreenWidth(Activity context) {
-        SharedPreferences sharedPreferences;
-        sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
-        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", FCLPath.GENERAL_SETTING.getProperty("default-fullscreen", "true").equals("true"));
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Point point = new Point();
-        wm.getDefaultDisplay().getRealSize(point);
-        if (fullscreen || SDK_INT < Build.VERSION_CODES.P) {
-            return point.x;
-        } else {
-            return point.x - getSafeInset(context);
-        }
+        return DisplayUtil.currentDisplayMetrics.widthPixels;
     }
 
     public static int getSafeInset(Activity context) {
