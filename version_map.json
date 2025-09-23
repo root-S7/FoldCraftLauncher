@@ -1,20 +1,20 @@
 [
   {
     "type": "release",
-    "versionCode": 1251,
-    "versionName": "1.2.5.1",
-    "date": "2025.09.07",
+    "versionCode": 1255,
+    "versionName": "1.2.5.5",
+    "date": "2025.09.22",
     "description": [
       {
         "lang": "en",
-        "text": "(Translated from Chinese by AI)\n1. Fixed the issue of incorrect display of cloaks on the launcher homepage.  \n2. Fixed the issue where the skin change feature for offline accounts used an invalid CSL API, causing the launcher to fail to start.  \n3. New feature: View enabled/disabled mods.  \n4. Prompt the user to restart after changing the language.  \n5. Optimized the layout of the download page."
+        "text": "(Translated from Chinese by AI)\n1. Fixed issues related to physical mouse control.  \n2. New feature: Long-press the update button in the dialog box to jump to GitHub.  \n3. New feature: Users can request microphone recording permissions in the launcher settings.  \n4. Fixed the issue where the perspective movement was very slow when using an external mouse with a high report rate."
       },
       {
         "lang": "zh_CN",
-        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复启动器主页披风错误显示的问题\n2.修复离线账户换肤功能使用无效 CSL API 导致启动失败的问题\n3.新增功能：查看已启用/已禁用mod\n4.修改语言后提示用户重启\n5.优化下载页面布局"
+        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复实体鼠标控制相关问题\n2.新增功能：长按更新对话框内的“更新”跳转Github\n3.新增功能：在启动器设置内可申请麦克风录音权限\n4.修复外接鼠标高回报率时视角移动很慢的问题"
       }
     ],
-    "netdiskUrl": "https://pan.quark.cn/s/f5eb5002581a",
-    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.5.1/FCL-release-1.2.5.1-all.apk"
+    "netdiskUrl": "https://pan.quark.cn/s/da0ac070afd9",
+    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.5.5/FCL-release-1.2.5.5-all.apk"
   }
 ]
