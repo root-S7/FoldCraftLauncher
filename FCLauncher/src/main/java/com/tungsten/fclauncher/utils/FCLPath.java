@@ -27,7 +27,6 @@ public class FCLPath {
     public static String JNA_PATH;
     public static String LWJGL_DIR;
     public static String CACIOCAVALLO_8_DIR;
-    public static String CACIOCAVALLO_11_DIR;
     public static String CACIOCAVALLO_17_DIR;
 
     public static String CONFIG_DIR;
@@ -71,7 +70,6 @@ public class FCLPath {
         JNA_PATH = RUNTIME_DIR + "/jna";
         LWJGL_DIR = RUNTIME_DIR + "/lwjgl";
         CACIOCAVALLO_8_DIR = RUNTIME_DIR + "/caciocavallo";
-        CACIOCAVALLO_11_DIR = RUNTIME_DIR + "/caciocavallo11";
         CACIOCAVALLO_17_DIR = RUNTIME_DIR + "/caciocavallo17";
 
         CONFIG_DIR = context.getDir("config", 0).getAbsolutePath();
@@ -98,7 +96,6 @@ public class FCLPath {
         init(JAVA_21_PATH);
         init(LWJGL_DIR);
         init(CACIOCAVALLO_8_DIR);
-        init(CACIOCAVALLO_11_DIR);
         init(CACIOCAVALLO_17_DIR);
         init(CONFIG_DIR);
         init(FILES_DIR);

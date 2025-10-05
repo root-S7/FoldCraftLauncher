@@ -32,7 +32,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     var configFiles = false
     var lwjgl = false
     var cacio = false
-    var cacio11 = false
     var cacio17 = false
     var java8 = false
     var java11 = false
@@ -63,7 +62,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         configFiles = (activity as SplashActivity).configFiles
         lwjgl = (activity as SplashActivity).lwjgl
         cacio = (activity as SplashActivity).cacio
-        cacio11 = (activity as SplashActivity).cacio11
         cacio17 = (activity as SplashActivity).cacio17
         java8 = (activity as SplashActivity).java8
         java11 = (activity as SplashActivity).java11
@@ -84,7 +82,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 configFileState.setBackgroundDrawable(if (configFiles) stateDone else stateUpdate)
                 lwjglState.setBackgroundDrawable(if (lwjgl) stateDone else stateUpdate)
                 cacioState.setBackgroundDrawable(if (cacio) stateDone else stateUpdate)
-                cacio11State.setBackgroundDrawable(if (cacio11) stateDone else stateUpdate)
                 cacio17State.setBackgroundDrawable(if (cacio17) stateDone else stateUpdate)
                 java8State.setBackgroundDrawable(if (java8) stateDone else stateUpdate)
                 java11State.setBackgroundDrawable(if (java11) stateDone else stateUpdate)
@@ -95,8 +92,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         }
     }
 
-    private val isLatest: Boolean
-        get() = gameFiles && configFiles && lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna
+    private val isLatest: Boolean get() = gameFiles && configFiles && lwjgl && cacio && cacio17 && java8 && java11 && java17 && java21 && jna
 
     private fun check() {
         if (isLatest) {
@@ -199,26 +195,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                     }
                     cacioState.visibility = View.VISIBLE
                     cacioProgress.visibility = View.GONE
-                    refreshDrawables()
-                    check()
-                }
-            }
-            if (!cacio11) {
-                cacio11State.visibility = View.GONE
-                cacio11Progress.visibility = View.VISIBLE
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        runCatching {
-                            RuntimeUtils.install(
-                                context,
-                                FCLPath.CACIOCAVALLO_11_DIR,
-                                "app_runtime/caciocavallo11"
-                            )
-                            cacio11 = true
-                        }
-                    }
-                    cacio11State.visibility = View.VISIBLE
-                    cacio11Progress.visibility = View.GONE
                     refreshDrawables()
                     check()
                 }

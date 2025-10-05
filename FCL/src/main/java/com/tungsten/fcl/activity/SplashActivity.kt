@@ -63,7 +63,6 @@ class SplashActivity : FCLActivity() {
     private lateinit var permissionResultLauncher: ActivityResultLauncher<Array<String>>
     var lwjgl: Boolean = false
     var cacio: Boolean = false
-    var cacio11: Boolean = false
     var cacio17: Boolean = false
     var java8: Boolean = false
     var java11: Boolean = false
@@ -131,7 +130,7 @@ class SplashActivity : FCLActivity() {
                 Logging.start(Paths.get(FCLPath.LOG_DIR))
                 initState()
             }.await()
-            if (gameFiles && configFiles && lwjgl && cacio && cacio11 && cacio17 && java8 && java11 && java17 && java21 && jna) {
+            if (gameFiles && configFiles && lwjgl && cacio && cacio17 && java8 && java11 && java17 && java21 && jna) {
                 enterLauncher()
             } else {
                 start()
@@ -261,10 +260,6 @@ class SplashActivity : FCLActivity() {
             cacio = RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_8_DIR,
                 "/assets/app_runtime/caciocavallo"
-            )
-            cacio11 = RuntimeUtils.isLatest(
-                FCLPath.CACIOCAVALLO_11_DIR,
-                "/assets/app_runtime/caciocavallo11"
             )
             cacio17 = RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_17_DIR,
