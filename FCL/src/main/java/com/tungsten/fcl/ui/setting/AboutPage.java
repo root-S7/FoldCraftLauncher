@@ -1,5 +1,7 @@
 package com.tungsten.fcl.ui.setting;
 
+import static com.tungsten.fclauncher.utils.FCLPath.*;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -55,10 +57,10 @@ public class AboutPage extends FCLCommonPage implements View.OnClickListener {
             url = "https://fcl-team.github.io/";
         }
         if (v == developer) {
-            url = "https://github.com/FCL-Team";
+            url = "https://github.com/root-S7";
         }
         if (v == discord) {
-            AndroidUtils.openLink(getContext(), "https://discord.gg/ffhvuXTwyV");
+            url = GENERAL_SETTING.getProperty("discord-url", null);
         }
         if (v == qq) {
             joinQQGroup(QQ_GROUP_KEY);
@@ -67,7 +69,7 @@ public class AboutPage extends FCLCommonPage implements View.OnClickListener {
             url = "https://afdian.com/@tungs";
         }
         if (v == source) {
-            url = "https://github.com/FCL-Team/FoldCraftLauncher";
+            url = "https://github.com/root-S7/FoldCraftLauncher";
         }
 
         if (url != null) {
@@ -75,7 +77,7 @@ public class AboutPage extends FCLCommonPage implements View.OnClickListener {
         }
     }
 
-    private final static String QQ_GROUP_KEY = "9_Mnxe5x1l6L7giLuRYQyBh0iWBgCUbw";
+    private final static String QQ_GROUP_KEY = GENERAL_SETTING.getProperty("qq-group-key", "1azSqG2kZxf3Cn5gis7wi_LYd519OUre");
     public void joinQQGroup(String key) {
         Intent intent = new Intent();
         intent.setData(Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D" + key));
