@@ -10,7 +10,6 @@
         "minecraftArgs": "",
         "maxMemory": -1,
         "autoMemory": true,
-        "permSize": "",
         "serverIp": "",
         "java": "Auto",
         "newScaleFactor": 100,
@@ -22,7 +21,8 @@
         "renderer": "",
         "driver": "",
         "isolateGameDir": false,
-        "pojavBigCore": false
+        "pojavBigCore": false,
+        "uuid": ""
       },
       "gameDir": "/data/data/com.tungsten.fcl.server/.minecraft",
       "selectedMinecraftVersion": ""
@@ -34,7 +34,6 @@
         "minecraftArgs": "",
         "maxMemory": -1,
         "autoMemory": true,
-        "permSize": "",
         "serverIp": "",
         "java": "Auto",
         "newScaleFactor": 100,
@@ -46,7 +45,8 @@
         "renderer": "",
         "driver": "",
         "isolateGameDir": false,
-        "pojavBigCore": false
+        "pojavBigCore": false,
+        "uuid": ""
       },
       "gameDir": "/storage/emulated/0/Android/data/com.tungsten.fcl.server/files/.minecraft",
       "selectedMinecraftVersion": ""

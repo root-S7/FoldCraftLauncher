@@ -1,4 +1,5 @@
 <map>
+    <!-- 该文件暂时弃用，可能以后才会使用 -->
     <int name="theme_color" value="-8873784" />
     <int name="animation_speed" value="7" />
     <boolean name="close_skin_model" value="true" />

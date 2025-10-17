@@ -7,6 +7,7 @@
   "disableSoftKeyAdjust": false,
   "showLog": false,
   "autoShowLog": false,
+  "performanceMode": false,
   "menuPositionX": 0.0,
   "menuPositionY": 0.0,
   "disableGesture": false,
