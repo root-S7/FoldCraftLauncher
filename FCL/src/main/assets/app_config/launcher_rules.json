@@ -6,7 +6,7 @@
     },
     "renderer": {
       "forceChange": false,
-      "useRenderer": [{"packageName": "com.fcl.plugin.mobileglues", "name": "MobileGlues"}, {"packageName": "com.mio.plugin.renderer.ltw", "name": "OpenLTW"}],
+      "useRenderer": [{"packageName": "com.fcl.plugin.mobileglues", "name": "MobileGlues"}, "e7b90ed6-e518-4d4e-93dc-5c7133cd5b31", {"packageName": "com.mio.plugin.renderer.ltw", "name": "OpenLTW"}],
       "downloadURL": "https://icraft.ren:90",
       "tip": "当前所使用的渲染器为『${setRenderer}』，要求的渲染器必须为『${requiredRenderer}』\n\n检测到您未安装该渲染器，请点击右下角按钮安装额外渲染器，否则游戏将不能启动！！！"
     },
