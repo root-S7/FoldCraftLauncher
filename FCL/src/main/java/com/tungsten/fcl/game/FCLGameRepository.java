@@ -75,8 +75,6 @@ public class FCLGameRepository extends DefaultGameRepository {
 
     public final EventManager<Event> onVersionIconChanged = new EventManager<>();
 
-    private Map<Integer,Drawable> drawableMap = new HashMap<>();
-
     public FCLGameRepository(Profile profile, File baseDirectory) {
         super(baseDirectory);
         this.profile = profile;
@@ -294,8 +292,7 @@ public class FCLGameRepository extends DefaultGameRepository {
     }
 
     private Drawable getDrawable(int id) {
-        if (!drawableMap.containsKey(id)) drawableMap.put(id, AppCompatResources.getDrawable(FCLPath.CONTEXT,id));
-        return drawableMap.get(id);
+        return AppCompatResources.getDrawable(FCLPath.CONTEXT, id);
     }
 
     public boolean saveVersionSetting(String id) {
@@ -353,7 +350,7 @@ public class FCLGameRepository extends DefaultGameRepository {
                         vs.isAutoMemory()
                 ) / 1024 / 1024))
                 .setMinMemory(vs.getMinMemory())
-                .setMetaspace(Lang.toIntOrNull(vs.getPermSize()))
+                .setUUid(vs.getUuid())
                 .setWidth((int) (AndroidUtils.getScreenWidth(FCLApplication.getCurrentActivity()) * vs.getScaleFactor() / 100.0))
                 .setHeight((int) (AndroidUtils.getScreenHeight(FCLApplication.getCurrentActivity()) * vs.getScaleFactor() / 100.0))
                 .setServerIp(vs.getServerIp())
