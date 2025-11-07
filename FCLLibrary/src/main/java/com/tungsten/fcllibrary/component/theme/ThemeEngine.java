@@ -185,30 +185,4 @@ public class ThemeEngine {
         return color;
     }
 
-    /**
-     * 优先解析DEFAULT_COLOR颜色信息
-     * 若解析失败则尝试根据当前系统主题颜色选择，若还是失败则解析某个固定颜色值（#7797CF）
-     *
-     * @return 返回一个颜色值
-    **/
-    public static int autoWallpaperColor(Context context, final String DEFAULT_COLOR) {
-        int color;
-        try {
-            color = Color.parseColor(DEFAULT_COLOR);
-        }catch(IllegalArgumentException e) {
-            color = getWallpaperColor(context);
-        }
-        return color;
-    }
-
-    public static int autoWallpaperColor(String defaultColor, int errorColor) {
-        int color;
-        try {
-            color = Color.parseColor(defaultColor);
-        }catch(Exception e) {
-            color = errorColor;
-        }
-        return color;
-    }
-
 }

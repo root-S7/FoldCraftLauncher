@@ -1,9 +1,8 @@
-<?xml version='1.0' encoding='utf-8' standalone='yes' ?>
-<map>
-    <int name="theme_color" value="-8873784" />
-    <int name="theme_color2" value="-1564632" />
-    <int name="theme_color2_dark" value="-1564632" />
-    <int name="animation_speed" value="7" />
-    <boolean name="close_skin_model" value="true" />
-    <boolean name="fullscreen" value="true" />
-</map>
+{
+  "theme_color": -8873784,
+  "theme_color2": -1564632,
+  "theme_color2_dark": -1564632,
+  "animation_speed": 7,
+  "close_skin_model": true,
+  "fullscreen": true
+}

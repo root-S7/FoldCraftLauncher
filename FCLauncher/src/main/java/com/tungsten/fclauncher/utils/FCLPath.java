@@ -30,6 +30,7 @@ public class FCLPath {
     public static String CACIOCAVALLO_17_DIR;
 
     public static String CONFIG_DIR;
+    public static String SHARED_PREFS_DIR;
 
     public static Properties GENERAL_SETTING = new Properties();
 
@@ -73,6 +74,7 @@ public class FCLPath {
         CACIOCAVALLO_17_DIR = RUNTIME_DIR + "/caciocavallo17";
 
         CONFIG_DIR = context.getDir("config", 0).getAbsolutePath();
+        SHARED_PREFS_DIR = new File(context.getFilesDir().getParent(), "shared_prefs").getAbsolutePath();
 
         FILES_DIR = context.getFilesDir().getAbsolutePath();
         PLUGIN_DIR = FILES_DIR + "/plugins";

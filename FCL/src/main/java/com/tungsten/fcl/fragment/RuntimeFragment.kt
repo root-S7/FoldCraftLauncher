@@ -18,6 +18,7 @@ import com.tungsten.fclauncher.utils.FCLPath.DK_BACKGROUND_PATH
 import com.tungsten.fclauncher.utils.FCLPath.LT_BACKGROUND_PATH
 import com.tungsten.fclcore.task.Schedulers
 import com.tungsten.fcllibrary.component.FCLFragment
+import com.tungsten.fcllibrary.component.theme.Theme
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async

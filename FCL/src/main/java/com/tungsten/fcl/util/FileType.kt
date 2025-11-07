@@ -5,10 +5,14 @@ import com.tungsten.fcl.util.check.rule.BaseRule
 import com.tungsten.fcl.util.check.rule.FileCheckRule
 import com.tungsten.fcl.util.check.rule.ImageRule
 import com.tungsten.fcl.util.check.rule.JsonRule
+import com.tungsten.fcl.util.check.rule.SharedPreferencesRule
 
 enum class FileType(val extensions: Set<String>) {
     @DefaultCheck(BaseRule::class)
-    TEXT(setOf("", "txt", "properties", "xml")),
+    TEXT(setOf("", "txt", "properties")),
+
+    @DefaultCheck(SharedPreferencesRule::class)
+    XML(setOf("xml")),
 
     @DefaultCheck(JsonRule::class)
     JSON(setOf("json")),

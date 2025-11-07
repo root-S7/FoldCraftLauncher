@@ -13,6 +13,7 @@ class AssetsPath {
         const val GAME_VERSION = ".minecraft/version"
         const val CUSTOM_RENDERER = "$PATH/custom_renderer.json"
         const val LAUNCHER_CONFIG = "$PATH/config.json"
+        const val THEME = "$PATH/theme.json"
         const val MENU = "$PATH/menu_setting.json"
         const val AUTH_LIB = "game/authlib-injector.jar"
         const val CURSOR = "$IMAGE/cursor.png"

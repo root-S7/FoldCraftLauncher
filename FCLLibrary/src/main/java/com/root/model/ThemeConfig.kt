@@ -1,23 +1,23 @@
-package com.mio
+package com.root.model
 
 import com.google.gson.annotations.SerializedName
 
-data class ThemeConfig(
+class ThemeConfig {
     @SerializedName("theme_color")
-    val themeColor: Int = 0,
+    val themeColor: Int = 0
 
     @SerializedName("theme_color2")
-    val themeColor2: Int = 0,
+    val themeColor2: Int = 0
 
     @SerializedName("theme_color2_dark")
-    val themeColor2Dark: Int = 0,
+    val themeColor2Dark: Int = 0
 
     @SerializedName("animation_speed")
-    val animationSpeed: Int = 0,
+    val animationSpeed: Byte = 7
 
     @SerializedName("close_skin_model")
-    val closeSkinModel: Boolean = false,
+    val closeSkinModel: Boolean = false
 
     @SerializedName("fullscreen")
     val fullscreen: Boolean = false
-)
+}

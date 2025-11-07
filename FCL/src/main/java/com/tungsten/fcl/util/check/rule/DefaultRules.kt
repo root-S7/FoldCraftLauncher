@@ -1,10 +1,13 @@
 package com.tungsten.fcl.util.check.rule
 
 import android.graphics.BitmapFactory
+import android.util.Xml
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import com.tungsten.fcl.util.AndroidUtils.openAssets
+import org.xmlpull.v1.XmlPullParser
+import org.xmlpull.v1.XmlPullParserException
 import java.io.FileNotFoundException
 
 object JsonRule : FileCheckRule {
@@ -60,6 +63,69 @@ object BaseRule : FileCheckRule {
             throw ex
         }catch(_: Exception) {
             false
+        }
+    }
+}
+
+object SharedPreferencesRule : FileCheckRule {
+    override fun check(assPath: String): Boolean {
+        return try {
+            openAssets(null, assPath).use { input ->
+                val parser = Xml.newPullParser()
+                parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+                parser.setInput(input, null)
+                var eventType = parser.eventType
+                var foundMapTag = false
+
+                while(eventType != XmlPullParser.END_DOCUMENT) {
+                    if(eventType == XmlPullParser.START_TAG) {
+                        if(parser.name == "map") {
+                            foundMapTag = true
+                            validateMapContent(parser)
+                            break
+                        }else throw XmlPullParserException("无效的根节点: <${parser.name}>, 期望 <map>")
+                    }
+                    eventType = parser.next()
+                }
+
+                if(!foundMapTag) throw XmlPullParserException("未找到 <map> 根节点")
+                true
+            }
+        }catch(ex: FileNotFoundException) {
+            throw ex
+        }catch(ex: XmlPullParserException) {
+            throw XmlPullParserException("文件『$assPath』解析错误,请检查是否为有效的SharedPreferences格式! ${ex.message}")
+        }catch(_: Exception) {
+            false
+        }
+    }
+
+    private fun validateMapContent(parser: XmlPullParser) {
+        var eventType = parser.next()
+
+        while(eventType != XmlPullParser.END_DOCUMENT) {
+            when(eventType) {
+                XmlPullParser.START_TAG -> {
+                    val tagName = parser.name
+                    parser.getAttributeValue(null, "name") ?: throw XmlPullParserException("标签 <$tagName> 缺少 'name' 属性")
+
+                    when(tagName) {
+                        "string", "set" -> {}
+                        "int", "long", "float", "boolean" -> {
+                            val v = parser.getAttributeValue(null, "value") ?: throw XmlPullParserException("<$tagName> 缺少 'value' 属性")
+                            when(tagName) {
+                                "int" -> v.toIntOrNull() ?: throw XmlPullParserException("无效的 int: $v")
+                                "long" -> v.toLongOrNull() ?: throw XmlPullParserException("无效的 long: $v")
+                                "float" -> v.toFloatOrNull() ?: throw XmlPullParserException("无效的 float: $v")
+                                "boolean" -> if (v != "true" && v != "false") throw XmlPullParserException("无效的 boolean: $v")
+                            }
+                        }
+                        else -> throw XmlPullParserException("不支持的标签: <$tagName>")
+                    }
+                }
+                XmlPullParser.END_TAG -> if(parser.name == "map") return
+            }
+            eventType = parser.next()
         }
     }
 }
