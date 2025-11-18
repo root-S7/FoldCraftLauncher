@@ -1,5 +1,6 @@
 package com.tungsten.fcl.control;
 
+import android.util.Log;
 import android.view.Choreographer;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -14,6 +15,9 @@ import com.tungsten.fcl.util.AndroidUtils;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.keycodes.AndroidKeycodeMap;
 import com.tungsten.fclauncher.keycodes.FCLKeycodes;
+import com.tungsten.fclauncher.keycodes.LwjglKeycodeMap;
+
+import org.lwjgl.glfw.CallbackBridge;
 
 import java.util.HashMap;
 
@@ -49,6 +53,10 @@ public class FCLInput implements View.OnCapturedPointerListener {
 
     @NonNull
     private final GameMenu menu;
+
+    public GameMenu getMenu() {
+        return menu;
+    }
 
     private String pointerId;
 
@@ -100,6 +108,12 @@ public class FCLInput implements View.OnCapturedPointerListener {
                 menu.getBridge().pushEventMouseButton(MOUSE_MAP.get(keycode), press);
             } else {
                 menu.getBridge().pushEventKey(keycode, 0, press);
+                if (!FCLBridge.BACKEND_IS_BOAT) {
+                    int code = LwjglKeycodeMap.convertKeycode(keycode);
+                    if (code >= 0) {
+                        CallbackBridge.setModifiers(code, press);
+                    }
+                }
             }
         }
     }
@@ -234,14 +248,16 @@ public class FCLInput implements View.OnCapturedPointerListener {
             }
             return true;
         }
+
         //gamepad
-        if (Gamepad.isGamepadEvent(event)) {
+        if (!menu.isGamepadDisabled() && Gamepad.isGamepadEvent(event)) {
             checkGamepad();
             return gamepad.handleKeyEvent(event);
         }
         //keyboard
         if (fclKeycode == FCLKeycodes.KEY_UNKNOWN)
             return (event.getFlags() & KeyEvent.FLAG_FALLBACK) == KeyEvent.FLAG_FALLBACK;
+        Log.e("测试", event.getKeyCode() + " " + fclKeycode);
         sendKeyEvent(fclKeycode, event.getAction() == KeyEvent.ACTION_DOWN);
         if (event.getAction() == KeyEvent.ACTION_DOWN && menu.getCursorMode() == FCLBridge.CursorEnabled) {
             sendChar((char) (event.getUnicodeChar() != 0 ? event.getUnicodeChar() : '\u0000'));
@@ -250,7 +266,7 @@ public class FCLInput implements View.OnCapturedPointerListener {
     }
 
     public boolean handleGenericMotionEvent(MotionEvent event) {
-        if (Gamepad.isGamepadEvent(event)) {
+        if (!menu.isGamepadDisabled() && Gamepad.isGamepadEvent(event)) {
             checkGamepad();
             if (choreographer == null) {
                 choreographer = Choreographer.getInstance();

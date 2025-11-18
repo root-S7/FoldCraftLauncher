@@ -19,6 +19,7 @@ public class FCLPath {
     public static String CACHE_DIR;
 
     public static String RUNTIME_DIR;
+    public static String MOD_RUNTIME_DIR;
     public static String JAVA_8_PATH;
     public static String JAVA_11_PATH;
     public static String JAVA_17_PATH;
@@ -75,6 +76,7 @@ public class FCLPath {
 
         CONFIG_DIR = context.getDir("config", 0).getAbsolutePath();
         SHARED_PREFS_DIR = new File(context.getFilesDir().getParent(), "shared_prefs").getAbsolutePath();
+        MOD_RUNTIME_DIR = context.getDir("runtime_mod", 0).getAbsolutePath();
 
         FILES_DIR = context.getFilesDir().getAbsolutePath();
         PLUGIN_DIR = FILES_DIR + "/plugins";
@@ -92,6 +94,7 @@ public class FCLPath {
         init(LOG_DIR);
         init(CACHE_DIR);
         init(RUNTIME_DIR);
+        init(MOD_RUNTIME_DIR);
         init(JAVA_8_PATH);
         init(JAVA_11_PATH);
         init(JAVA_17_PATH);

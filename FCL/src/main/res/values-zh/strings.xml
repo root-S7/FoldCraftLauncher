@@ -539,6 +539,7 @@
     <string name="menu_settings_mouse_size">鼠标尺寸</string>
     <string name="menu_settings_physical_mouse_mode">实体鼠标控制</string>
     <string name="menu_settings_gamepad">手柄</string>
+    <string name="menu_settings_gamepad_disable_mapping">禁用手柄映射</string>
     <string name="menu_settings_gamepad_reset_mapper">重置映射</string>
     <string name="menu_settings_gamepad_reset">重置</string>
     <string name="menu_settings_gamepad_deadzone">调整死区</string>
@@ -779,6 +780,7 @@
 
     <string name="settings_advanced_dont_check_game_completeness">不检查游戏完整性</string>
     <string name="settings_advanced_dont_check_jvm_validity">不检查 JVM 兼容性</string>
+    <string name="settings_advanced_dont_check_mod">不检查模组兼容性</string>
     <string name="settings_advanced_game_dir_default">默认 (.minecraft/)</string>
     <string name="settings_advanced_game_dir_independent">各版本独立 (存放在 .minecraft/versions/&#60;版本名>/，除 assets、libraries 外)</string>
     <string name="settings_advanced_jvm_args">Java 虚拟机参数</string>
@@ -1028,6 +1030,7 @@
     <string name="mod_check_borderlesswindow">无边框全屏 (%s) 不适用于安卓。它会使游戏在启动阶段崩溃。</string>
     <string name="mod_check_axiom">当前使用的Axiom模组（%s）未经修补，启动后将会崩溃。</string>
     <string name="mod_check_sodium">当前使用的GL4ES渲染器可能无法运行模组Sodium/Embeddium（%s），继续启动可能会导致游戏崩溃，建议下载并使用MobileGlues渲染器（https://github.com/MobileGL-Dev/MobileGlues-release/releases）。</string>
+    <string name="mod_check_flashback">Flashback模组（%s）无法在安卓上运行。</string>
 
     <string name="internal">内置的</string>
     <string name="import_java">导入Java</string>
@@ -1050,4 +1053,5 @@
     <string name="disabled">已禁用</string>
     <string name="message_warn_restart_after_change">改动的内容将在重启后生效。</string>
     <string name="message_check_path_valid">当前选择的游戏文件路径（%s）可能包含非法字符，启动后可能会闪退，建议检查游戏目录或是重命名版本，是否继续启动？</string>
+    <string name="message_data_is_loading">数据还未加载完成，无法修改。</string>
 </resources>

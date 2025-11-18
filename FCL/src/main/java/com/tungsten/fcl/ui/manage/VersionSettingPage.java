@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -92,6 +93,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
     private FCLSwitch pojavBigCoreSwitch;
     private FCLSwitch noGameCheckSwitch;
     private FCLSwitch noJVMCheckSwitch;
+    private FCLSwitch noModCheckSwitch;
 
     private FCLImageButton javaButton;
     private FCLImageButton javaInstallButton;
@@ -147,6 +149,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         pojavBigCoreSwitch = findViewById(R.id.pojav_big_core);
         noGameCheckSwitch = findViewById(R.id.edit_not_check_game);
         noJVMCheckSwitch = findViewById(R.id.edit_not_check_java);
+        noModCheckSwitch = findViewById(R.id.not_check_mod);
 
         isolateWorkingDirSwitch.disableProperty().bind(modpack);
         scaleFactorSeekbar.addProgressListener();
@@ -290,6 +293,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
             FXUtils.unbindBoolean(pojavBigCoreSwitch, lastVersionSetting.getPojavBigCoreProperty());
             FXUtils.unbindBoolean(noGameCheckSwitch, lastVersionSetting.getNotCheckGameProperty());
             FXUtils.unbindBoolean(noJVMCheckSwitch, lastVersionSetting.getNotCheckJVMProperty());
+            FXUtils.unbindBoolean(noModCheckSwitch, lastVersionSetting.getNotCheckModProperty());
             FXUtils.unbindBoolean(beGestureSwitch, lastVersionSetting.getBeGestureProperty());
             FXUtils.unbindBoolean(vulkanDriverSystemSwitch, lastVersionSetting.getVkDriverSystemProperty());
             scaleFactorSeekbar.progressProperty().unbindBidirectional(lastVersionSetting.getScaleFactorProperty());
@@ -311,6 +315,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         FXUtils.bindBoolean(pojavBigCoreSwitch, versionSetting.getPojavBigCoreProperty());
         FXUtils.bindBoolean(noGameCheckSwitch, versionSetting.getNotCheckGameProperty());
         FXUtils.bindBoolean(noJVMCheckSwitch, versionSetting.getNotCheckJVMProperty());
+        FXUtils.bindBoolean(noModCheckSwitch, versionSetting.getNotCheckModProperty());
         FXUtils.bindBoolean(beGestureSwitch, versionSetting.getBeGestureProperty());
         FXUtils.bindBoolean(vulkanDriverSystemSwitch, versionSetting.getVkDriverSystemProperty());
         scaleFactorSeekbar.progressProperty().bindBidirectional(versionSetting.getScaleFactorProperty());
@@ -415,11 +420,15 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
             onDeleteIcon();
         }
         if (view == controllerButton) {
-            SelectControllerDialog dialog = new SelectControllerDialog(getContext(), lastVersionSetting.getController(), controller -> {
-                lastVersionSetting.setController(controller.getId());
-                controllerText.setText(controller.getName());
-            });
-            dialog.show();
+            if (Controllers.isInitialized()) {
+                SelectControllerDialog dialog = new SelectControllerDialog(getContext(), lastVersionSetting.getController(), controller -> {
+                    lastVersionSetting.setController(controller.getId());
+                    controllerText.setText(controller.getName());
+                });
+                dialog.show();
+            } else {
+                Toast.makeText(getContext(), getContext().getString(R.string.message_data_is_loading), Toast.LENGTH_SHORT).show();
+            }
         }
         if (view == controllerInstallButton) {
             UIManager uiManager = MainActivity.getInstance().getUiManager();

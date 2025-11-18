@@ -216,7 +216,10 @@ public final class LauncherHelper {
                             Renderer renderer = RendererManager.getRenderer(repository.getVersionSetting(selectedVersion).getRenderer());
                             fclBridge.setRenderer(renderer.getName());
                             return checkRenderer(fclBridge, renderer, repository.getGameVersion(selectedVersion).orElse(""));
-                        }).thenComposeAsync(fclBridge -> checkMod(fclBridge, repository.getGameVersion(selectedVersion).orElse("")))
+                        }).thenComposeAsync(fclBridge -> {
+                            boolean skip = repository.getVersionSetting(selectedVersion).isNotCheckMod();
+                            return checkMod(fclBridge, repository.getGameVersion(selectedVersion).orElse(""), skip);
+                        })
                         .thenAcceptAsync(fclBridge -> Schedulers.androidUIThread().execute(() -> {
                             CallbackBridge.nativeSetUseInputStackQueue(version.get().getArguments().isPresent());
                             Intent intent = new Intent(context, JVMActivity.class);
@@ -390,7 +393,7 @@ public final class LauncherHelper {
         });
     }
 
-    private Task<FCLBridge> checkMod(FCLBridge bridge, String version) {
+    private Task<FCLBridge> checkMod(FCLBridge bridge, String version, boolean skip) {
         return Task.composeAsync(() -> {
             try {
                 StringBuilder modCheckerInfo = new StringBuilder();
@@ -417,7 +420,7 @@ public final class LauncherHelper {
                     }
                 }
                 bridge.setModSummary(modSummary.toString());
-                if (!modCheckerInfo.toString().trim().isEmpty()) {
+                if (!skip && !modCheckerInfo.toString().trim().isEmpty()) {
                     CompletableFuture<Task<FCLBridge>> future = new CompletableFuture<>();
                     Schedulers.androidUIThread().execute(() -> {
                         FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context);
