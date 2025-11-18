@@ -22,7 +22,8 @@
         "driver": "",
         "isolateGameDir": false,
         "pojavBigCore": false,
-        "uuid": ""
+        "uuid": "",
+        "notCheckMod": false
       },
       "gameDir": "/data/data/com.tungsten.fcl.server/.minecraft",
       "selectedMinecraftVersion": ""
@@ -46,7 +47,8 @@
         "driver": "",
         "isolateGameDir": false,
         "pojavBigCore": false,
-        "uuid": ""
+        "uuid": "",
+        "notCheckMod": false
       },
       "gameDir": "/storage/emulated/0/Android/data/com.tungsten.fcl.server/files/.minecraft",
       "selectedMinecraftVersion": ""
