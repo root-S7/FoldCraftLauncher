@@ -5,6 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 
 import static com.tungsten.fcl.FCLApplication.INSTANCE;
+import static com.tungsten.fcl.FCLApplication.getCurrentActivity;
 import static com.tungsten.fclauncher.utils.AssetsPath.addPrefix;
 import static com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.AlertLevel.ALERT;
 
@@ -36,6 +37,8 @@ import android.view.DisplayCutout;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -292,8 +295,8 @@ public class AndroidUtils {
                 .orElse(defaultValue);
     }
 
-    public static void showErrorDialog(Activity activity, String errMsg, boolean extraTip) {
-        if(activity == null || activity.isFinishing() || activity.isDestroyed()) {
+    public static void showErrorDialog(@NonNull Activity activity, String errMsg, boolean extraTip) {
+        if(activity.isFinishing() || activity.isDestroyed()) {
             return;
         }
 
@@ -302,15 +305,13 @@ public class AndroidUtils {
                 .setAlertLevel(ALERT)
                 .setMessage(errMsg + (extraTip ? "\n\n由于该错误是致命性的，点击“确定”按钮后将关闭应用" : ""))
                 .setNegativeButton("确定", () -> {
-                    Activity cActivity = FCLApplication.getCurrentActivity();
-                    if(cActivity != null) cActivity.finishAndRemoveTask();
+                    if(getCurrentActivity() != null) getCurrentActivity().finishAndRemoveTask();
                     System.exit(-1);
                 })
                 .setCancelable(false)
                 .setPercentageSize(0.6f, -1)
                 .create()
                 .show();
-        System.gc();
     }
 
     /**

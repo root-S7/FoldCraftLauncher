@@ -147,7 +147,9 @@ class SplashActivity : FCLActivity() {
                     .create()
                     .showDialog()
                 try {
-                    checkFile()
+                    withContext(Dispatchers.IO) {
+                        FileFormat().checkFiles()
+                    }
                     waitDialog?.dismiss()
                     supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
@@ -160,12 +162,6 @@ class SplashActivity : FCLActivity() {
         }
     }
 
-    private suspend fun checkFile() = withContext(Dispatchers.IO) {
-        FileFormat().checkFiles()
-        System.gc()
-    }
-
-
     fun enterLauncher() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
@@ -174,7 +170,6 @@ class SplashActivity : FCLActivity() {
                 runCatching { ConfigHolder.init() }.exceptionOrNull()?.let {
                     Logging.LOG.log(Level.WARNING, it.message)
                 }
-                System.gc()
             }
             startActivity(
                 Intent(this@SplashActivity, MainActivity::class.java),
