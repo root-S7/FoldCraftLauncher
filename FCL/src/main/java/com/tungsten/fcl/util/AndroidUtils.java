@@ -295,12 +295,13 @@ public class AndroidUtils {
                 .orElse(defaultValue);
     }
 
-    public static void showErrorDialog(@NonNull Activity activity, String errMsg, boolean extraTip) {
-        if(activity.isFinishing() || activity.isDestroyed()) {
-            return;
+    public static void showErrorDialog(Context context, String errMsg, boolean extraTip) {
+        if(context == null) {
+            if(getCurrentActivity() != null) getCurrentActivity().finishAndRemoveTask();
+            System.exit(-1);
         }
 
-        new FCLAlertDialog.Builder(activity)
+        new FCLAlertDialog.Builder(context)
                 .setTitle("错误")
                 .setAlertLevel(ALERT)
                 .setMessage(errMsg + (extraTip ? "\n\n由于该错误是致命性的，点击“确定”按钮后将关闭应用" : ""))
