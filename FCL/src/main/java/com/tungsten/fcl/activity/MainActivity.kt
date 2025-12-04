@@ -213,7 +213,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                     manage.setOnSelectListener(this@MainActivity)
                     download.setOnSelectListener(this@MainActivity)
                     controller.setOnSelectListener(this@MainActivity)
-                    multiplayer.setOnSelectListener(this@MainActivity)
+                    //multiplayer.setOnSelectListener(this@MainActivity)
                     setting.setOnSelectListener(this@MainActivity)
                     home.setSelected(true)
                     home.setOnLongClickListener {

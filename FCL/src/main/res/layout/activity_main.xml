@@ -73,6 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:visibility="gone"
             android:src="@drawable/ic_outline_account_tree_24"
             app:layout_constraintBottom_toTopOf="@id/setting"
             app:layout_constraintStart_toStartOf="parent"

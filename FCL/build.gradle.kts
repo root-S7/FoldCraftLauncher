@@ -104,6 +104,7 @@ android {
         jniLibs {
             useLegacyPackaging = true
             pickFirsts += listOf("**/libbytehook.so")
+            excludes += listOf("**/libterracotta.so")
         }
     }
 
