@@ -236,6 +236,7 @@ public final class LauncherHelper {
                             LOG.log(Level.INFO, "Start JVMActivity!");
                             context.startActivity(intent);
                             if (MainActivity.getInstance().shouldPlayVideo()) {
+                                MainActivity.getInstance().setMediaPlayer(null);
                                 MainActivity.getInstance().binding.videoView.stopPlayback();
                             }
                             if (context.getSharedPreferences("launcher", MODE_PRIVATE).getBoolean("autoExitLauncher", false)) {
