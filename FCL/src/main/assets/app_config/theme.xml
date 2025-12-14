@@ -1,0 +1,10 @@
+<map>
+    <!-- 请注意，theme.xml只会在首次安装APP才会生效，如果需要重置值目前只能让用户卸载APP后重新安装 -->
+    <!-- ARGB转数字见：https://icraft.ren:90/ARGB-To-Int.html -->
+    <int name="theme_color" value="-9928536" />
+    <boolean name="fullscreen" value="true" />
+    <int name="theme_color2_dark" value="-1564632" />
+    <int name="animation_speed" value="7" />
+    <boolean name="close_skin_model" value="true" />
+    <int name="theme_color2" value="-16777216" />
+</map>

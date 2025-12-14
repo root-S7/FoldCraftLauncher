@@ -76,19 +76,28 @@ object SharedPreferencesRule : FileCheckRule {
                 parser.setInput(input, null)
                 var eventType = parser.eventType
                 var foundMapTag = false
+                var mapDepth = 0
 
                 while(eventType != XmlPullParser.END_DOCUMENT) {
-                    if(eventType == XmlPullParser.START_TAG) {
-                        if(parser.name == "map") {
-                            foundMapTag = true
-                            validateMapContent(parser)
-                            break
-                        }else throw XmlPullParserException("无效的根节点: <${parser.name}>, 期望 <map>")
+                    when(eventType) {
+                        XmlPullParser.START_TAG -> {
+                            if(parser.name == "map") {
+                                if(foundMapTag) throw XmlPullParserException("文档中存在多个map标签，只能有一个根map节点")
+                                foundMapTag = true
+                                mapDepth++
+                                validateMapContent(parser)
+                            }else throw XmlPullParserException("根节点只能是map，发现非法标签: <${parser.name}>")
+                        }
+                        XmlPullParser.END_TAG -> if(parser.name == "map") mapDepth--
+                        XmlPullParser.TEXT -> {
+                            val text = parser.text.trim()
+                            if(text.isNotEmpty() && mapDepth == 0) throw XmlPullParserException("根节点外存在非法文本内容: $text")
+                        }
                     }
                     eventType = parser.next()
                 }
 
-                if(!foundMapTag) throw XmlPullParserException("未找到 <map> 根节点")
+                if(!foundMapTag) throw XmlPullParserException("未找到map根节点")
                 true
             }
         }catch(ex: FileNotFoundException) {

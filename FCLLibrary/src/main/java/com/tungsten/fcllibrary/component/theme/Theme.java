@@ -2,6 +2,9 @@ package com.tungsten.fcllibrary.component.theme;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import static com.tungsten.fclauncher.utils.AssetsPath.*;
+import static com.tungsten.fclauncher.utils.FCLPath.*;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -12,8 +15,6 @@ import android.graphics.drawable.BitmapDrawable;
 import androidx.core.graphics.ColorUtils;
 
 import com.mio.util.ImageUtil;
-import com.root.manager.ThemeManager;
-import com.root.model.ThemeConfig;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fclcore.fakefx.beans.property.BooleanProperty;
 import com.tungsten.fclcore.fakefx.beans.property.IntegerProperty;
@@ -23,6 +24,8 @@ import com.tungsten.fclcore.fakefx.beans.property.SimpleIntegerProperty;
 import com.tungsten.fclcore.fakefx.beans.property.SimpleObjectProperty;
 import com.tungsten.fcllibrary.R;
 import com.tungsten.fcllibrary.util.ConvertUtils;
+
+import java.io.*;
 
 public class Theme {
 
@@ -201,17 +204,28 @@ public class Theme {
         this.backgroundDk.set(backgroundDk);
     }
 
+    private static boolean isFirst = true;
     public static Theme getTheme(Context context) {
-        ThemeConfig theme = ThemeManager.INSTANCE.get();
+        File themeFile = new File(SHARED_PREFS_DIR + "/theme.xml");
+        if(isFirst && !themeFile.exists()) {
+            try(InputStream is = context.getAssets().open(THEME);
+                 OutputStream os = new FileOutputStream(themeFile)) {
+
+                byte[] buf = new byte[4096];
+                int len;
+                while((len = is.read(buf)) > 0) os.write(buf, 0, len);
+            }catch(Exception ignored) {}
+            isFirst = false;
+        }
 
         SharedPreferences sharedPreferences;
         sharedPreferences = context.getSharedPreferences("theme", MODE_PRIVATE);
-        int color = sharedPreferences.getInt("theme_color", theme.getThemeColor());
-        int color2 = sharedPreferences.getInt("theme_color2", theme.getThemeColor2());
-        int color2Dark = sharedPreferences.getInt("theme_color2_dark", theme.getThemeColor2Dark());
-        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", theme.getFullscreen());
-        boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", theme.getCloseSkinModel());
-        int animationSpeed = sharedPreferences.getInt("animation_speed", theme.getAnimationSpeed());
+        int color = sharedPreferences.getInt("theme_color", Color.parseColor("#7797CF"));
+        int color2 = sharedPreferences.getInt("theme_color2", Color.parseColor("#000000"));
+        int color2Dark = sharedPreferences.getInt("theme_color2_dark", Color.parseColor("#FFFFFF"));
+        boolean fullscreen = sharedPreferences.getBoolean("fullscreen", false);
+        boolean closeSkinModel = sharedPreferences.getBoolean("close_skin_model", false);
+        int animationSpeed = sharedPreferences.getInt("animation_speed", 8);
         Bitmap lt = ImageUtil.load(context.getFilesDir().getAbsolutePath() + "/background/lt.png").orElse(ConvertUtils.getBitmapFromRes(context, R.drawable.background_light));
         BitmapDrawable backgroundLt = new BitmapDrawable(context.getResources(), lt);
         Bitmap dk = ImageUtil.load(context.getFilesDir().getAbsolutePath() + "/background/dk.png").orElse(ConvertUtils.getBitmapFromRes(context, R.drawable.background_dark));
