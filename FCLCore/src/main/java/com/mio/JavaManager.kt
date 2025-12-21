@@ -7,7 +7,8 @@ import com.tungsten.fclcore.util.io.FileUtils
 import java.io.File
 
 object JavaManager {
-    private var isInit = false;
+    private var isInit = false
+    private var NO_JAVA_FOUND = JavaVersion(false, "-1", "None")
 
     @JvmStatic
     val javaList: MutableList<JavaVersion> = mutableListOf()
@@ -84,7 +85,7 @@ object JavaManager {
                 }
             }
         }
-        return exact ?: closestGreater!!
+        return exact ?: closestGreater?: NO_JAVA_FOUND
     }
 
     @JvmStatic

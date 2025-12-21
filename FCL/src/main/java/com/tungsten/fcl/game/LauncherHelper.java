@@ -66,6 +66,7 @@ import com.tungsten.fclcore.auth.CharacterDeletedException;
 import com.tungsten.fclcore.auth.CredentialExpiredException;
 import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorDownloadException;
 import com.tungsten.fclcore.download.DefaultDependencyManager;
+import com.tungsten.fclcore.download.LibraryAnalyzer;
 import com.tungsten.fclcore.download.MaintainTask;
 import com.tungsten.fclcore.download.game.GameAssetIndexDownloadTask;
 import com.tungsten.fclcore.download.game.GameVerificationFixTask;
@@ -447,8 +448,10 @@ public final class LauncherHelper {
     }
 
     private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version, JavaRule rule) {
+        boolean isCleanroom = LibraryAnalyzer.analyze(version, null).has(LibraryAnalyzer.LibraryType.CLEANROOM);
         Task<JavaVersion> task = Task.composeAsync(() -> Task.supplyAsync(Schedulers.androidUIThread(), () -> {
             if (setting.getJava().equals("Auto")) {
+                if (isCleanroom) return JavaManager.getJavaFromVersionName("jre21");
                 return JavaManager.getSuitableJavaVersion(version);
             } else {
                 return JavaManager.getJavaFromVersionName(setting.getJava());
@@ -467,12 +470,16 @@ public final class LauncherHelper {
                         Schedulers.androidUIThread().execute(() -> errRuleDialog(context, rule.getTip(), rule.getDownloadURL(), future).create().show());
                         return Task.fromCompletableFuture(future);
                     })).withStage("launch.state.java");
-        }else return task.thenComposeAsync(javaVersion -> Task.allOf(Task.completed(javaVersion), Task.supplyAsync(() -> JavaVersion.getSuitableJavaVersion(version))))
+        }else return task.thenComposeAsync(javaVersion -> Task.allOf(Task.completed(javaVersion), Task.supplyAsync(() -> JavaManager.getSuitableJavaVersion(version))))
                 .thenComposeAsync(Schedulers.androidUIThread(), javaVersions -> {
                     JavaVersion javaVersion = (JavaVersion) javaVersions.get(0);
-                    JavaVersion suggestedJavaVersion = (JavaVersion) javaVersions.get(1);
-                    if (setting.getJava().equals("Auto") || javaVersion.getVersion() == suggestedJavaVersion.getVersion()) {
-                        return Task.completed(setting.getJava().equals("Auto") ? suggestedJavaVersion : javaVersion);
+                    JavaVersion suggestedJavaVersion;
+                    if(isCleanroom) suggestedJavaVersion = JavaManager.getJavaFromVersionName("jre21");
+                    else suggestedJavaVersion = (JavaVersion) javaVersions.get(1);
+                    if (suggestedJavaVersion.getVersion() != -1) {
+                        if (setting.getJava().equals("Auto") || javaVersion.getVersion() == suggestedJavaVersion.getVersion()) {
+                            return Task.completed(setting.getJava().equals("Auto") ? suggestedJavaVersion : javaVersion);
+                        }
                     }
 
                     CompletableFuture<JavaVersion> future = new CompletableFuture<>();
