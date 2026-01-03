@@ -1,20 +1,20 @@
 [
   {
     "type": "release",
-    "versionCode": 1275,
-    "versionName": "1.2.7.5",
-    "date": "2025.12.24",
+    "versionCode": 1277,
+    "versionName": "1.2.7.7",
+    "date": "2026.01.03",
     "description": [
       {
         "lang": "en",
-        "text": "(Translated from Chinese by AI)\n1. Fix the issue of crashing due to button style when entering management from the left menu  \n2. Fix the issue where 26.1-snapshot was incorrectly categorized  \n3. Fix related issues caused by using key hold functionality  \n4. Fix the NullPointerException when a suitable Java version cannot be found  \n5. Hide the search box on the NeoForge/Optifine download interface  \n6. Fix issues related to the layout edit/create dialog  \n7. Fix the issue where Java cannot be deleted in the Java management dialog  \n8. Add version 1.21.11 filtering on the download page"
+        "text": "(Translated from Chinese by AI)\n1. Fixed the issue where launching the 2013 April Fools' 2.0 version incorrectly flagged \"holy\" as incompatible with that game version.  \n2. Added download support for the April Fools' 2.0 version.  \n3. Added download access for unlisted Minecraft versions.  \n4. Modified some metadata download links.  \n5. Added exclusive icons for April Fools' versions."
       },
       {
         "lang": "zh_CN",
-        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复从左侧菜单进入管理按键样式闪退的问题\n2.修复26.1-snapshot被错误分类的问题\n3.修复使用按键保持后产生的相关问题\n4.修复找不到合适的Java版本时报空指针的问题\n5.在NeoForge/Optifine下载界面隐藏搜索框\n6.修复布局编辑/创建对话框相关问题\n7.修复java管理对话框无法删除java的问题\n8.在下载页面增加1.21.11版本过滤"
+        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复启动13年愚人节2.0版本时认为holy不适于与该游戏版本的问题\n2.添加愚人节2.0版本下载\n3.添加未列出的Minecraft版本下载途径\n4.修改部分元数据下载链接\n5.为愚人节版本添加专属图标"
       }
     ],
-    "netdiskUrl": "https://pan.quark.cn/s/73deb2be8bc8",
-    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.7.5/FCL-release-1.2.7.5-all.apk"
+    "netdiskUrl": "https://pan.quark.cn/s/f15c3f87b4fd",
+    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.7.7/FCL-release-1.2.7.7-all.apk"
   }
 ]
