@@ -21,6 +21,7 @@ android {
     val pwd = localProperty?.getProperty("key-store-password", "null")
     val curseApiKey = localProperty?.getProperty("curse-api-key", "null")
     val oauthApiKey = localProperty?.getProperty("oauth-api-key", "null")
+    if(localProperty != null && localProperty.getProperty("arch", "all") == "arm64") System.setProperty("arch", "arm64")
 
     signingConfigs {
         create("FCLKey") {
@@ -41,8 +42,8 @@ android {
         applicationId = "com.tungsten.fcl.server"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1277
-        versionName = "1.2.7.7"
+        versionCode = 1280
+        versionName = "1.2.8.0"
     }
 
     androidResources {

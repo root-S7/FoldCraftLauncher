@@ -1,20 +1,20 @@
 [
   {
     "type": "release",
-    "versionCode": 1277,
-    "versionName": "1.2.7.7",
-    "date": "2026.01.03",
+    "versionCode": 1280,
+    "versionName": "1.2.8.0",
+    "date": "2026.01.17",
     "description": [
       {
         "lang": "en",
-        "text": "(Translated from Chinese by AI)\n1. Fixed the issue where launching the 2013 April Fools' 2.0 version incorrectly flagged \"holy\" as incompatible with that game version.  \n2. Added download support for the April Fools' 2.0 version.  \n3. Added download access for unlisted Minecraft versions.  \n4. Modified some metadata download links.  \n5. Added exclusive icons for April Fools' versions."
+        "text": "(Translated from Chinese by AI)\n1. Fixed the issue where content could not be searched from the CurseForge source.  \n2. Fixed the freezing issue when exiting the game using the Boat backend version 1.21.9+.  \n3. Fixed the incorrect UI display of the automatic memory allocation option on the game settings page.  \n4. Fixed the issue where automatic memory allocation did not take effect."
       },
       {
         "lang": "zh_CN",
-        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复启动13年愚人节2.0版本时认为holy不适于与该游戏版本的问题\n2.添加愚人节2.0版本下载\n3.添加未列出的Minecraft版本下载途径\n4.修改部分元数据下载链接\n5.为愚人节版本添加专属图标"
+        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复CurseForge源无法搜索到内容的问题\n2.修复Boat后端1.21.9+点击退出游戏后卡死的问题\n3.修复游戏设置页面自动内存分配UI显示错误的问题\n4.修复自动内存分配不生效的问题"
       }
     ],
-    "netdiskUrl": "https://pan.quark.cn/s/f15c3f87b4fd",
-    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.7.7/FCL-release-1.2.7.7-all.apk"
+    "netdiskUrl": "https://pan.quark.cn/s/c810b127885a",
+    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.8.0/FCL-release-1.2.8.0-all.apk"
   }
 ]

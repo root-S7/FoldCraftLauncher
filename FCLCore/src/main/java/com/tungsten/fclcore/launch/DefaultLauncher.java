@@ -46,7 +46,7 @@ import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
 import com.tungsten.fclcore.util.platform.CommandBuilder;
 import com.tungsten.fclcore.util.platform.OperatingSystem;
-import com.tungsten.fclcore.util.versioning.VersionNumber;
+import com.tungsten.fclcore.util.versioning.GameVersionNumber;
 
 import org.jackhuang.hmcl.util.ServerAddress;
 
@@ -82,17 +82,14 @@ public class DefaultLauncher extends Launcher {
 
         getCacioJavaArgs(res, version, options);
 
-        res.addAllWithoutParsing(options.getOverrideJavaArguments().stream().filter(arg -> !arg.equals("noXmx")).collect(Collectors.toList()));
+        res.addAllWithoutParsing(options.getJavaArguments().stream().filter(arg -> !arg.equals("noXmx")).collect(Collectors.toList()));
 
-        if (options.getMaxMemory() != null && options.getMaxMemory() > 0 && !options.getOverrideJavaArguments().contains("noXmx"))
-            if (options.getOverrideJavaArguments().stream().noneMatch(arg -> arg.contains("-Xmx")))
-                res.addDefault("-Xmx", options.getMaxMemory() + "m");
+        if (options.getMaxMemory() != null && options.getMaxMemory() > 0)
+            res.addDefault("-Xmx", options.getMaxMemory() + "m");
 
         if (options.getMinMemory() != null && options.getMinMemory() > 0
                 && (options.getMaxMemory() == null || options.getMinMemory() <= options.getMaxMemory()))
             res.addDefault("-Xms", options.getMinMemory() + "m");
-
-        res.addAllDefaultWithoutParsing(options.getJavaArguments());
 
         Charset encoding = OperatingSystem.NATIVE_CHARSET;
         String fileEncoding = res.addDefault("-Dfile.encoding=", encoding.name());
@@ -117,7 +114,7 @@ public class DefaultLauncher extends Launcher {
         res.addDefault("-Dcom.sun.jndi.cosnaming.object.trustURLCodebase=", "false");
 
         String formatMsgNoLookups = res.addDefault("-Dlog4j2.formatMsgNoLookups=", "true");
-        if (!"-Dlog4j2.formatMsgNoLookups=false".equals(formatMsgNoLookups) && isUsingLog4j()) {
+        if (isUsingLog4j() && (options.isDebugLog() || !"-Dlog4j2.formatMsgNoLookups=false".equals(formatMsgNoLookups))) {
             res.addDefault("-Dlog4j.configurationFile=", getLog4jConfigurationFile().getAbsolutePath());
         }
 
@@ -209,7 +206,7 @@ public class DefaultLauncher extends Launcher {
         File jar = repository.getVersionJar(version);
         if (!jar.exists() || !jar.isFile()) {
             String inherits = version.getInheritsFrom();
-            if (!inherits.isEmpty()) {
+            if (inherits != null && !inherits.isEmpty()) {
                 jar = repository.getVersionJar(inherits);
             }
         }
@@ -235,10 +232,6 @@ public class DefaultLauncher extends Launcher {
         if (argumentsFromAuthInfo != null && argumentsFromAuthInfo.getJvm() != null && !argumentsFromAuthInfo.getJvm().isEmpty())
             res.addAll(Arguments.parseArguments(argumentsFromAuthInfo.getJvm(), configuration));
 
-        for (String javaAgent : options.getJavaAgents()) {
-            res.add("-javaagent:" + javaAgent);
-        }
-
         if (javaVersion.getVersion() != JavaVersion.JAVA_VERSION_8) {
             res.add("--add-exports");
             String pkg = version.getMainClass().substring(0, version.getMainClass().lastIndexOf("."));
@@ -262,7 +255,7 @@ public class DefaultLauncher extends Launcher {
         if (StringUtils.isNotBlank(address)) {
             try {
                 ServerAddress parsed = ServerAddress.parse(address);
-                if (VersionNumber.compare(repository.getGameVersion(version).orElse("0.0"), "1.20") < 0) {
+                if (GameVersionNumber.compare(repository.getGameVersion(version).orElse("0.0"), "1.20") < 0) {
                     res.add("--server");
                     res.add(parsed.getHost());
                     res.add("--port");
@@ -403,7 +396,7 @@ public class DefaultLauncher extends Launcher {
     }
 
     private boolean isUsingLog4j() {
-        return VersionNumber.compare(repository.getGameVersion(version).orElse("1.7"), "1.7") >= 0;
+        return GameVersionNumber.compare(repository.getGameVersion(version).orElse("1.7"), "1.7") >= 0;
     }
 
     public File getLog4jConfigurationFile() {
@@ -412,12 +405,20 @@ public class DefaultLauncher extends Launcher {
 
     public void extractLog4jConfigurationFile() throws IOException {
         File targetFile = getLog4jConfigurationFile();
-        if (targetFile.exists()) return;
         InputStream source;
-        if (VersionNumber.compare(repository.getGameVersion(version).orElse("0.0"), "1.12") < 0) {
-            source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.7.xml");
+
+        if (GameVersionNumber.asGameVersion(repository.getGameVersion(version)).compareTo("1.12") < 0) {
+            if (options.isDebugLog()) {
+                source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.7-debug.xml");
+            } else {
+                source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.7.xml");
+            }
         } else {
-            source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.12.xml");
+            if (options.isDebugLog()) {
+                source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.12-debug.xml");
+            } else {
+                source = DefaultLauncher.class.getResourceAsStream("/assets/game/log4j2-1.12.xml");
+            }
         }
 
         try (InputStream input = source; OutputStream output = new FileOutputStream(targetFile)) {

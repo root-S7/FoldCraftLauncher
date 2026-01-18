@@ -91,6 +91,7 @@ import com.tungsten.fclcore.util.StringUtils;
 import com.tungsten.fclcore.util.io.ResponseCodeException;
 import com.tungsten.fclcore.util.platform.MemoryUtils;
 import com.tungsten.fclcore.util.versioning.VersionNumber;
+import com.tungsten.fclcore.util.versioning.GameVersionNumber;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.dialog.FCLDialog;
 import com.tungsten.fcllibrary.component.view.FCLButton;
@@ -149,7 +150,6 @@ public final class LauncherHelper {
         AtomicReference<Version> version = new AtomicReference<>(MaintainTask.maintain(repository, repository.getResolvedVersion(selectedVersion)));
         Optional<String> gameVersion = repository.getGameVersion(version.get());
         boolean integrityCheck = repository.unmarkVersionLaunchedAbnormally(selectedVersion);
-        List<String> javaAgents = new ArrayList<>(0);
 
         AtomicReference<JavaVersion> javaVersionRef = new AtomicReference<>();
 
@@ -197,7 +197,7 @@ public final class LauncherHelper {
                 .thenComposeAsync(() -> gameVersion.map(s -> new GameVerificationFixTask(dependencyManager, s, version.get())).orElse(null))
                 .thenComposeAsync(() -> logIn(context, account).withStage("launch.state.logging_in"))
                 .thenComposeAsync(authInfo -> Task.supplyAsync(() -> {
-                            LaunchOptions launchOptions = repository.getLaunchOptions(selectedVersion, javaVersionRef.get(), profile.getGameDir(), javaAgents);
+                            LaunchOptions launchOptions = repository.getLaunchOptions(selectedVersion, javaVersionRef.get(), profile.getGameDir());
                             FCLGameLauncher launcher = new FCLGameLauncher(
                                     context,
                                     repository,
@@ -218,6 +218,10 @@ public final class LauncherHelper {
                             Renderer renderer = RendererManager.getRenderer(repository.getVersionSetting(selectedVersion).getRenderer());
                             fclBridge.setRenderer(renderer.getName());
                             return checkRenderer(fclBridge, renderer, repository.getGameVersion(selectedVersion).orElse(""));
+                        }).thenComposeAsync(fclBridge -> {
+                            boolean skip = repository.getVersionSetting(selectedVersion).isNotCheckMod();
+                            if (skip) return Task.supplyAsync(() -> fclBridge);
+                            return checkModLoader(fclBridge, repository);
                         }).thenComposeAsync(fclBridge -> {
                             boolean skip = repository.getVersionSetting(selectedVersion).isNotCheckMod();
                             return checkMod(fclBridge, repository.getGameVersion(selectedVersion).orElse(""), skip);
@@ -366,17 +370,13 @@ public final class LauncherHelper {
     }
 
     private Task<FCLBridge> checkRenderer(FCLBridge bridge, Renderer renderer, String version) {
-        if (version.startsWith("2.0")) {
-            version = "1.5.1";
-        }
-        String finalVersion = version;
         return Task.composeAsync(() -> {
             try {
                 CompletableFuture<Task<FCLBridge>> future = new CompletableFuture<>();
-                if (!finalVersion.isEmpty()) {
+                if (!version.isEmpty()) {
                     if (rule != null && rule.getRenderer() != null) return Task.completed(bridge);
                     if (!renderer.getMinMCver().isEmpty()) {
-                        if (VersionNumber.compare(finalVersion, renderer.getMinMCver()) < 0) {
+                        if (GameVersionNumber.compare(version, renderer.getMinMCver()) < 0) {
                             Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
                                     .setCancelable(false)
                                     .setMessage(context.getString(R.string.message_check_renderer, renderer.getName()))
@@ -386,7 +386,7 @@ public final class LauncherHelper {
                         }
                     }
                     if (!renderer.getMaxMCver().isEmpty()) {
-                        if (VersionNumber.compare(finalVersion, renderer.getMaxMCver()) > 0) {
+                        if (GameVersionNumber.compare(version, renderer.getMaxMCver()) > 0) {
                             Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
                                     .setCancelable(false)
                                     .setMessage(context.getString(R.string.message_check_renderer, renderer.getName()))
@@ -399,6 +399,28 @@ public final class LauncherHelper {
                 return Task.completed(bridge);
             } catch (Throwable e) {
                 LOG.log(Level.WARNING, "checkRenderer() failed", e);
+                return Task.completed(bridge);
+            }
+        });
+    }
+
+    private Task<FCLBridge> checkModLoader(FCLBridge bridge, FCLGameRepository repository) {
+        return Task.composeAsync(() -> {
+            try {
+                CompletableFuture<Task<FCLBridge>> future = new CompletableFuture<>();
+                boolean modded = LibraryAnalyzer.isModded(repository, repository.getVersion(selectedVersion));
+                List<LocalModFile> mods = repository.getModManager(selectedVersion).getMods();
+                if (!mods.isEmpty() && !modded) {
+                    Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
+                            .setCancelable(false)
+                            .setMessage(context.getString(R.string.message_check_has_modloader))
+                            .setPositiveButton(context.getString(R.string.button_cancel), () -> future.completeExceptionally(new CancellationException()))
+                            .setNegativeButton(context.getString(R.string.mod_check_continue), () -> future.complete(Task.completed(bridge))).create().show());
+                    return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
+                } else {
+                    return Task.completed(bridge);
+                }
+            } catch (Throwable e) {
                 return Task.completed(bridge);
             }
         });

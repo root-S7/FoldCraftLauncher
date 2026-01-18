@@ -35,9 +35,7 @@ public class LaunchOptions implements Serializable {
     private String versionType;
     private String profileName;
     private final List<String> gameArguments = new ArrayList<>();
-    private final List<String> overrideJavaArguments = new ArrayList<>();
     private final List<String> javaArguments = new ArrayList<>();
-    private final List<String> javaAgents = new ArrayList<>(0);
     private Integer minMemory;
     private Integer maxMemory;
     private Integer width;
@@ -48,6 +46,7 @@ public class LaunchOptions implements Serializable {
     private boolean pojavBigCore;
     private Renderer renderer;
     private String uuid;
+    private boolean debugLog;
 
     /**
      * The game directory
@@ -95,24 +94,11 @@ public class LaunchOptions implements Serializable {
     }
 
     /**
-     * The highest priority JVM arguments (overrides the version setting)
-     */
-    @NotNull
-    public List<String> getOverrideJavaArguments() {
-        return Collections.unmodifiableList(overrideJavaArguments);
-    }
-
-    /**
      * User custom additional java virtual machine command line arguments.
      */
     @NotNull
     public List<String> getJavaArguments() {
         return Collections.unmodifiableList(javaArguments);
-    }
-
-    @NotNull
-    public List<String> getJavaAgents() {
-        return Collections.unmodifiableList(javaAgents);
     }
 
     /**
@@ -179,49 +165,16 @@ public class LaunchOptions implements Serializable {
         return uuid;
     }
 
+    public boolean isDebugLog() {
+        return debugLog;
+    }
+
     public static class Builder {
 
         private final LaunchOptions options = new LaunchOptions();
 
         public LaunchOptions create() {
             return options;
-        }
-
-        /**
-         * The game directory
-         */
-        public File getGameDir() {
-            return options.gameDir;
-        }
-
-        /**
-         * The Java Environment that Minecraft runs on.
-         */
-        public JavaVersion getJava() {
-            return options.java;
-        }
-
-        /**
-         * Will shown in the left bottom corner of the main menu of Minecraft.
-         * null if use the id of launch version.
-         */
-        public String getVersionName() {
-            return options.versionName;
-        }
-
-        /**
-         * Will shown in the left bottom corner of the main menu of Minecraft.
-         * null if use Version.versionType.
-         */
-        public String getVersionType() {
-            return options.versionType;
-        }
-
-        /**
-         * Don't know what the hell this is.
-         */
-        public String getProfileName() {
-            return options.profileName;
         }
 
         /**
@@ -232,78 +185,12 @@ public class LaunchOptions implements Serializable {
         }
 
         /**
-         * The highest priority JVM arguments (overrides the version setting)
-         */
-        public List<String> getOverrideJavaArguments() {
-            return options.overrideJavaArguments;
-        }
-
-        /**
          * User custom additional java virtual machine command line arguments.
          */
         public List<String> getJavaArguments() {
             return options.javaArguments;
         }
 
-        public List<String> getJavaAgents() {
-            return options.javaAgents;
-        }
-
-        /**
-         * The minimum memory that the JVM can allocate.
-         */
-        public Integer getMinMemory() {
-            return options.minMemory;
-        }
-
-        /**
-         * The maximum memory that the JVM can allocate.
-         */
-        public Integer getMaxMemory() {
-            return options.maxMemory;
-        }
-
-        /**
-         * The initial game window width
-         */
-        public Integer getWidth() {
-            return options.width;
-        }
-
-        /**
-         * The initial game window height
-         */
-        public Integer getHeight() {
-            return options.height;
-        }
-
-        /**
-         * The server ip that will connect to when enter game main menu.
-         */
-        public String getServerIp() {
-            return options.serverIp;
-        }
-
-        /**
-         * BE Gesture
-         */
-        public boolean isBeGesture() {
-            return options.beGesture;
-        }
-
-        /**
-         * vulkanDriverSystem
-         */
-        public boolean isVKDriverSystem() {
-            return options.vulkanDriverSystem;
-        }
-
-        /**
-         * Renderer
-         */
-        public Renderer getRenderer() {
-            return options.renderer;
-        }
 
         public Builder setGameDir(File gameDir) {
             options.gameDir = gameDir;
@@ -336,21 +223,9 @@ public class LaunchOptions implements Serializable {
             return this;
         }
 
-        public Builder setOverrideJavaArguments(List<String> overrideJavaArguments) {
-            options.overrideJavaArguments.clear();
-            options.overrideJavaArguments.addAll(overrideJavaArguments);
-            return this;
-        }
-
         public Builder setJavaArguments(List<String> javaArguments) {
             options.javaArguments.clear();
             options.javaArguments.addAll(javaArguments);
-            return this;
-        }
-
-        public Builder setJavaAgents(List<String> javaAgents) {
-            options.javaAgents.clear();
-            options.javaAgents.addAll(javaAgents);
             return this;
         }
 
@@ -401,6 +276,11 @@ public class LaunchOptions implements Serializable {
 
         public Builder setUUid(String uuid) {
             options.uuid = uuid;
+            return this;
+        }
+
+        public Builder setDebugLog(boolean debugLog) {
+            options.debugLog = debugLog;
             return this;
         }
 

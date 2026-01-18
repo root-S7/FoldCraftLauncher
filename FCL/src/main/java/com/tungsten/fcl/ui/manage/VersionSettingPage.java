@@ -94,6 +94,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
     private FCLSwitch noGameCheckSwitch;
     private FCLSwitch noJVMCheckSwitch;
     private FCLSwitch noModCheckSwitch;
+    private FCLSwitch debugLogSwitch;
 
     private FCLImageButton javaButton;
     private FCLImageButton javaInstallButton;
@@ -150,6 +151,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         noGameCheckSwitch = findViewById(R.id.edit_not_check_game);
         noJVMCheckSwitch = findViewById(R.id.edit_not_check_java);
         noModCheckSwitch = findViewById(R.id.not_check_mod);
+        debugLogSwitch = findViewById(R.id.debug_log);
 
         isolateWorkingDirSwitch.disableProperty().bind(modpack);
         scaleFactorSeekbar.addProgressListener();
@@ -294,6 +296,7 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
             FXUtils.unbindBoolean(noGameCheckSwitch, lastVersionSetting.getNotCheckGameProperty());
             FXUtils.unbindBoolean(noJVMCheckSwitch, lastVersionSetting.getNotCheckJVMProperty());
             FXUtils.unbindBoolean(noModCheckSwitch, lastVersionSetting.getNotCheckModProperty());
+            FXUtils.unbindBoolean(debugLogSwitch, lastVersionSetting.getDebugLogProperty());
             FXUtils.unbindBoolean(beGestureSwitch, lastVersionSetting.getBeGestureProperty());
             FXUtils.unbindBoolean(vulkanDriverSystemSwitch, lastVersionSetting.getVkDriverSystemProperty());
             scaleFactorSeekbar.progressProperty().unbindBidirectional(lastVersionSetting.getScaleFactorProperty());
@@ -316,10 +319,13 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         FXUtils.bindBoolean(noGameCheckSwitch, versionSetting.getNotCheckGameProperty());
         FXUtils.bindBoolean(noJVMCheckSwitch, versionSetting.getNotCheckJVMProperty());
         FXUtils.bindBoolean(noModCheckSwitch, versionSetting.getNotCheckModProperty());
+        FXUtils.bindBoolean(debugLogSwitch, versionSetting.getDebugLogProperty());
         FXUtils.bindBoolean(beGestureSwitch, versionSetting.getBeGestureProperty());
         FXUtils.bindBoolean(vulkanDriverSystemSwitch, versionSetting.getVkDriverSystemProperty());
         scaleFactorSeekbar.progressProperty().bindBidirectional(versionSetting.getScaleFactorProperty());
         maxMemory.bindBidirectional(versionSetting.getMaxMemoryProperty());
+
+        chkAutoAllocate.setChecked(versionSetting.isAutoMemory());
 
         javaText.setText(versionSetting.getJava().equals("Auto") ? getContext().getString(R.string.settings_game_java_version_auto) : versionSetting.getJava());
         Controllers.addCallback(() -> {

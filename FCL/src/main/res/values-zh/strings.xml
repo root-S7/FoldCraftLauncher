@@ -781,6 +781,7 @@
     <string name="settings_advanced_dont_check_game_completeness">不检查游戏完整性</string>
     <string name="settings_advanced_dont_check_jvm_validity">不检查 JVM 兼容性</string>
     <string name="settings_advanced_dont_check_mod">不检查模组兼容性</string>
+    <string name="settings_advanced_debug_log">输出调试日志</string>
     <string name="settings_advanced_game_dir_default">默认 (.minecraft/)</string>
     <string name="settings_advanced_game_dir_independent">各版本独立 (存放在 .minecraft/versions/&#60;版本名>/，除 assets、libraries 外)</string>
     <string name="settings_advanced_jvm_args">Java 虚拟机参数</string>
@@ -961,10 +962,9 @@
     <string name="terracotta_player_kind_local">你</string>
     <string name="terracotta_player_kind_guest">房客</string>
     <string name="terracotta_tutorial_host_btn">房主教程</string>
-    <string name="terracotta_tutorial_host">房主使用方法：\n\n - 在启动器多人联机主页阅读用户须知后启用联机功能\n - 启动游戏，在游戏内的 FCL 菜单中找到联机菜单并打开\n - 点击“我想当房主”，扫描游戏端口\n - 进入存档，在游戏暂停菜单中打开“对局域网开放”选项\n - 若弹出提示要求申请 VPN 权限，请授予，否则无法正常使用\n - 稍等片刻将自动复制邀请码，若没有自动复制，也可以前往联机菜单复制\n - 将邀请码发送给你的伙伴\n\n注意事项：\n\n - 该软件支持离线账户\n - 该软件支持与 HMCL 和 PCL CE (Terracotta) 互联</string>
+    <string name="terracotta_tutorial_host">房主使用方法：\n\n - 在启动器多人联机主页阅读用户须知后启用联机功能\n - 启动游戏，在游戏内的 FCL 菜单中找到联机菜单并打开\n - 点击“我想当房主”，扫描游戏端口\n - 进入存档，在游戏暂停菜单中打开“对局域网开放”选项\n - 若弹出提示要求申请 VPN 权限，请授予，否则无法正常使用\n - 稍等片刻将自动复制邀请码，若没有自动复制，也可以前往联机菜单复制\n - 将邀请码发送给你的伙伴\n\n注意事项：\n\n - 该软件支持离线账户\n - 该软件支持与 HMCL 和 PCL CE 等支持 Scaffolding 协议的软件互联</string>
     <string name="terracotta_tutorial_guest_btn">房客教程</string>
-    <string name="terracotta_tutorial_guest">房客使用方法：\n\n - 在启动器多人联机主页阅读用户须知后启用联机功能\n - 启动游戏，在游戏内的 FCL 菜单中找到联机菜单并打开\n - 点击“我想当房客”，在输入框内输入房主提供的邀请码，并耐心等待\n - 若弹出提示要求申请 VPN 权限，请授予，否则无法正常使用\n - 显示已加入房间后，在游戏主界面选择多人游戏并刷新，双击进入陶瓦联机大厅\n\n注意事项：\n\n - 该软件支持离线账户\n - 该软件支持与 HMCL 和 PCL CE (Terracotta) 互联\n - 使用备用服务器地址加入游戏时，不支持离线账户，自行解决</string>
-    <string name="terracotta_warning_region">多人联机目前仅支持中国地区联机，其他地区暂时不支持，若您在中国以外的地区使用此功能，出现任何问题我们均不负责。</string>
+    <string name="terracotta_tutorial_guest">房客使用方法：\n\n - 在启动器多人联机主页阅读用户须知后启用联机功能\n - 启动游戏，在游戏内的 FCL 菜单中找到联机菜单并打开\n - 点击“我想当房客”，在输入框内输入房主提供的邀请码，并耐心等待\n - 若弹出提示要求申请 VPN 权限，请授予，否则无法正常使用\n - 显示已加入房间后，在游戏主界面选择多人游戏并刷新，双击进入陶瓦联机大厅\n\n注意事项：\n\n - 该软件支持离线账户\n - 该软件支持与 HMCL 和 PCL CE 等支持 Scaffolding 协议的软件互联\n - 使用备用服务器地址加入游戏时，不支持离线账户，自行解决</string>
 
     <string name="update">更新</string>
     <string name="update_netdisk">更新（网盘）</string>
@@ -1136,5 +1136,6 @@
     <string name="disabled">已禁用</string>
     <string name="message_warn_restart_after_change">改动的内容将在重启后生效。</string>
     <string name="message_check_path_valid">当前选择的游戏文件路径（%s）可能包含非法字符，启动后可能会闪退，建议检查游戏目录或是重命名版本，是否继续启动？</string>
+    <string name="message_check_has_modloader">检测到当前启动的游戏版本已安装模组但是似乎未安装相应的模组加载器，启动后模组可能无法运行，是否继续启动？</string>
     <string name="message_data_is_loading">数据还未加载完成，无法修改。</string>
 </resources>
