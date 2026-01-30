@@ -1,4 +1,4 @@
-package com.tungsten.fcl.ui.download;
+package com.tungsten.fcl.ui.download.common;
 
 import static com.tungsten.fcl.ui.download.DownloadPageManager.PAGE_ID_DOWNLOAD_MOD;
 import static com.tungsten.fcl.ui.download.DownloadPageManager.PAGE_ID_DOWNLOAD_MODPACK;
@@ -8,6 +8,7 @@ import static com.tungsten.fcl.ui.download.DownloadPageManager.PAGE_ID_DOWNLOAD_
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
@@ -22,9 +23,11 @@ import com.tungsten.fcl.setting.DownloadProviders;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.ui.PageManager;
 import com.tungsten.fcl.ui.TaskDialog;
+import com.tungsten.fcl.ui.download.DownloadPageManager;
+import com.tungsten.fcl.ui.download.ModDownloadPage;
+import com.tungsten.fcl.ui.download.TranslationDialog;
 import com.tungsten.fcl.ui.manage.ManageUI;
 import com.tungsten.fcl.ui.version.Versions;
-import com.tungsten.fcl.util.AndroidUtils;
 import com.tungsten.fcl.util.FXUtils;
 import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclcore.download.DownloadProvider;
@@ -70,9 +73,6 @@ import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
-
 public class DownloadPage extends FCLCommonPage implements ManageUI.VersionLoadable, View.OnClickListener {
 
     protected RemoteModRepository repository;
@@ -111,8 +111,8 @@ public class DownloadPage extends FCLCommonPage implements ManageUI.VersionLoada
     private FCLProgressBar progressBar;
     private FCLImageButton retry;
 
-    PageDownloadBinding binding;
-    ModLoaderType selectedModLoader;
+    protected PageDownloadBinding binding;
+    protected ModLoaderType selectedModLoader;
     private final DownloadProvider downloadProvider;
 
     public void setLoading(boolean loading) {
@@ -254,6 +254,13 @@ public class DownloadPage extends FCLCommonPage implements ManageUI.VersionLoada
         last.setOnClickListener(this);
         retry.setOnClickListener(this);
 
+        nameEditText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                search();
+                return true;
+            }
+            return false;
+        });
         nameEditText.setHint(supportChinese.get() ? getContext().getString(R.string.search_hint_chinese) : getContext().getString(R.string.search_hint_english));
 
         sourceText.setVisibility(downloadSources.getSize() > 1 ? View.VISIBLE : View.GONE);
@@ -431,7 +438,7 @@ public class DownloadPage extends FCLCommonPage implements ManageUI.VersionLoada
                 }).start();
     }
 
-    void showTranslationDialog() {
+    protected void showTranslationDialog() {
         new TranslationDialog(getContext(), repository, s -> {
             nameEditText.setText(s);
             search();

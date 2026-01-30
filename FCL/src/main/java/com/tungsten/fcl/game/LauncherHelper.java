@@ -56,6 +56,8 @@ import com.tungsten.fcl.setting.rules.extend.RendererRule;
 import com.tungsten.fcl.setting.rules.extend.VersionRule;
 import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.util.RuleCheckState;
+import com.tungsten.fcl.ui.UIManager;
+import com.tungsten.fcl.ui.manage.ManagePageManager;
 import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -95,6 +97,7 @@ import com.tungsten.fclcore.util.versioning.GameVersionNumber;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.dialog.FCLDialog;
 import com.tungsten.fcllibrary.component.view.FCLButton;
+import com.tungsten.fcllibrary.component.view.FCLTabLayout;
 
 import org.lwjgl.glfw.CallbackBridge;
 
@@ -415,6 +418,15 @@ public final class LauncherHelper {
                             .setCancelable(false)
                             .setMessage(context.getString(R.string.message_check_has_modloader))
                             .setPositiveButton(context.getString(R.string.button_cancel), () -> future.completeExceptionally(new CancellationException()))
+                            .setNeutralButton(context.getString(R.string.button_install), () -> {
+                                future.completeExceptionally(new CancellationException());
+                                UIManager manager = UIManager.getInstance();
+                                MainActivity.getInstance().binding.manage.setSelected(true);
+                                manager.getManageUI().checkPageManager(() -> {
+                                    FCLTabLayout tabLayout = manager.getManageUI().tabLayout;
+                                    tabLayout.selectTab(tabLayout.getTabAt(2));
+                                });
+                            })
                             .setNegativeButton(context.getString(R.string.mod_check_continue), () -> future.complete(Task.completed(bridge))).create().show());
                     return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
                 } else {
