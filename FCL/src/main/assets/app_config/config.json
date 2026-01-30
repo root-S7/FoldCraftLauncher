@@ -1,7 +1,6 @@
 {
   "autoChooseDownloadType": true,
   "autoDownloadThreads": true,
-  "_version": 0,
   "configurations": {
     "内部目录": {
       "global": {
@@ -11,18 +10,13 @@
         "maxMemory": -1,
         "autoMemory": true,
         "serverIp": "",
-        "java": "Auto",
         "newScaleFactor": 100,
         "notCheckGame": false,
         "notCheckJVM": false,
         "beGesture": true,
         "vulkanDriverSystem": false,
-        "controller": "00000000",
-        "renderer": "",
-        "driver": "",
         "isolateGameDir": false,
         "pojavBigCore": false,
-        "uuid": "",
         "notCheckMod": false
       },
       "gameDir": "/data/data/com.tungsten.fcl.server/.minecraft",
@@ -36,18 +30,13 @@
         "maxMemory": -1,
         "autoMemory": true,
         "serverIp": "",
-        "java": "Auto",
         "newScaleFactor": 100,
         "notCheckGame": false,
         "notCheckJVM": false,
         "beGesture": true,
         "vulkanDriverSystem": false,
-        "controller": "00000000",
-        "renderer": "",
-        "driver": "",
         "isolateGameDir": false,
         "pojavBigCore": false,
-        "uuid": "",
         "notCheckMod": false
       },
       "gameDir": "/storage/emulated/0/Android/data/com.tungsten.fcl.server/files/.minecraft",
@@ -56,6 +45,5 @@
   },
   "downloadThreads": 64,
   "downloadType": "bmclapi",
-  "last": "私有目录",
-  "versionListSource": "balanced"
+  "last": "私有目录"
 }
