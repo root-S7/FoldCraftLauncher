@@ -49,6 +49,7 @@ import com.tungsten.fcl.util.AndroidUtils.showErrorDialog
 import com.tungsten.fcl.util.check.FileFormat
 import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
 import com.tungsten.fcllibrary.component.dialog.FCLWaitDialog
+import com.tungsten.fcl.util.AndroidUtils
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
@@ -172,11 +173,36 @@ class SplashActivity : FCLActivity() {
                 }
             }
             startActivity(
-                Intent(this@SplashActivity, MainActivity::class.java),
+                handleModpack(Intent(this@SplashActivity, MainActivity::class.java)),
                 ActivityOptionsCompat.makeCustomAnimation(this@SplashActivity, 0, 0).toBundle()
             )
             finish()
         }
+    }
+
+    private fun handleModpack(newIntent: Intent): Intent {
+        val intent = intent
+        val action = intent.action
+        val data = intent.data
+
+        if (Intent.ACTION_VIEW == action && data != null) {
+            try {
+                val fileName = AndroidUtils.getFileName(this, data) ?: "modpack"
+                val cacheFile = File(cacheDir, fileName)
+                contentResolver.openInputStream(data)?.use { input ->
+                    cacheFile.outputStream().use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                newIntent.putExtra("modpack_cache_path", cacheFile.absolutePath)
+            } catch (e: Exception) {
+                Logging.LOG.log(
+                    Level.WARNING,
+                    "Failed to handle modpack intent: ${e.message}"
+                )
+            }
+        }
+        return newIntent
     }
 
     private fun requestPermission() {
