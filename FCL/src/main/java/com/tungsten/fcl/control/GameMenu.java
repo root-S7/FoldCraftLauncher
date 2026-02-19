@@ -134,13 +134,12 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
     private MultiplayerDialog multiplayerDialog;
 
-    private long time = 0;
-
     private MenuView menuView;
 
     private TouchController touchController;
 
     private boolean gamepadDisabled = false;
+    private Thread fpsThread;
 
     public void setMenuView(MenuView menuView) {
         this.menuView = menuView;
@@ -443,16 +442,23 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
                 return;
             }
             if (isChecked) {
-                Schedulers.io().execute(() -> {
+                fpsThread = new Thread(() -> {
                     FCLBridge.getFps();
-                    while (showFps.isChecked()) {
-                        if (System.currentTimeMillis() - time >= 1000) {
-                            Schedulers.androidUIThread().execute(() -> fpsText.setText("FPS:" + FCLBridge.getFps()));
-                            time = System.currentTimeMillis();
+                    while (showFps.isChecked() && !Thread.currentThread().isInterrupted()) {
+                        Schedulers.androidUIThread().execute(() -> fpsText.setText("FPS:" + FCLBridge.getFps()));
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ignored) {
                         }
                     }
                 });
+                fpsThread.setName("FCL FPS Thread");
+                fpsThread.start();
             } else {
+                if (fpsThread != null) {
+                    fpsThread.interrupt();
+                    fpsThread = null;
+                }
                 fpsText.setText("");
             }
         });
