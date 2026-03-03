@@ -4,15 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
-import com.mio.util.AndroidUtil
-import com.tungsten.fcllibrary.R
-import com.tungsten.fcllibrary.component.view.FCLButton
 import com.tungsten.fcllibrary.component.view.FCLEditText
 import com.tungsten.fcllibrary.databinding.DialogEditBinding
 import com.tungsten.fcllibrary.util.ConvertUtils
 import java.util.function.Consumer
 
-class EditDialog(context: Context, private val callback: Consumer<String?>) : FCLDialog(context),
+class EditDialog(context: Context, private val callback: Consumer<String>) : FCLDialog(context),
     View.OnClickListener {
     var binding: DialogEditBinding
 

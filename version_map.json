@@ -1,20 +1,20 @@
 [
   {
     "type": "release",
-    "versionCode": 1287,
-    "versionName": "1.2.8.7",
-    "date": "2026.02.21",
+    "versionCode": 1289,
+    "versionName": "1.2.8.9",
+    "date": "2026.03.03",
     "description": [
       {
         "lang": "en",
-        "text": "(Translated from Chinese by AI)\n1. Fixed the issue of duplicate threads caused by quickly toggling the FPS display.\n2. Fixed the abnormal crash issue when the local modpack installation task is empty.\n3. Reverted the ANGLE update (due to some devices not meeting the runtime requirements).\n4. Removed the automatic Flywheel disabling feature.\n5. Adjusted the Vulkan driver loading logic; it is no longer forcibly loaded and is now actively loaded based on the renderer."
+        "text": "(Translated from Chinese by AI)\n1. Fixed an issue where the launcher would crash immediately upon opening on some devices.  \n2. Added scrolling display for warning dialog buttons to fix the issue where some text was not fully displayed.  \n3. Optimized the display effect of the version management list and added type filtering functionality.  \n4. Optimized the layout display effect of the installation version page.  \n5. Fixed an issue where the retry button on the download page was incorrectly positioned.  \n6. Added custom resolution functionality.  \n7. Optimized the inventory scaling feature, allowing for more precise customization of inventory size."
       },
       {
         "lang": "zh_CN",
-        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复快速开关FPS显示导致的重复线程问题\n2.修复本地模组包安装任务为空时的异常崩溃问题\n3.回退ANGLE更新（因为部分设备无法满足运行要求）\n4.删除自动关闭Flywheel功能\n5.调整vulkan驱动加载逻辑，不再强制加载，根据渲染器主动加载vulkan"
+        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复部分设备打开启动器直接崩溃的问题\n2.为警告对话框按钮添加滚动显示修复部分文字显示不全的问题\n3.优化版本管理列表显示效果，增加类型过滤功能\n4.优化安装版本页面布局显示效果\n5.修复下载页面重试按钮位置错误的问题\n6.添加自定义分辨率功能\n7.优化物品栏缩放功能，允许更加精确地自定义物品栏大小"
       }
     ],
-    "netdiskUrl": "https://pan.quark.cn/s/e55013db473b",
-    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.8.7/FCL-release-1.2.8.7-all.apk"
+    "netdiskUrl": "https://pan.quark.cn/s/e9249b98ffdf",
+    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.8.9/FCL-release-1.2.8.9-all.apk"
   }
 ]

@@ -63,6 +63,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -479,16 +480,24 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
             builder.setSelectionMode(SelectionMode.SINGLE_SELECTION);
             ArrayList<String> suffix = new ArrayList<>();
             suffix.add(".png");
+            suffix.add(".gif");
             builder.setSuffix(suffix);
             builder.create().browse(getActivity(), RequestCodes.SELECT_CURSOR_CODE, ((requestCode, resultCode, data) -> {
                 if (requestCode == RequestCodes.SELECT_CURSOR_CODE && resultCode == Activity.RESULT_OK && data != null) {
                     String path = FileBrowser.getSelectedFiles(data).get(0);
                     Uri uri = Uri.parse(path);
+                    String type = AndroidUtils.getFileName(getContext(), uri);
+                    if (type.endsWith(".gif")) {
+                        type = "gif";
+                    } else {
+                        type = "png";
+                    }
+                    deleteCursorFile();
                     if (AndroidUtils.isDocUri(uri)) {
-                        AndroidUtils.copyFile(getActivity(), uri, new File(FCLPath.FILES_DIR, "cursor.png"));
+                        AndroidUtils.copyFile(getActivity(), uri, new File(FCLPath.FILES_DIR, "cursor." + type));
                     } else {
                         try {
-                            FileUtils.copyFile(new File(path), new File(FCLPath.FILES_DIR, "cursor.png"));
+                            FileUtils.copyFile(new File(path), new File(FCLPath.FILES_DIR, "cursor." + type));
                         } catch (IOException ignore) {
                         }
                     }
@@ -507,16 +516,13 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
                 if (requestCode == RequestCodes.SELECT_CURSOR_CODE && resultCode == Activity.RESULT_OK && data != null) {
                     String path = FileBrowser.getSelectedFiles(data).get(0);
                     Uri uri = Uri.parse(path);
-                    String type = getContext().getContentResolver().getType(uri);
-                    if (type != null) {
-                        if (type.contains("png")) {
-                            type = "png";
-                        } else if (type.contains("gif")) {
-                            type = "gif";
-                        }
+                    String type = AndroidUtils.getFileName(getContext(), uri);
+                    if (type.endsWith(".gif")) {
+                        type = "gif";
                     } else {
                         type = "png";
                     }
+                    deleteMenuIconFile();
                     if (AndroidUtils.isDocUri(uri)) {
                         AndroidUtils.copyFile(getActivity(), uri, new File(FCLPath.FILES_DIR, "menu_icon." + type));
                     } else {
@@ -585,11 +591,28 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
             }).start();
         }
         if (v == resetCursor) {
-            new File(FCLPath.FILES_DIR, "cursor.png").delete();
+            deleteCursorFile();
         }
         if (v == resetMenuIcon) {
-            new File(FCLPath.FILES_DIR, "menu_icon.png").delete();
-            new File(FCLPath.FILES_DIR, "menu_icon.gif").delete();
+            deleteMenuIconFile();
+        }
+    }
+
+    private static void deleteMenuIconFile() {
+        try {
+            Files.delete(Paths.get(FCLPath.FILES_DIR, "menu_icon.png"));
+            Files.delete(Paths.get(FCLPath.FILES_DIR, "menu_icon.gif"));
+        } catch (IOException e) {
+            LOG.log(Level.WARNING, "Failed to delete menu icon", e);
+        }
+    }
+
+    private void deleteCursorFile() {
+        try {
+            Files.delete(Paths.get(FCLPath.FILES_DIR, "cursor.png"));
+            Files.delete(Paths.get(FCLPath.FILES_DIR, "cursor.gif"));
+        } catch (IOException e) {
+            LOG.log(Level.WARNING, "Failed to delete cursor", e);
         }
     }
 

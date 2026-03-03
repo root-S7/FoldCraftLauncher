@@ -1058,10 +1058,18 @@
               }
             },
             "event": {
-              "upKeycode": 17,
-              "downKeycode": 31,
-              "leftKeycode": 30,
-              "rightKeycode": 32,
+              "upKeycode": [
+                17
+              ],
+              "downKeycode": [
+                31
+              ],
+              "leftKeycode": [
+                30
+              ],
+              "rightKeycode": [
+                32
+              ],
               "followOption": "CENTER_FOLLOW",
               "sneak": true,
               "sneakKeycode": 42

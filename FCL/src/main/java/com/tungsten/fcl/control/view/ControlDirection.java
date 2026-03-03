@@ -189,7 +189,8 @@ public class ControlDirection extends RelativeLayout implements CustomView {
             getData().addListener(notifyListener);
         });
         boundaryListener = null;
-        visibilityListener = observable -> {};
+        visibilityListener = observable -> {
+        };
         alphaListener = null;
 
         post(() -> {
@@ -274,7 +275,7 @@ public class ControlDirection extends RelativeLayout implements CustomView {
     private final AppCompatButton downLeftBtn = new AppCompatButton(getContext());
     private final AppCompatButton downRightBtn = new AppCompatButton(getContext());
 
-    private final AppCompatButton[] buttons = new AppCompatButton[] {
+    private final AppCompatButton[] buttons = new AppCompatButton[]{
             centerBtn,
             upBtn,
             downBtn,
@@ -789,10 +790,18 @@ public class ControlDirection extends RelativeLayout implements CustomView {
 
     private void handleMoveEvent(boolean up, boolean down, boolean left, boolean right) {
         if (menu != null) {
-            menu.getInput().sendKeyEvent(getData().getEvent().getUpKeycode(), up);
-            menu.getInput().sendKeyEvent(getData().getEvent().getDownKeycode(), down);
-            menu.getInput().sendKeyEvent(getData().getEvent().getLeftKeycode(), left);
-            menu.getInput().sendKeyEvent(getData().getEvent().getRightKeycode(), right);
+            for (Integer code : getData().getEvent().upKeycodeList()) {
+                menu.getInput().sendKeyEvent(code, up);
+            }
+            for (Integer code : getData().getEvent().downKeycodeList()) {
+                menu.getInput().sendKeyEvent(code, down);
+            }
+            for (Integer code : getData().getEvent().leftKeycodeList()) {
+                menu.getInput().sendKeyEvent(code, left);
+            }
+            for (Integer code : getData().getEvent().rightKeycodeList()) {
+                menu.getInput().sendKeyEvent(code, right);
+            }
         }
         if (getData().getStyle().getStyleType() == ControlDirectionStyle.Type.BUTTON) {
             if (up && !down && !left && !right) {
@@ -864,10 +873,18 @@ public class ControlDirection extends RelativeLayout implements CustomView {
                 tempDirection = Direction.DIRECTION_CENTER;
             }
             if (menu != null) {
-                menu.getInput().sendKeyEvent(getData().getEvent().getUpKeycode(), false);
-                menu.getInput().sendKeyEvent(getData().getEvent().getDownKeycode(), false);
-                menu.getInput().sendKeyEvent(getData().getEvent().getLeftKeycode(), false);
-                menu.getInput().sendKeyEvent(getData().getEvent().getRightKeycode(), false);
+                for (Integer code : getData().getEvent().upKeycodeList()) {
+                    menu.getInput().sendKeyEvent(code, false);
+                }
+                for (Integer code : getData().getEvent().downKeycodeList()) {
+                    menu.getInput().sendKeyEvent(code, false);
+                }
+                for (Integer code : getData().getEvent().leftKeycodeList()) {
+                    menu.getInput().sendKeyEvent(code, false);
+                }
+                for (Integer code : getData().getEvent().rightKeycodeList()) {
+                    menu.getInput().sendKeyEvent(code, false);
+                }
             }
         });
     }

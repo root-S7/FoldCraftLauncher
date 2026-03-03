@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.LayoutInflater;
@@ -22,6 +23,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.request.target.CustomViewTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.google.gson.GsonBuilder;
 import com.mio.touchcontroller.TouchController;
 import com.mio.touchcontroller.TouchControllerInputView;
@@ -295,7 +300,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         return viewGroupProperty.get();
     }
 
-    public boolean isGamepadDisabled(){
+    public boolean isGamepadDisabled() {
         return gamepadDisabled;
     }
 
@@ -517,14 +522,8 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
         initSeekbar(cursorOffsetSeekbar, (int) (menuSetting.getCursorOffset()), observable -> {
             menuSetting.setCursorOffset(cursorOffsetSeekbar.progressProperty().get());
-            int screenWidth = AndroidUtils.getScreenWidth();
-            int screenHeight = AndroidUtils.getScreenHeight();
             if (fclBridge != null) {
-                double scaleFactor = fclBridge.getScaleFactor();
-                int width = (int) ((screenWidth + cursorOffsetSeekbar.progressProperty().get()) * scaleFactor);
-                int height = (int) (screenHeight * scaleFactor);
-                fclBridge.getSurfaceTexture().setDefaultBufferSize(width, height);
-                fclBridge.pushEventWindow(width, height);
+                refreshWindowsSize(menuSetting.getWindowScale());
             }
         });
 
@@ -638,7 +637,23 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
         viewManager.setup();
 
-        if (new File(FCLPath.FILES_DIR, "cursor.png").exists()) {
+        if (new File(FCLPath.FILES_DIR, "cursor.gif").exists()) {
+            Glide.with(getCursor()).asGif().skipMemoryCache(true).load(new File(FCLPath.FILES_DIR, "cursor.gif")).into(new CustomViewTarget<FCLImageView, GifDrawable>(getCursor()) {
+                @Override
+                public void onLoadFailed(@Nullable Drawable errorDrawable) {
+                }
+
+                @Override
+                public void onResourceReady(@NonNull GifDrawable resource, @Nullable Transition<? super GifDrawable> transition) {
+                    getCursor().setImageDrawable(resource);
+                    resource.start();
+                }
+
+                @Override
+                protected void onResourceCleared(@Nullable Drawable placeholder) {
+                }
+            });
+        } else if (new File(FCLPath.FILES_DIR, "cursor.png").exists()) {
             Bitmap bitmap = BitmapFactory.decodeFile(new File(FCLPath.FILES_DIR, "cursor.png").getAbsolutePath());
             BitmapDrawable drawable = new BitmapDrawable(getActivity().getResources(), bitmap);
             getCursor().setImageDrawable(drawable);
@@ -899,6 +914,10 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
             fclBridge.setScaleFactor(factor);
             int width = (int) ((screenWidth + menuSetting.getCursorOffset()) * factor);
             int height = (int) (screenHeight * factor);
+            if (FCLBridge.FORCE_RESOLUTION) {
+                width = FCLBridge.FORCE_RESOLUTION_WIDTH;
+                height = FCLBridge.FORCE_RESOLUTION_HEIGHT;
+            }
             fclBridge.getSurfaceTexture().setDefaultBufferSize(width, height);
             fclBridge.pushEventWindow(width, height);
         }

@@ -42,8 +42,8 @@ android {
         applicationId = "com.tungsten.fcl.server"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1287
-        versionName = "1.2.8.7"
+        versionCode = 1289
+        versionName = "1.2.8.9"
     }
 
     androidResources {
@@ -97,8 +97,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     packaging {
@@ -110,7 +110,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -142,19 +142,19 @@ dependencies {
     implementation(project(":FCLLibrary"))
     implementation(project(":FCLauncher"))
     implementation(project(":Terracotta"))
-    implementation("com.getkeepsafe.taptargetview:taptargetview:1.14.0")
-    implementation("org.nanohttpd:nanohttpd:2.3.1")
-    implementation("org.apache.commons:commons-compress:1.26.0")
-    implementation("org.tukaani:xz:1.9")
-    implementation("com.github.steveice10:opennbt:1.5")
-    implementation("com.google.code.gson:gson:2.10.1")
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.2.0")
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("top.fifthlight.touchcontroller:proxy-client-android:0.0.5")
-    implementation("androidx.palette:palette-ktx:1.0.0")
-    implementation("com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3")
-    implementation("com.github.addisonElliott:SegmentedButton:3.1.9")
+    implementation(libs.taptargetview)
+    implementation(libs.nanohttpd)
+    implementation(libs.commons.compress)
+    implementation(libs.xz)
+    implementation(libs.opennbt)
+    implementation(libs.gson)
+    implementation(libs.appcompat)
+    implementation(libs.core.splashscreen)
+    implementation(libs.material)
+    implementation(libs.constraintlayout)
+    implementation(libs.glide)
+    implementation(libs.touchcontroller)
+    implementation(libs.palette.ktx)
+    implementation(libs.gamepad.remapper)
+    implementation(libs.segmented.button)
 }
