@@ -145,6 +145,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
     private boolean gamepadDisabled = false;
     private Thread fpsThread;
+    private int lastCursorMode = FCLBridge.CursorEnabled;
 
     public void setMenuView(MenuView menuView) {
         this.menuView = menuView;
@@ -510,7 +511,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
             menuSetting.setItemBarScale(itemBarScaleSeekbar.progressProperty().get());
             GameOption.GameOptionListener optionListener = gameItemBar.getOptionListener();
             if (optionListener != null) {
-                optionListener.onOptionChanged();
+                optionListener.onOptionChanged(true);
             }
         });
 
@@ -661,7 +662,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
         if (getBridge() != null && getBridge().hasTouchController()) {
             SharedPreferences sharedPreferences = getActivity().getSharedPreferences("launcher", MODE_PRIVATE);
-            touchController = new TouchController(getActivity(), AndroidUtils.getScreenWidth(), AndroidUtils.getScreenHeight(), (int) sharedPreferences.getInt("vibrationDuration", 100));
+            touchController = new TouchController(getActivity(), AndroidUtils.getScreenWidth(), AndroidUtils.getScreenHeight(), sharedPreferences.getInt("vibrationDuration", 100));
 
             touchControllerInputView.setClient(touchController.getClient());
             touchControllerInputView.setFclInput(fclInput);
@@ -744,8 +745,11 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
     @Override
     public void onCursorModeChange(int mode) {
-        this.cursorModeProperty.set(mode);
         activity.runOnUiThread(() -> {
+            if (lastCursorMode == mode)
+                return;
+            lastCursorMode = mode;
+            this.cursorModeProperty.set(mode);
             if (mode == FCLBridge.CursorEnabled) {
                 getCursor().setVisibility(View.VISIBLE);
                 gameItemBar.setVisibility(View.GONE);
