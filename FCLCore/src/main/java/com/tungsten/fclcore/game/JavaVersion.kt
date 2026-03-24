@@ -5,7 +5,7 @@ import com.tungsten.fclauncher.utils.FCLPath
 
 class JavaVersion(val isAuto: Boolean, val versionName: String, val name: String) {
 
-    fun getJavaPath(version: Version): String {
+    fun getJavaPath(version: Version?): String {
         val javaVersion = if (isAuto) JavaManager.getSuitableJavaVersion(version) else this
         return "${FCLPath.JAVA_PATH}/${javaVersion.name}"
     }
@@ -21,9 +21,9 @@ class JavaVersion(val isAuto: Boolean, val versionName: String, val name: String
 
     companion object {
         const val JAVA_VERSION_8: Int = 8
-        const val JAVA_VERSION_11: Int = 11
         const val JAVA_VERSION_17: Int = 17
         const val JAVA_VERSION_21: Int = 21
+        const val JAVA_VERSION_25: Int = 25
 
         @JvmField
         val JAVA_AUTO: JavaVersion = JavaVersion(true, "1.8", "Auto")

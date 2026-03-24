@@ -57,7 +57,6 @@ import com.tungsten.fcl.setting.rules.extend.VersionRule;
 import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fcl.ui.UIManager;
-import com.tungsten.fcl.ui.manage.ManagePageManager;
 import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -88,12 +87,12 @@ import com.tungsten.fclcore.task.TaskExecutor;
 import com.tungsten.fclcore.task.TaskListener;
 import com.tungsten.fclcore.util.Lang;
 import com.tungsten.fclcore.util.LibFilter;
-import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.StringUtils;
 import com.tungsten.fclcore.util.io.ResponseCodeException;
 import com.tungsten.fclcore.util.platform.MemoryUtils;
 import com.tungsten.fclcore.util.versioning.VersionNumber;
 import com.tungsten.fclcore.util.versioning.GameVersionNumber;
+import com.tungsten.fclcore.util.versioning.VersionNumber;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.dialog.FCLDialog;
 import com.tungsten.fcllibrary.component.view.FCLButton;
@@ -110,7 +109,6 @@ import java.net.URL;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -185,7 +183,7 @@ public final class LauncherHelper {
                     try (InputStream input = LauncherHelper.class.getResourceAsStream("/assets/game/MioLibPatcher.jar")) {
                         Files.copy(input, new File(FCLPath.LIB_PATCHER_PATH).toPath(), StandardCopyOption.REPLACE_EXISTING);
                     } catch (IOException e) {
-                        Logging.LOG.log(Level.WARNING, "Unable to unpack MioLibFixer.jar", e);
+                        LOG.log(Level.WARNING, "Unable to unpack MioLibFixer.jar", e);
                     }
                     return null;
                 })
@@ -193,7 +191,7 @@ public final class LauncherHelper {
                     try (InputStream input = LauncherHelper.class.getResourceAsStream("/assets/game/MioLaunchWrapper.jar")) {
                         Files.copy(input, new File(FCLPath.MIO_LAUNCH_WRAPPER).toPath(), StandardCopyOption.REPLACE_EXISTING);
                     } catch (IOException e) {
-                        Logging.LOG.log(Level.WARNING, "Unable to unpack MioLaunchWrapper.jar", e);
+                        LOG.log(Level.WARNING, "Unable to unpack MioLaunchWrapper.jar", e);
                     }
                     return null;
                 })
@@ -280,8 +278,7 @@ public final class LauncherHelper {
                                     message = getLocalizedText(context, "modpack_type_curse_error");
                             } else if (ex instanceof LibraryDownloadException) {
                                 message = getLocalizedText(context, "launch_failed_download_library", ((LibraryDownloadException) ex).getLibrary().getName()) + "\n";
-                                if (ex.getCause() instanceof ResponseCodeException) {
-                                    ResponseCodeException rce = (ResponseCodeException) ex.getCause();
+                                if (ex.getCause() instanceof ResponseCodeException rce) {
                                     int responseCode = rce.getResponseCode();
                                     URL url = rce.getUrl();
                                     if (responseCode == 404)
@@ -295,8 +292,7 @@ public final class LauncherHelper {
                                 URL url = ((DownloadException) ex).getUrl();
                                 if (ex.getCause() instanceof SocketTimeoutException) {
                                     message = getLocalizedText(context, "install_failed_downloading_timeout", url);
-                                } else if (ex.getCause() instanceof ResponseCodeException) {
-                                    ResponseCodeException responseCodeException = (ResponseCodeException) ex.getCause();
+                                } else if (ex.getCause() instanceof ResponseCodeException responseCodeException) {
                                     if (hasStringId(context, "download_code_" + responseCodeException.getResponseCode())) {
                                         message = getLocalizedText(context, "download_code_" + responseCodeException.getResponseCode(), url);
                                     } else {
@@ -311,8 +307,7 @@ public final class LauncherHelper {
                                 message = getLocalizedText(context, "account_failed_injector_download_failure");
                             } else if (ex instanceof CharacterDeletedException) {
                                 message = getLocalizedText(context, "account_failed_character_deleted");
-                            } else if (ex instanceof ResponseCodeException) {
-                                ResponseCodeException rce = (ResponseCodeException) ex;
+                            } else if (ex instanceof ResponseCodeException rce) {
                                 int responseCode = rce.getResponseCode();
                                 URL url = rce.getUrl();
                                 if (responseCode == 404)
@@ -326,12 +321,10 @@ public final class LauncherHelper {
                                 message = ex.getMessage();
                             } else if (ex instanceof ModCheckException) {
                                 message = ((ModCheckException) ex).getReason();
+                            } else if (ex instanceof IllegalArgumentException) {
+                                message = getLocalizedText(context, "exception_no_suitable_java");
                             } else {
-                                if (ex == null) {
-                                    message = "Task failed without exception!";
-                                } else {
-                                    message = StringUtils.getStackTrace(ex);
-                                }
+                                message = StringUtils.getStackTrace(ex);
                             }
 
                             FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context);
@@ -486,20 +479,28 @@ public final class LauncherHelper {
     }
 
     private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version, JavaRule rule) {
-        boolean isCleanroom = LibraryAnalyzer.analyze(version, null).has(LibraryAnalyzer.LibraryType.CLEANROOM);
-        Task<JavaVersion> task = Task.composeAsync(() -> Task.supplyAsync(Schedulers.androidUIThread(), () -> {
-            if (setting.getJava().equals("Auto")) {
-                if (isCleanroom) return JavaManager.getJavaFromVersionName("jre21");
-                return JavaManager.getSuitableJavaVersion(version);
-            } else {
-                return JavaManager.getJavaFromVersionName(setting.getJava());
-            }
-        }));
-        if (setting.isNotCheckJVM()) {
-            return task.withStage("launch.state.java");
+        LibraryAnalyzer analyzer = LibraryAnalyzer.analyze(version, null);
+        boolean isCleanroom = analyzer.has(LibraryAnalyzer.LibraryType.CLEANROOM);
+        VersionNumber cleanroomVersion = null;
+        if(isCleanroom) {
+            Optional<String> optional = analyzer.getVersion(LibraryAnalyzer.LibraryType.CLEANROOM);
+            cleanroomVersion = optional.map(s -> VersionNumber.asVersion(StringUtils.removeSuffix(s, "-alpha"))).orElse(null);
         }
 
-        if (rule != null && rule.canDetectRule()) { // 如果规则可用，则根据规则要求进行设置Java
+        final VersionNumber finalCleanroomVersion = cleanroomVersion;
+        Task<JavaVersion> task = Task.supplyAsync(Schedulers.androidUIThread(), () -> {
+            if(setting.getJava().equals("Auto")) {
+                if(isCleanroom) {
+                    if(finalCleanroomVersion != null && finalCleanroomVersion.compareTo("0.5.0") >= 0) return JavaManager.getSuitableJavaVersion(25);
+                    else return JavaManager.getJavaFromVersionName("jre21");
+                }else return JavaManager.getSuitableJavaVersion(version);
+
+            }else return JavaManager.getJavaFromVersionName(setting.getJava());
+        });
+
+        if(setting.isNotCheckJVM()) return task.withStage("launch.state.java");
+
+        if(rule != null && rule.canDetectRule()) {
             return task.thenComposeAsync(javaVersion -> Optional.ofNullable(rule.setRule(setting))
                     .filter(RuleCheckState::isNormal)
                     .map(r -> Task.completed("Auto".equals(setting.getJava()) ? JavaManager.getSuitableJavaVersion(version) : JavaManager.getJavaFromVersionName(setting.getJava())))
@@ -508,36 +509,41 @@ public final class LauncherHelper {
                         Schedulers.androidUIThread().execute(() -> errRuleDialog(context, rule.getTip(), rule.getDownloadURL(), future).create().show());
                         return Task.fromCompletableFuture(future);
                     })).withStage("launch.state.java");
-        }else return task.thenComposeAsync(javaVersion -> Task.allOf(Task.completed(javaVersion), Task.supplyAsync(() -> JavaManager.getSuitableJavaVersion(version))))
-                .thenComposeAsync(Schedulers.androidUIThread(), javaVersions -> {
-                    JavaVersion javaVersion = (JavaVersion) javaVersions.get(0);
-                    JavaVersion suggestedJavaVersion;
-                    if(isCleanroom) suggestedJavaVersion = JavaManager.getJavaFromVersionName("jre21");
-                    else suggestedJavaVersion = (JavaVersion) javaVersions.get(1);
-                    if (suggestedJavaVersion.getVersion() != -1) {
-                        if (setting.getJava().equals("Auto") || javaVersion.getVersion() == suggestedJavaVersion.getVersion()) {
-                            return Task.completed(setting.getJava().equals("Auto") ? suggestedJavaVersion : javaVersion);
-                        }
-                    }
+        }else {
+            return task.thenComposeAsync(Schedulers.androidUIThread(), javaVersion -> {
+                JavaVersion suggestedJavaVersion;
+                if(isCleanroom) {
+                    if(finalCleanroomVersion != null && finalCleanroomVersion.compareTo("0.5.0") >= 0) suggestedJavaVersion = JavaManager.getSuitableJavaVersion(25);
+                    else suggestedJavaVersion = JavaManager.getJavaFromVersionName("jre21");
+                }else suggestedJavaVersion = JavaManager.getSuitableJavaVersion(version);
 
-                    CompletableFuture<JavaVersion> future = new CompletableFuture<>();
-                    Runnable continueAction = () -> future.complete(javaVersion);
-                    new FCLAlertDialog.Builder(context)
-                            .setCancelable(false)
-                            .setMessage(context.getString(R.string.launch_error_java))
-                            .setPositiveButton(context.getString(R.string.launch_error_java_auto), () -> {
-                                setting.setJava(JavaVersion.JAVA_AUTO.getName());
-                                future.complete(suggestedJavaVersion);
-                            })
-                            .setNegativeButton(context.getString(R.string.launch_error_java_continue), continueAction::run)
-                            .setNeutralButton(context.getString(R.string.launch_error_java_continue_disable), () -> {
-                                setting.setNotCheckJVM(true);
-                                continueAction.run();
-                            })
-                            .create()
-                            .show();
-                    return Task.fromCompletableFuture(future);
-                }).withStage("launch.state.java");
+                if(suggestedJavaVersion.getVersion() != -1) {
+                    if(setting.getJava().equals("Auto") || javaVersion.getVersion() == suggestedJavaVersion.getVersion()) {
+                        return Task.completed(setting.getJava().equals("Auto") ? suggestedJavaVersion : javaVersion);
+                    }
+                }
+
+                CompletableFuture<JavaVersion> future = new CompletableFuture<>();
+                Runnable continueAction = () -> future.complete(javaVersion);
+                new FCLAlertDialog.Builder(context)
+                        .setCancelable(false)
+                        .setMessage(context.getString(R.string.launch_error_java))
+                        .setPositiveButton(context.getString(R.string.launch_error_java_auto), () -> {
+                            setting.setJava(JavaVersion.JAVA_AUTO.getName());
+                            if(suggestedJavaVersion == JavaManager.NO_JAVA_FOUND) future.completeExceptionally(new IllegalArgumentException("Failed to find a suitable Java!"));
+                            else future.complete(suggestedJavaVersion);
+
+                        })
+                        .setNegativeButton(context.getString(R.string.launch_error_java_continue), continueAction::run)
+                        .setNeutralButton(context.getString(R.string.launch_error_java_continue_disable), () -> {
+                            setting.setNotCheckJVM(true);
+                            continueAction.run();
+                        })
+                        .create()
+                        .show();
+                return Task.fromCompletableFuture(future);
+            }).withStage("launch.state.java");
+        }
     }
 
     private static Task<AuthInfo> logIn(Context context, Account account) {
@@ -631,9 +637,9 @@ public final class LauncherHelper {
         private final Account account;
         private final CompletableFuture<Task<AuthInfo>> future;
 
-        private FCLButton retry;
-        private FCLButton skip;
-        private FCLButton cancel;
+        private final FCLButton retry;
+        private final FCLButton skip;
+        private final FCLButton cancel;
 
         public SkipLoginDialog(@NonNull Context context, Account account, CompletableFuture<Task<AuthInfo>> future) {
             super(context);
@@ -674,8 +680,8 @@ public final class LauncherHelper {
         private final Account account;
         private final CompletableFuture<Task<AuthInfo>> future;
 
-        private FCLButton skip;
-        private FCLButton ok;
+        private final FCLButton skip;
+        private final FCLButton ok;
 
         public TipReLoginLoginDialog(@NonNull Context context, Account account, CompletableFuture<Task<AuthInfo>> future) {
             super(context);
