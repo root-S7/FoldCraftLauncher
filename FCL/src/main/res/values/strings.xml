@@ -853,9 +853,9 @@
 
     <string name="settings_fcl_controller">Controller</string>
     <string name="settings_fcl_controller_injector">BE Gesture</string>
-    <string name="settings_fcl_vulkan_driver_system">Allow zink to use System Vulkan driver</string>
+    <string name="settings_fcl_vulkan_driver_system">Use System Vulkan driver</string>
     <string name="settings_fcl_renderer">Renderer</string>
-    <string name="settings_fcl_pojav_bigcore">Force the renderer to run on the big core(Pojav backend)</string>
+    <string name="settings_fcl_pojav_bigcore">Force the renderer to run on the big core</string>
     <string name="settings_fcl_renderer_gl4es" translatable="false">Holy GL4ES (OpenGL 2.1, 1.21.5-)</string>
     <string name="settings_fcl_renderer_virgl" translatable="false">VirGLRenderer (OpenGL 4.3)</string>
     <string name="settings_fcl_renderer_vgpu" >VGPU (OpenGL 2.1+, only support 1.17-)</string>
@@ -1214,6 +1214,7 @@
     <string name="message_select_url">Please select a link to download (it will open in your browser).</string>
     <string name="supported_mc_version">Supported MC version:</string>
     <string name="message_check_renderer">The current renderer %s does not support this game version. Continuing to use it may cause rendering errors or game crashes! Do you want to continue?</string>
+    <string name="message_check_plugin">The current plugin %s does not support this game version. Continuing to use it may cause the game to crash! Do you want to continue?</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
     <string name="close">Close</string>

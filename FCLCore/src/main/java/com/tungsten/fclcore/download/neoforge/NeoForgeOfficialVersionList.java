@@ -6,7 +6,6 @@ import static com.tungsten.fclcore.util.Logging.LOG;
 import com.tungsten.fclcore.download.DownloadProvider;
 import com.tungsten.fclcore.download.VersionList;
 import com.tungsten.fclcore.util.Lang;
-import com.tungsten.fclcore.util.StringUtils;
 import com.tungsten.fclcore.util.io.HttpRequest;
 
 import java.util.List;
@@ -66,7 +65,13 @@ public final class NeoForgeOfficialVersionList extends VersionList<NeoForgeRemot
                         if (majorVersion == 0) { // Snapshot version.
                             mcVersion = version.substring(si1 + 1, si2);
                         } else {
-                            mcVersion = "1." + version.substring(0, Integer.parseInt(version.substring(si1 + 1, si2)) == 0 ? si1 : si2);
+                            String ver = version.substring(0, Integer.parseInt(version.substring(si1 + 1, si2)) == 0 ? si1 : si2);
+                            if (majorVersion >= 26) {
+                                int separator = version.indexOf('+');
+                                mcVersion = separator < 0 ? ver : ver + "-" + version.substring(separator + 1);
+                            } else {
+                                mcVersion = "1." + ver;
+                            }
                         }
                     } catch (RuntimeException e) {
                         LOG.warning(String.format("Cannot parse NeoForge version %s for cracking its mc version. ", version) + e);

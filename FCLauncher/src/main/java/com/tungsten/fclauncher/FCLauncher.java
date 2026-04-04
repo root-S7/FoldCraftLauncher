@@ -16,6 +16,7 @@ import com.oracle.dalvik.VMLauncher;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.plugins.DriverPlugin;
 import com.tungsten.fclauncher.plugins.FFmpegPlugin;
+import com.tungsten.fclauncher.plugins.NativeLibPlugin;
 import com.tungsten.fclauncher.utils.Architecture;
 import com.tungsten.fclauncher.utils.FCLPath;
 
@@ -130,6 +131,9 @@ public class FCLauncher {
                     javaLibDir +
                     jvmLibDir;
         }
+
+        String nativeLibPaths = NativeLibPlugin.getPaths(split);
+
         return javaPath +
                 javaLibDir +
                 split +
@@ -160,6 +164,8 @@ public class FCLauncher {
 
                 ((pluginLibPath != null && !pluginLibPath.isEmpty()) ? pluginLibPath + split : "") +
 
+                ((!nativeLibPaths.isEmpty() ? nativeLibPaths + split : "")) +
+
                 FCLPath.MOD_RUNTIME_DIR +
                 split +
 
@@ -170,6 +176,7 @@ public class FCLauncher {
         String nativeDir = context.getApplicationInfo().nativeLibraryDir;
         String libDirName = is64BitsDevice() ? "lib64" : "lib";
         String split = ":";
+        String nativeLibPaths = NativeLibPlugin.getPaths(split);
         return "/system/" +
                 libDirName +
                 split +
@@ -183,7 +190,12 @@ public class FCLauncher {
                 "/hw" +
                 split +
 
+                context.getDir("runtime", 0).getAbsolutePath() + "/jna" +
+                split +
+
                 ((pluginLibPath != null && !pluginLibPath.isEmpty()) ? pluginLibPath + split : "") +
+
+                ((!nativeLibPaths.isEmpty() ? nativeLibPaths + split : "")) +
 
                 FCLPath.MOD_RUNTIME_DIR +
                 split +

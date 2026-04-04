@@ -19,8 +19,7 @@
 🌍 **Язык**
 [简体中文](./README.md) | [English](./README_EN.md) | Русский
 
-> ✨ **О проекте**  
-> 「Fold Craft Launcher」 — это лаунчер Minecraft: Java Edition для платформы Android, разрабатываемый командой FCL Team. Созданный на базе ключевых функций [HMCL](https://github.com/HMCL-dev/HMCL) и с интеграцией бэкендов [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher) и [Boat](https://github.com/AOF-Dev/Boat), он позволяет запускать Minecraft: Java Edition на мобильных устройствах, поддерживая загрузку и работу модов для всех версий игры.
+> 「Fold Craft Launcher」 — это лаунчер Minecraft: Java Edition для платформы Android, разрабатываемый командой FCL Team. Созданный на базе ключевых функций [HMCL](https://github.com/HMCL-dev/HMCL) и с интеграцией бэкенда [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher), он позволяет запускать Minecraft: Java Edition на мобильных устройствах, поддерживая загрузку и работу модов для всех версий игры.
 
 ---
 
@@ -28,10 +27,10 @@
 
 ✅ **Поддержка всех версий**  
 - Встроенная поддержка всех версий Minecraft (включая последние снапшоты)
-- Поддержка загрузчиков модов: Forge/NeoForge/LiteLoader/OptiFine/Fabric/Quilt...
+- Поддержка загрузчиков модов: Forge/NeoForge/LiteLoader/OptiFine/Fabric/Quilt/Cleanroom...
 
 ⚙️ **Основные преимущества**  
-- Встроенные среды выполнения Java разных версий (Java 8/11/17/21) с возможностью импорта пользовательских версий Java
+- Встроенные среды выполнения Java разных версий (Java 8/17/21/25) с возможностью импорта пользовательских версий Java
 - Виртуальная мышь и переназначение клавиш
 - Поддержка шейдеров (требуются рендереры VirGL/Zink/MG)
 - Гибкое управление ресурсами (моды/модпаки/текстуры/шейдеры/сохранения)

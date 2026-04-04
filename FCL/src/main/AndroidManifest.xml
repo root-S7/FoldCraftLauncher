@@ -114,8 +114,6 @@
             android:alwaysRetainTaskState="true"
             android:configChanges="keyboardHidden|orientation|screenSize|smallestScreenSize|screenLayout|keyboard|navigation"
             android:launchMode="standard"
-            android:multiprocess="true"
-            android:process=":jvm"
             android:screenOrientation="sensorLandscape" />
         <activity
             android:name=".activity.JVMCrashActivity"

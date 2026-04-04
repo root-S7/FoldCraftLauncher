@@ -600,8 +600,8 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
 
     private static void deleteMenuIconFile() {
         try {
-            Files.delete(Paths.get(FCLPath.FILES_DIR, "menu_icon.png"));
-            Files.delete(Paths.get(FCLPath.FILES_DIR, "menu_icon.gif"));
+            Files.deleteIfExists(Paths.get(FCLPath.FILES_DIR, "menu_icon.png"));
+            Files.deleteIfExists(Paths.get(FCLPath.FILES_DIR, "menu_icon.gif"));
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Failed to delete menu icon", e);
         }
@@ -609,8 +609,8 @@ public class LauncherSettingPage extends FCLCommonPage implements View.OnClickLi
 
     private void deleteCursorFile() {
         try {
-            Files.delete(Paths.get(FCLPath.FILES_DIR, "cursor.png"));
-            Files.delete(Paths.get(FCLPath.FILES_DIR, "cursor.gif"));
+            Files.deleteIfExists(Paths.get(FCLPath.FILES_DIR, "cursor.png"));
+            Files.deleteIfExists(Paths.get(FCLPath.FILES_DIR, "cursor.gif"));
         } catch (IOException e) {
             LOG.log(Level.WARNING, "Failed to delete cursor", e);
         }

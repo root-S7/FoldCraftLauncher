@@ -29,14 +29,20 @@ public class RuntimeUtils {
 
     public static boolean isLatest(String targetDir, String srcDir) throws IOException {
         File targetFile = new File(targetDir + "/version");
+
         try(InputStream stream = RuntimeUtils.class.getResourceAsStream(srcDir + "/version")) {
             if(stream == null) return true;
-        }
 
-        if(!targetFile.exists()) return false;
-        long assetsVersion = stringToLong(IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")), 0);
-        long version = stringToLong(FileUtils.readText(targetFile), 0);
-        return targetFile.exists() && assetsVersion == version;
+            String assetsStr = IOUtils.readFullyAsString(stream).trim();
+            long assetsVersion = stringToLong(assetsStr, -1);
+            if(!targetFile.exists()) return false;
+
+            String installedStr = FileUtils.readText(targetFile).trim();
+            if(installedStr.isEmpty()) return false;
+            long installedVersion = stringToLong(installedStr, -1);
+
+            return assetsVersion == installedVersion;
+        }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")

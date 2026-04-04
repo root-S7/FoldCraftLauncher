@@ -24,9 +24,15 @@ public class Pack200Utils {
         for(File jarFile : files) {
             try {
                 Process process = processBuilder.command("./libunpack200.so", "-r", jarFile.getAbsolutePath(), jarFile.getAbsolutePath().replace(".pack", "")).start();
-                process.waitFor();
-            } catch (InterruptedException | IOException e) {
-                Logging.LOG.log(Level.WARNING, "Failed to unpack files in " + dir, e);
+                int exitCode = process.waitFor();
+                if (exitCode != 0) {
+                    throw new IOException("unpack200 failed with exit code " + exitCode);
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                Logging.LOG.log(Level.WARNING, "Failed to unpack file: " + jarFile.getAbsolutePath(), e);
+            } catch (IOException e) {
+                Logging.LOG.log(Level.WARNING, "Failed to unpack file: " + jarFile.getAbsolutePath(), e);
             }
         }
     }
@@ -41,8 +47,14 @@ public class Pack200Utils {
             File workdir = new File(nativeLibraryDir);
             ProcessBuilder processBuilder = new ProcessBuilder().directory(workdir);
             Process process = processBuilder.command("./libunpack200.so", "-r", in, out).start();
-            process.waitFor();
-        } catch (InterruptedException | IOException e) {
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                throw new IOException("unpack200 failed with exit code " + exitCode);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Logging.LOG.log(Level.WARNING, "Failed to unpack file: " + in, e);
+        } catch (IOException e) {
             Logging.LOG.log(Level.WARNING, "Failed to unpack file: " + in, e);
         }
     }

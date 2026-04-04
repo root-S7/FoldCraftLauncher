@@ -18,7 +18,7 @@
 ## ✨新增功能『相较于官方分支』
 
 - [x] 可自定义按键存放位置
-- [x] 可自定义默认背景图和某些图片
+- [x] 可自定义默[RuntimeUtils.java](FCL/src/main/java/com/tungsten/fcl/util/RuntimeUtils.java)认背景图和某些图片
 - [x] 打开应用后可自动检查配置文件格式是否正确
 - [x] 可根据自己整合包情况删减无用Java运行环境
 - [x] 可自定义APK中运行环境打包项（详情见群文件说明）

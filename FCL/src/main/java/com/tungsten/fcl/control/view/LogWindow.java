@@ -58,9 +58,11 @@ public class LogWindow extends ScrollView {
     }
 
     public final void setVisibility(boolean visibility) {
-        setVisibility(visibility ? VISIBLE : GONE);
-        if (!visibility)
-            cleanLog();
+        post(() -> {
+            setVisibility(visibility ? VISIBLE : GONE);
+            if (!visibility)
+                cleanLog();
+        });
     }
 
     public void appendLog(String str) {

@@ -20,7 +20,7 @@
 [简体中文](./README.md) | English | [Русский язык](./README_RU.md)
 
 > ✨ **Project Introduction**  
-> 「Fold Craft Launcher」 is a Minecraft: Java Edition launcher for Android platforms developed by the FCL Team. Built upon the core functionalities of [HMCL](https://github.com/HMCL-dev/HMCL) and integrating the [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher) and [Boat](https://github.com/AOF-Dev/Boat) backends, it enables users to enjoy Java Edition MC on mobile devices, supporting mod loading and operation across all versions.
+> 「Fold Craft Launcher」 is a Minecraft: Java Edition launcher for Android platforms developed by the FCL Team. Built upon the core functionalities of [HMCL](https://github.com/HMCL-dev/HMCL) and using the [PojavLauncher](https://github.com/PojavLauncherTeam/PojavLauncher) backend, it enables users to enjoy Java Edition MC on mobile devices, supporting mod loading and operation across all versions.
 
 ---
 
@@ -28,10 +28,10 @@
 
 ✅ **Full Version Support**  
 - Native support for all Minecraft versions (including latest snapshots)
-- Mod loader support: Forge/NeoForge/LiteLoader/OptiFine/Fabric/Quilt...
+- Mod loader support: Forge/NeoForge/LiteLoader/OptiFine/Fabric/Quilt/Cleanroom...
 
 ⚙️ **Key Highlights**  
-- Built-in multi-version Java runtimes (Java 8/11/17/21) with custom Java import support
+- Built-in multi-version Java runtimes (Java 8/17/21/25) with custom Java import support
 - Virtual mouse and customizable key mapping
 - Shaders support (requires VirGL/Zink/MG renderers)
 - Dynamic resource management (mods/modpacks/textures/shaders/saves)

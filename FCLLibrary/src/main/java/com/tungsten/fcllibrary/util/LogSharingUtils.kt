@@ -39,22 +39,22 @@ fun uploadLog(activity: AppCompatActivity, log: String) {
                     } else {
                         showErrorDialog(
                             activity,
-                            com.tungsten.fcllibrary.R.string.upload_failed,
+                            R.string.upload_failed,
                             response.getString("error")
                         )
                     }
                 } catch (ex: Exception) {
                     showErrorDialog(
                         activity,
-                        com.tungsten.fcllibrary.R.string.upload_failed,
-                        ex.toString()
+                        R.string.upload_failed,
+                        "${ex.toString()}\n$it"
                     )
                 }
             }.onFailure {
                 progress.dismiss()
                 showErrorDialog(
                     activity,
-                    com.tungsten.fcllibrary.R.string.upload_failed,
+                    R.string.upload_failed,
                     it.toString()
                 )
             }

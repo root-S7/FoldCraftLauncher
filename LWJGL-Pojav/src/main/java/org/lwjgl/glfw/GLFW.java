@@ -1051,9 +1051,6 @@ public class GLFW
         win.inputModes.put(GLFW_STICKY_MOUSE_BUTTONS, GLFW_FALSE); // TODO: Fix glfwGetMouseButton() to support this
         win.inputModes.put(GLFW_IME, GLFW_FALSE);
 
-        win.windowAttribs.put(GLFW_HOVERED, 1);
-        win.windowAttribs.put(GLFW_VISIBLE, 1);
-
         // Set the Open GL version for context because Forge and derivatives ask for it
         // Default on 3.3 because mod compat
         int glMajor = 3;
