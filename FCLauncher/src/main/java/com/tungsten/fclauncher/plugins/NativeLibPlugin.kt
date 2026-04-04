@@ -31,7 +31,9 @@ object NativeLibPlugin {
     val pluginList: MutableList<NativePlugin> = mutableListOf()
         get() {
             if (!isInit) {
-                init(FCLPath.CONTEXT)
+                FCLPath.CONTEXT?.let {
+                    init(it)
+                }
             }
             return field
         }

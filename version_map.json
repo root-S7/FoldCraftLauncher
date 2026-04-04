@@ -1,20 +1,20 @@
 [
   {
     "type": "release",
-    "versionCode": 1296,
-    "versionName": "1.2.9.6",
+    "versionCode": 1297,
+    "versionName": "1.2.9.7",
     "date": "2026.04.04",
     "description": [
       {
         "lang": "en",
-        "text": "(Translated from Chinese by AI)\n1. Support loading native library plugins.  \n2. Fix an issue where resetting menu icons and mouse cursor images might fail.  \n3. Fix an issue where corrupted Java information might prevent entering the launcher.  \n4. Remove redundant libshaderc.so.  \n5. Fix an issue where 26w14a was not displayed in the April Fools' list.  \n6. Fix issues related to game version numbers."
+        "text": "(Translated from Chinese by AI)\n0. Fix the issue where the mod loader cannot be installed properly after the update.\n1. Support loading native library plugins.  \n2. Fix an issue where resetting menu icons and mouse cursor images might fail.  \n3. Fix an issue where corrupted Java information might prevent entering the launcher.  \n4. Remove redundant libshaderc.so.  \n5. Fix an issue where 26w14a was not displayed in the April Fools' list.  \n6. Fix issues related to game version numbers."
       },
       {
         "lang": "zh_CN",
-        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.支持加载原生库插件\n2.修复重置菜单图标和鼠标光标图片可能失败的问题\n3.修复java信息损坏可能导致无法进入启动器的问题\n4.清理多余的libshaderc.so\n5.修复26w14a不显示在愚人节列表内的问题\n6.修复游戏版本号相关问题"
+        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n0.修复更新后无法正常安装模组加载器的问题\n1.支持加载原生库插件\n2.修复重置菜单图标和鼠标光标图片可能失败的问题\n3.修复java信息损坏可能导致无法进入启动器的问题\n4.清理多余的libshaderc.so\n5.修复26w14a不显示在愚人节列表内的问题\n6.修复游戏版本号相关问题"
       }
     ],
-    "netdiskUrl": "https://pan.quark.cn/s/2200591389b7",
-    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.9.6/FCL-release-1.2.9.6-all.apk"
+    "netdiskUrl": "https://pan.quark.cn/s/d31560359838",
+    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.2.9.7/FCL-release-1.2.9.7-all.apk"
   }
 ]
