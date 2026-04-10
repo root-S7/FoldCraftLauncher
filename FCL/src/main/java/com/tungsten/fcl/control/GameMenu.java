@@ -32,6 +32,7 @@ import com.mio.touchcontroller.TouchController;
 import com.mio.touchcontroller.TouchControllerInputView;
 import com.mio.ui.dialog.GamepadMapDialog;
 import com.mio.ui.view.DraggableTextView;
+import com.mio.util.AndroidUtilKt;
 import com.mio.util.ImageUtil;
 import com.tungsten.fcl.BuildConfig;
 import com.tungsten.fcl.R;
@@ -116,6 +117,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
     private GameItemBar gameItemBar;
     private LogWindow logWindow;
     public DraggableTextView fpsText;
+    public DraggableTextView memoryText;
     private TouchCharInput touchCharInput;
     private TouchControllerInputView touchControllerInputView;
     private FCLProgressBar launchProgress;
@@ -145,6 +147,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
     private boolean gamepadDisabled = false;
     private Thread fpsThread;
+    private Thread memoryThread;
     private int lastCursorMode = FCLBridge.CursorEnabled;
 
     public void setMenuView(MenuView menuView) {
@@ -348,7 +351,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
 
         hideAllViewsProperty.addListener(i -> {
             if (isHideAllViews()) {
-                Toast.makeText(activity, R.string.tip_hide_menu_view, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.tip_hide_menu_view, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -378,6 +381,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         FCLSwitch lockMenuSwitch = findViewById(R.id.switch_lock_view);
         FCLSwitch hideMenuSwitch = findViewById(R.id.switch_hide_view);
         FCLSwitch showFps = findViewById(R.id.switch_show_fps);
+        FCLSwitch showMemory = findViewById(R.id.switch_show_memory);
         FCLSwitch disableSoftKeyAdjustSwitch = findViewById(R.id.switch_soft_keyboard_adjust);
         FCLSwitch disableGestureSwitch = findViewById(R.id.switch_gesture);
         FCLSwitch disableBEGestureSwitch = findViewById(R.id.switch_be_gesture);
@@ -438,7 +442,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         menuSetting.getHideMenuViewViewProperty().addListener(i -> {
             menuView.setVisibility(menuSetting.isHideMenuView() ? View.INVISIBLE : View.VISIBLE);
             if (menuSetting.isHideMenuView()) {
-                Toast.makeText(activity, R.string.tip_hide_menu_view, Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, R.string.tip_hide_menu_view, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -471,6 +475,40 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         showFps.setChecked(menuSetting.isShowFps());
         showFps.setOnLongClickListener((view -> {
             fpsText.resetPosition();
+            return true;
+        }));
+
+        showMemory.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            menuSetting.getShowMemoryProperty().setValue(isChecked);
+            if (isSimulated()) {
+                return;
+            }
+            if (isChecked) {
+                memoryThread = new Thread(() -> {
+                    while (showMemory.isChecked() && !Thread.currentThread().isInterrupted()) {
+                        long usedMemory = AndroidUtilKt.getUsedMemory(getActivity()) / 1024 / 1024;
+                        long totalMemory = AndroidUtilKt.getTotalMemory(getActivity()) / 1024 / 1024;
+                        long usage = usedMemory * 100 / totalMemory;
+                        Schedulers.androidUIThread().execute(() -> memoryText.setText("Mem(" + usage + "%): " + usedMemory + " / " + totalMemory + " MB"));
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException ignored) {
+                        }
+                    }
+                });
+                memoryThread.setName("FCL Memory Thread");
+                memoryThread.start();
+            } else {
+                if (memoryThread != null) {
+                    memoryThread.interrupt();
+                    memoryThread = null;
+                }
+                memoryText.setText("");
+            }
+        });
+        showMemory.setChecked(menuSetting.isShowMemory());
+        showMemory.setOnLongClickListener((view -> {
+            memoryText.resetPosition();
             return true;
         }));
 
@@ -603,6 +641,7 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
         gameItemBar = findViewById(R.id.game_item_bar);
         logWindow = findViewById(R.id.log_window);
         fpsText = findViewById(R.id.fps);
+        memoryText = findViewById(R.id.memory);
         touchCharInput = findViewById(R.id.input_scanner);
         touchControllerInputView = findViewById(R.id.touchcontroller_input_view);
         launchProgress = findViewById(R.id.launch_progress);
@@ -680,7 +719,9 @@ public class GameMenu implements MenuCallback, View.OnClickListener {
             }
             return false;
         });
-
+        if (menuSetting.isHideMenuView()) {
+            Toast.makeText(activity, R.string.tip_hide_menu_view, Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

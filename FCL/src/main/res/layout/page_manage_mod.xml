@@ -136,6 +136,14 @@
 
                 <com.tungsten.fcllibrary.component.view.FCLButton
                     app:ripple="true"
+                    android:id="@+id/select_invert"
+                    android:layout_marginTop="10dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/button_select_invert" />
+
+                <com.tungsten.fcllibrary.component.view.FCLButton
+                    app:ripple="true"
                     android:id="@+id/cancel"
                     android:layout_marginTop="10dp"
                     android:layout_width="match_parent"

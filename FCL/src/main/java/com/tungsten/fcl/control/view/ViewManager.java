@@ -29,6 +29,7 @@ public class ViewManager {
         gameMenu.getBaseLayout().addView(menuView);
         menuView.initPosition();
         gameMenu.fpsText.initPosition();
+        gameMenu.memoryText.initPosition();
         gameMenu.hideAllViewsProperty().addListener(observable -> menuView.setAlpha(gameMenu.isHideAllViews() ? 0 : 1));
         if (gameMenu.getMenuSetting().isHideMenuView()) {
             menuView.setVisibility(View.INVISIBLE);

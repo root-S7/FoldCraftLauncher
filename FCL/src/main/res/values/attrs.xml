@@ -6,4 +6,7 @@
     <declare-styleable name="LogWindow">
         <attr name="auto_log_tint" format="boolean"/>
     </declare-styleable>
+    <declare-styleable name="DraggableTextView">
+        <attr name="save_key" format="string"/>
+    </declare-styleable>
 </resources>

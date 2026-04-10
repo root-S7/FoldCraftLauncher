@@ -66,6 +66,17 @@ class LocalModListAdapter(context: Context, private val modListPage: ModListPage
         selectedItemsProperty.addAll(listProperty)
     }
 
+    fun selectInvert() {
+        val list = ArrayList<ModInfoObject>()
+        listProperty.forEach {
+            if (!selectedItemsProperty.get().contains(it)) {
+                list.add(it)
+            }
+        }
+        selectedItemsProperty.clear()
+        selectedItemsProperty.addAll(list)
+    }
+
     private var fromSelf = false
 
     init {

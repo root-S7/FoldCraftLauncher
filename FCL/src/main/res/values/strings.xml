@@ -140,6 +140,7 @@
     <string name="button_remove_confirm">Are you sure you want to permanently remove it? This action cannot be undone!</string>
     <string name="button_save_as">Save As</string>
     <string name="button_select_all">Select All</string>
+    <string name="button_select_invert">Invert selection</string>
     <string name="button_set">Set</string>
     <string name="button_reset">Reset</string>
     <string name="button_overwrite">Overwrite</string>
@@ -599,6 +600,7 @@
     <string name="menu_settings_show_log">Show Log</string>
     <string name="menu_settings_show_log_auto">Show Log Automatically</string>
     <string name="menu_settings_performance_mode">Sustained Performance Mode</string>
+    <string name="menu_settings_show_memory">Show Memory</string>
 
     <string name="message_cancelled">Operation was cancelled</string>
     <string name="message_copy">Copy successfully!</string>

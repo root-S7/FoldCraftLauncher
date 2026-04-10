@@ -63,6 +63,7 @@ public class RemoteModDownloadPage extends FCLTempPage implements View.OnClickLi
     private FCLButton download;
     private FCLButton saveAs;
     private FCLButton cancel;
+    private FCLButton back;
 
     public RemoteModDownloadPage(Context context, int id, FCLUILayout parent, int resId, Profile.ProfileVersion version, RemoteMod.Version modVersion, RemoteModVersionPage.DownloadCallback callback, RemoteModVersionPage lastPage, DownloadPage downloadPage) {
         super(context, id, parent, resId);
@@ -155,12 +156,14 @@ public class RemoteModDownloadPage extends FCLTempPage implements View.OnClickLi
         download = findViewById(R.id.download);
         saveAs = findViewById(R.id.save_as);
         cancel = findViewById(R.id.cancel);
+        back = findViewById(R.id.back);
         retry.setOnClickListener(this);
         download.setOnClickListener(this);
         saveAs.setOnClickListener(this);
         cancel.setOnClickListener(this);
+        back.setOnClickListener(this);
 
-        ThemeEngine.getInstance().registerEvent(dependencyLayout, () -> dependencyLayout.setBackgroundTintList(new ColorStateList(new int[][] { { } }, new int[] { ThemeEngine.getInstance().getTheme().getLtColor() })));
+        ThemeEngine.getInstance().registerEvent(dependencyLayout, () -> dependencyLayout.setBackgroundTintList(new ColorStateList(new int[][]{{}}, new int[]{ThemeEngine.getInstance().getTheme().getLtColor()})));
     }
 
     public void setLoading(boolean loading, boolean hasDependency) {
@@ -215,6 +218,11 @@ public class RemoteModDownloadPage extends FCLTempPage implements View.OnClickLi
         }
         if (view == cancel) {
             UIManager.getInstance().onBackPressed();
+        }
+        if (view == back) {
+            for (int i = 0; i < 3; i++) {
+                UIManager.getInstance().onBackPressed();
+            }
         }
     }
 }

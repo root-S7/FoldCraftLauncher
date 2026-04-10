@@ -41,6 +41,8 @@ class FCLAppBarLayout @JvmOverloads constructor(
     }
 
     init {
+        elevation = 0f
+        stateListAnimator = null
         context.withStyledAttributes(attrs, R.styleable.FCLAppBarLayout) {
             autoTint = getBoolean(
                 R.styleable.FCLAppBarLayout_auto_tint,

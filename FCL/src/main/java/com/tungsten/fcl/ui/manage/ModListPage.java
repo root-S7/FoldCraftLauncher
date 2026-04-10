@@ -56,8 +56,6 @@ import com.tungsten.fcllibrary.component.view.FCLProgressBar;
 import com.tungsten.fcllibrary.component.view.FCLTextView;
 import com.tungsten.fcllibrary.component.view.FCLUILayout;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -99,6 +97,7 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
     private FCLButton refreshButton;
     private FCLButton deleteButton;
     private FCLButton selectAllButton;
+    private FCLButton selectInvertButton;
     private FCLButton cancelButton;
     private FCLProgressBar progressBar;
     private ListView listView;
@@ -135,6 +134,7 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
         refreshButton = findViewById(R.id.refresh);
         deleteButton = findViewById(R.id.delete);
         selectAllButton = findViewById(R.id.select_all);
+        selectInvertButton = findViewById(R.id.select_invert);
         cancelButton = findViewById(R.id.cancel);
         progressBar = findViewById(R.id.progress);
         listView = findViewById(R.id.list);
@@ -148,6 +148,7 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
         refreshButton.setOnClickListener(this);
         deleteButton.setOnClickListener(this);
         selectAllButton.setOnClickListener(this);
+        selectInvertButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
         CompoundButton.OnCheckedChangeListener listener = (compoundButton, b) -> {
             refresh();
@@ -186,6 +187,9 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
         }
         if (v == selectAllButton) {
             adapter.selectAll();
+        }
+        if (v == selectInvertButton) {
+            adapter.selectInvert();
         }
         if (v == cancelButton) {
             adapter.selectedItemsProperty().clear();
@@ -237,6 +241,7 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
                 refreshButton.setEnabled(false);
                 deleteButton.setEnabled(false);
                 selectAllButton.setEnabled(false);
+                selectInvertButton.setEnabled(false);
                 cancelButton.setEnabled(false);
                 listView.setVisibility(View.GONE);
                 progressBar.setVisibility(View.VISIBLE);
@@ -249,6 +254,7 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
                 refreshButton.setEnabled(true);
                 deleteButton.setEnabled(true);
                 selectAllButton.setEnabled(true);
+                selectInvertButton.setEnabled(true);
                 cancelButton.setEnabled(true);
                 listView.setVisibility(View.VISIBLE);
                 progressBar.setVisibility(View.GONE);
@@ -325,8 +331,7 @@ public class ModListPage extends FCLCommonPage implements ManageUI.VersionLoadab
 
                 Task.runAsync(() -> {
                     for (Object obj : res) {
-                        if (obj instanceof File) {
-                            File file = (File) obj;
+                        if (obj instanceof File file) {
                             try {
                                 modManager.addMod(file.toPath());
                                 succeeded.add(file.getName());

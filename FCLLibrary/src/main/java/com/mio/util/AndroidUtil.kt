@@ -1,5 +1,8 @@
 package com.mio.util
 
+import android.app.ActivityManager
+import android.content.Context
+import androidx.core.app.ActivityManagerCompat
 import net.fornwall.jelf.ElfFile
 import java.io.DataInputStream
 import java.io.File
@@ -102,4 +105,19 @@ fun getElfArchFromZip(zipFile: File, elfEntryPath: String): String {
     } catch (_: Exception) {
     }
     return arch
+}
+
+private fun getMemoryInfo(context: Context): ActivityManager.MemoryInfo {
+    return ActivityManager.MemoryInfo().apply {
+        ((context.getSystemService(Context.ACTIVITY_SERVICE)) as ActivityManager).getMemoryInfo(this)
+    }
+}
+
+fun getTotalMemory(context: Context): Long {
+    return getMemoryInfo(context).totalMem
+}
+
+fun getUsedMemory(context: Context): Long {
+    val info = getMemoryInfo(context)
+    return info.totalMem - info.availMem
 }

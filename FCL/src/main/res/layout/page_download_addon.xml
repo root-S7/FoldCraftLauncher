@@ -127,11 +127,21 @@
             <com.tungsten.fcllibrary.component.view.FCLButton
                 app:ripple="true"
                 android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/dialog_negative"
                 android:layout_weight="1"
                 android:id="@+id/cancel"/>
+
+            <com.tungsten.fcllibrary.component.view.FCLButton
+                app:ripple="true"
+                android:layout_marginStart="5dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/button_back"
+                android:layout_weight="1"
+                android:id="@+id/back"/>
 
         </com.tungsten.fcllibrary.component.view.FCLLinearLayout>
 

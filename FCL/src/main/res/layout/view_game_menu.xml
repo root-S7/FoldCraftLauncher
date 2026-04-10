@@ -32,6 +32,18 @@
             android:layout_centerVertical="true"
             android:gravity="start"
             android:textStyle="bold"
+            app:save_key="fps"
+            app:use_theme_color="true" />
+
+        <com.mio.ui.view.DraggableTextView
+            android:id="@+id/memory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:gravity="start"
+            android:textStyle="bold"
+            app:save_key="memory"
             app:use_theme_color="true" />
 
         <com.tungsten.fcllibrary.component.view.FCLImageView

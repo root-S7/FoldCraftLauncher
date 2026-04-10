@@ -26,10 +26,10 @@ object GameItemBarSettingSerializer : Serializer<GameItemBarSetting> {
         get() = GameItemBarSetting(slideSelection = true, doubleTapSwapHands = true)
 
     override suspend fun readFrom(input: InputStream): GameItemBarSetting {
-        try {
-            return Json.decodeFromString<GameItemBarSetting>(input.readBytes().decodeToString())
+        return try {
+            Json.decodeFromString<GameItemBarSetting>(input.readBytes().decodeToString())
         } catch (_: SerializationException) {
-            return defaultValue
+            defaultValue
         }
     }
 
