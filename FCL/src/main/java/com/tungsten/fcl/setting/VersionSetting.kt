@@ -191,6 +191,13 @@ class VersionSetting : Cloneable {
             beGestureProperty.set(beGesture)
         }
 
+    val useOpenglProperty: BooleanProperty = SimpleBooleanProperty(this, "useOpengl", true)
+    var isUseOpengl: Boolean
+        get() = useOpenglProperty.get()
+        set(v) {
+            useOpenglProperty.set(v)
+        }
+
     val vkDriverSystemProperty: BooleanProperty =
         SimpleBooleanProperty(this, "vulkanDriverSystem", false)
     var isVKDriverSystem: Boolean
@@ -279,6 +286,7 @@ class VersionSetting : Cloneable {
         scaleFactorProperty.addListener(listener)
         isolateGameDirProperty.addListener(listener)
         beGestureProperty.addListener(listener)
+        useOpenglProperty.addListener(listener)
         vkDriverSystemProperty.addListener(listener)
         controllerProperty.addListener(listener)
         rendererProperty.addListener(listener)
@@ -305,6 +313,7 @@ class VersionSetting : Cloneable {
             it.scaleFactor = scaleFactor
             it.isIsolateGameDir = isIsolateGameDir
             it.isBeGesture = isBeGesture
+            it.isUseOpengl = isUseOpengl
             it.isVKDriverSystem = isVKDriverSystem
             it.controller = controller
             it.renderer = renderer
@@ -340,6 +349,7 @@ class VersionSetting : Cloneable {
                 addProperty("notCheckGame", src.isNotCheckGame)
                 addProperty("notCheckJVM", src.isNotCheckJVM)
                 addProperty("beGesture", src.isBeGesture)
+                addProperty("useOpengl", src.isUseOpengl)
                 addProperty("vulkanDriverSystem", src.isVKDriverSystem)
                 addProperty("controller", src.controller)
                 addProperty("renderer", src.renderer)
@@ -381,6 +391,7 @@ class VersionSetting : Cloneable {
                 vs.isNotCheckGame = json["notCheckGame"]?.asBoolean ?: false
                 vs.isNotCheckJVM = json["notCheckJVM"]?.asBoolean ?: false
                 vs.isBeGesture = json["beGesture"]?.asBoolean ?: false
+                vs.isUseOpengl = json["useOpengl"]?.asBoolean ?: false
                 vs.isVKDriverSystem = json["vulkanDriverSystem"]?.asBoolean ?: false
                 vs.controller = json["controller"]?.asString ?: ("00000000")
                 vs.renderer =

@@ -692,7 +692,7 @@
     <string name="settings_fcl_controller">Контролер</string>
     <string name="settings_fcl_controller_injector">Жести на стороні сервера</string>
     <string name="settings_fcl_vulkan_driver_system">Використання системних драйверів Vulkan</string>
-    <string name="settings_fcl_renderer">Рендер</string>
+    <string name="settings_fcl_renderer">Реалізація OpenGL (рендерер)</string>
     <string name="settings_fcl_pojav_bigcore">Примусово використовувати продуктивні ядра для рендерингу</string>
     <string name="settings_fcl_renderer_vgpu">VGPU (OpenGL 2.1+, тільки 1.17-)</string>
     <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, тільки для GPU a616-a660)</string>
@@ -896,7 +896,7 @@
     <string name="gamepad_dpad">Хрестовина</string>
     <string name="gamepad_button_binding">Прив\'язка кнопок геймпада</string>
     <string name="joystick_r">Правий стік</string>
-    <string name="message_vulkan_driver_system">Поточний GPU Adreno, не рекомендується вмикати цю опцію.</string>
+    <string name="message_vulkan_driver_system">Попередження: Використання системного драйвера Vulkan може призвести до кращої продуктивності, але також може спричинити збої через проблеми сумісності!</string>
     <string name="message_loading_controllers">Йде завантаження контролерів...</string>
 
     <string name="installed">Встановлено</string>

@@ -60,6 +60,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -173,6 +174,7 @@ public class DefaultLauncher extends Launcher {
         res.addDefault("-Duser.country=", Locale.getDefault().getCountry());
         res.addDefault("-Duser.timezone=", TimeZone.getDefault().getID());
         res.addDefault("-Dorg.lwjgl.vulkan.libname=", "libvulkan.so");
+        res.addDefault("-Dorg.lwjgl.spvc.libname=", "spirv-cross-c-shared");
         res.addDefault("-Dsodium.checks.issue2561=", "false");
         res.addDefault("-Djdk.lang.Process.launchMechanism=", "FORK");
         res.addDefault("-Dcpu.name=", FCLauncher.getSocName());
@@ -199,6 +201,7 @@ public class DefaultLauncher extends Launcher {
         res.add("-javaagent:" + FCLPath.LIB_PATCHER_PATH);
 
         Set<String> classpath = repository.getClasspath(version);
+        addLWJGLClassPath(classpath);
         classpath.add(FCLPath.MIO_LAUNCH_WRAPPER);
         File jar = repository.getVersionJar(version);
         if (!jar.exists() || !jar.isFile()) {
@@ -270,6 +273,14 @@ public class DefaultLauncher extends Launcher {
 
         res.removeIf(it -> getForbiddens().containsKey(it) && getForbiddens().get(it).get());
         return res;
+    }
+
+    private void addLWJGLClassPath(Set<String> classpath) {
+        Set<String> temp = new LinkedHashSet<>();
+        temp.add(FCLPath.LWJGL_DIR + "/lwjgl.jar");
+        temp.addAll(classpath);
+        classpath.clear();
+        classpath.addAll(temp);
     }
 
     public static void getCacioJavaArgs(CommandBuilder res, Version version, LaunchOptions options) {

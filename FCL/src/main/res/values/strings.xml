@@ -856,7 +856,8 @@
     <string name="settings_fcl_controller">Controller</string>
     <string name="settings_fcl_controller_injector">BE Gesture</string>
     <string name="settings_fcl_vulkan_driver_system">Use System Vulkan driver</string>
-    <string name="settings_fcl_renderer">Renderer</string>
+    <string name="settings_fcl_use_opengl">Use OpenGL graphics API (only effective for 26.2+)</string>
+    <string name="settings_fcl_renderer">OpenGL Implementation (Renderer)</string>
     <string name="settings_fcl_pojav_bigcore">Force the renderer to run on the big core</string>
     <string name="settings_fcl_renderer_gl4es" translatable="false">Holy GL4ES (OpenGL 2.1, 1.21.5-)</string>
     <string name="settings_fcl_renderer_virgl" translatable="false">VirGLRenderer (OpenGL 4.3)</string>
@@ -1166,7 +1167,7 @@
     <string name="gamepad_dpad">DPAD</string>
     <string name="gamepad_button_binding">Gamepad button binding</string>
     <string name="joystick_r">Right joystick</string>
-    <string name="message_vulkan_driver_system">The current GPU is Adreno, it is not recommended to enable this option.</string>
+    <string name="message_vulkan_driver_system">Warning: Using the system Vulkan driver may result in better performance, but may also cause crashes due to compatibility issues!</string>
     <string name="message_loading_controllers">Loading controllers, please wait...</string>
 
     <string name="mcmod" translatable="false">
