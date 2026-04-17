@@ -17,7 +17,11 @@
         "vulkanDriverSystem": false,
         "isolateGameDir": false,
         "pojavBigCore": false,
-        "notCheckMod": false
+        "renderer": "e7b90ed6-e518-4d4e-93dc-5c7133cd5b31",
+        "notCheckMod": false,
+        "debugLog": false,
+        "forceResolution": false,
+        "useOpengl": true
       },
       "gameDir": "/data/data/com.tungsten.fcl.server/.minecraft",
       "selectedMinecraftVersion": ""
@@ -37,7 +41,11 @@
         "vulkanDriverSystem": false,
         "isolateGameDir": false,
         "pojavBigCore": false,
-        "notCheckMod": false
+        "renderer": "e7b90ed6-e518-4d4e-93dc-5c7133cd5b31",
+        "notCheckMod": false,
+        "debugLog": false,
+        "forceResolution": false,
+        "useOpengl": true
       },
       "gameDir": "/storage/emulated/0/Android/data/com.tungsten.fcl.server/files/.minecraft",
       "selectedMinecraftVersion": ""

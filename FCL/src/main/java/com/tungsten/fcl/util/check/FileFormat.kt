@@ -30,6 +30,7 @@ import com.tungsten.fclauncher.utils.AssetsPath.Companion.THEME
 import com.tungsten.fclauncher.utils.FCLPath.*
 import com.tungsten.fclcore.util.gson.fakefx.factories.JavaFxPropertyTypeAdapterFactory
 import com.tungsten.fclcore.util.io.IOUtils.readFullyAsString
+import javax.xml.parsers.ParserConfigurationException
 import kotlin.io.path.pathString
 
 
@@ -89,9 +90,10 @@ class FileFormat(vararg extraNeedFile: String) {
     private fun checkConfig(): FileCheckRule = FileCheckRule {
         runCatching {
             val configString = readFullyAsString(openAssets(null, it))
-            val config = fromJson(configString)
+            val config = fromJson(configString) ?: throw ParserConfigurationException("文件『${it}』未通过校验，请重新制作！")
 
-            config != null && validateSelectedPath(config)
+            if(!validateSelectedPath(config)) throw IllegalArgumentException("选择的路径无效或不可访问，请重新选择路径！")
+            true
         }.getOrElse { e ->
             throw e
         }
