@@ -91,6 +91,8 @@ public final class FCLGameLauncher extends DefaultLauncher {
     private void fixOptions(GameOption gameOption) {
         gameOption.set("touchscreen", "false");
         gameOption.set("options.narrator", "0"); //关闭文本转语音功能
+        gameOption.set("key_key.fullscreen", "0");
+        gameOption.set("key_key.streamStartStop", "0");
     }
 
     private void fixLang(GameOption gameOption) {

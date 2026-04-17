@@ -31,6 +31,7 @@
 #include "ctxbridges/bridge_tbl.h"
 #include "ctxbridges/osm_bridge.h"
 #include "driver_helper/driver_helper.h"
+#include <stdatomic.h>
 
 #define GLFW_CLIENT_API 0x22001
 /* Consider GLFW_NO_API as Vulkan API */
@@ -51,7 +52,7 @@ void bigcore_set_affinity();
 #define RENDERER_VK_ZINK 2
 #define RENDERER_VULKAN 4
 
-static uint16_t fps = 0;
+static atomic_uint fps = 0;
 
 EXTERNAL_API void pojavTerminate() {
     printf("EGLBridge: Terminating\n");
@@ -170,7 +171,7 @@ EXTERNAL_API void pojavSetWindowHint(int hint, int value) {
 }
 
 EXTERNAL_API void pojavSwapBuffers() {
-    fps++;
+    atomic_fetch_add(&fps, 1);
     if (pojav_environ->config_renderer == RENDERER_VIRGL)
         virglSwapBuffers();
     else br_swap_buffers();
@@ -223,7 +224,10 @@ EXTERNAL_API void pojavSetHitResultType(int type) {
 
 JNIEXPORT jint JNICALL
 Java_org_lwjgl_glfw_CallbackBridge_getFps(JNIEnv *env, jclass clazz) {
-    uint16_t f = fps;
-    fps = 0;
-    return f;
+    return atomic_exchange(&fps, 0);
+}
+
+EXTERNAL_API JNIEXPORT jlong JNICALL
+Java_org_lwjgl_vulkan_VK_getFpsAddress(ABI_COMPAT JNIEnv *env, ABI_COMPAT jclass thiz) {
+    return (jlong) &fps;
 }
