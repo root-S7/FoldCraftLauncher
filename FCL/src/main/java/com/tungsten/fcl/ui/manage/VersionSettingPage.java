@@ -8,9 +8,8 @@ import android.net.Uri;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.appcompat.widget.LinearLayoutCompat;
-
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.LinearLayoutCompat;
 
 import com.mio.data.Renderer;
 import com.mio.manager.RendererManager;
@@ -93,7 +92,6 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
     private FCLImageView iconView;
 
     private FCLNumberSeekBar allocateSeekbar;
-    private FCLNumberSeekBar scaleFactorSeekbar;
 
     private FCLSwitch isolateWorkingDirSwitch;
     private FCLSwitch beGestureSwitch;
@@ -151,7 +149,6 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         iconView = findViewById(R.id.icon);
 
         allocateSeekbar = findViewById(R.id.edit_memory);
-        scaleFactorSeekbar = findViewById(R.id.edit_scale_factor);
 
         FCLSwitch specialSettingSwitch = findViewById(R.id.enable_per_instance_setting);
         specialSettingSwitch.addCheckedChangeListener();
@@ -167,7 +164,6 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         forceResolutionSwitch = findViewById(R.id.force_resolution);
 
         isolateWorkingDirSwitch.disableProperty().bind(modpack);
-        scaleFactorSeekbar.addProgressListener();
 
         javaButton = findViewById(R.id.edit_java);
         javaInstallButton = findViewById(R.id.install_java);
@@ -349,7 +345,6 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
             FXUtils.unbindBoolean(beGestureSwitch, lastVersionSetting.getBeGestureProperty());
             FXUtils.unbindBoolean(useOpenglSwitch, lastVersionSetting.getUseOpenglProperty());
             FXUtils.unbindBoolean(vulkanDriverSystemSwitch, lastVersionSetting.getVkDriverSystemProperty());
-            scaleFactorSeekbar.progressProperty().unbindBidirectional(lastVersionSetting.getScaleFactorProperty());
             maxMemory.unbindBidirectional(lastVersionSetting.getMaxMemoryProperty());
 
             lastVersionSetting.getUsesGlobalProperty().removeListener(specificSettingsListener);
@@ -374,7 +369,6 @@ public class VersionSettingPage extends FCLCommonPage implements ManageUI.Versio
         FXUtils.bindBoolean(beGestureSwitch, versionSetting.getBeGestureProperty());
         FXUtils.bindBoolean(useOpenglSwitch, versionSetting.getUseOpenglProperty());
         FXUtils.bindBoolean(vulkanDriverSystemSwitch, versionSetting.getVkDriverSystemProperty());
-        scaleFactorSeekbar.progressProperty().bindBidirectional(versionSetting.getScaleFactorProperty());
         maxMemory.bindBidirectional(versionSetting.getMaxMemoryProperty());
 
         chkAutoAllocate.setChecked(versionSetting.isAutoMemory());

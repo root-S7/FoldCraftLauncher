@@ -238,7 +238,7 @@ public final class LauncherHelper {
                         .thenAcceptAsync(fclBridge -> Schedulers.androidUIThread().execute(() -> {
                             CallbackBridge.nativeSetUseInputStackQueue(version.get().getArguments().isPresent());
                             Intent intent = new Intent(context, JVMActivity.class);
-                            fclBridge.setScaleFactor(repository.getVersionSetting(selectedVersion).getScaleFactor() / 100.0);
+                            fclBridge.setScaleFactor(1f);
                             fclBridge.setController(repository.getVersionSetting(selectedVersion).getController());
                             fclBridge.setGameDir(repository.getRunDirectory(selectedVersion).getAbsolutePath());
                             fclBridge.setJava(Integer.toString(javaVersionRef.get().getVersion()));
@@ -419,10 +419,7 @@ public final class LauncherHelper {
                             if (!minVer.isEmpty() && GameVersionNumber.compare(version, minVer) < 0) {
                                 return true;
                             }
-                            if (!maxVer.isEmpty() && GameVersionNumber.compare(version, maxVer) > 0) {
-                                return true;
-                            }
-                            return false;
+                            return !maxVer.isEmpty() && GameVersionNumber.compare(version, maxVer) > 0;
                         }).map(NativeLibPlugin.NativePlugin::getAppName)
                         .collect(toList());
                 if (!unsupportedPlugins.isEmpty()) {
