@@ -1,20 +1,20 @@
 [
   {
     "type": "release",
-    "versionCode": 1302,
-    "versionName": "1.3.0.2",
-    "date": "2026.04.24",
+    "versionCode": 1303,
+    "versionName": "1.3.0.3",
+    "date": "2026.04.29",
     "description": [
       {
         "lang": "en",
-        "text": "(Translated from Chinese by AI)\n1. Support loading Sable Rapier native library plugin  \n2. Fix the issue where incorrect key configuration in options.txt causes it to be reset  \n3. Update KW renderer  \n4. Fix the issue where 26.2 snapshot4+ fails to start  \n5. Remove resolution scaling configuration from game settings"
+        "text": "(Translated from Chinese by AI)\n1. Fix the issue where CurForge source does not display Minecraft 26.x versions.  \n2. Allow searching by the fetched remote mod name on the Manage Mods page.  \n3. Optimize the layout of the Manage Mods page.  \n4. Improve the mod management search functionality to automatically search as you type.  \n5. Migrate the download mirror domain for controls to resolve the issue where controls could not be retrieved.  \n6. Fix the loading issue with Veil 3.1.0- ImGui."
       },
       {
         "lang": "zh_CN",
-        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.支持加载 Sable Rapier 原生库插件\n2.修复options.txt按键配置错误导致被重置的问题\n3.更新KW渲染器\n4.修复26.2 snapshot4+ 无法启动的问题\n5.移除游戏设置中的分辨率缩放配置"
+        "text": "（若启动器内下载缓慢请使用网盘下载,64位的请下载arm64，不知道该下哪个的请下载all）\n1.修复 CurseForge 源中内容不显示 Minecraft 26.x 版本的问题\n2.管理模组页面允许使用获取到的远程模组名搜索\n3.优化管理模组页面布局\n4.优化模组管理搜索功能，输入后自动搜索\n5.迁移控件下载镜像域名，修复无法获取到控件的问题\n6.修复Veil3.1.0- ImGui加载问题"
       }
     ],
-    "netdiskUrl": "https://pan.quark.cn/s/a7501c2098d3",
-    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.3.0.2/FCL-release-1.3.0.2-all.apk"
+    "netdiskUrl": "https://pan.quark.cn/s/ae55f0b54733",
+    "url": "https://github.com/FCL-Team/FoldCraftLauncher/releases/download/1.3.0.3/FCL-release-1.3.0.3-all.apk"
   }
 ]
