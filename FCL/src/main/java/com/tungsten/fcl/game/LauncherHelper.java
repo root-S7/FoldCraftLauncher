@@ -36,6 +36,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.GsonBuilder;
 import com.mio.JavaManager;
 import com.mio.data.Renderer;
 import com.mio.manager.RendererManager;
@@ -48,6 +49,7 @@ import com.tungsten.fcl.activity.JVMActivity;
 import com.tungsten.fcl.activity.MainActivity;
 import com.tungsten.fcl.control.MenuType;
 import com.tungsten.fcl.setting.GameOption;
+import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.setting.Profiles;
 import com.tungsten.fcl.setting.VersionSetting;
@@ -82,7 +84,6 @@ import com.tungsten.fclcore.mod.LocalModFile;
 import com.tungsten.fclcore.mod.ModpackCompletionException;
 import com.tungsten.fclcore.mod.ModpackConfiguration;
 import com.tungsten.fclcore.mod.ModpackProvider;
-import com.tungsten.fclcore.mod.server.ServerModpackProvider;
 import com.tungsten.fclcore.task.DownloadException;
 import com.tungsten.fclcore.task.Schedulers;
 import com.tungsten.fclcore.task.Task;
@@ -91,6 +92,7 @@ import com.tungsten.fclcore.task.TaskListener;
 import com.tungsten.fclcore.util.Lang;
 import com.tungsten.fclcore.util.LibFilter;
 import com.tungsten.fclcore.util.StringUtils;
+import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.ResponseCodeException;
 import com.tungsten.fclcore.util.platform.MemoryUtils;
 import com.tungsten.fclcore.util.versioning.VersionNumber;
@@ -130,6 +132,7 @@ public final class LauncherHelper {
     private final VersionSetting setting;
     private final TaskDialog launchingStepsPane;
     private final VersionRule rule;
+    private double scaleFactor;
 
     public LauncherHelper(Context context, Profile profile, Account account, String selectedVersion) {
         this.context = Objects.requireNonNull(context);
@@ -172,7 +175,7 @@ public final class LauncherHelper {
                                     ModpackProvider provider = ModpackHelper.getProviderByType(configuration.getType());
                                     if (provider == null)
                                         return null;
-                                    else if (configuration.getType().equals(ServerModpackProvider.INSTANCE.getName()))
+                                    else
                                         return provider.createCompletionTask(dependencyManager, selectedVersion);
                                 } catch (IOException ignore) {
                                 }
@@ -202,7 +205,18 @@ public final class LauncherHelper {
                 .thenComposeAsync(() -> gameVersion.map(s -> new GameVerificationFixTask(dependencyManager, s, version.get())).orElse(null))
                 .thenComposeAsync(() -> logIn(context, account).withStage("launch.state.logging_in"))
                 .thenComposeAsync(authInfo -> Task.supplyAsync(() -> {
-                            LaunchOptions launchOptions = repository.getLaunchOptions(selectedVersion, javaVersionRef.get(), profile.getGameDir());
+                            try {
+                                MenuSetting menuSetting = new GsonBuilder()
+                                        .setPrettyPrinting()
+                                        .create()
+                                        .fromJson(FileUtils.readText(new File(FCLPath.FILES_DIR + "/menu_setting.json")), MenuSetting.class);
+                                if (menuSetting != null) {
+                                    scaleFactor = menuSetting.getWindowScale();
+                                }
+                            } catch (Throwable ignore) {
+                                scaleFactor = 1d;
+                            }
+                            LaunchOptions launchOptions = repository.getLaunchOptions(selectedVersion, javaVersionRef.get(), profile.getGameDir(), scaleFactor);
                             FCLGameLauncher launcher = new FCLGameLauncher(
                                     context,
                                     repository,
@@ -229,16 +243,17 @@ public final class LauncherHelper {
                             if (skip) return Task.supplyAsync(() -> fclBridge);
                             return checkModLoader(fclBridge, repository);
                         }).thenComposeAsync(fclBridge -> {
+                            boolean skip = repository.getVersionSetting(selectedVersion).isNotCheckMod();
+                            return checkMod(fclBridge, repository.getGameVersion(selectedVersion).orElse(""), skip);
+                        }).thenComposeAsync(fclBridge -> {
                             GameOption gameOption = new GameOption(repository.getRunDirectory(selectedVersion).getAbsolutePath());
                             gameOption.set("preferredGraphicsBackend", setting.isUseOpengl() ? "opengl" : "default");
                             gameOption.save();
-                            boolean skip = repository.getVersionSetting(selectedVersion).isNotCheckMod();
-                            return checkMod(fclBridge, repository.getGameVersion(selectedVersion).orElse(""), skip);
-                        })
-                        .thenAcceptAsync(fclBridge -> Schedulers.androidUIThread().execute(() -> {
+                            return Task.completed(fclBridge);
+                        }).thenAcceptAsync(fclBridge -> Schedulers.androidUIThread().execute(() -> {
                             CallbackBridge.nativeSetUseInputStackQueue(version.get().getArguments().isPresent());
                             Intent intent = new Intent(context, JVMActivity.class);
-                            fclBridge.setScaleFactor(1f);
+                            fclBridge.setScaleFactor(scaleFactor);
                             fclBridge.setController(repository.getVersionSetting(selectedVersion).getController());
                             fclBridge.setGameDir(repository.getRunDirectory(selectedVersion).getAbsolutePath());
                             fclBridge.setJava(Integer.toString(javaVersionRef.get().getVersion()));
