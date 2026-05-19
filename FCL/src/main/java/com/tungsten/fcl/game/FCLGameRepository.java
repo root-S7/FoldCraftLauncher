@@ -32,6 +32,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.mio.manager.RendererManager;
+import com.mio.util.LauncherUtilKt;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.setting.Profile;
@@ -349,14 +350,13 @@ public class FCLGameRepository extends DefaultGameRepository {
 
     public LaunchOptions getLaunchOptions(String version, JavaVersion javaVersion, File gameDir, double scaleFactor) {
         VersionSetting vs = getVersionSetting(version);
-        String appName = FCLPath.CONTEXT.getString(R.string.app_name);
-        String versionType = FCLPath.CONTEXT.getSharedPreferences("launcher", MODE_PRIVATE).getString("custom_launcher_name", appName);
+        initForceResolution(vs);
         LaunchOptions.Builder builder = new LaunchOptions.Builder()
                 .setGameDir(gameDir)
                 .setJava(javaVersion)
-                .setVersionType(versionType.isEmpty() ? appName : versionType)
+                .setVersionType(LauncherUtilKt.getLauncherName(FCLPath.CONTEXT))
                 .setVersionName(version)
-                .setProfileName(appName)
+                .setProfileName(FCLPath.CONTEXT.getString(R.string.app_name))
                 .setGameArguments(StringUtils.tokenize(vs.getMinecraftArgs()))
                 .setJavaArguments(StringUtils.tokenize(vs.getJavaArgs()))
                 .setMaxMemory((int) (getAllocatedMemory(
@@ -366,15 +366,14 @@ public class FCLGameRepository extends DefaultGameRepository {
                 ) / 1024 / 1024))
                 .setMinMemory(vs.getMaxMemory())
                 .setUUid(vs.getUuid())
-                .setWidth((int) (AndroidUtils.getScreenWidth() * scaleFactor))
-                .setHeight((int) (AndroidUtils.getScreenHeight() * scaleFactor))
+                .setWidth(vs.isForceResolution() ? FCLBridge.FORCE_RESOLUTION_WIDTH : (int) (AndroidUtils.getScreenWidth() * scaleFactor))
+                .setHeight(vs.isForceResolution() ? FCLBridge.FORCE_RESOLUTION_HEIGHT : (int) (AndroidUtils.getScreenHeight() * scaleFactor))
                 .setServerIp(vs.getServerIp())
                 .setBEGesture(vs.isBeGesture())
                 .setVkDriverSystem(vs.isVKDriverSystem())
                 .setPojavBigCore(vs.isPojavBigCore())
                 .setRenderer(RendererManager.getRenderer(vs.getRenderer()))
                 .setDebugLog(vs.isDebugLog());
-        initForceResolution(vs);
 
         File json = getModpackConfiguration(version);
         if (json.exists()) {
