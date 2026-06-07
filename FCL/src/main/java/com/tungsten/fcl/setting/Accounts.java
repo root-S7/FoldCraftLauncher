@@ -36,7 +36,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -372,6 +374,29 @@ public final class Accounts {
         return selectedAccount;
     }
 
+    public static void addAccount(Account account) {
+        int oldIndex = Accounts.getAccounts().indexOf(account);
+        if (oldIndex == -1) {
+            Accounts.getAccounts().add(account);
+        } else {
+            // adding an already-added account
+            // instead of discarding the new account, we first remove the existing one then add the new one
+            Accounts.getAccounts().remove(oldIndex);
+            Accounts.getAccounts().add(oldIndex, account);
+        }
+    }
+
+    public static void replaceAccount(UUID uuid, Account account) {
+        List<Account> list = Accounts.getAccounts().stream().filter(a -> a.getUUID().equals(uuid)).collect(Collectors.toList());
+        if (list.isEmpty()) {
+            Accounts.getAccounts().add(account);
+        } else {
+            int oldIndex = Accounts.getAccounts().indexOf(list.get(0));
+            Accounts.getAccounts().remove(oldIndex);
+            Accounts.getAccounts().add(oldIndex, account);
+        }
+    }
+
     // ==== authlib-injector ====
     private static AuthlibInjectorArtifactProvider createAuthlibInjectorArtifactProvider() {
         String authlibinjectorLocation = FCLPath.AUTHLIB_INJECTOR_PATH;
@@ -475,7 +500,9 @@ public final class Accounts {
             }
         } else if (exception instanceof MicrosoftService.XBox400Exception) {
             return context.getString(R.string.account_methods_microsoft_error_wrong_verify_method);
-        } else if (exception instanceof MicrosoftService.NoMinecraftJavaEditionProfileException) {
+        } else if (exception instanceof MicrosoftService.MinecraftJavaEditionLicenseNotFoundException) {
+            return context.getString(R.string.account_methods_microsoft_error_no_license);
+        } else if (exception instanceof MicrosoftService.MinecraftJavaEditionProfileNotFoundException) {
             return context.getString(R.string.account_methods_microsoft_error_no_character);
         } else if (exception instanceof MicrosoftService.NoXuiException) {
             return context.getString(R.string.account_methods_microsoft_error_add_family_probably);

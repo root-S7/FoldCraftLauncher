@@ -17,18 +17,27 @@
  */
 package com.tungsten.fclcore.util.gson;
 
-import com.google.gson.*;
+import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.Locale;
-
-import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
 public final class InstantTypeAdapter implements JsonSerializer<Instant>, JsonDeserializer<Instant> {
     public static final InstantTypeAdapter INSTANCE = new InstantTypeAdapter();
@@ -77,7 +86,13 @@ public final class InstantTypeAdapter implements JsonSerializer<Instant>, JsonDe
                     LocalDateTime localDateTime = LocalDateTime.parse(string, ISO_LOCAL_DATE_TIME);
                     return localDateTime.atZone(ZoneId.systemDefault()).toInstant();
                 } catch (DateTimeParseException e2) {
-                    throw new JsonParseException("Invalid instant: " + string, e);
+                    try {
+                        string = string.replaceFirst("\\+([0-9]):", "+0$1:");
+                        ZonedDateTime zonedDateTime = ZonedDateTime.parse(string, ISO_DATE_TIME);
+                        return zonedDateTime.toInstant();
+                    } catch (DateTimeParseException e3) {
+                        throw new JsonParseException("Invalid instant: " + string, e);
+                    }
                 }
             }
         }
