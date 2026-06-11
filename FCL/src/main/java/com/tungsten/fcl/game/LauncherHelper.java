@@ -29,10 +29,8 @@ import static java.util.stream.Collectors.toList;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
@@ -53,11 +51,11 @@ import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.setting.Profiles;
 import com.tungsten.fcl.setting.VersionSetting;
-import static com.tungsten.fcl.setting.rules.GameRulesManager.*;
-import com.tungsten.fcl.setting.rules.extend.JavaRule;
-import com.tungsten.fcl.setting.rules.extend.MemoryRule;
-import com.tungsten.fcl.setting.rules.extend.RendererRule;
-import com.tungsten.fcl.setting.rules.extend.VersionRule;
+import static com.mio.manager.GameRulesManager.*;
+import com.tungsten.fcl.setting.rule.JavaRule;
+import com.tungsten.fcl.setting.rule.MemoryRule;
+import com.tungsten.fcl.setting.rule.GlRendererRule;
+import com.tungsten.fcl.setting.rule.core.VersionRule;
 import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fcl.ui.UIManager;
@@ -97,7 +95,6 @@ import com.tungsten.fclcore.util.io.ResponseCodeException;
 import com.tungsten.fclcore.util.platform.MemoryUtils;
 import com.tungsten.fclcore.util.versioning.VersionNumber;
 import com.tungsten.fclcore.util.versioning.GameVersionNumber;
-import com.tungsten.fclcore.util.versioning.VersionNumber;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.dialog.FCLDialog;
 import com.tungsten.fcllibrary.component.view.FCLButton;
@@ -161,7 +158,7 @@ public final class LauncherHelper {
 
         AtomicReference<JavaVersion> javaVersionRef = new AtomicReference<>();
 
-        TaskExecutor executor = checkGameState(context, setting, version.get(), rule.getJava())
+        TaskExecutor executor = checkGameState(context, setting, version.get(), rule.java())
                 .thenComposeAsync(javaVersion -> {
                     javaVersionRef.set(Objects.requireNonNull(javaVersion));
                     version.set(LibFilter.filter(version.get()));
@@ -393,7 +390,7 @@ public final class LauncherHelper {
             try {
                 CompletableFuture<Task<FCLBridge>> future = new CompletableFuture<>();
                 if (!version.isEmpty()) {
-                    if (rule != null && rule.getRenderer() != null) return Task.completed(bridge);
+                    if (rule != null && rule.glRenderer() != null) return Task.completed(bridge);
                     if (!renderer.getMinMCver().isEmpty()) {
                         if (GameVersionNumber.compare(version, renderer.getMinMCver()) < 0) {
                             Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
@@ -652,10 +649,10 @@ public final class LauncherHelper {
             if (rule == null) return Task.completed(true);
 
             try {
-                MemoryRule memory = rule.getMemory();
+                MemoryRule memory = rule.memory();
                 if(memory != null && !isNormal(memory.setRule(setting))) throw new RuleException(memory.getTip(), null);
 
-                RendererRule renderer = rule.getRenderer();
+                GlRendererRule renderer = rule.glRenderer();
                 if(renderer != null && !isNormal(renderer.setRule(setting))) throw new RuleException(renderer.getTip(), renderer.getDownloadURL());
 
                 return Task.completed(true);

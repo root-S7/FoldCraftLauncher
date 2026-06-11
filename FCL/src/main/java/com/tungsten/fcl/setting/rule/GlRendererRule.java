@@ -1,4 +1,4 @@
-package com.tungsten.fcl.setting.rules.extend;
+package com.tungsten.fcl.setting.rule;
 
 import static com.mio.manager.RendererManager.RENDERER_GL4ES;
 import static com.mio.manager.RendererManager.getRendererOrNull;
@@ -12,12 +12,13 @@ import com.google.gson.annotations.SerializedName;
 import com.mio.data.Renderer;
 import com.mio.manager.RendererManager;
 import com.tungsten.fcl.setting.VersionSetting;
+import com.tungsten.fcl.setting.rule.core.RuleBase;
 import com.tungsten.fcl.util.RuleCheckState;
 
 import java.net.URL;
 import java.util.*;
 
-public class RendererRule extends RuleBase {
+public class GlRendererRule extends RuleBase {
     @SerializedName("useRenderer")
     private final LinkedHashSet<Renderer> useRenderer;
     @SerializedName("downloadURL")
@@ -28,14 +29,14 @@ public class RendererRule extends RuleBase {
     private transient String requiredRenderer, setRenderer;
     private static final Renderer D_RENDERER = RENDERER_GL4ES;
 
-    public RendererRule() {
+    public GlRendererRule() {
         super(null);
         this.useRenderer = null;
         this.downloadURL = null;
         this.fChange = false;
     }
 
-    public RendererRule(LinkedHashSet<Renderer> useRenderer, URL downloadURL, String tip, boolean fChange) {
+    public GlRendererRule(LinkedHashSet<Renderer> useRenderer, URL downloadURL, String tip, boolean fChange) {
         super(tip);
         this.useRenderer = useRenderer;
         this.downloadURL = downloadURL;

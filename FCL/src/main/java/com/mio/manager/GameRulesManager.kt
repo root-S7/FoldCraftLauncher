@@ -1,20 +1,21 @@
-package com.tungsten.fcl.setting.rules
+package com.mio.manager
 
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.mio.data.Renderer
-import com.tungsten.fcl.setting.rules.extend.VersionRule
-import com.tungsten.fcl.util.AndroidUtils.isRegexMatch
+import com.tungsten.fcl.setting.rule.core.VersionRule
+import com.tungsten.fcl.util.AndroidUtils
 import com.tungsten.fcl.util.gson.RuleJavaSetAdapter
 import com.tungsten.fcl.util.gson.RuleRendererSetAdapter
-import com.tungsten.fclauncher.utils.AssetsPath.Companion.RULES
+import com.tungsten.fclauncher.utils.AssetsPath
 import com.tungsten.fclcore.game.JavaVersion
 import com.tungsten.fclcore.util.gson.URLTypeAdapter
 import com.tungsten.fclcore.util.io.IOUtils
 import java.net.URL
-import java.util.*
+import java.util.LinkedHashMap
+import java.util.LinkedHashSet
 import java.util.stream.Collectors
 
 class GameRulesManager : LinkedHashMap<String, VersionRule>() {
@@ -24,8 +25,12 @@ class GameRulesManager : LinkedHashMap<String, VersionRule>() {
         val GSON: Gson = GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(URL::class.java, URLTypeAdapter())
-            .registerTypeAdapter(object : TypeToken<LinkedHashSet<Renderer>>() {}.type, RuleRendererSetAdapter())
-            .registerTypeAdapter(object : TypeToken<LinkedHashSet<JavaVersion>>() {}.type, RuleJavaSetAdapter())
+            .registerTypeAdapter(object : TypeToken<LinkedHashSet<Renderer>>() {}.type,
+                RuleRendererSetAdapter()
+            )
+            .registerTypeAdapter(object : TypeToken<LinkedHashSet<JavaVersion>>() {}.type,
+                RuleJavaSetAdapter()
+            )
             .create()
 
         @JvmStatic
@@ -40,7 +45,7 @@ class GameRulesManager : LinkedHashMap<String, VersionRule>() {
         @JvmStatic
         fun fromJson(context: Context): GameRulesManager {
             return try {
-                context.assets.open(RULES).use { inputStream ->
+                context.assets.open(AssetsPath.Companion.RULES).use { inputStream ->
                     fromJson(IOUtils.readFullyAsString(inputStream))
                 }
             }catch(_: Exception) {
@@ -53,7 +58,7 @@ class GameRulesManager : LinkedHashMap<String, VersionRule>() {
 
     fun getVersionRule(version: String): VersionRule {
         return getOrDefault(version, entries.stream()
-            .filter { isRegexMatch(version, it.key) }
+            .filter { AndroidUtils.isRegexMatch(version, it.key) }
             .map { it.value }
             .findFirst()
             .orElse(VersionRule())
@@ -62,7 +67,7 @@ class GameRulesManager : LinkedHashMap<String, VersionRule>() {
 
     fun getVersionRules(version: String): LinkedHashSet<VersionRule> {
         return entries.stream()
-            .filter { version == it.key || isRegexMatch(version, it.key) }
+            .filter { version == it.key || AndroidUtils.isRegexMatch(version, it.key) }
             .map { it.value }
             .collect(Collectors.toCollection { LinkedHashSet() })
     }

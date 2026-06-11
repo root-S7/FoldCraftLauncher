@@ -1,4 +1,4 @@
-package com.tungsten.fcl.setting.rules.extend;
+package com.tungsten.fcl.setting.rule;
 
 import static com.tungsten.fcl.util.RuleCheckState.*;
 
@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.google.gson.annotations.*;
 import com.mio.JavaManager;
 import com.tungsten.fcl.setting.VersionSetting;
+import com.tungsten.fcl.setting.rule.core.RuleBase;
 import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fcl.util.gson.RuleJavaSetAdapter;
 import com.tungsten.fclcore.game.JavaVersion;

@@ -1,9 +1,10 @@
-package com.tungsten.fcl.setting.rules.extend;
+package com.tungsten.fcl.setting.rule;
 
 import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 import com.tungsten.fcl.setting.VersionSetting;
+import com.tungsten.fcl.setting.rule.core.RuleBase;
 import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.platform.MemoryUtils;

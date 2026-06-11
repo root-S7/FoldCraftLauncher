@@ -1,6 +1,6 @@
 package com.tungsten.fcl.util
 
-import com.tungsten.fcl.setting.rules.GameRulesManager.Companion.GSON
+import com.mio.manager.GameRulesManager.Companion.GSON
 import com.tungsten.fcl.util.FileType.Companion.getDefaultRule
 import com.tungsten.fcl.util.check.rule.FileCheckRule
 

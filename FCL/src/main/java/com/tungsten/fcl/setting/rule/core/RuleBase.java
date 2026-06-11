@@ -1,4 +1,4 @@
-package com.tungsten.fcl.setting.rules.extend;
+package com.tungsten.fcl.setting.rule.core;
 
 import static com.tungsten.fcl.util.RuleCheckState.NO_CHANGE;
 import static com.tungsten.fcl.util.RuleCheckState.UNKNOWN;
