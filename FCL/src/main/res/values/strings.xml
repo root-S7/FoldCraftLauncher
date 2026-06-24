@@ -580,6 +580,7 @@
     <string name="menu_settings_gesture_mode_fight">Fight</string>
     <string name="menu_settings_gesture_current">Current Mode is %s</string>
     <string name="menu_settings_gyro">Gyroscope</string>
+    <string name="menu_settings_gyro_invert">Invert Gyroscope</string>
     <string name="menu_settings_gyro_sensitivity">Gyro Sensitivity</string>
     <string name="menu_settings_lock_view">Lock Menu View</string>
     <string name="menu_settings_hide_view">Hide Menu View</string>
@@ -941,6 +942,7 @@
     <string name="settings_disable_fullscreen_input">Disable fullscreen input (For TouchController mod)</string>
     <string name="settings_launcher_exit_after_launching">Launcher exits after launching</string>
     <string name="settings_launcher_custom_launcher_name">Custom launcher information</string>
+    <string name="settings_launcher_allow_screenshot">Allow screenshot/recording in crash activity</string>
 
     <string name="settings_memory">Memory</string>
     <string name="settings_memory_allocate_auto">%1$.1f GB Minimum / %2$.1f GB Allocated</string>
@@ -1122,6 +1124,7 @@
     <string name="view_info_reference_height">Screen Height</string>
 
     <string name="world">Worlds</string>
+    <string name="world_permission_fix">Fix World File Permissions</string>
     <string name="world_add">Add a World (.zip)</string>
     <string name="world_datapack">Manage Datapacks</string>
     <string name="world_datapack_1_13">Only Minecraft 1.13 or newer supports datapacks.</string>
@@ -1235,7 +1238,6 @@
     <string name="message_check_plugin">The current plugin %s does not support this game version. Continuing to use it may cause the game to crash! Do you want to continue?</string>
     <string name="enabled">Enabled</string>
     <string name="disabled">Disabled</string>
-    <string name="close">Close</string>
     <string name="message_warn_restart_after_change">The changes will take effect after restarting.</string>
     <string name="message_check_path_valid">The currently selected game file path (%s) may contain illegal characters, which could cause the game to crash upon launching. It is recommended to check the game directory or rename the version. Do you want to continue launching?</string>
     <string name="message_check_has_modloader">It has been detected that the currently launched game version has mods installed, but the corresponding mod loader does not seem to be installed. The mods may not function properly after launching. Do you want to continue launching?</string>
@@ -1243,4 +1245,5 @@
     <string name="exception_no_suitable_java">Failed to find a suitable Java!</string>
     <string name="slide_selection">Slide Selection</string>
     <string name="swap_hands">Double Tap Swap Hands</string>
+    <string name="jar_executor_warn">Note! This feature is not for installing mods. If you are installing mods, please use the launcher\'s download function or add them in "Manage Mods".</string>
 </resources>

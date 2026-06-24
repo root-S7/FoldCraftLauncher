@@ -5,8 +5,6 @@ import static com.tungsten.fclauncher.utils.FCLPath.*;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 
 import androidx.appcompat.widget.LinearLayoutCompat;
 
@@ -27,8 +25,8 @@ import com.tungsten.fcllibrary.component.ui.FCLCommonUI;
 import com.tungsten.fcllibrary.component.view.FCLButton;
 import com.tungsten.fcllibrary.component.view.FCLTextView;
 import com.tungsten.fcllibrary.component.view.FCLUILayout;
-import com.tungsten.fcllibrary.skin.SkinCanvas;
 import com.tungsten.fcllibrary.skin.SkinRenderer;
+import com.tungsten.fcllibrary.skin.SkinViewer;
 import com.tungsten.fcllibrary.util.LocaleUtils;
 
 import java.util.logging.Level;
@@ -46,8 +44,7 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     private FCLButton hide;
     private Announcement announcement = null;
 
-    private RelativeLayout skinContainer;
-    private SkinCanvas skinCanvas;
+    private SkinViewer skinViewer;
     private SkinRenderer renderer;
 
     private ObjectProperty<Account> currentAccount;
@@ -59,7 +56,6 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     @Override
     public void onCreate() {
         super.onCreate();
-
         announcementContainer = findViewById(R.id.announcement_container);
         announcementLayout = findViewById(R.id.announcement_layout);
         title = findViewById(R.id.title);
@@ -69,15 +65,10 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
         ThemeEngine.getInstance().registerEvent(announcementLayout, () -> announcementLayout.getBackground().setTint(ThemeEngine.getInstance().getTheme().getColor()));
         hide.setOnClickListener(this);
 
-        skinContainer = findViewById(R.id.skin_container);
+        skinViewer = findViewById(R.id.skin_viewer);
         renderer = new SkinRenderer(getContext());
-        ViewGroup.LayoutParams layoutParamsSkin = skinContainer.getLayoutParams();
-        layoutParamsSkin.width = (int) (((View) skinContainer.getParent().getParent()).getMeasuredWidth() * 0.5f);
-        layoutParamsSkin.height = (int) Math.min(((View) skinContainer.getParent().getParent()).getMeasuredWidth() * 0.5f, ((View) skinContainer.getParent().getParent()).getMeasuredHeight());
-        skinContainer.setLayoutParams(layoutParamsSkin);
-
+        skinViewer.setRenderer(renderer, 5f);
         checkAnnouncement();
-
         setupSkinDisplay();
     }
 
@@ -85,44 +76,36 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     public void onStart() {
         super.onStart();
         if (!ThemeEngine.getInstance().theme.isCloseSkinModel()) {
-            if (skinCanvas == null) {
-                skinCanvas = new SkinCanvas(getContext());
-                skinCanvas.setRenderer(renderer, 5f);
-            } else {
-                skinCanvas.onResume();
-                renderer.updateTexture(renderer.getTexture()[0], renderer.getTexture()[1]);
-            }
-
-            skinContainer.addView(skinCanvas);
-            skinContainer.setVisibility(View.VISIBLE);
+            skinViewer.setVisibility(View.VISIBLE);
+            skinViewer.onResume();
+            renderer.updateTexture(renderer.getTexture()[0], renderer.getTexture()[1]);
         } else {
-            if (skinCanvas != null) skinCanvas.onPause();
+            skinViewer.onPause();
+            skinViewer.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (skinCanvas != null) {
-            skinCanvas.onPause();
-        }
+        skinViewer.onPause();
+        skinViewer.setVisibility(View.GONE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        if (isShowing() && skinCanvas != null) {
-            skinCanvas.onResume();
+        if (isShowing() && !ThemeEngine.getInstance().theme.isCloseSkinModel()) {
+            skinViewer.setVisibility(View.VISIBLE);
+            skinViewer.onResume();
         }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if (skinCanvas != null) {
-            skinCanvas.onPause();
-        }
-        skinContainer.removeView(skinCanvas);
+        skinViewer.onPause();
+        skinViewer.setVisibility(View.GONE);
     }
 
     @Override
@@ -145,20 +128,8 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
                             title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", announcement.getDisplayTitle(getContext())));
                             announcementView.setText(announcement.getDisplayContent(getContext()));
                             date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", announcement.getDate()));
-                        }).whenComplete(Schedulers.androidUIThread(), (result, exception) -> {
-                            if(exception != null) {
-                                announcementContainer.setVisibility(View.VISIBLE);
-                                title.setText("异常");
-                                announcementView.setText("无法获取公告，原因：无效的公告地址或JSON文件格式无效");
-                                date.setVisibility(View.GONE);
-                            }
                         }).start();
             } catch (Exception e) {
-                announcementContainer.setVisibility(View.VISIBLE);
-                title.setText("异常");
-                announcementView.setText("无法获取公告，原因：无效的公告地址或JSON文件格式无效");
-                date.setVisibility(View.GONE);
-                e.printStackTrace();
                 Logging.LOG.log(Level.WARNING, "Failed to get announcement!", e);
             }
         }else hideAnnouncement();
@@ -172,7 +143,7 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     }
 
     private void setupSkinDisplay() {
-        currentAccount = new SimpleObjectProperty<Account>() {
+        currentAccount = new SimpleObjectProperty<>() {
 
             @Override
             protected void invalidated() {
