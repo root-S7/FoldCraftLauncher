@@ -10,8 +10,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
@@ -56,8 +54,6 @@ class SplashActivity : FCLActivity() {
 
     var gameFiles: Boolean = false
     var configFiles: Boolean = false
-    private lateinit var activityResultLauncher: ActivityResultLauncher<Intent>
-    private lateinit var permissionResultLauncher: ActivityResultLauncher<Array<String>>
     var lwjgl: Boolean = false
     var cacio: Boolean = false
     var cacio17: Boolean = false
@@ -79,15 +75,6 @@ class SplashActivity : FCLActivity() {
             background,
             ThemeEngine.getInstance().getTheme().getBackground(this)
         )
-
-        activityResultLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                checkPermission()
-            }
-        permissionResultLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-                checkPermission()
-            }
         if (sharedPreferences.getBoolean("isAgree", false)) {
             checkPermission()
         } else {
@@ -210,10 +197,14 @@ class SplashActivity : FCLActivity() {
             try {
                 Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
                     data = "package:$packageName".toUri()
-                    activityResultLauncher.launch(this)
+                    startActivityForResult(this) {
+                        checkPermission()
+                    }
                 }
             } catch (_: Exception) {
-                activityResultLauncher.launch(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION))
+                startActivityForResult(Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)) {
+                    checkPermission()
+                }
             }
         } else {
             if (!ActivityCompat.shouldShowRequestPermissionRationale(
@@ -224,18 +215,22 @@ class SplashActivity : FCLActivity() {
                     permission.READ_EXTERNAL_STORAGE
                 )
             ) {
-                permissionResultLauncher.launch(
+                requestPermissions(
                     arrayOf(
                         permission.WRITE_EXTERNAL_STORAGE,
                         permission.READ_EXTERNAL_STORAGE
                     )
-                )
+                ) {
+                    checkPermission()
+                }
             } else {
                 Toast.makeText(this, R.string.splash_permission_settings_msg, Toast.LENGTH_LONG)
                     .show()
                 Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = "package:$packageName".toUri()
-                    activityResultLauncher.launch(this)
+                    startActivityForResult(this) {
+                        checkPermission()
+                    }
                 }
             }
         }
