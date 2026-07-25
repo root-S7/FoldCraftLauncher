@@ -664,7 +664,7 @@ public final class LauncherHelper {
         });
     }
 
-    public static FCLAlertDialog.Builder errRuleDialog(@NonNull Context context, String msg, URL url, @NonNull CompletableFuture<?> future) {
+    private static FCLAlertDialog.Builder errRuleDialog(@NonNull Context context, String msg, URL url, @NonNull CompletableFuture<?> future) {
         String tip = msg == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : msg;
 
         FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context)
