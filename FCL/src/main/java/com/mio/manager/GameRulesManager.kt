@@ -45,7 +45,7 @@ class GameRulesManager : LinkedHashMap<String, VersionRule>() {
         @JvmStatic
         fun fromJson(context: Context): GameRulesManager {
             return try {
-                context.assets.open(AssetsPath.Companion.RULES).use { inputStream ->
+                context.assets.open(AssetsPath.RULES).use { inputStream ->
                     fromJson(IOUtils.readFullyAsString(inputStream))
                 }
             }catch(_: Exception) {
