@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import com.mio.JavaManager
 import com.mio.manager.RendererManager
 import com.mio.util.ImageUtil
+import com.mio.util.showErrorDialog
 import com.tungsten.fcl.R
 import com.tungsten.fcl.fragment.EulaFragment
 import com.tungsten.fcl.fragment.RuntimeFragment
@@ -44,11 +45,11 @@ import java.nio.file.Paths
 import java.util.Locale
 import java.util.logging.Level
 import com.tungsten.fcl.setting.ConfigHolder.*
-import com.tungsten.fcl.util.AndroidUtils.showErrorDialog
 import com.tungsten.fcl.util.check.FileFormat
 import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
 import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
 import com.tungsten.fcllibrary.databinding.DialogWaitBinding
+import kotlinx.coroutines.CancellationException
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
@@ -145,9 +146,12 @@ class SplashActivity : FCLActivity() {
                     supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
                         .replace(R.id.fragment, RuntimeFragment::class.java, null).commit()
+                }catch(e: CancellationException) {
+                    waitDialog.dismiss()
+                    throw e
                 }catch(e: Exception) {
                     waitDialog.dismiss()
-                    showErrorDialog(this@SplashActivity, e.message, false)
+                    showErrorDialog(this@SplashActivity, e.message ?: "未知错误")
                 }
             }
         }

@@ -294,27 +294,6 @@ public class AndroidUtils {
                 .orElse(defaultValue);
     }
 
-    @Deprecated
-    public static void showErrorDialog(Context context, String errMsg, boolean extraTip) {
-        if(context == null) {
-            if(getCurrentActivity() != null) getCurrentActivity().finishAndRemoveTask();
-            System.exit(-1);
-        }
-
-        new FCLAlertDialog.Builder(context)
-                .setTitle("错误")
-                .setAlertLevel(ALERT)
-                .setMessage(errMsg + (extraTip ? "\n\n由于该错误是致命性的，点击“确定”按钮后将关闭应用" : ""))
-                .setNegativeButton("确定", () -> {
-                    if(getCurrentActivity() != null) getCurrentActivity().finishAndRemoveTask();
-                    System.exit(-1);
-                })
-                .setCancelable(false)
-                .setPercentageSize(0.6f, -1)
-                .create()
-                .show();
-    }
-
     /**
      * 从指定的『JsonObject』中安全地获取字符串字段值。
      * 如果『jsonObject 或『fieldName』为『null』，返回空字符

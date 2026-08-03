@@ -653,9 +653,9 @@ public final class LauncherHelper {
                 .setNegativeButton(url != null ? "下载" : "确定", () -> {
                     if(url != null) openLink(context, url.toString());
                     future.completeExceptionally(new CancellationException(url != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
-                })
-                .setPercentageSize(0.8f, 0.7f)
-                .setMessageTextStyle(14f, true);
+                });
+                //.setPercentageSize(0.8f, 0.7f)
+                //.setMessageTextStyle(14f, true);
 
         if (url != null) builder.setPositiveButton("取消", () -> future.completeExceptionally(new CancellationException("用户强行终止了启动")));
         return builder;

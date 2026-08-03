@@ -28,25 +28,21 @@ public class InstallResources {
     private final Set<FileInfo> checkFiles = new FileFormat().getCheckFiles();
     private final CountDownLatch countDownLatch = new CountDownLatch(checkFiles.size() + 1);
     private volatile boolean configSuccess = false;
-    private final Config innerConfig;
+    private final Config innerConfig = safeLoadConfig();
 
-    public InstallResources(Context context) {
-        this.innerConfig = safeLoadConfig(context);
-    }
-
-    private Config safeLoadConfig(Context context) {
+    private Config safeLoadConfig() {
         try {
-            Config parsed = fromJson(readFullyAsString(openAssets(context, LAUNCHER_CONFIG)));
+            Config parsed = fromJson(readFullyAsString(openAssets(FCLApplication.INSTANCE(), LAUNCHER_CONFIG)));
             return validateProfile(parsed);
         }catch(Exception ignored) {}
         return validateProfile(new Config());
     }
 
-    public void installGameFiles(String oldInstallDir, String srcDir, final SharedPreferences.Editor editor, Context context) throws IOException, InterruptedException {
+    public void installGameFiles(String oldInstallDir, String srcDir, final SharedPreferences.Editor editor) throws IOException, InterruptedException {
         forceDelete(LOG_DIR, CONTROLLER_DIR, oldInstallDir);
 
         if(!countDownLatch.await(44, TimeUnit.SECONDS) || !configSuccess) throw new InterruptedException("配置文件安装失败，无法继续安装游戏文件");
-        install(context, getSelectedPath(innerConfig).getAbsolutePath(), srcDir);
+        install(FCLApplication.INSTANCE(), getSelectedPath(innerConfig).getAbsolutePath(), srcDir);
         if(editor != null) {
             editor.putBoolean("isFirstInstall", false);
             editor.apply();

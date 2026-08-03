@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.SplashActivity
 import com.tungsten.fcl.databinding.FragmentRuntimeBinding
-import com.tungsten.fcl.util.AndroidUtils.*
 import com.tungsten.fcl.util.InstallResources
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.Architecture
@@ -28,6 +27,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CancellationException
 
 class RuntimeFragment : FCLFragment(), View.OnClickListener {
     private lateinit var bind: FragmentRuntimeBinding
@@ -111,7 +111,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         if (installing) return
 
         bind.apply {
-            val installResources = InstallResources(context)
+            val installResources = InstallResources()
             installing = true
             showErrDialog.set(false)
             if (!gameFiles) {
@@ -120,15 +120,13 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         runCatching {
-                            installResources.installGameFiles((activity as SplashActivity).oldSelectedPath, ".minecraft", sharedPreferences.edit(), context)
+                            installResources.installGameFiles((activity as SplashActivity).oldSelectedPath, ".minecraft", sharedPreferences.edit())
                             gameFiles = true
                         }.onFailure {
+                            if(it is CancellationException) throw it
+
                             it.printStackTrace()
-                            if (showErrDialog.compareAndSet(false, true)) {
-                                withContext(Dispatchers.Main) {
-                                    showErrorDialog(activity, it.message, true)
-                                }
-                            }
+                            if(showErrDialog.compareAndSet(false, true)) showErrorDialog(it.message ?: "未知错误")
                         }
                     }
                     gameFileState.visibility = View.VISIBLE
@@ -147,12 +145,10 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             installResources.installConfigFiles()
                             configFiles = true
                         }.onFailure {
+                            if(it is CancellationException) throw it
+
                             it.printStackTrace()
-                            if (showErrDialog.compareAndSet(false, true)) {
-                                withContext(Dispatchers.Main) {
-                                    showErrorDialog(activity, it.message, true)
-                                }
-                            }
+                            if(showErrDialog.compareAndSet(false, true)) showErrorDialog(it.message ?: "未知错误")
                         }
                     }
                     if(installResources.isSuccess) ThemeEngine.getInstance().applyAndSave(activity, bind.root, LT_BACKGROUND_PATH, DK_BACKGROUND_PATH)

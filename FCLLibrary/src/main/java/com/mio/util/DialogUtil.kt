@@ -15,6 +15,7 @@ fun showErrorDialog(context: Context, message: String) {
         .setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
         .setMessage(message)
         .setNegativeButton(context.getString(R.string.dialog_positive)) { }
+        .setCancelable(false)
         .create()
         .show()
 }
