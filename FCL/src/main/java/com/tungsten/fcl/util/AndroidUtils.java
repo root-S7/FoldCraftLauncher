@@ -294,6 +294,7 @@ public class AndroidUtils {
                 .orElse(defaultValue);
     }
 
+    @Deprecated
     public static void showErrorDialog(Context context, String errMsg, boolean extraTip) {
         if(context == null) {
             if(getCurrentActivity() != null) getCurrentActivity().finishAndRemoveTask();
