@@ -11,6 +11,7 @@ import android.graphics.Paint;
 import android.graphics.SurfaceTexture;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Surface;
 
@@ -25,6 +26,9 @@ import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FCLBridge implements Serializable {
     public static boolean FORCE_RESOLUTION = false;
@@ -133,7 +137,7 @@ public class FCLBridge implements Serializable {
     }
 
     public void execute(Surface surface, FCLBridgeCallback callback) {
-        this.handler = new Handler();
+        this.handler = new Handler(Looper.getMainLooper());
         this.callback = callback;
         this.surface = surface;
         setFCLBridge(this);
@@ -246,8 +250,10 @@ public class FCLBridge implements Serializable {
                 String targetLink = link;
                 if (link.startsWith("file:")) {
                     targetLink = link.replaceFirst("^file:/+", "/");
-                    if (targetLink.endsWith("/")) {
-                        folderCallback.onBrowse(targetLink);
+                    targetLink = Uri.decode(targetLink);
+                    Path path = Paths.get(targetLink).normalize().toAbsolutePath();
+                    if (Files.isDirectory(path)) {
+                        folderCallback.onBrowse(path.toString());
                         return;
                     }
                 }

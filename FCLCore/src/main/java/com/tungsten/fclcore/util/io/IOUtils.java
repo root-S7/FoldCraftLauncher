@@ -17,20 +17,31 @@
  */
 package com.tungsten.fclcore.util.io;
 
-import android.content.Context;
-import android.content.res.AssetManager;
+import static com.tungsten.fclcore.util.platform.OperatingSystem.NATIVE_CHARSET;
 
-import com.tungsten.fclauncher.utils.FCLPath;
-import com.tungsten.fclcore.util.DigestUtils;
+import org.glavo.chardet.DetectedCharset;
+import org.glavo.chardet.UniversalDetector;
 
 import java.io.*;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.zip.GZIPInputStream;
 
+import static java.nio.charset.StandardCharsets.*;
+
+import android.content.res.AssetManager;
+
+import com.tungsten.fclauncher.utils.FCLPath;
+import com.tungsten.fclcore.util.DigestUtils;
+
 /**
  * This utility class consists of some util methods operating on InputStream/OutputStream.
+ *
+ * @author huangyuhui
  */
 public final class IOUtils {
 
@@ -53,32 +64,64 @@ public final class IOUtils {
     }
 
     public static String readFullyAsStringWithClosing(InputStream stream) throws IOException {
-        ByteArrayOutputStream result = new ByteArrayOutputStream(Math.max(stream.available(), 32));
-        copyTo(stream, result);
-        return result.toString("UTF-8");
-    }
-
-    /**
-     * Read all bytes to a buffer from given input stream, and close the input stream finally.
-     *
-     * @param stream the InputStream being read, closed finally.
-     * @return all bytes read from the stream
-     * @throws IOException if an I/O error occurs.
-     */
-    public static ByteArrayOutputStream readFully(InputStream stream) throws IOException {
-        try (InputStream is = stream) {
-            ByteArrayOutputStream result = new ByteArrayOutputStream(Math.max(is.available(), 32));
-            copyTo(is, result);
-            return result;
+        try(InputStream in = stream; ByteArrayOutputStream result = new ByteArrayOutputStream(Math.max(stream.available(), 32))) {
+            copyTo(in, result);
+            return result.toString("UTF-8");
         }
     }
 
-    public static byte[] readFullyAsByteArray(InputStream stream) throws IOException {
-        return readFully(stream).toByteArray();
+    public static BufferedReader newBufferedReaderMaybeNativeEncoding(Path file) throws IOException {
+        if (NATIVE_CHARSET == UTF_8)
+            return Files.newBufferedReader(file);
+
+        FileChannel channel = FileChannel.open(file);
+        try {
+            long oldPosition = channel.position();
+            DetectedCharset detectedCharset = UniversalDetector.detectCharset(channel);
+            Charset charset = detectedCharset != null && detectedCharset.isSupported()
+                    && (detectedCharset.getCharset() == UTF_8 || detectedCharset.getCharset() == US_ASCII)
+                    ? UTF_8 : NATIVE_CHARSET;
+            channel.position(oldPosition);
+            return new BufferedReader(new InputStreamReader(Channels.newInputStream(channel), charset));
+        } catch (Throwable e) {
+            closeQuietly(channel, e);
+            throw e;
+        }
+    }
+
+    public static byte[] readFully(InputStream stream) throws IOException {
+        try (stream) {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int numRead;
+            byte[] data = new byte[16384]; // 16KB buffer
+            while ((numRead = stream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, numRead);
+            }
+            return buffer.toByteArray();
+        }
     }
 
     public static String readFullyAsString(InputStream stream) throws IOException {
-        return readFully(stream).toString("UTF-8");
+        return new String(readFully(stream), UTF_8);
+    }
+
+    public static String readFullyAsString(InputStream stream, Charset charset) throws IOException {
+        return new String(readFully(stream), charset);
+    }
+
+    public static void skipNBytes(InputStream input, long n) throws IOException {
+        while (n > 0) {
+            long ns = input.skip(n);
+            if (ns > 0 && ns <= n)
+                n -= ns;
+            else if (ns == 0) {
+                if (input.read() == -1)
+                    throw new EOFException();
+                n--;
+            } else {
+                throw new IOException("Unexpected skip bytes. Expected: " + n + ", Actual: " + ns);
+            }
+        }
     }
 
     public static void copyTo(InputStream src, OutputStream dest) throws IOException {
@@ -98,55 +141,57 @@ public final class IOUtils {
         return new GZIPInputStream(inputStream);
     }
 
-    public static void copyAssets(String assetFileName, String targetPath) throws IOException {
-        AssetManager assetManager = FCLPath.CONTEXT.getAssets();
-        InputStream inputStream = null;
-        FileOutputStream fileOutputStream = null;
-
+    public static void closeQuietly(AutoCloseable closeable) {
         try {
-            // 打开 assets 文件输入流
-            inputStream = assetManager.open(assetFileName);
-
-            // 创建目标文件输出流
-            File outFile = new File(targetPath);
-            File parentDir = outFile.getParentFile();
-            if(parentDir != null && !parentDir.exists()) parentDir.mkdirs(); // 确保父目录存在
-
-            fileOutputStream = new FileOutputStream(outFile);
-
-            // 调用 copyTo 方法进行文件拷贝
-            copyTo(inputStream, fileOutputStream, new byte[DEFAULT_BUFFER_SIZE]);
-        }finally {
-            if(inputStream != null) inputStream.close();
-            if(fileOutputStream != null) fileOutputStream.close();
+            if (closeable != null)
+                closeable.close();
+        } catch (Throwable ignored) {
         }
     }
 
-    public static String calculateSHA256(InputStream inputStream) throws IOException {
-        // 创建 SHA-256 MessageDigest 实例
-        MessageDigest digest = DigestUtils.getDigest("SHA-256");
+    public static void closeQuietly(AutoCloseable closeable, Throwable exception) {
+        try {
+            if (closeable != null)
+                closeable.close();
+        } catch (Throwable e) {
+            exception.addSuppressed(e);
+        }
+    }
 
-        byte[] buffer = new byte[8192];  // 缓冲区大小，可以根据需要调整
+    public static void copyAssets(String assetFileName, String targetPath) throws IOException {
+        File outFile = new File(targetPath);
+        File parentDir = outFile.getParentFile();
+        if(parentDir != null && !parentDir.exists()) parentDir.mkdirs();
+
+        try(InputStream inputStream = FCLPath.CONTEXT.getAssets().open(assetFileName); FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
+            copyTo(inputStream, fileOutputStream, new byte[DEFAULT_BUFFER_SIZE]);
+        }
+    }
+
+    /**
+     * 计算Sha256
+     * @param inputStream 输入流
+     * @return 返回一个String结果
+     * @throws IOException 计算异常抛出
+     */
+    public static String calculateSHA256(InputStream inputStream) throws IOException {
+        MessageDigest digest = DigestUtils.getDigest("SHA-256");
+        byte[] buffer = new byte[8192];
         int bytesRead;
 
-        // 逐块读取 InputStream 数据并更新 MessageDigest
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
-            digest.update(buffer, 0, bytesRead);
-        }
-
-        // 获取计算出的 SHA-256 哈希字节数组
+        while((bytesRead = inputStream.read(buffer)) != -1) digest.update(buffer, 0, bytesRead);
         byte[] hashBytes = digest.digest();
 
         // 将字节数组转换为十六进制字符串
         StringBuilder hexString = new StringBuilder();
-        for (byte b : hashBytes) {
-            hexString.append(String.format("%02x", b));  // 每个字节转换为两位的十六进制数
-        }
+        for(byte b : hashBytes) hexString.append(String.format("%02x", b));
 
-        return hexString.toString();  // 返回最终的 SHA-256 哈希值
+        return hexString.toString();
     }
 
     public static String calculateSHA256(Path path) throws IOException {
-        return calculateSHA256(Files.newInputStream(path));
+        try(InputStream inputStream = Files.newInputStream(path)) {
+            return calculateSHA256(inputStream);
+        }
     }
 }

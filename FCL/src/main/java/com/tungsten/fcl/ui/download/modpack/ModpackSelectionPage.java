@@ -63,7 +63,10 @@ public class ModpackSelectionPage extends FCLTempPage implements View.OnClickLis
         ArrayList<String> suffix = new ArrayList<>();
         suffix.add(".zip");
         suffix.add(".mrpack");
+        suffix.add(".7z");
+        suffix.add(".rar");
         MainActivity.getInstance().fileLauncher.launchSingleSelection(null, suffix, files -> {
+            if (files == null) return;
             String path = files.get(0);
             Uri uri = Uri.parse(path);
             if (AndroidUtils.isDocUri(uri)) {
