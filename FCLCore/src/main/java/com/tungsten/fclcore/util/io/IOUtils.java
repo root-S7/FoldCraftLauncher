@@ -17,6 +17,7 @@
  */
 package com.tungsten.fclcore.util.io;
 
+import static com.tungsten.fcl.FCLApplication.INSTANCE;
 import static com.tungsten.fclcore.util.platform.OperatingSystem.NATIVE_CHARSET;
 
 import org.glavo.chardet.DetectedCharset;
@@ -35,6 +36,7 @@ import static java.nio.charset.StandardCharsets.*;
 
 import android.content.res.AssetManager;
 
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.DigestUtils;
 
@@ -163,7 +165,7 @@ public final class IOUtils {
         File parentDir = outFile.getParentFile();
         if(parentDir != null && !parentDir.exists()) parentDir.mkdirs();
 
-        try(InputStream inputStream = FCLPath.CONTEXT.getAssets().open(assetFileName); FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
+        try(InputStream inputStream = INSTANCE().getAssets().open(assetFileName); FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
             copyTo(inputStream, fileOutputStream, new byte[DEFAULT_BUFFER_SIZE]);
         }
     }

@@ -4,35 +4,27 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:gravity="center"
-    android:minWidth="333dp"
-    android:minHeight="111dp"
-    android:padding="8dp"
-    android:id="@+id/wait_view">
+    android:padding="11dp"
+    android:id="@+id/root">
 
-    <!-- 转圈圈动画 -->
     <ProgressBar
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:indeterminate="true"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="14dp"
         android:progressTint="#005881"/>
 
-    <!-- 描述文字 -->
-    <ScrollView
-        android:id="@+id/wait_text_scroll"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_height="wrap_content">
 
         <com.tungsten.fcllibrary.component.view.FCLTextView
-            android:id="@+id/wait_dialog_text"
+            android:id="@+id/tips"
             android:gravity="center"
             android:textSize="15sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.appcompat.widget.LinearLayoutCompat>

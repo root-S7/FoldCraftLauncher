@@ -47,7 +47,8 @@ import com.tungsten.fcl.setting.ConfigHolder.*
 import com.tungsten.fcl.util.AndroidUtils.showErrorDialog
 import com.tungsten.fcl.util.check.FileFormat
 import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
-import com.tungsten.fcllibrary.component.dialog.FCLWaitDialog
+import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
+import com.tungsten.fcllibrary.databinding.DialogWaitBinding
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
@@ -129,21 +130,23 @@ class SplashActivity : FCLActivity() {
                 .replace(R.id.fragment, EulaFragment::class.java, null).commit()
         } else {
             lifecycleScope.launch {
-                val waitDialog = FCLWaitDialog.Builder(this@SplashActivity)
-                    .setMessage("正在检测内部文件格式中，请稍等…")
-                    .setCancelable(false)
-                    .create()
-                    .showDialog()
-                try {
-                    withContext(Dispatchers.IO) {
-                        FileFormat().checkFiles()
+                val waitDialog = FCLBaseAppCompatDialog.Builder(this@SplashActivity) { DialogWaitBinding.inflate(it) }
+                    .setCancelOnBackPressed(false)
+                    .setCancelOnTouchOutside(false)
+                    .setHeightPercent(0.5F)
+                    .setWidthPercent(0.5F)
+                    .onInitView { dialogBind ->
+                        dialogBind.tips.text = "正在检测内部文件格式中，请稍等…"
                     }
-                    waitDialog?.dismiss()
+                    .show()
+                try {
+                    FileFormat().checkFiles()
+                    waitDialog.dismiss()
                     supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
                         .replace(R.id.fragment, RuntimeFragment::class.java, null).commit()
                 }catch(e: Exception) {
-                    waitDialog?.dismiss()
+                    waitDialog.dismiss()
                     showErrorDialog(this@SplashActivity, e.message, false)
                 }
             }

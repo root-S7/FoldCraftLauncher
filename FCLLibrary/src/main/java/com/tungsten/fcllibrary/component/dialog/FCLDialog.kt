@@ -5,7 +5,7 @@ import androidx.appcompat.app.AppCompatDialog
 import com.tungsten.fcllibrary.R
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
 
-open class FCLDialog(context: Context) : AppCompatDialog(context) {
+open class FCLDialog @JvmOverloads constructor(context: Context, themeResId: Int = 0) : AppCompatDialog(context, themeResId) {
     init {
         ThemeEngine.getInstance()
             .applyFullscreen(window, ThemeEngine.getInstance().getTheme().isFullscreen)

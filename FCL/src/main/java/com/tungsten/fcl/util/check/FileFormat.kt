@@ -1,7 +1,5 @@
 package com.tungsten.fcl.util.check
 
-import android.os.Looper.getMainLooper
-import android.os.Looper.myLooper
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.tungsten.fcl.setting.Config.fromJson
@@ -30,6 +28,8 @@ import com.tungsten.fclauncher.utils.AssetsPath.Companion.THEME
 import com.tungsten.fclauncher.utils.FCLPath.*
 import com.tungsten.fclcore.util.gson.fakefx.factories.JavaFxPropertyTypeAdapterFactory
 import com.tungsten.fclcore.util.io.IOUtils.readFullyAsString
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.xml.parsers.ParserConfigurationException
 import kotlin.io.path.pathString
 
@@ -65,18 +65,15 @@ class FileFormat(vararg extraNeedFile: String) {
 
     /**
      * 检测所有文件，如果执行到某个文件检测结果为false则抛出文件不合法异常
-     * 必须在非主线程上执行，因为某些文件检测设计到网络请求
     **/
-    fun checkFiles(): Boolean = checkFiles.filter {
-        it.assPath.isNotBlank()
-    }.also {
-        if(myLooper() == getMainLooper()) throw IllegalStateException("checkFiles()方法不可以在主线程内执行！")
-    }.all { it ->
-        val path = it.assPath.trim()
-        val fileType = fromExtension(path.substringAfterLast('.', ""))
-        it.getCheckRule(fileType).check(path).also { ok ->
-            if(!ok) throw IllegalStateException("文件『$path』未通过校验，请重新制作直装包！")
-        }
+    suspend fun checkFiles(): Boolean = withContext(Dispatchers.IO) {
+        checkFiles
+            .filter { it.assPath.isNotBlank() }
+            .all {
+                val path = it.assPath.trim()
+                val fileType = fromExtension(path.substringAfterLast('.', ""))
+                it.getCheckRule(fileType).check(path)
+            }
     }
 
     private fun typeJsonCheck(gson: Gson = GsonBuilder().setPrettyPrinting().create(), clazz: Class<*>): FileCheckRule = FileCheckRule {
