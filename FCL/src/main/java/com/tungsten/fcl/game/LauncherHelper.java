@@ -46,6 +46,7 @@ import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.JVMActivity;
 import com.tungsten.fcl.activity.MainActivity;
 import com.tungsten.fcl.control.MenuType;
+import com.tungsten.fcl.databinding.DialogRuleErrorBinding;
 import com.tungsten.fcl.setting.GameOption;
 import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fcl.setting.Profile;
@@ -96,6 +97,7 @@ import com.tungsten.fclcore.util.platform.MemoryUtils;
 import com.tungsten.fclcore.util.versioning.VersionNumber;
 import com.tungsten.fclcore.util.versioning.GameVersionNumber;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
+import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog;
 import com.tungsten.fcllibrary.component.dialog.FCLDialog;
 import com.tungsten.fcllibrary.component.view.FCLButton;
 import com.tungsten.fcllibrary.component.view.FCLTabLayout;
@@ -120,6 +122,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
+import kotlin.Unit;
 
 public final class LauncherHelper {
 
@@ -556,7 +560,7 @@ public final class LauncherHelper {
                     .map(r -> Task.completed("Auto".equals(setting.getJava()) ? JavaManager.getSuitableJavaVersion(version) : JavaManager.getJavaFromVersionName(setting.getJava())))
                     .orElseGet(() -> {
                         CompletableFuture<JavaVersion> future = new CompletableFuture<>();
-                        Schedulers.androidUIThread().execute(() -> errRuleDialog(context, rule.getTip(), rule.getDownloadURL(), future).create().show());
+                        Schedulers.androidUIThread().execute(() -> errRuleDialog(context, rule.getTip(), rule.getDownloadURL(), future));
                         return Task.fromCompletableFuture(future);
                     })).withStage("launch.state.java");
         }else {
@@ -636,29 +640,34 @@ public final class LauncherHelper {
                 return Task.completed(true);
             }catch(RuleException ex) {
                 CompletableFuture<Task<Boolean>> future = new CompletableFuture<>();
-                Schedulers.androidUIThread().execute(() -> errRuleDialog(context, ex.getMessage(), ex.getUrl(), future).create().show());
+                Schedulers.androidUIThread().execute(() -> errRuleDialog(context, ex.getMessage(), ex.getUrl(), future));
                 return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
             }
         });
     }
 
-    private static FCLAlertDialog.Builder errRuleDialog(@NonNull Context context, String msg, URL url, @NonNull CompletableFuture<?> future) {
-        String tip = msg == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : msg;
+    private static void errRuleDialog(@NonNull Context context, String msg, URL url, @NonNull CompletableFuture<?> future) {
+        new FCLBaseAppCompatDialog.Builder<>(context, DialogRuleErrorBinding::inflate)
+                .setCancelOnBackPressed(false)
+                .setCancelOnTouchOutside(false)
+                .setHeightPercent(0.7F)
+                .setWidthPercent(0.7F)
+                .onInitView((dialog, dialogBind) -> {
+                    dialogBind.tips.setText(msg == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : msg);
+                    dialogBind.cancel.setOnClickListener(v -> {
+                        future.completeExceptionally(new CancellationException("用户强行终止了启动"));
+                        dialog.dismiss();
+                    });
 
-        FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context)
-                .setCancelable(false)
-                .setMessage(tip)
-                .setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
-                .setTitle("规则异常")
-                .setNegativeButton(url != null ? "下载" : "确定", () -> {
-                    if(url != null) openLink(context, url.toString());
-                    future.completeExceptionally(new CancellationException(url != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
-                });
-                //.setPercentageSize(0.8f, 0.7f)
-                //.setMessageTextStyle(14f, true);
+                    dialogBind.confirm.setOnClickListener(v -> {
+                        if (url != null) openLink(context, url.toString());
+                        future.completeExceptionally(new CancellationException(url != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
+                        dialog.dismiss();
+                    });
 
-        if (url != null) builder.setPositiveButton("取消", () -> future.completeExceptionally(new CancellationException("用户强行终止了启动")));
-        return builder;
+                    return Unit.INSTANCE;
+                })
+                .show();
     }
 
     static class SkipLoginDialog extends FCLDialog implements View.OnClickListener {
