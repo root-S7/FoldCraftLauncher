@@ -2,11 +2,13 @@ package com.tungsten.fcl.util;
 
 import static com.tungsten.fclcore.util.io.FileUtils.forceDeleteQuietly;
 import static com.tungsten.fclcore.util.io.FileUtils.writeText;
+import static com.tungsten.fclcore.util.io.IOUtils.DEFAULT_BUFFER_SIZE;
 import static com.tungsten.fcllibrary.util.ConvertUtils.*;
 
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.system.Os;
+import android.util.Log;
 
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.utils.Architecture;
@@ -22,6 +24,10 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -75,37 +81,30 @@ public class RuntimeUtils {
     }
 
     public static void copyAssets(Context context, String src, String dest) throws IOException {
-        if (context == null || src == null || dest == null) return;
-
-        AssetManager assetManager = context.getAssets();
-        String[] fileNames = assetManager.list(src);
-
-        if (fileNames != null && fileNames.length > 0) {
-            File destDir = new File(dest);
-            if (!destDir.exists() && !destDir.mkdirs()) throw new IOException("无法创建“" + dest + "”目录");
-
-            for (String fileName : fileNames) {
-                String newSrc = src.isEmpty() ? fileName : src + "/" + fileName;
-                String newDest = dest + File.separator + fileName;
-                copyAssets(context, newSrc, newDest);
-            }
-        } else {
-            File outFile = new File(dest);
-            File parentDir = outFile.getParentFile();
-            if (parentDir != null && !parentDir.exists() && !parentDir.mkdirs()) throw new IOException("无法创建父目录『" + parentDir.getAbsolutePath() + '』');
-
-            try (BufferedInputStream bis = new BufferedInputStream(assetManager.open(src), 8192);
-                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(outFile), 8192)) {
-
-                byte[] buffer = new byte[8192];
-                int bytesRead;
-                while ((bytesRead = bis.read(buffer)) != -1) {
-                    bos.write(buffer, 0, bytesRead);
-                }
-            }
-        }
+        if(context == null || src == null || dest == null) return;
+        copyAssets(context.getAssets(), src, new File(dest));
     }
 
+    private static void copyAssets(AssetManager am, String src, File dest) throws IOException {
+        String[] files = am.list(src);
+        if(files != null && files.length > 0) {
+            if(!dest.exists() && !dest.mkdirs()) throw new IOException("无法创建目录: " + dest);
+            for(String file : files) copyAssets(am, src.isEmpty() ? file : src + "/" + file, new File(dest, file));
+
+            return;
+        }
+
+
+        File parent = dest.getParentFile();
+        if(parent != null && !parent.exists() && !parent.mkdirs()) throw new IOException("无法创建目录: " + parent);
+        try(BufferedInputStream bis = new BufferedInputStream(am.open(src), DEFAULT_BUFFER_SIZE);
+             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest), DEFAULT_BUFFER_SIZE)) {
+
+            byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
+            int len;
+            while((len = bis.read(buffer)) != -1) bos.write(buffer, 0, len);
+        }
+    }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void uncompressTarXZ(final InputStream tarFileInputStream, final File dest) throws IOException {

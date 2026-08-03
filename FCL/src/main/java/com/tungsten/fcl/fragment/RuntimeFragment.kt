@@ -144,7 +144,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         runCatching {
-                            installResources.installConfigFiles(context)
+                            installResources.installConfigFiles()
                             configFiles = true
                         }.onFailure {
                             it.printStackTrace()

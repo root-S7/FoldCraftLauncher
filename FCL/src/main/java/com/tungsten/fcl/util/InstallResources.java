@@ -1,5 +1,6 @@
 package com.tungsten.fcl.util;
 
+import static com.tungsten.fcl.FCLApplication.INSTANCE;
 import static com.tungsten.fcl.setting.Config.fromJson;
 import static com.tungsten.fcl.setting.ConfigHolder.*;
 import static com.tungsten.fcl.util.AndroidUtils.*;
@@ -11,8 +12,10 @@ import static com.tungsten.fclcore.util.io.IOUtils.readFullyAsString;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import com.google.gson.JsonParseException;
+import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.setting.Config;
 import com.tungsten.fcl.util.check.FileFormat;
 
@@ -22,14 +25,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class InstallResources {
-    private final CountDownLatch countDownLatch;
-    private final Set<FileInfo> checkFiles;
+    private final Set<FileInfo> checkFiles = new FileFormat().getCheckFiles();
+    private final CountDownLatch countDownLatch = new CountDownLatch(checkFiles.size() + 1);
     private volatile boolean configSuccess = false;
     private final Config innerConfig;
 
     public InstallResources(Context context) {
-        this.checkFiles = new FileFormat().getCheckFiles();
-        this.countDownLatch = new CountDownLatch(checkFiles.size() + 1);
         this.innerConfig = safeLoadConfig(context);
     }
 
@@ -52,13 +53,14 @@ public class InstallResources {
         }
     }
 
-    public void installConfigFiles(Context context) throws Exception {
+    public void installConfigFiles() throws Exception {
         try {
-            batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), context.getCacheDir(), context.getCodeCacheDir());
+            batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), INSTANCE().getCacheDir(), INSTANCE().getCodeCacheDir());
 
             for(FileInfo file : checkFiles) {
                 try {
-                    copyAssets(context, file.getAssPath(), file.getOutPath());
+                    Log.d("事件", file.toString());
+                    copyAssets(INSTANCE(), file.getAssPath(), file.getOutPath());
                     countDownLatch.countDown();
                 }catch(FileNotFoundException e) {
                     throw new FileNotFoundException("未能在APK的assets目录中找到该文件“" + file.getAssPath() + "”");
