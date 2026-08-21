@@ -19,6 +19,7 @@ class AssetsPath {
         const val DK_IMG = "$IMAGE/dk.png"
         const val LT_IMG = "$IMAGE/lt.png"
         const val MENU_ICON = "$IMAGE/menu_icon.png"
+        const val THEME = "$PATH/theme.json"
 
         @JvmStatic
         fun addPrefix(path: String): String {

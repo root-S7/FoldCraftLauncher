@@ -10,6 +10,10 @@ import com.tungsten.fcl.setting.ConfigHolder.validateSelectedPath
 import com.tungsten.fcl.util.AndroidUtils.openAssets
 import com.tungsten.fclcore.util.gson.JsonUtils.GSON_SIMPLE
 import com.tungsten.fclcore.util.io.IOUtils.readFullyAsString
+import com.tungsten.fcllibrary.component.theme.ThemeData
+import com.tungsten.fcllibrary.component.theme.ThemeData.Companion.getTheme
+import com.tungsten.fcllibrary.component.theme.ThemeEngine
+import com.tungsten.fcllibrary.component.theme.ThemePreference
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.FileNotFoundException
@@ -128,8 +132,31 @@ private fun validateMapContent(parser: XmlPullParser) {
 }
 
 fun typeJsonRule(clazz: Class<*>, gson: Gson = GSON_SIMPLE): FileCheckRule = {
-    openAssets(null, it).use { input ->
-        input.bufferedReader().use { reader -> gson.fromJson(reader, clazz) != null }
+    try {
+        openAssets(null, it).use { input ->
+            input.bufferedReader().use { reader ->
+                gson.fromJson(reader, clazz) ?: throw JsonParseException("")
+            }
+        }
+        true
+    }catch(_: JsonParseException) {
+        throw JsonParseException("文件『$it』解析错误，无法解析为${clazz.simpleName}！")
+    }
+}
+
+fun themeRule(): FileCheckRule = {
+    try {
+        val preference = openAssets(null, it).use { input ->
+            input.bufferedReader().use { reader ->
+                GSON_SIMPLE.fromJson(reader, ThemePreference::class.java)
+                    ?: throw JsonParseException("")
+            }
+        }
+
+        ThemeEngine.setThemePreference(preference)
+        true
+    } catch(_: JsonParseException) {
+        throw JsonParseException("文件『$it』解析错误，无法解析为“ThemePreference”！")
     }
 }
 

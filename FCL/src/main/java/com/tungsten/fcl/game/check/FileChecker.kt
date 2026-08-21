@@ -1,5 +1,7 @@
 package com.tungsten.fcl.game.check
 
+import androidx.datastore.dataStoreFile
+import com.tungsten.fcl.FCLApplication.INSTANCE
 import com.tungsten.fcl.setting.ConfigHolder
 import com.tungsten.fcl.setting.Controller
 import com.tungsten.fcl.setting.MenuSetting
@@ -7,9 +9,11 @@ import com.tungsten.fcl.setting.NeedCheckFile
 import com.tungsten.fcl.util.FileType
 import com.tungsten.fcl.game.check.rule.FileCheckRule
 import com.tungsten.fcl.game.check.rule.configRule
+import com.tungsten.fcl.game.check.rule.themeRule
 import com.tungsten.fcl.game.check.rule.typeJsonRule
 import com.tungsten.fclauncher.utils.AssetsPath
 import com.tungsten.fclauncher.utils.FCLPath
+import com.tungsten.fcllibrary.component.theme.ThemePreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.io.path.pathString
@@ -28,6 +32,7 @@ object FileChecker {
         NeedCheckFile(AssetsPath.GAME_VERSION) to null,
         NeedCheckFile(AssetsPath.DK_IMG, FCLPath.DK_BACKGROUND_PATH) to null,
         NeedCheckFile(AssetsPath.LT_IMG, FCLPath.LT_BACKGROUND_PATH) to null,
+        NeedCheckFile(AssetsPath.THEME) to themeRule(), // 特殊：不需要释放到对应目录，而是让它通过ThemeEngine的Flow更新就行
         NeedCheckFile(AssetsPath.MENU, "${FCLPath.FILES_DIR}/menu_setting.json") to typeJsonRule(MenuSetting::class.java),
         NeedCheckFile(AssetsPath.DEF_CONTROL, "${FCLPath.CONTROLLER_DIR}/00000000.json") to typeJsonRule(Controller::class.java)
     )
