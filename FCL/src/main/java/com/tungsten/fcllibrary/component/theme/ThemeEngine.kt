@@ -155,10 +155,10 @@ object ThemeEngine {
 
     private fun applyBackground(context: Context, view: View?, ltPath: String?, dkPath: String?) {
         runCatching {
-            if (ltPath != null && File(ltPath).exists()) {
+            if (ltPath != null && File(ltPath).exists() && ltPath != FCLPath.LT_BACKGROUND_PATH) {
                 File(ltPath).copyTo(File(FCLPath.LT_BACKGROUND_PATH), overwrite = true)
             }
-            if (dkPath != null && File(dkPath).exists()) {
+            if (dkPath != null && File(dkPath).exists() && dkPath != FCLPath.DK_BACKGROUND_PATH) {
                 File(dkPath).copyTo(File(FCLPath.DK_BACKGROUND_PATH), overwrite = true)
             }
         }
