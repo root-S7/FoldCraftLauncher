@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
-import com.tungsten.fcllibrary.R
+import com.tungsten.fcl.R
 
 /**
  * 对AppCompatDialog的一个封装，默认采用非全屏的主题

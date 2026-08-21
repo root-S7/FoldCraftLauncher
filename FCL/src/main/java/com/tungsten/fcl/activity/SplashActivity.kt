@@ -23,6 +23,7 @@ import com.mio.manager.RendererManager
 import com.mio.util.ImageUtil
 import com.mio.util.showErrorDialog
 import com.tungsten.fcl.R
+import com.tungsten.fcl.databinding.DialogWaitBinding
 import com.tungsten.fcl.fragment.EulaFragment
 import com.tungsten.fcl.fragment.RuntimeFragment
 import com.tungsten.fcl.setting.ConfigHolder
@@ -48,7 +49,6 @@ import com.tungsten.fcl.setting.ConfigHolder.*
 import com.tungsten.fcl.util.check.FileFormat
 import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
 import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
-import com.tungsten.fcllibrary.databinding.DialogWaitBinding
 import kotlinx.coroutines.CancellationException
 
 @SuppressLint("CustomSplashScreen")

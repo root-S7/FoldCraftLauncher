@@ -18,7 +18,6 @@ import com.tungsten.fclauncher.utils.FCLPath.DK_BACKGROUND_PATH
 import com.tungsten.fclauncher.utils.FCLPath.LT_BACKGROUND_PATH
 import com.tungsten.fclcore.task.Schedulers
 import com.tungsten.fcllibrary.component.FCLFragment
-import com.tungsten.fcllibrary.component.theme.Theme
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import kotlinx.coroutines.Dispatchers
@@ -151,7 +150,7 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                             if(showErrDialog.compareAndSet(false, true)) showErrorDialog(it.message ?: "未知错误")
                         }
                     }
-                    if(installResources.isSuccess) ThemeEngine.getInstance().applyAndSave(activity, bind.root, LT_BACKGROUND_PATH, DK_BACKGROUND_PATH)
+                    if(installResources.isSuccess) ThemeEngine.getInstance().applyAndSave(requireContext(), bind.root, LT_BACKGROUND_PATH, DK_BACKGROUND_PATH)
                     configFileState.visibility = View.VISIBLE
                     configFilesProgress.visibility = View.GONE
                     refreshDrawables()
