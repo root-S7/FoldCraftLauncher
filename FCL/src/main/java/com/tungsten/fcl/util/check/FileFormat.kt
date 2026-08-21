@@ -24,7 +24,6 @@ import com.tungsten.fclauncher.utils.AssetsPath.Companion.MENU
 import com.tungsten.fclauncher.utils.AssetsPath.Companion.MENU_ICON
 import com.tungsten.fclauncher.utils.AssetsPath.Companion.RULES
 import com.tungsten.fclauncher.utils.AssetsPath.Companion.SETTINGS
-import com.tungsten.fclauncher.utils.AssetsPath.Companion.THEME
 import com.tungsten.fclauncher.utils.FCLPath.*
 import com.tungsten.fclcore.util.gson.fakefx.factories.JavaFxPropertyTypeAdapterFactory
 import com.tungsten.fclcore.util.io.IOUtils.readFullyAsString
@@ -37,7 +36,6 @@ import kotlin.io.path.pathString
 class FileFormat(vararg extraNeedFile: String) {
     val checkFiles: MutableSet<FileInfo> = mutableSetOf(
         FileInfo(RULES),
-        FileInfo(THEME),
         FileInfo(SETTINGS),
         FileInfo(AUTH_SERVER),
         FileInfo(CUSTOM_RENDERER),
