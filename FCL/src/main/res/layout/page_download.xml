@@ -13,6 +13,7 @@
         android:layout_height="0dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/bg_container_white"
+        android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@id/install_modpack"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -36,7 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:imeOptions="actionSearch"
+                android:imeOptions="actionSearch|flagNoFullscreen"
                 android:singleLine="true"
                 android:textSize="13sp"
                 app:auto_edit_tint="true" />
@@ -164,15 +165,19 @@
                 android:orientation="horizontal"
                 app:layout_scrollFlags="scroll|enterAlways|snap">
 
-                <com.tungsten.fcllibrary.component.view.FCLImageView
+                <com.tungsten.fcllibrary.component.view.FCLButton
                     android:id="@+id/translate"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:layout_gravity="center"
                     android:layout_marginEnd="5dp"
-                    android:background="@drawable/ic_translation"
+                    android:drawableStart="@drawable/ic_translation"
+                    android:drawablePadding="0dp"
+                    android:padding="0dp"
+                    android:text=""
                     android:visibility="gone"
-                    app:use_theme_color="true" />
+                    app:auto_padding="false"
+                    app:ripple="true" />
 
                 <com.tungsten.fcllibrary.component.view.FCLTextView
                     android:id="@+id/page"
@@ -237,7 +242,7 @@
             android:id="@+id/list"
             android:layout_marginTop="5dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

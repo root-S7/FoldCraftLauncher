@@ -87,7 +87,7 @@ class SplashActivity : FCLActivity() {
                     sharedPreferences.edit { putBoolean("isAgree", true) }
                     checkPermission()
                 }
-                setNegativeButton(getString(com.tungsten.fcllibrary.R.string.crash_reporter_close)) { finish() }
+                setNegativeButton(getString(com.tungsten.fcl.R.string.crash_reporter_close)) { finish() }
                 create().show()
             }
         }
@@ -269,7 +269,11 @@ class SplashActivity : FCLActivity() {
                 "/assets/app_config"
             ) && gameFiles
             lwjgl = RuntimeUtils.isLatest(
-                FCLPath.LWJGL_DIR, "/assets/app_runtime/lwjgl"
+                FCLPath.LWJGL_DIR + "/3.3.3",
+                "/assets/app_runtime/lwjgl/3.3.3"
+            ) && RuntimeUtils.isLatest(
+                FCLPath.LWJGL_DIR + "/3.4.1",
+                "/assets/app_runtime/lwjgl/3.4.1"
             )
             cacio = RuntimeUtils.isLatest(
                 FCLPath.CACIOCAVALLO_8_DIR, "/assets/app_runtime/caciocavallo"

@@ -1,4 +1,5 @@
 import com.android.build.api.variant.FilterConfiguration.FilterType.ABI
+import com.android.build.gradle.tasks.MergeSourceSetFolders
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -19,10 +20,16 @@ android {
         localProperty = Properties()
         file("${rootDir}/local.properties").inputStream().use { localProperty.load(it) }
     }
-    val pwd = localProperty?.getProperty("key-store-password", "null")
-    val curseApiKey = localProperty?.getProperty("curse-api-key", "null")
-    val oauthApiKey = localProperty?.getProperty("oauth-api-key", "null")
-    if(localProperty != null && localProperty.getProperty("arch", "all") == "arm64") System.setProperty("arch", "arm64")
+    val pwd = System.getenv("FCL_KEYSTORE_PASSWORD") ?: localProperty?.getProperty("pwd")
+    val curseApiKey = System.getenv("CURSE_API_KEY") ?: localProperty?.getProperty("curse.api.key")
+    val oauthApiKey = System.getenv("OAUTH_API_KEY") ?: localProperty?.getProperty("oauth.api.key")
+    // 命令行 -Darch 优先；local.properties 仅在命令行未指定时生效
+    if (System.getProperty("arch") == null && localProperty != null && localProperty.getProperty(
+            "arch",
+            "all"
+        ) == "arm64"
+    )
+        System.setProperty("arch", "arm64")
 
     signingConfigs {
         create("FCLKey") {
@@ -43,18 +50,32 @@ android {
         applicationId = "com.tungsten.fcl.server"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1324
-        versionName = "1.3.2.4"
+        versionCode = 1327
+        versionName = "1.3.2.7"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     androidResources {
         ignoreAssetsPattern = "<dir>_*:*~|!.*"
     }
 
+    testBuildType = "fordebug"
+
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
             signingConfig = signingConfigs.getByName("FCLKey")
+        }
+        getByName("debug") {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("FCLKey")
+        }
+        create("fordebug") {
+            initWith(getByName("debug"))
+            applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs.getByName("FCLDebugKey")
+            // 与 FileProvider authority（${applicationId}.provider）保持一致（原 FCLLibrary 模块的 resValue）
+            resValue("string", "file_browser_provider", "com.tungsten.fcl.server.debug.provider")
         }
         configureEach {
             resValue("string", "app_version", defaultConfig.versionName.toString())
@@ -139,6 +160,47 @@ androidComponents {
         } else {
             variant.sources.assets?.addStaticSourceDirectory("src/main/jreAssets")
         }
+
+        // LWJGL natives 打包在 lwjgl-*-natives aar 的 assets/app_runtime/lwjgl/<版本>/natives/<abi> 下，
+        // 不走 AGP 的 abiFilters，需在 mergeAssets 后手动按架构删除其他 ABI 的 natives 目录。
+        val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
+        afterEvaluate {
+            val mergeAssets =
+                tasks.named("merge${variantName}Assets", MergeSourceSetFolders::class.java)
+            val arch = System.getProperty("arch", "all")
+            // 显式声明 arch 输入，arch 变化时任务重跑，避免产物残留上一架构的 natives
+            mergeAssets.configure { inputs.property("lwjglArch", arch) }
+            mergeAssets.configure {
+                doLast {
+                    if (arch == "all") return@doLast
+                    val abi = when (arch) {
+                        "arm" -> "armeabi-v7a"
+                        "arm64" -> "arm64-v8a"
+                        "x86" -> "x86"
+                        "x86_64" -> "x86_64"
+                        else -> return@doLast
+                    }
+                    val assetsDir = outputDir.get().asFile
+                    // 版本列表从 libs 下的 lwjgl-*-natives-release.aar 文件名推导，避免新增版本时忘记同步
+                    val lwjglVersions = project.file("libs").listFiles { f ->
+                        f.name.matches(Regex("lwjgl-\\d+\\.\\d+\\.\\d+-natives-release\\.aar"))
+                    }
+                        ?.map { Regex("lwjgl-(\\d+\\.\\d+\\.\\d+)-natives-release\\.aar").find(it.name)!!.groupValues[1] }
+                        ?: emptyList()
+                    lwjglVersions.forEach { version ->
+                        val nativesDir = File(assetsDir, "app_runtime/lwjgl/$version/natives")
+                        if (nativesDir.isDirectory) {
+                            nativesDir.listFiles()?.forEach { dir ->
+                                if (dir.isDirectory && dir.name != abi) {
+                                    logger.lifecycle("删除非目标架构 natives: $dir")
+                                    dir.deleteRecursively()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -151,9 +213,10 @@ kotlin {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     implementation(project(":FCLCore"))
-    implementation(project(":FCLLibrary"))
     implementation(project(":FCLauncher"))
     implementation(project(":Terracotta"))
+    implementation(libs.commons.io)
+    implementation(libs.jelf)
     implementation(libs.taptargetview)
     implementation(libs.nanohttpd)
     implementation(libs.commons.compress)
@@ -161,6 +224,7 @@ dependencies {
     implementation(libs.opennbt)
     implementation(libs.gson)
     implementation(libs.appcompat)
+    implementation(libs.androidx.viewpager2)
     implementation(libs.core.splashscreen)
     implementation(libs.material)
     implementation(libs.constraintlayout)
@@ -171,4 +235,7 @@ dependencies {
     implementation(libs.segmented.button)
     implementation(libs.datastore)
     implementation(libs.kotlinx.serialization.json)
+
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.test.ext.junit)
 }

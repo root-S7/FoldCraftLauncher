@@ -12,7 +12,6 @@ import com.tungsten.fcl.R;
 import com.tungsten.fcl.setting.Accounts;
 import com.tungsten.fclcore.task.Task;
 import com.tungsten.fcllibrary.component.ui.FCLCommonUI;
-import com.tungsten.fcllibrary.component.view.FCLUILayout;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -26,8 +25,8 @@ public class AccountUI extends FCLCommonUI implements View.OnClickListener {
     private RecyclerView recyclerView;
     private AccountListAdapter accountListAdapter;
 
-    public AccountUI(Context context, FCLUILayout parent, int id) {
-        super(context, parent, id);
+    public AccountUI(Context context, int id) {
+        super(context, id);
     }
 
     @Override
@@ -46,27 +45,22 @@ public class AccountUI extends FCLCommonUI implements View.OnClickListener {
 
         ListView serverListView = findViewById(R.id.server_list);
         serverListView.setAdapter(new ServerListAdapter(getContext()));
-    }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        addLoadingCallback(() -> refresh().start());
+        // 首次创建即刷新账户列表（原 onStart 生命周期，页面随重建重新初始化）
+        refresh().start();
     }
 
     @Override
     public Task<?> refresh(Object... param) {
-        addLoadingCallback(() -> {
-            ArrayList<AccountListItem> accountList = Accounts.getAccounts().stream()
-                    .map(account -> new AccountListItem(getContext(), account))
-                    .collect(Collectors.toCollection(ArrayList::new));
-            if (accountListAdapter == null) {
-                accountListAdapter = new AccountListAdapter(getContext(), accountList);
-                recyclerView.setAdapter(accountListAdapter);
-            } else {
-                accountListAdapter.refresh(accountList);
-            }
-        });
+        ArrayList<AccountListItem> accountList = Accounts.getAccounts().stream()
+                .map(account -> new AccountListItem(getContext(), account))
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (accountListAdapter == null) {
+            accountListAdapter = new AccountListAdapter(getContext(), accountList);
+            recyclerView.setAdapter(accountListAdapter);
+        } else {
+            accountListAdapter.refresh(accountList);
+        }
         return Task.runAsync(() -> {
 
         });

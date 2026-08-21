@@ -36,7 +36,6 @@ import com.tungsten.fclcore.util.Pair;
 import com.tungsten.fclcore.util.StringUtils;
 import com.tungsten.fclcore.util.io.CompressingUtils;
 import com.tungsten.fclcore.util.io.FileUtils;
-import com.tungsten.fclcore.util.tree.ZipFileTree;
 import com.tungsten.fclcore.util.versioning.VersionNumber;
 
 import org.apache.commons.io.IOUtils;
@@ -57,11 +56,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 
 public final class ModManager {
     @FunctionalInterface
     private interface ModMetadataReader {
-        LocalModFile fromFile(ModManager modManager, Path modFile, ZipFileTree tree) throws IOException, JsonParseException;
+        LocalModFile fromFile(ModManager modManager, Path modFile, FileSystem fs) throws IOException, JsonParseException;
     }
 
     private static final Map<String, List<Pair<ModMetadataReader, ModLoaderType>>> READERS;
@@ -88,6 +88,8 @@ public final class ModManager {
     private final String id;
     private final TreeSet<LocalModFile> localModFiles = new TreeSet<>();
     private final HashMap<Pair<String, ModLoaderType>, LocalMod> localMods = new HashMap<>();
+    /** 本次扫描中损坏（无法打开）的模组文件 */
+    private final List<Path> brokenFiles = new ArrayList<>();
     private LibraryAnalyzer analyzer;
 
     private boolean loaded = false;
@@ -122,14 +124,19 @@ public final class ModManager {
         return localMods.containsKey(pair(modId, modLoaderType));
     }
 
-    private void addModInfo(Path file) {
+    /**
+     * 解析并加入一个模组文件。
+     *
+     * @return 成功加入 localModFiles 的模组信息；非模组文件或旧版模组（isOld）返回 null
+     */
+    private LocalModFile addModInfo(Path file) {
         String fileName = StringUtils.removeSuffix(FileUtils.getName(file), DISABLED_EXTENSION, OLD_EXTENSION);
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
         List<Pair<ModMetadataReader, ModLoaderType>> readersMap = READERS.get(extension);
         if (readersMap == null) {
             // Is not a mod file.
-            return;
+            return null;
         }
 
         Set<ModLoaderType> modLoaderTypes = analyzer.getModLoaders();
@@ -148,10 +155,10 @@ public final class ModManager {
         LocalModFile modInfo = null;
 
         List<Exception> exceptions = new ArrayList<>();
-        try (ZipFileTree tree = CompressingUtils.openZipTree(file)) {
+        try (FileSystem fs = CompressingUtils.createReadOnlyZipFileSystem(file)) {
             for (ModMetadataReader reader : supportedReaders) {
                 try {
-                    modInfo = reader.fromFile(this, file, tree);
+                    modInfo = reader.fromFile(this, file, fs);
                     break;
                 } catch (Exception e) {
                     exceptions.add(e);
@@ -161,14 +168,18 @@ public final class ModManager {
             if (modInfo == null) {
                 for (ModMetadataReader reader : unsupportedReaders) {
                     try {
-                        modInfo = reader.fromFile(this, file, tree);
+                        modInfo = reader.fromFile(this, file, fs);
                         break;
                     } catch (Exception ignored) {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
+            // 损坏的压缩文件（如 zip 结构损坏时 zipfs 抛 ZipError）无法打开，
+            // 记录并跳过该文件，避免导致整个模组列表加载失败
             LOG.warning("Failed to open mod file " + file + e);
+            brokenFiles.add(file);
+            return null;
         }
 
         if (modInfo == null) {
@@ -190,12 +201,25 @@ public final class ModManager {
 
         if (!modInfo.isOld()) {
             localModFiles.add(modInfo);
+            return modInfo;
         }
+        return null;
     }
 
     public void refreshMods() throws IOException {
+        refreshMods(null);
+    }
+
+    /**
+     * 扫描模组目录。每解析成功一个模组（加入 localModFiles）都会同步调用 onScanned 回调，
+     * 供调用方实现增量展示；回调在扫描线程触发，线程安全由调用方保证。
+     *
+     * @param onScanned 每个模组解析成功后的回调，可为 null
+     */
+    public void refreshMods(Consumer<LocalModFile> onScanned) throws IOException {
         localModFiles.clear();
         localMods.clear();
+        brokenFiles.clear();
 
         analyzer = LibraryAnalyzer.analyze(getRepository().getResolvedPreservingPatchesVersion(id), null);
 
@@ -206,11 +230,13 @@ public final class ModManager {
                         // If the folder name is game version, forge will search mod in this subdirectory
                         try (DirectoryStream<Path> subitemDirectoryStream = Files.newDirectoryStream(subitem)) {
                             for (Path subsubitem : subitemDirectoryStream) {
-                                addModInfo(subsubitem);
+                                LocalModFile mod = addModInfo(subsubitem);
+                                if (mod != null && onScanned != null) onScanned.accept(mod);
                             }
                         }
                     } else {
-                        addModInfo(subitem);
+                        LocalModFile mod = addModInfo(subitem);
+                        if (mod != null && onScanned != null) onScanned.accept(mod);
                     }
                 }
             }
@@ -222,6 +248,11 @@ public final class ModManager {
         if (!loaded)
             refreshMods();
         return List.copyOf(localModFiles);
+    }
+
+    /** 本次扫描中损坏（无法打开）的模组文件 */
+    public List<Path> getBrokenFiles() {
+        return List.copyOf(brokenFiles);
     }
 
     public void addMod(Path file) throws IOException {

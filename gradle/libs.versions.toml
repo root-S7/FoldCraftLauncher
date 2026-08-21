@@ -13,6 +13,7 @@ xz = "1.9"
 opennbt = "1.5"
 gson = "2.10.1"
 appcompat = "1.7.0"
+viewpager2 = "1.1.0"
 coreSplashscreen = "1.0.1"
 material = "1.12.0"
 constraintlayout = "2.2.0"
@@ -25,11 +26,13 @@ commonsIo = "2.15.1"
 tomlj = "1.1.1"
 constantPoolScanner = "1.2"
 jsoup = "1.18.3"
-asyncLayoutInflater = "1.0.0"
 jelf = "0.9.0"
 bytehook = "1.0.10"
 chardet = "2.5.0"
 junrar = "7.5.5"
+jspecify = "1.0.0"
+androidxTestExtJunit = "1.1.5"
+androidxTestRunner = "1.5.2"
 
 [libraries]
 datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
@@ -41,6 +44,7 @@ xz = { group = "org.tukaani", name = "xz", version.ref = "xz" }
 opennbt = { group = "com.github.steveice10", name = "opennbt", version.ref = "opennbt" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-viewpager2 = { group = "androidx.viewpager2", name = "viewpager2", version.ref = "viewpager2" }
 core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
@@ -53,11 +57,13 @@ commons-io = { group = "commons-io", name = "commons-io", version.ref = "commons
 tomlj = { group = "org.tomlj", name = "tomlj", version.ref = "tomlj" }
 constant-pool-scanner = { group = "org.jenkins-ci", name = "constant-pool-scanner", version.ref = "constantPoolScanner" }
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "jsoup" }
-async-layout-inflater = { group = "androidx.asynclayoutinflater", name = "asynclayoutinflater", version.ref = "asyncLayoutInflater" }
 jelf = { group = "net.fornwall", name = "jelf", version.ref = "jelf" }
 bytehook = { group = "com.bytedance", name = "bytehook", version.ref = "bytehook" }
 chardet = { module = "org.glavo:chardet", version.ref = "chardet" }
 junrar = { group = "com.github.junrar", name = "junrar", version.ref = "junrar" }
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+androidx-test-ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "androidxTestExtJunit" }
+androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

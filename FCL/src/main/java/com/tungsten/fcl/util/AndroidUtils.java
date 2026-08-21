@@ -1,12 +1,9 @@
 package com.tungsten.fcl.util;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.os.Build.VERSION.SDK_INT;
 
 import static com.tungsten.fcl.FCLApplication.INSTANCE;
-import static com.tungsten.fcl.FCLApplication.getCurrentActivity;
 import static com.tungsten.fclauncher.utils.AssetsPath.addPrefix;
-import static com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.AlertLevel.ALERT;
 
 import static java.util.Objects.requireNonNullElse;
 
@@ -26,36 +23,24 @@ import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.GLES20;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
-import android.view.DisplayCutout;
-import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.mio.util.DisplayUtil;
-import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.WebActivity;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
-import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.io.*;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
 
@@ -110,41 +95,27 @@ public class AndroidUtils {
         }
     }
 
+    /**
+     * 字符串资源 ID 存在性缓存（getIdentifier 查询开销大，key 集合有限）
+     */
+    private static final Map<String, Boolean> STRING_ID_CACHE = new ConcurrentHashMap<>();
+
     public static boolean hasStringId(Context context, String key) {
-        int resId = context.getResources().getIdentifier(key, "string", context.getPackageName());
-        return resId != 0;
+        return STRING_ID_CACHE.computeIfAbsent(key, k ->
+                context.getResources().getIdentifier(k, "string", context.getPackageName()) != 0);
     }
 
 
     public static int getScreenHeight() {
-        if(DisplayUtil.screenHeight != -1)
+        if (DisplayUtil.screenHeight != -1)
             return DisplayUtil.screenHeight;
         return DisplayUtil.currentDisplayMetrics.heightPixels;
     }
 
     public static int getScreenWidth() {
-        if(DisplayUtil.screenWidth != -1)
+        if (DisplayUtil.screenWidth != -1)
             return DisplayUtil.screenWidth;
         return DisplayUtil.currentDisplayMetrics.widthPixels;
-    }
-
-    public static int getSafeInset(Activity context) {
-        try {
-            if (SDK_INT >= Build.VERSION_CODES.P) {
-                WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-                DisplayCutout cutout;
-                if (SDK_INT >= Build.VERSION_CODES.R) {
-                    cutout = wm.getCurrentWindowMetrics().getWindowInsets().getDisplayCutout();
-                } else {
-                    cutout = context.getWindow().getDecorView().getRootWindowInsets().getDisplayCutout();
-                }
-                int safeInsetLeft = cutout != null ? cutout.getSafeInsetLeft() : 0;
-                int safeInsetRight = cutout != null ? cutout.getSafeInsetRight() : 0;
-                return Math.max(safeInsetLeft, safeInsetRight);
-            }
-        } catch (Throwable ignored) {
-        }
-        return 0;
     }
 
     @SuppressWarnings("resource")
@@ -163,7 +134,7 @@ public class AndroidUtils {
     }
 
     public static String copyFileToDir(Activity activity, Uri uri, File destDir) {
-        String name = getFileName(activity,uri);
+        String name = getFileName(activity, uri);
         File dest = new File(destDir, name);
         try {
             InputStream inputStream = activity.getContentResolver().openInputStream(uri);
@@ -174,13 +145,13 @@ public class AndroidUtils {
                 IOUtils.copyTo(inputStream, outputStream);
             }
             inputStream.close();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
         return dest.getAbsolutePath();
     }
 
-    public static String copyFile(Activity activity, Uri uri, File dest) {
+    public static void copyFile(Activity activity, Uri uri, File dest) {
         try {
             InputStream inputStream = activity.getContentResolver().openInputStream(uri);
             if (inputStream == null) {
@@ -190,10 +161,9 @@ public class AndroidUtils {
                 IOUtils.copyTo(inputStream, outputStream);
             }
             inputStream.close();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
 
         }
-        return dest.getAbsolutePath();
     }
 
     public static boolean isDocUri(Uri uri) {

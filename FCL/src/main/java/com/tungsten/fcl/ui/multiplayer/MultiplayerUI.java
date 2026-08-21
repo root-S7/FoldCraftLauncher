@@ -25,7 +25,6 @@ import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.ui.FCLCommonUI;
 import com.tungsten.fcllibrary.component.view.FCLButton;
 import com.tungsten.fcllibrary.component.view.FCLSwitch;
-import com.tungsten.fcllibrary.component.view.FCLUILayout;
 
 import java.io.File;
 import java.util.Map;
@@ -46,8 +45,8 @@ public class MultiplayerUI extends FCLCommonUI implements View.OnClickListener, 
     private LinearLayoutCompat extraLayout;
     private FCLButton shareLog;
 
-    public MultiplayerUI(Context context, FCLUILayout parent, int id) {
-        super(context, parent, id);
+    public MultiplayerUI(Context context, int id) {
+        super(context, id);
     }
 
     @Override
@@ -135,7 +134,7 @@ public class MultiplayerUI extends FCLCommonUI implements View.OnClickListener, 
         if (v == shareLog) {
             if (new File(FCLPath.LOG_DIR, "terracotta.log").exists()) {
                 Intent intent = new Intent(Intent.ACTION_SEND);
-                Uri uri = FileProvider.getUriForFile(getContext(), getContext().getString(com.tungsten.fcllibrary.R.string.file_browser_provider), new File(FCLPath.LOG_DIR, "terracotta.log"));
+                Uri uri = FileProvider.getUriForFile(getContext(), getContext().getString(com.tungsten.fcl.R.string.file_browser_provider), new File(FCLPath.LOG_DIR, "terracotta.log"));
                 intent.setType(AndroidUtils.getMimeType(FCLPath.LOG_DIR + "/" + "terracotta.log"));
                 intent.putExtra(Intent.EXTRA_STREAM, uri);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

@@ -1,47 +1,55 @@
 package com.tungsten.fcl.ui.setting;
 
-import static com.tungsten.fclauncher.utils.FCLPath.*;
+import static com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.util.AndroidUtils;
 import com.tungsten.fclcore.task.Task;
-import com.tungsten.fcllibrary.component.ui.FCLCommonPage;
-import com.tungsten.fcllibrary.component.view.FCLLinearLayout;
-import com.tungsten.fcllibrary.component.view.FCLUILayout;
+import com.tungsten.fcllibrary.component.ui.FCLPage;
 
-public class AboutPage extends FCLCommonPage implements View.OnClickListener {
+/**
+ * 关于页：RecyclerView 行级复用，说明（about_desc）置顶，下方为链接行。
+ */
+public class AboutPage extends FCLPage {
 
-    private FCLLinearLayout launcher;
-    private FCLLinearLayout developer;
-    private FCLLinearLayout discord;
-    private FCLLinearLayout qq;
-    private FCLLinearLayout sponsor;
-    private FCLLinearLayout source;
+    private static final int TYPE_DESC = 0;
+    private static final int TYPE_LINK = 1;
 
-    public AboutPage(Context context, int id, FCLUILayout parent, int resId) {
-        super(context, id, parent, resId);
+    private static final String QQ_GROUP_KEY = GENERAL_SETTING.getProperty("qq-group-key", "1azSqG2kZxf3Cn5gis7wi_LYd519OUre");
+
+    /** 条目顺序：说明置顶，随后为各链接行 */
+    private static final int[] TITLES = {
+            R.string.about_desc,
+            R.string.about_launcher,
+            R.string.about_developer,
+            R.string.community_discord,
+            R.string.community_qq,
+            R.string.about_sponsor,
+            R.string.about_source
+    };
+
+    public AboutPage(Context context, int id, int resId) {
+        super(context, id, resId);
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        launcher = findViewById(R.id.launcher);
-        developer = findViewById(R.id.developer);
-        discord = findViewById(R.id.discord);
-        qq = findViewById(R.id.qq);
-        sponsor = findViewById(R.id.sponsor);
-        source = findViewById(R.id.source);
-        launcher.setOnClickListener(this);
-        developer.setOnClickListener(this);
-        discord.setOnClickListener(this);
-        qq.setOnClickListener(this);
-        sponsor.setOnClickListener(this);
-        source.setOnClickListener(this);
+        RecyclerView recyclerView = findViewById(R.id.about_list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(new AboutAdapter());
     }
 
     @Override
@@ -49,36 +57,73 @@ public class AboutPage extends FCLCommonPage implements View.OnClickListener {
         return null;
     }
 
-    @Override
-    public void onClick(View v) {
-        String url = null;
+    private class AboutAdapter extends RecyclerView.Adapter<AboutAdapter.Holder> {
 
-        if (v == launcher) {
-            url = "https://fcl-team.github.io/";
-        }
-        if (v == developer) {
-            url = "https://github.com/root-S7";
-        }
-        if (v == discord) {
-            url = GENERAL_SETTING.getProperty("discord-url", null);
-        }
-        if (v == qq) {
-            joinQQGroup(QQ_GROUP_KEY);
-        }
-        if (v == sponsor) {
-            url = "https://afdian.com/@tungs";
-        }
-        if (v == source) {
-            url = "https://github.com/root-S7/FoldCraftLauncher";
+        @Override
+        public int getItemViewType(int position) {
+            return position == 0 ? TYPE_DESC : TYPE_LINK;
         }
 
-        if (url != null) {
-            AndroidUtils.openLink(getContext(), url);
+        @NonNull
+        @Override
+        public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            int layout = viewType == TYPE_DESC ? R.layout.item_about_desc : R.layout.item_about;
+            return new Holder(LayoutInflater.from(parent.getContext()).inflate(layout, parent, false), viewType);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull Holder holder, int position) {
+            holder.bind(position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return TITLES.length;
+        }
+
+        class Holder extends RecyclerView.ViewHolder {
+            private final TextView title;
+            private final boolean link;
+
+            Holder(@NonNull View itemView, int viewType) {
+                super(itemView);
+                title = itemView.findViewById(R.id.title);
+                link = viewType == TYPE_LINK;
+                if (link) {
+                    itemView.setOnClickListener(v -> openLink(getBindingAdapterPosition()));
+                }
+            }
+
+            void bind(int position) {
+                title.setText(TITLES[position]);
+            }
         }
     }
 
-    private final static String QQ_GROUP_KEY = GENERAL_SETTING.getProperty("qq-group-key", "1azSqG2kZxf3Cn5gis7wi_LYd519OUre");
-    public void joinQQGroup(String key) {
+    private void openLink(int position) {
+        switch (position) {
+            case 1:
+                AndroidUtils.openLink(getContext(), "https://fcl-team.github.io/");
+                break;
+            case 2:
+                AndroidUtils.openLink(getContext(), "https://github.com/root-S7");
+                break;
+            case 3:
+                AndroidUtils.openLink(getContext(), GENERAL_SETTING.getProperty("discord-url", "https://icraft.ren:90/titles/Discord"));
+                break;
+            case 4:
+                joinQQGroup(QQ_GROUP_KEY);
+                break;
+            case 5:
+                AndroidUtils.openLink(getContext(), "https://afdian.com/@tungs");
+                break;
+            case 6:
+                AndroidUtils.openLink(getContext(), "https://github.com/root-S7/FoldCraftLauncher");
+                break;
+        }
+    }
+
+    private void joinQQGroup(String key) {
         Intent intent = new Intent();
         intent.setData(Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D" + key));
         try {

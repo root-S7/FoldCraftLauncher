@@ -75,7 +75,7 @@ class AccountListAdapter(
                         builder1.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
                         builder1.setMessage(Accounts.localizeErrorMessage(context, ex))
                         builder1.setNegativeButton(
-                            context.getString(com.tungsten.fcllibrary.R.string.dialog_positive),
+                            context.getString(com.tungsten.fcl.R.string.dialog_positive),
                             null
                         )
                         builder1.create().show()
@@ -87,19 +87,16 @@ class AccountListAdapter(
         binding.skin.setOnClickListener {
             MainActivity.getInstance().lifecycleScope.launch(Dispatchers.IO) {
                 try {
-                    val uploadTask = item.uploadSkin()
-                    withContext(Dispatchers.Main) {
-                        if (uploadTask != null) {
+                    item.uploadSkin(
+                        onUploading = {
                             binding.skin.visibility = View.INVISIBLE
                             binding.skinProgress.visibility = View.VISIBLE
-                            uploadTask
-                                .whenComplete(Schedulers.androidUIThread()) {
-                                    binding.skin.visibility = View.VISIBLE
-                                    binding.skinProgress.visibility = View.INVISIBLE
-                                    item.refreshSkinBinding()
-                                }
-                                .start()
                         }
+                    )
+                    withContext(Dispatchers.Main) {
+                        binding.skin.visibility = View.VISIBLE
+                        binding.skinProgress.visibility = View.INVISIBLE
+                        item.refreshSkinBinding()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -137,7 +134,7 @@ class AccountListAdapter(
             builder.setMessage(
                 String.format(
                     context.getString(R.string.version_manage_remove_confirm),
-                    item.title
+                    item.title.get()
                 )
             )
             builder.setPositiveButton {
