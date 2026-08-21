@@ -35,7 +35,6 @@ import com.tungsten.fclcore.util.io.FileUtils
 import com.tungsten.fcllibrary.component.FCLActivity
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
-import com.tungsten.fcllibrary.util.LocaleUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -43,10 +42,9 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
-import java.util.Locale
 import java.util.logging.Level
 import com.tungsten.fcl.setting.ConfigHolder.*
-import com.tungsten.fcl.util.check.FileFormat
+import com.tungsten.fcl.game.check.FileChecker.checkFiles
 import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
 import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
 import kotlinx.coroutines.CancellationException
@@ -140,7 +138,7 @@ class SplashActivity : FCLActivity() {
                     }
                     .show()
                 try {
-                    FileFormat().checkFiles()
+                    checkFiles()
                     waitDialog.dismiss()
                     supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)

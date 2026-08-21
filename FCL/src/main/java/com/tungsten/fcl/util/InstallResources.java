@@ -10,23 +10,21 @@ import static com.tungsten.fclauncher.utils.FCLPath.*;
 import static com.tungsten.fclcore.util.io.FileUtils.*;
 import static com.tungsten.fclcore.util.io.IOUtils.readFullyAsString;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.gson.JsonParseException;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.setting.Config;
-import com.tungsten.fcl.util.check.FileFormat;
+import com.tungsten.fcl.game.check.FileChecker;
+import com.tungsten.fcl.setting.NeedCheckFile;
 
 import java.io.*;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class InstallResources {
-    private final Set<FileInfo> checkFiles = new FileFormat().getCheckFiles();
-    private final CountDownLatch countDownLatch = new CountDownLatch(checkFiles.size() + 1);
+    private final CountDownLatch countDownLatch = new CountDownLatch(FileChecker.INSTANCE.getCheckFiles().size() + 1);
     private volatile boolean configSuccess = false;
     private final Config innerConfig = safeLoadConfig();
 
@@ -53,7 +51,7 @@ public class InstallResources {
         try {
             batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), INSTANCE().getCacheDir(), INSTANCE().getCodeCacheDir());
 
-            for(FileInfo file : checkFiles) {
+            for(NeedCheckFile file : FileChecker.INSTANCE.getCheckFiles().keySet()) {
                 try {
                     Log.d("事件", file.toString());
                     copyAssets(INSTANCE(), file.getAssPath(), file.getOutPath());
