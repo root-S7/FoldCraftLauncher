@@ -79,4 +79,20 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
+
+    <!-- AppCompatDialog默认样式（全屏） -->
+    <style name="Dialog.Full.Default" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/dialog_background</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:textColor">@color/cardview_dark_background</item>
+        <item name="android:windowCloseOnTouchOutside">false</item>
+    </style>
+
+    <!-- AppCompatDialog默认样式（非全屏） -->
+    <style name="Dialog.Default" parent="Dialog.Full.Default">
+        <item name="android:windowIsFloating">true</item>
+    </style>
 </resources>
