@@ -47,10 +47,10 @@
    <br><img src="/.github/images/clone_project.jpg" alt="克隆项目" width="444">
 4. 将项目导入到Android Studio中
 5. 修改项目根目录下的『local.properties』
-6. 在『local.properties』文件中增加以下键值对
-   * key-store-password
-   * oauth-api-key
-   * curse-api-key
+6. 在『local.properties』文件中增加以下键值对（若需要知晓密钥信息请私信群主获取）
+   * curse.api.key
+   * oauth.api.key
+   * pwd
      <br><img src="/.github/images/edit_local_file.jpg" alt="编辑local.properties文件" width="333">
 7. 在『Android Studio』右侧菜单栏找到『Gradle』
    <br><img src="/.github/images/find_gradle_icon.png" alt="找到Gradle选项" width="444">
