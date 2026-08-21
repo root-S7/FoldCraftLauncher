@@ -10,8 +10,6 @@ import com.tungsten.fcl.setting.ConfigHolder.validateSelectedPath
 import com.tungsten.fcl.util.AndroidUtils.openAssets
 import com.tungsten.fclcore.util.gson.JsonUtils.GSON_SIMPLE
 import com.tungsten.fclcore.util.io.IOUtils.readFullyAsString
-import com.tungsten.fcllibrary.component.theme.ThemeData
-import com.tungsten.fcllibrary.component.theme.ThemeData.Companion.getTheme
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
 import com.tungsten.fcllibrary.component.theme.ThemePreference
 import org.xmlpull.v1.XmlPullParser
