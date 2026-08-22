@@ -20,6 +20,7 @@ package com.tungsten.fclcore.util;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import com.tungsten.fclauncher.utils.FCLPath;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -655,6 +656,17 @@ public final class StringUtils {
             return Pattern.matches(pattern, string);
         }catch(Exception e) {
             return false;
+        }
+    }
+
+    public static String getStringField(String fieldName) {
+        try {
+            var field = FCLPath.class.getDeclaredField(fieldName);
+
+            if(field.getType() != String.class) return null;
+            return (String) field.get(null);
+        }catch(Exception e) {
+            return null;
         }
     }
 }
