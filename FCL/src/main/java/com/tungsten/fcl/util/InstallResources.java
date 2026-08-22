@@ -3,11 +3,11 @@ package com.tungsten.fcl.util;
 import static com.tungsten.fcl.FCLApplication.INSTANCE;
 import static com.tungsten.fcl.setting.Config.fromJson;
 import static com.tungsten.fcl.setting.ConfigHolder.*;
-import static com.tungsten.fcl.util.AndroidUtils.*;
 import static com.tungsten.fcl.util.RuntimeUtils.*;
 import static com.tungsten.fclauncher.utils.AssetsPath.LAUNCHER_CONFIG;
 import static com.tungsten.fclauncher.utils.FCLPath.*;
 import static com.tungsten.fclcore.util.io.FileUtils.*;
+import static com.tungsten.fclcore.util.io.IOUtils.openAssets;
 import static com.tungsten.fclcore.util.io.IOUtils.readFullyAsString;
 
 import android.content.SharedPreferences;
@@ -16,8 +16,8 @@ import android.util.Log;
 import com.google.gson.JsonParseException;
 import com.tungsten.fcl.FCLApplication;
 import com.tungsten.fcl.setting.Config;
-import com.tungsten.fcl.game.check.FileChecker;
-import com.tungsten.fcl.setting.NeedCheckFile;
+import com.tungsten.fcl.setting.rule.init.FileChecker;
+import com.tungsten.fcl.setting.rule.core.InitCheckFile;
 
 import java.io.*;
 import java.util.concurrent.CountDownLatch;
@@ -51,7 +51,7 @@ public class InstallResources {
         try {
             batchDelete(new File(FILES_DIR), new File(CONFIG_DIR), INSTANCE().getCacheDir(), INSTANCE().getCodeCacheDir());
 
-            for(NeedCheckFile file : FileChecker.INSTANCE.getCheckFiles().keySet()) {
+            for(InitCheckFile file : FileChecker.INSTANCE.getCheckFiles().keySet()) {
                 try {
                     Log.d("事件", file.toString());
                     copyAssets(INSTANCE(), file.getAssPath(), file.getOutPath());

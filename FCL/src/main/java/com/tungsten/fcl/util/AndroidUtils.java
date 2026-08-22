@@ -239,14 +239,6 @@ public class AndroidUtils {
         return isAdreno;
     }
 
-    public static boolean isRegexMatch(String string, String pattern) {
-        try {
-            return Pattern.matches(pattern, string);
-        }catch(Exception e) {
-            return false;
-        }
-    }
-
     /**
      * 从集合中获取第一个非null的元素，如果集合为null、为空或所有元素均为null则返回指定的默认值。
      *
@@ -262,55 +254,5 @@ public class AndroidUtils {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(defaultValue);
-    }
-
-    /**
-     * 从指定的『JsonObject』中安全地获取字符串字段值。
-     * 如果『jsonObject 或『fieldName』为『null』，返回空字符
-     * 如果字段不存在、为『JsonNull』、非原始类型，或不是字符串，同样返回空字符
-     * 仅当字段是有效的JSON字符串时，才返回对应的字符串值
-     *
-     * @param jsonObject 要解析的JsonObject
-     * @param fieldName  字段名
-     * @return           对应字段的字符串值，或空字符
-    **/
-    public static String getStringValue(JsonObject jsonObject, String fieldName) {
-        return Optional.ofNullable(jsonObject)
-                .filter(obj -> fieldName != null)
-                .map(obj -> obj.get(fieldName))
-                .filter(element -> !element.isJsonNull())
-                .filter(JsonElement::isJsonPrimitive)
-                .map(JsonElement::getAsJsonPrimitive)
-                .filter(JsonPrimitive::isString)
-                .map(JsonPrimitive::getAsString)
-                .orElse("");
-    }
-
-    /**
-     * 不使用context读取APK下assets内文件
-     * 注意，若APK特别大请勿使用该方法，否则导致性能异常
-     * @param assPath assets目录下对应文件
-     * @return 数据流
-     * @throws Exception 所有异常均抛出
-    **/
-    @Deprecated(since = "1.2.5.1", forRemoval = true)
-    public static InputStream openAssets(String assPath) throws Exception {
-        InputStream is = AndroidUtils.class.getResourceAsStream(addPrefix(assPath));
-        if(is == null) throw new FileNotFoundException("『" + assPath + "』文件不存在");
-        return is;
-    }
-
-    /**
-     * 全新的方式读取APK下assets内文件
-     * @param assPath assets目录下对应文件
-     * @return 数据流
-     * @throws Exception 所有异常均抛出
-    **/
-    public static InputStream openAssets(Context context, String assPath) throws Exception {
-        try {
-            return requireNonNullElse(context, INSTANCE()).getAssets().open(assPath);
-        }catch(FileNotFoundException e) {
-            throw new FileNotFoundException("『" + assPath + "』文件不存在");
-        }
     }
 }

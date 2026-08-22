@@ -17,6 +17,10 @@
  */
 package com.tungsten.fclcore.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
@@ -621,6 +625,36 @@ public final class StringUtils {
                 }
             }
             return f[a.length()][b.length()];
+        }
+    }
+
+    /**
+     * 从指定的『JsonObject』中安全地获取字符串字段值。
+     * 如果『jsonObject 或『fieldName』为『null』，返回空字符
+     * 如果字段不存在、为『JsonNull』、非原始类型，或不是字符串，同样返回空字符
+     * 仅当字段是有效的JSON字符串时，才返回对应的字符串值
+     *
+     * @param jsonObject 要解析的JsonObject
+     * @param fieldName  字段名
+     * @return           对应字段的字符串值，或空字符
+    **/
+    public static String getStringValue(JsonObject jsonObject, String fieldName) {
+        return Optional.ofNullable(jsonObject)
+                .filter(obj -> fieldName != null)
+                .map(obj -> obj.get(fieldName))
+                .filter(element -> !element.isJsonNull())
+                .filter(JsonElement::isJsonPrimitive)
+                .map(JsonElement::getAsJsonPrimitive)
+                .filter(JsonPrimitive::isString)
+                .map(JsonPrimitive::getAsString)
+                .orElse("");
+    }
+
+    public static boolean isRegexMatch(String string, String pattern) {
+        try {
+            return Pattern.matches(pattern, string);
+        }catch(Exception e) {
+            return false;
         }
     }
 }

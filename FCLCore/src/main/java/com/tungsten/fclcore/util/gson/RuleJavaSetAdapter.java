@@ -1,8 +1,7 @@
-package com.tungsten.fcl.util.gson;
+package com.tungsten.fclcore.util.gson;
 
 import static com.mio.JavaManager.getJavaList;
-import static com.tungsten.fcl.util.AndroidUtils.isRegexMatch;
-
+import static com.tungsten.fclcore.util.StringUtils.isRegexMatch;
 import static java.util.stream.StreamSupport.stream;
 
 import com.google.gson.JsonArray;
@@ -15,8 +14,7 @@ import com.google.gson.JsonSerializer;
 import com.tungsten.fclcore.game.JavaVersion;
 
 import java.lang.reflect.Type;
-import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RuleJavaSetAdapter implements JsonSerializer<LinkedHashSet<JavaVersion>>, JsonDeserializer<LinkedHashSet<JavaVersion>> {

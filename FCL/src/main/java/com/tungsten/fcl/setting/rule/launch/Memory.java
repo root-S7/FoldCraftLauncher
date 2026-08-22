@@ -1,26 +1,26 @@
-package com.tungsten.fcl.setting.rule;
+package com.tungsten.fcl.setting.rule.launch;
 
 import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
 import com.tungsten.fcl.setting.VersionSetting;
-import com.tungsten.fcl.setting.rule.core.RuleBase;
+import com.tungsten.fcl.setting.rule.core.LaunchRule;
 import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.platform.MemoryUtils;
 
 import java.util.Optional;
 
-public class MemoryRule extends RuleBase {
+public class Memory extends LaunchRule {
     @SerializedName("minMemory")
     private final int minMemory;
     private transient int totalMemory, setMemory;
 
-    public MemoryRule() {
+    public Memory() {
         super(null);
         this.minMemory = -1;
     }
-    public MemoryRule(int minMemory, String tip) {
+    public Memory(int minMemory, String tip) {
         super(tip);
         this.minMemory = minMemory;
     }

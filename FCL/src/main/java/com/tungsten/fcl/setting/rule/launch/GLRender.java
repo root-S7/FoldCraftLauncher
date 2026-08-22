@@ -1,4 +1,4 @@
-package com.tungsten.fcl.setting.rule;
+package com.tungsten.fcl.setting.rule.launch;
 
 import static com.mio.manager.RendererManager.RENDERER_GL4ES;
 import static com.mio.manager.RendererManager.getRendererOrNull;
@@ -12,31 +12,34 @@ import com.google.gson.annotations.SerializedName;
 import com.mio.data.Renderer;
 import com.mio.manager.RendererManager;
 import com.tungsten.fcl.setting.VersionSetting;
-import com.tungsten.fcl.setting.rule.core.RuleBase;
+import com.tungsten.fcl.setting.rule.core.LaunchRule;
 import com.tungsten.fcl.util.RuleCheckState;
 
 import java.net.URL;
 import java.util.*;
 
-public class GlRendererRule extends RuleBase {
+public class GLRender extends LaunchRule {
     @SerializedName("useRenderer")
     private final LinkedHashSet<Renderer> useRenderer;
+
     @SerializedName("downloadURL")
     private final URL downloadURL;
+
     @SerializedName("forceChange")
     private final boolean fChange;
 
     private transient String requiredRenderer, setRenderer;
+
     private static final Renderer D_RENDERER = RENDERER_GL4ES;
 
-    public GlRendererRule() {
+    public GLRender() {
         super(null);
-        this.useRenderer = null;
+        this.useRenderer = new LinkedHashSet<>();
         this.downloadURL = null;
         this.fChange = false;
     }
 
-    public GlRendererRule(LinkedHashSet<Renderer> useRenderer, URL downloadURL, String tip, boolean fChange) {
+    public GLRender(LinkedHashSet<Renderer> useRenderer, URL downloadURL, String tip, boolean fChange) {
         super(tip);
         this.useRenderer = useRenderer;
         this.downloadURL = downloadURL;
@@ -47,6 +50,7 @@ public class GlRendererRule extends RuleBase {
         return useRenderer;
     }
 
+    @Override
     public URL getDownloadURL() {
         return downloadURL;
     }
@@ -65,7 +69,10 @@ public class GlRendererRule extends RuleBase {
         super.setRule(setting);
         boolean shouldContinue = Optional.of(setting)
                 .filter(s -> canDetectRule())
-                .map(s -> { RendererManager.INSTANCE.refresh(CONTEXT); return s; })
+                .map(s -> {
+                    RendererManager.INSTANCE.refresh(CONTEXT);
+                    return s;
+                })
                 .filter(s -> fChange || !isCurrentRendererValid(s))
                 .isPresent();
         if(!shouldContinue) return NO_CHANGE;

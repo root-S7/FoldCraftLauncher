@@ -33,7 +33,9 @@ import java.security.MessageDigest;
 import java.util.zip.GZIPInputStream;
 
 import static java.nio.charset.StandardCharsets.*;
+import static java.util.Objects.requireNonNullElse;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 
 import com.tungsten.fcl.FCLApplication;
@@ -194,6 +196,20 @@ public final class IOUtils {
     public static String calculateSHA256(Path path) throws IOException {
         try(InputStream inputStream = Files.newInputStream(path)) {
             return calculateSHA256(inputStream);
+        }
+    }
+
+    /**
+     * 全新的方式读取APK下assets内文件
+     * @param assPath assets目录下对应文件
+     * @return 数据流
+     * @throws Exception 所有异常均抛出
+    **/
+    public static InputStream openAssets(Context context, String assPath) throws Exception {
+        try {
+            return requireNonNullElse(context, INSTANCE()).getAssets().open(assPath);
+        }catch(FileNotFoundException e) {
+            throw new FileNotFoundException("『" + assPath + "』文件不存在");
         }
     }
 }

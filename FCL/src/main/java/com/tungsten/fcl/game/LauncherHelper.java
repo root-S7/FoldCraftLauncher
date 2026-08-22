@@ -21,6 +21,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static com.tungsten.fcl.util.AndroidUtils.getLocalizedText;
 import static com.tungsten.fcl.util.AndroidUtils.hasStringId;
 import static com.tungsten.fcl.util.AndroidUtils.openLink;
+import static com.tungsten.fcl.util.GameRuleUtils.*;
 import static com.tungsten.fcl.util.RuleCheckState.isNormal;
 import static com.tungsten.fclcore.util.Logging.LOG;
 import static com.tungsten.fcllibrary.component.dialog.FCLAlertDialog.AlertLevel.ALERT;
@@ -30,6 +31,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -52,11 +54,8 @@ import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.setting.Profiles;
 import com.tungsten.fcl.setting.VersionSetting;
-import static com.mio.manager.GameRulesManager.*;
-import com.tungsten.fcl.setting.rule.JavaRule;
-import com.tungsten.fcl.setting.rule.MemoryRule;
-import com.tungsten.fcl.setting.rule.GlRendererRule;
-import com.tungsten.fcl.setting.rule.core.VersionRule;
+import com.tungsten.fcl.setting.rule.core.LaunchRule;
+import com.tungsten.fcl.setting.rule.launch.*;
 import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fcl.ui.UIManager;
@@ -117,11 +116,11 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 import kotlin.Unit;
 
@@ -133,7 +132,7 @@ public final class LauncherHelper {
     private final String selectedVersion;
     private final VersionSetting setting;
     private final TaskDialog launchingStepsPane;
-    private final VersionRule rule;
+    private final Set<LaunchRule> rules;
     private double scaleFactor;
 
     public LauncherHelper(Context context, Profile profile, Account account, String selectedVersion) {
@@ -143,7 +142,7 @@ public final class LauncherHelper {
         this.selectedVersion = Objects.requireNonNull(selectedVersion);
         this.setting = profile.getVersionSetting(selectedVersion);
         this.launchingStepsPane = new TaskDialog(context, TaskCancellationAction.NORMAL);
-        this.rule = fromJson(context).getVersionRule(selectedVersion);
+        this.rules = getVersionRules(fromJson(context), selectedVersion);
         this.launchingStepsPane.setTitle(context.getString(R.string.version_launch));
     }
 
@@ -163,8 +162,9 @@ public final class LauncherHelper {
 
         AtomicReference<JavaVersion> javaVersionRef = new AtomicReference<>();
 
-        TaskExecutor executor = checkGameState(context, setting, version.get(), rule.java())
+        TaskExecutor executor = checkGameState(context, setting, version.get(), findRule(rules, Java.class))
                 .thenComposeAsync(javaVersion -> {
+                    rules.removeIf(rule -> rule instanceof Java); // 当Java检查完毕并通过后，就把rules内Java有关检测删除掉，这样后面的检查可以无脑check
                     javaVersionRef.set(Objects.requireNonNull(javaVersion));
                     version.set(LibFilter.filter(version.get(), false));
                     if (setting.isNotCheckGame())
@@ -186,7 +186,7 @@ public final class LauncherHelper {
                             Task.composeAsync(() -> null)
                     );
                 }).withStage("launch.state.dependencies")
-                .thenComposeAsync(() -> setGameRule(context, setting, rule)).withStage("launch.state.rule")
+                .thenComposeAsync(() -> setGameRule(context, setting, rules)).withStage("launch.state.rule")
                 .thenComposeAsync(() -> {
                     try (InputStream input = LauncherHelper.class.getResourceAsStream("/assets/game/MioLibPatcher.jar")) {
                         Files.copy(input, new File(FCLPath.LIB_PATCHER_PATH).toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -395,7 +395,7 @@ public final class LauncherHelper {
             try {
                 CompletableFuture<Task<FCLBridge>> future = new CompletableFuture<>();
                 if (!version.isEmpty()) {
-                    if (rule != null && rule.glRenderer() != null) return Task.completed(bridge);
+                    if (rules != null && !rules.isEmpty() && findRule(rules, GLRender.class) != null) return Task.completed(bridge);
                     if (!renderer.getMinMCver().isEmpty()) {
                         if (GameVersionNumber.compare(version, renderer.getMinMCver()) < 0) {
                             Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
@@ -532,7 +532,7 @@ public final class LauncherHelper {
         });
     }
 
-    private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version, JavaRule rule) {
+    private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version, Java rule) {
         LibraryAnalyzer analyzer = LibraryAnalyzer.analyze(version, null);
         boolean isCleanroom = analyzer.has(LibraryAnalyzer.LibraryType.CLEANROOM);
         VersionNumber cleanroomVersion = null;
@@ -626,17 +626,17 @@ public final class LauncherHelper {
         });
     }
 
-    private static Task<Boolean> setGameRule(@NonNull Context context, VersionSetting setting, VersionRule rule) {
+    private static Task<Boolean> setGameRule(@NonNull Context context, VersionSetting setting, Set<LaunchRule> rules) {
         return Task.composeAsync(() -> {
-            if (rule == null) return Task.completed(true);
+            if(rules == null || rules.isEmpty()) return Task.completed(true);
 
             try {
-                MemoryRule memory = rule.memory();
-                if(memory != null && !isNormal(memory.setRule(setting))) throw new RuleException(memory.getTip(), null);
+                for(LaunchRule rule : rules) {
+                    if(rule == null) continue;
+                    RuleCheckState state = rule.setRule(setting);
 
-                GlRendererRule renderer = rule.glRenderer();
-                if(renderer != null && !isNormal(renderer.setRule(setting))) throw new RuleException(renderer.getTip(), renderer.getDownloadURL());
-
+                    if(!isNormal(state)) throw new RuleException(rule.getTip(), rule.getDownloadURL());
+                }
                 return Task.completed(true);
             }catch(RuleException ex) {
                 CompletableFuture<Task<Boolean>> future = new CompletableFuture<>();
@@ -654,13 +654,14 @@ public final class LauncherHelper {
                 .setWidthPercent(0.7F)
                 .onInitView((dialog, dialogBind) -> {
                     dialogBind.tips.setText(msg == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : msg);
+                    if(url != null) dialogBind.confirm.setText("下载");
                     dialogBind.cancel.setOnClickListener(v -> {
                         future.completeExceptionally(new CancellationException("用户强行终止了启动"));
                         dialog.dismiss();
                     });
 
                     dialogBind.confirm.setOnClickListener(v -> {
-                        if (url != null) openLink(context, url.toString());
+                        if(url != null) openLink(context, url.toString());
                         future.completeExceptionally(new CancellationException(url != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
                         dialog.dismiss();
                     });

@@ -1,6 +1,10 @@
 package com.tungsten.fcl.util
 
-import com.tungsten.fcl.game.check.rule.*
+import com.tungsten.fcl.game.BaseRule
+import com.tungsten.fcl.game.FileCheckRule
+import com.tungsten.fcl.game.ImageRule
+import com.tungsten.fcl.game.JsonRule
+import com.tungsten.fcl.game.SharedPreferencesRule
 
 enum class FileType(val extensions: Set<String>, val defaultRule: FileCheckRule) {
     TEXT(setOf("", "txt", "properties"), BaseRule),

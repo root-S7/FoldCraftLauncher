@@ -1,6 +1,7 @@
 package com.mio.manager
 
 import android.content.Context
+import com.mio.CRendererManager
 import com.mio.data.Renderer
 import com.tungsten.fcl.R
 import com.tungsten.fclauncher.plugins.DriverPlugin
@@ -108,7 +109,7 @@ object RendererManager {
         )
 
         RendererPlugin.init(context)
-        CRendererManager.init(context)
+        CRendererManager.init()
         addRenderer()
         DriverPlugin.init(context)
     }

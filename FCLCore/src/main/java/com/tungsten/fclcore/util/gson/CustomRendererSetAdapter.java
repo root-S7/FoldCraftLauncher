@@ -1,6 +1,6 @@
-package com.tungsten.fcl.util.gson;
+package com.tungsten.fclcore.util.gson;
 
-import static com.tungsten.fcl.util.AndroidUtils.getStringValue;
+import static com.tungsten.fclcore.util.StringUtils.getStringValue;
 
 import com.mio.data.Renderer;
 

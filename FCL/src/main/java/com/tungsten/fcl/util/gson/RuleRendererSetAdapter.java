@@ -1,8 +1,8 @@
 package com.tungsten.fcl.util.gson;
 
-import static com.mio.manager.RendererManager.*;
-import static com.tungsten.fcl.util.AndroidUtils.*;
-
+import static com.mio.manager.RendererManager.getRenderer;
+import static com.tungsten.fclcore.util.StringUtils.getStringValue;
+import static com.tungsten.fclcore.util.StringUtils.isRegexMatch;
 import static java.util.stream.StreamSupport.*;
 
 import com.google.gson.*;

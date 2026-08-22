@@ -44,7 +44,7 @@ import java.io.IOException
 import java.nio.file.Paths
 import java.util.logging.Level
 import com.tungsten.fcl.setting.ConfigHolder.*
-import com.tungsten.fcl.game.check.FileChecker.checkFiles
+import com.tungsten.fcl.setting.rule.init.FileChecker.checkFiles
 import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
 import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
 import kotlinx.coroutines.CancellationException
