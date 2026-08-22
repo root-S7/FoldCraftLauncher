@@ -4,6 +4,7 @@ import static android.content.Context.CLIPBOARD_SERVICE;
 
 import static com.tungsten.fcl.FCLApplication.INSTANCE;
 import static com.tungsten.fclauncher.utils.AssetsPath.addPrefix;
+import static com.tungsten.fclcore.util.StringUtils.getStringField;
 
 import static java.util.Objects.requireNonNullElse;
 
@@ -42,6 +43,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressLint("DiscouragedApi")
@@ -254,5 +256,19 @@ public class AndroidUtils {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElse(defaultValue);
+    }
+
+    public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
+
+    public static String resolveGameDir(String gameDir) {
+        Matcher matcher = PLACEHOLDER_PATTERN.matcher(gameDir);
+        StringBuffer sb = new StringBuffer(gameDir.length());
+
+        while(matcher.find()) {
+            String value = getStringField(matcher.group(1));
+            matcher.appendReplacement(sb, Matcher.quoteReplacement(value != null ? value : matcher.group()));
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 }

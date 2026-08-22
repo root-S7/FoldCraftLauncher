@@ -25,7 +25,7 @@
         "forceResolution": false,
         "useOpengl": true
       },
-      "gameDir": "/data/data/com.tungsten.fcl.server/.minecraft",
+      "gameDir": "${INNER_DIR}/.minecraft",
       "selectedMinecraftVersion": ""
     },
     "私有目录": {
@@ -51,7 +51,7 @@
         "forceResolution": false,
         "useOpengl": true
       },
-      "gameDir": "/storage/emulated/0/Android/data/com.tungsten.fcl.server/files/.minecraft",
+      "gameDir": "${PRIVATE_DIR}/.minecraft",
       "selectedMinecraftVersion": ""
     }
   },

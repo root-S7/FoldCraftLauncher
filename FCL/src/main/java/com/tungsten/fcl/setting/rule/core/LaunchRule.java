@@ -1,5 +1,6 @@
 package com.tungsten.fcl.setting.rule.core;
 
+import static com.tungsten.fcl.util.AndroidUtils.PLACEHOLDER_PATTERN;
 import static com.tungsten.fcl.util.RuleCheckState.NO_CHANGE;
 import static com.tungsten.fcl.util.RuleCheckState.UNKNOWN;
 import static com.tungsten.fclcore.util.gson.JsonUtils.GSON;
@@ -25,7 +26,6 @@ import java.util.regex.*;
 public abstract class LaunchRule {
     @SerializedName("tip")
     private final String tip;
-    protected static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
     public abstract boolean canDetectRule();
     protected abstract void initPlaceholders(@NonNull VersionSetting setting);
 

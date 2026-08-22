@@ -11,6 +11,7 @@ import com.google.gson.JsonSerializer
 import com.google.gson.annotations.JsonAdapter
 import com.tungsten.fcl.game.FCLCacheRepository
 import com.tungsten.fcl.game.FCLGameRepository
+import com.tungsten.fcl.util.AndroidUtils.resolveGameDir
 import com.tungsten.fcl.util.WeakListenerHolder
 import com.tungsten.fclcore.download.DefaultDependencyManager
 import com.tungsten.fclcore.download.DownloadProvider
@@ -159,7 +160,7 @@ class Profile {
             if (json === JsonNull.INSTANCE || json !is JsonObject) return null
             return Profile(
                 "Default",
-                File(json["gameDir"]?.asString ?: ""),
+                File(resolveGameDir(json["gameDir"]?.asString ?: "")),
                 context.deserialize(json["global"], VersionSetting::class.java),
                 json["selectedMinecraftVersion"]?.asString ?: ""
             )

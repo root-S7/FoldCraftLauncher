@@ -26,7 +26,7 @@ object FileChecker {
         InitCheckFile(AssetsPath.CURSOR, "${FILES_DIR}/cursor.png") to null,
         InitCheckFile(AssetsPath.CONFIG_VERSION, "${CONFIG_DIR}/version") to null,
         InitCheckFile(AssetsPath.MENU_ICON, "${FILES_DIR}/menu_icon.png") to null,
-        InitCheckFile(AssetsPath.LAUNCHER_CONFIG, ConfigHolder.CONFIG_PATH.pathString) to configRule(),
+        InitCheckFile(AssetsPath.LAUNCHER_CONFIG) to configRule(), // 特殊：不需要释放到对应目录，而是通过InstallResources类的installConfig方法手动安装
         InitCheckFile(AssetsPath.RULES) to jsonRule<LinkedHashMap<String, Set<LaunchRule>>>(RULES_TYPE, GAME_RULES_GSON),
         InitCheckFile(AssetsPath.CUSTOM_RENDERER) to jsonRule<MutableSet<Renderer>>(CRenderer_TYPE, CUSTOM_RENDERER_GSON),
         InitCheckFile(AssetsPath.THEME) to themeRule(), // 特殊：不需要释放到对应目录，而是让它通过ThemeEngine的Flow更新就行

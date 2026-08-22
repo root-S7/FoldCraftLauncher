@@ -1,10 +1,15 @@
 package com.mio.util
 
 import android.content.Context
+import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.mio.dialog.ItemSelectionDialog
 import com.tungsten.fcl.R
+import com.tungsten.fcl.databinding.DialogRuleErrorBinding
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
+import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
 import com.tungsten.fcllibrary.component.dialog.FCLDialog
+import kotlin.system.exitProcess
 
 fun showErrorDialog(context: Context, message: Int, vararg args: String?) {
     showErrorDialog(context, context.getString(message, *args))
@@ -44,5 +49,25 @@ fun showWarningDialog(context: Context, message: String, onConfirm: () -> Unit) 
 
         }
         .create()
+        .show()
+}
+
+fun Context.showErrorTips(message: String = "") {
+    FCLBaseAppCompatDialog.Builder(this, DialogRuleErrorBinding::inflate)
+        .setCancelOnBackPressed(false)
+        .setCancelOnTouchOutside(false)
+        .setHeightPercent(0.7F)
+        .setWidthPercent(0.6F)
+        .onInitView { binding ->
+            binding.tips.text = message
+            binding.cancel.text = getString(R.string.dialog_positive)
+            binding.cancel.setOnClickListener { exitProcess(0) }
+            binding.confirm.visibility = View.GONE
+
+            val params = binding.cancel.layoutParams as ConstraintLayout.LayoutParams
+            params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            params.endToStart = ConstraintLayout.LayoutParams.UNSET
+            binding.cancel.layoutParams = params
+        }
         .show()
 }

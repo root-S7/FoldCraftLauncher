@@ -18,6 +18,7 @@
 package com.tungsten.fcl.game;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.view.View.GONE;
 import static com.tungsten.fcl.util.AndroidUtils.getLocalizedText;
 import static com.tungsten.fcl.util.AndroidUtils.hasStringId;
 import static com.tungsten.fcl.util.AndroidUtils.openLink;
@@ -35,6 +36,7 @@ import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.gson.GsonBuilder;
 import com.mio.JavaManager;
@@ -654,15 +656,23 @@ public final class LauncherHelper {
                 .setWidthPercent(0.7F)
                 .onInitView((dialog, dialogBind) -> {
                     dialogBind.tips.setText(msg == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : msg);
-                    if(url != null) dialogBind.confirm.setText("下载");
+                    if(url != null) {
+                        dialogBind.confirm.setText("下载");
+                        dialogBind.confirm.setOnClickListener(v -> {
+                            openLink(context, url.toString());
+                            future.completeExceptionally(new CancellationException("由于用户设置不满足规则，取消本次启动"));
+                            dialog.dismiss();
+                        });
+                    }else {
+                        dialogBind.confirm.setVisibility(GONE);
+
+                        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) dialogBind.cancel.getLayoutParams();
+                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+                        params.endToStart = ConstraintLayout.LayoutParams.UNSET;
+                        dialogBind.cancel.setLayoutParams(params);
+                    }
                     dialogBind.cancel.setOnClickListener(v -> {
                         future.completeExceptionally(new CancellationException("用户强行终止了启动"));
-                        dialog.dismiss();
-                    });
-
-                    dialogBind.confirm.setOnClickListener(v -> {
-                        if(url != null) openLink(context, url.toString());
-                        future.completeExceptionally(new CancellationException(url != null ? "由于用户设置不满足规则，取消本次启动" : "用户强行终止了启动"));
                         dialog.dismiss();
                     });
 

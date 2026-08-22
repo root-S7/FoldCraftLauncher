@@ -22,6 +22,7 @@ import com.mio.JavaManager
 import com.mio.manager.RendererManager
 import com.mio.util.ImageUtil
 import com.mio.util.showErrorDialog
+import com.mio.util.showErrorTips
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.DialogWaitBinding
 import com.tungsten.fcl.fragment.EulaFragment
@@ -148,7 +149,7 @@ class SplashActivity : FCLActivity() {
                     throw e
                 }catch(e: Exception) {
                     waitDialog.dismiss()
-                    showErrorDialog(this@SplashActivity, e.message ?: "未知错误")
+                    showErrorTips(e.message ?: "未知错误")
                 }
             }
         }

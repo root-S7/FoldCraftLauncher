@@ -7,6 +7,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import com.tungsten.fcl.setting.Config.fromJson
 import com.tungsten.fcl.setting.ConfigHolder.validateSelectedPath
+import com.tungsten.fclauncher.utils.FCLPath.*
 import com.tungsten.fclcore.util.gson.JsonUtils.GSON_SIMPLE
 import com.tungsten.fclcore.util.io.IOUtils.openAssets
 import com.tungsten.fclcore.util.io.IOUtils.readFullyAsString
@@ -175,7 +176,10 @@ fun themeRule(): FileCheckRule = {
 
 fun configRule(): FileCheckRule = {
     val config = fromJson(readFullyAsString(openAssets(null, it))) ?: throw ParserConfigurationException("文件『$it』未通过校验，请重新制作！")
-    if(!validateSelectedPath(config)) throw IllegalArgumentException("选择的路径无效或不可访问，请重新选择路径！")
+    if(!validateSelectedPath(config)) throw IllegalArgumentException("选择的路径无效或不可访问，请重新选择路径！" +
+            "\n正确内部路径：${INNER_DIR}" +
+            "\n正确私有路径：${PRIVATE_DIR}" +
+            "\n正确共有路径：${COMMON_DIR}")
 
     true
 }
