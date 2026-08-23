@@ -29,6 +29,8 @@ import android.provider.OpenableColumns;
 import android.webkit.CookieManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -260,15 +262,19 @@ public class AndroidUtils {
 
     public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}");
 
-    public static String resolveGameDir(String gameDir) {
+    public static String resolveGameDir(@NonNull String gameDir) {
+        if(gameDir.isBlank()) return gameDir;
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(gameDir);
-        StringBuffer sb = new StringBuffer(gameDir.length());
+        StringBuilder sb = new StringBuilder(gameDir.length());
+        int lastEnd = 0;
 
         while(matcher.find()) {
+            sb.append(gameDir, lastEnd, matcher.start());
             String value = getStringField(matcher.group(1));
-            matcher.appendReplacement(sb, Matcher.quoteReplacement(value != null ? value : matcher.group()));
+            sb.append(value != null ? value : matcher.group());
+            lastEnd = matcher.end();
         }
-        matcher.appendTail(sb);
+        sb.append(gameDir, lastEnd, gameDir.length());
         return sb.toString();
     }
 }
