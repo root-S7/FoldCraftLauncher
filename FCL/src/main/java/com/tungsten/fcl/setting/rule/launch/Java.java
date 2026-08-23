@@ -40,6 +40,7 @@ public class Java extends LaunchRule {
         return requiredJava;
     }
 
+    @Override
     public URL getDownloadURL() {
         return downloadURL;
     }
