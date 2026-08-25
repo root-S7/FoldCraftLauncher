@@ -1,15 +1,11 @@
 package com.tungsten.fcl.util;
 
-import static com.tungsten.fclcore.util.io.FileUtils.forceDeleteQuietly;
-import static com.tungsten.fclcore.util.io.FileUtils.writeText;
-import static com.tungsten.fclcore.util.io.IOUtils.DEFAULT_BUFFER_SIZE;
-import static com.tungsten.fcllibrary.util.ConvertUtils.*;
+import static com.tungsten.fcllibrary.util.ConvertUtils.stringToLong;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 import android.system.Os;
-import android.util.Log;
 
+import com.tungsten.fcl.R;
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.utils.Architecture;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -23,15 +19,31 @@ import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
 public class RuntimeUtils {
+
+    /**
+     * 安装进度回调，回调运行在后台线程，实现方需自行切换到主线程刷新 UI。
+     */
+    public interface InstallListener {
+
+        /**
+         * 正在处理的文件（相对路径、压缩包内条目名等）。
+         */
+        void onUpdate(String detail);
+
+        /**
+         * 进入某个阶段，参数为 R.string 资源 id。
+         */
+        void onStage(int resId);
+    }
 
     public static boolean isLatest(String targetDir, String srcDir) throws IOException {
         File targetFile = new File(targetDir + "/version");
@@ -53,65 +65,132 @@ public class RuntimeUtils {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void install(Context context, String targetDir, String srcDir) throws IOException {
-        forceDeleteQuietly(new File(targetDir));
+        install(context, targetDir, srcDir, null);
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void install(Context context, String targetDir, String srcDir, InstallListener listener) throws IOException {
+        FileUtils.deleteDirectory(new File(targetDir));
         new File(targetDir).mkdirs();
-        copyAssets(context, srcDir, targetDir);
+        copyAssets(context, srcDir, targetDir, listener);
     }
 
     public static void installJna(Context context, String targetDir, String srcDir) throws IOException {
-        forceDeleteQuietly(new File(targetDir));
+        installJna(context, targetDir, srcDir, null);
+    }
+
+    public static void installJna(Context context, String targetDir, String srcDir, InstallListener listener) throws IOException {
+        FileUtils.deleteDirectory(new File(targetDir));
         new File(targetDir).mkdirs();
-        copyAssets(context, srcDir, targetDir);
+        copyAssets(context, srcDir, targetDir, listener);
         File file = new File(FCLPath.JNA_PATH, "jna-arm64.zip");
-        new Unzipper(file, new File(FCLPath.RUNTIME_DIR)).unzip();
+        new Unzipper(file, new File(FCLPath.RUNTIME_DIR)).setFilter((zipEntry, isDirectory, destFile, entryPath) -> {
+            if (listener != null && !isDirectory) {
+                listener.onUpdate(entryPath);
+            }
+            return true;
+        }).unzip();
         file.delete();
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void installJava(Context context, String targetDir, String srcDir) throws IOException {
-        forceDeleteQuietly(new File(targetDir));
+        installJava(context, targetDir, srcDir, null);
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void installJava(Context context, String targetDir, String srcDir, InstallListener listener) throws IOException {
+        FileUtils.deleteDirectory(new File(targetDir));
         new File(targetDir).mkdirs();
         String universalPath = srcDir + "/universal.tar.xz";
-        String archPath = srcDir + "/bin-" + Architecture.archAsString(Architecture.getDeviceArchitecture()) + ".tar.xz";
+        String archName = "bin-" + Architecture.archAsString(Architecture.getDeviceArchitecture()) + ".tar.xz";
+        String archPath = srcDir + "/" + archName;
         String version = IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream("/assets/" + srcDir + "/version"));
-        uncompressTarXZ(context.getAssets().open(universalPath), new File(targetDir));
-        uncompressTarXZ(context.getAssets().open(archPath), new File(targetDir));
-        writeText(new File(targetDir + "/version"), version);
+        if (listener != null) {
+            listener.onUpdate("universal.tar.xz");
+        }
+        uncompressTarXZ(context.getAssets().open(universalPath), new File(targetDir), listener);
+        if (listener != null) {
+            listener.onUpdate(archName);
+        }
+        uncompressTarXZ(context.getAssets().open(archPath), new File(targetDir), listener);
+        FileUtils.writeText(new File(targetDir + "/version"), version);
+        if (listener != null) {
+            listener.onStage(R.string.splash_runtime_patching);
+        }
         patchJava(context, targetDir);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void copyAssets(Context context, String src, String dest) throws IOException {
-        if(context == null || src == null || dest == null) return;
-        copyAssets(context.getAssets(), src, new File(dest));
+        if(src == null || dest == null) return;
+        copyAssets(context, src, dest, null);
     }
 
-    private static void copyAssets(AssetManager am, String src, File dest) throws IOException {
-        String[] files = am.list(src);
-        if(files != null && files.length > 0) {
-            if(!dest.exists() && !dest.mkdirs()) throw new IOException("无法创建目录: " + dest);
-            for(String file : files) copyAssets(am, src.isEmpty() ? file : src + "/" + file, new File(dest, file));
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void copyAssets(Context context, String src, String dest, InstallListener listener) throws IOException {
+        int total = countAssetFiles(context, src);
+        AtomicInteger done = new AtomicInteger();
+        copyAssetsInternal(context, src, dest, src, total, done, listener);
+    }
 
-            return;
+    private static int countAssetFiles(Context context, String path) throws IOException {
+        String[] fileNames = context.getAssets().list(path);
+        if (fileNames == null || fileNames.length == 0) {
+            return 1;
         }
+        int count = 0;
+        for (String fileName : fileNames) {
+            count += countAssetFiles(context, path.isEmpty() ? fileName : path + "/" + fileName);
+        }
+        return count;
+    }
 
-
-        File parent = dest.getParentFile();
-        if(parent != null && !parent.exists() && !parent.mkdirs()) throw new IOException("无法创建目录: " + parent);
-        try(BufferedInputStream bis = new BufferedInputStream(am.open(src), DEFAULT_BUFFER_SIZE);
-             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest), DEFAULT_BUFFER_SIZE)) {
-
-            byte[] buffer = new byte[DEFAULT_BUFFER_SIZE];
-            int len;
-            while((len = bis.read(buffer)) != -1) bos.write(buffer, 0, len);
+    private static void copyAssetsInternal(Context context, String src, String dest, String root, int total, AtomicInteger done, InstallListener listener) throws IOException {
+        String[] fileNames = context.getAssets().list(src);
+        if (fileNames != null && fileNames.length > 0) {
+            File file = new File(dest);
+            if (!file.exists())
+                file.mkdirs();
+            for (String fileName : fileNames) {
+                copyAssetsInternal(context,
+                        src.isEmpty() ? fileName : src + "/" + fileName,
+                        dest + File.separator + fileName, root, total, done, listener);
+            }
+        } else {
+            if (listener != null) {
+                // 单文件直接复制时（src == root），相对路径取文件名
+                String relative = src.equals(root) ? new File(src).getName() : src.substring(root.length() + 1);
+                listener.onUpdate(relative + " (" + done.incrementAndGet() + "/" + total + ")");
+            }
+            File outFile = new File(dest);
+            InputStream is = context.getAssets().open(src);
+            FileOutputStream fos = new FileOutputStream(outFile);
+            byte[] buffer = new byte[1024];
+            int byteCount;
+            while ((byteCount = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, byteCount);
+            }
+            fos.flush();
+            is.close();
+            fos.close();
         }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void uncompressTarXZ(final InputStream tarFileInputStream, final File dest) throws IOException {
+        uncompressTarXZ(tarFileInputStream, dest, null);
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public static void uncompressTarXZ(final InputStream tarFileInputStream, final File dest, final InstallListener listener) throws IOException {
         dest.mkdirs();
         TarArchiveInputStream tarIn = new TarArchiveInputStream(new XZCompressorInputStream(tarFileInputStream));
         TarArchiveEntry tarEntry = tarIn.getNextTarEntry();
         while (tarEntry != null) {
+            if (listener != null && !tarEntry.isDirectory()) {
+                listener.onUpdate(tarEntry.getName());
+            }
             if (tarEntry.getSize() <= 20480) {
                 try {
                     Thread.sleep(25);
@@ -170,4 +249,22 @@ public class RuntimeUtils {
         FileUtils.copyFile(new File(context.getApplicationInfo().nativeLibraryDir, "libawt_xawt.so"), fileLib);
     }
 
+    public static void deleteDirectory(File file, InstallListener listener) {
+        if(file == null || !file.exists()) return;
+        if(file.isDirectory()) {
+            File[] files = file.listFiles();
+            if(files != null) {
+                for(File child : files) deleteDirectory(child, listener);
+            }
+        }
+        if(listener != null) listener.onUpdate("Deleting: " + file.getName());
+        file.delete();
+    }
+
+    public static void forceDelete(InstallListener listener, String... paths) {
+        if(paths == null) return;
+        for(String path : paths) {
+            if(path != null) deleteDirectory(new File(path), listener);
+        }
+    }
 }

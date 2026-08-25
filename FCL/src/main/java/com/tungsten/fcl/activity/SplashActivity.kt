@@ -9,33 +9,42 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.view.View
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.mio.JavaManager
 import com.mio.manager.RendererManager
 import com.mio.util.ImageUtil
-import com.mio.util.showErrorDialog
+import com.mio.util.getFileName
 import com.mio.util.showErrorTips
 import com.tungsten.fcl.R
+import com.tungsten.fcl.databinding.ActivitySplashBinding
 import com.tungsten.fcl.databinding.DialogWaitBinding
 import com.tungsten.fcl.fragment.EulaFragment
 import com.tungsten.fcl.fragment.RuntimeFragment
 import com.tungsten.fcl.setting.ConfigHolder
-import com.tungsten.fcl.util.AndroidUtils
+import com.tungsten.fcl.setting.ConfigHolder.getSelectedPath
+import com.tungsten.fcl.setting.ConfigHolder.initTempConfig
+import com.tungsten.fcl.setting.Controllers
+import com.tungsten.fcl.setting.rule.init.FileChecker.checkFiles
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
+import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
 import com.tungsten.fclcore.util.Logging
 import com.tungsten.fclcore.util.io.FileUtils
 import com.tungsten.fcllibrary.component.FCLActivity
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
+import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
+import com.tungsten.fcllibrary.util.LocaleUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -43,15 +52,17 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
+import java.util.Locale
 import java.util.logging.Level
-import com.tungsten.fcl.setting.ConfigHolder.*
-import com.tungsten.fcl.setting.rule.init.FileChecker.checkFiles
-import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
-import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
-import kotlinx.coroutines.CancellationException
+import kotlin.coroutines.cancellation.CancellationException
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : FCLActivity() {
+
+    companion object {
+        /** enterLauncher 内的加载步骤总数，进度按步骤均分 */
+        private const val LOADING_TOTAL = 5
+    }
 
     var gameFiles: Boolean = false
     var configFiles: Boolean = false
@@ -63,17 +74,22 @@ class SplashActivity : FCLActivity() {
     var java21: Boolean = false
     var java25: Boolean = false
     var jna: Boolean = false
+    lateinit var binding: ActivitySplashBinding
     private lateinit var sharedPreferences: SharedPreferences
     val oldSelectedPath: String = getSelectedPath(initTempConfig()).absolutePath
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        setContentView(R.layout.activity_splash)
+        binding = ActivitySplashBinding.inflate(layoutInflater)
         sharedPreferences = getSharedPreferences("launcher", MODE_PRIVATE)
-        val background = findViewById<ConstraintLayout>(R.id.background)
+        setContentView(binding.root)
+        ThemeEngine.getInstance().registerEvent(binding.loadingProgress) {
+            refreshLoadingProgressTheme()
+        }
+        refreshLoadingProgressTheme()
         ImageUtil.loadInto(
-            background, ThemeEngine.getInstance().getTheme().getBackground(this)
+            binding.background, ThemeEngine.getInstance().getTheme().getBackground(this)
         )
         if (sharedPreferences.getBoolean("isAgree", false)) {
             checkPermission()
@@ -86,7 +102,7 @@ class SplashActivity : FCLActivity() {
                     sharedPreferences.edit { putBoolean("isAgree", true) }
                     checkPermission()
                 }
-                setNegativeButton(getString(com.tungsten.fcl.R.string.crash_reporter_close)) { finish() }
+                setNegativeButton(getString(R.string.crash_reporter_close)) { finish() }
                 create().show()
             }
         }
@@ -156,13 +172,20 @@ class SplashActivity : FCLActivity() {
     }
 
     fun enterLauncher() {
+        binding.loadingPanel.visibility = View.VISIBLE
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
+                updateLoading(R.string.splash_loading_renderer, 1)
                 RendererManager.init(this@SplashActivity)
+                updateLoading(R.string.splash_loading_java, 2)
                 JavaManager.init()
+                updateLoading(R.string.message_loading_controllers, 3)
+                Controllers.init()
+                updateLoading(R.string.splash_loading_config, 4)
                 runCatching { ConfigHolder.init() }.exceptionOrNull()?.let {
                     Logging.LOG.log(Level.WARNING, it.message)
                 }
+                updateLoading(R.string.splash_loading_cache, 5)
                 if (System.currentTimeMillis() - sharedPreferences.getLong(
                         "clear_cache", 0L
                     ) >= 3 * 1000 * 60 * 60 * 24
@@ -181,6 +204,27 @@ class SplashActivity : FCLActivity() {
         }
     }
 
+    /** 更新加载信息区：当前步骤文案、步骤计数与进度条（进度按步骤均匀划分，平滑动画过渡） */
+    @SuppressLint("SetTextI18n")
+    private suspend fun updateLoading(@StringRes textRes: Int, step: Int) {
+        withContext(Dispatchers.Main) {
+            binding.loadingInfo.setText(textRes)
+            binding.loadingCount.text = "$step/$LOADING_TOTAL"
+            binding.loadingProgress.setProgressCompat(
+                step * binding.loadingProgress.max / LOADING_TOTAL, true
+            )
+        }
+    }
+
+    /** 进度条跟随主题：主色系三段渐变指示器 + 半透明主色轨道 */
+    private fun refreshLoadingProgressTheme() {
+        val theme = ThemeEngine.getInstance().getTheme()
+        binding.loadingProgress.setIndicatorColor(theme.dkColor, theme.color, theme.ltColor)
+        binding.loadingProgress.trackColor = ColorUtils.setAlphaComponent(
+            theme.color, 51
+        )
+    }
+
     private fun handleModpack(newIntent: Intent): Intent {
         val intent = intent
         val action = intent.action
@@ -188,7 +232,7 @@ class SplashActivity : FCLActivity() {
 
         if (Intent.ACTION_VIEW == action && data != null) {
             try {
-                val fileName = AndroidUtils.getFileName(this, data) ?: "modpack"
+                val fileName = getFileName(this, data)
                 val cacheFile = File(cacheDir, fileName)
                 contentResolver.openInputStream(data)?.use { input ->
                     cacheFile.outputStream().use { output ->

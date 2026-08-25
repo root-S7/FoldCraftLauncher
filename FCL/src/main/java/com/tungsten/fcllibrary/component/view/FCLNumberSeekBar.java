@@ -70,9 +70,13 @@ public class FCLNumberSeekBar extends AppCompatSeekBar {
         setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                fromUserOrSystem = true;
-                progressProperty().set(i);
-                fromUserOrSystem = false;
+                // 仅用户操作时同步属性，程序性变化（setMax/setMin 造成的进度钳制）
+                // 不进入进度属性，避免误触发布置在属性上的监听
+                if (b) {
+                    fromUserOrSystem = true;
+                    progressProperty().set(i);
+                    fromUserOrSystem = false;
+                }
             }
 
             @Override
@@ -202,6 +206,13 @@ public class FCLNumberSeekBar extends AppCompatSeekBar {
         return disableProperty;
     }
 
+    @Override
+    public void setProgress(int progress) {
+        super.setProgress(progress);
+        // 程序性设置进度时同步属性，触发监听与保存（onProgressChanged 仅用户操作才同步）
+        progressProperty().set(progress);
+    }
+
     public final void setProgressValue(int progressValue) {
         progressProperty().set(progressValue);
     }
@@ -251,7 +262,18 @@ public class FCLNumberSeekBar extends AppCompatSeekBar {
         }
         textPaint.setTextSize(getHeight() / 1.5f);
         float textY = getHeight() / 2f - (textPaint.descent() + textPaint.ascent()) / 2f;
-        canvas.drawText(getProgress() + suffix, computeThumbX(), textY, textPaint);
+        String text = getProgress() + suffix;
+        float textWidth = textPaint.measureText(text);
+        // 数值文本居中绘制在滑块处（CENTER 对齐），贴近两端时会超出布局被裁剪，
+        // 这里限制文本中心点，使文本完整落在 padding 范围内
+        float centerX = computeThumbX();
+        if (centerX - textWidth / 2f < getPaddingStart()) {
+            centerX = getPaddingStart() + textWidth / 2f;
+        }
+        if (centerX + textWidth / 2f > getWidth() - getPaddingEnd()) {
+            centerX = getWidth() - getPaddingEnd() - textWidth / 2f;
+        }
+        canvas.drawText(text, centerX, textY, textPaint);
     }
 
     @Override

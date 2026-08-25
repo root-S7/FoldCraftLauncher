@@ -32,7 +32,7 @@ import com.tungsten.fcl.control.data.ControlButtonData;
 import com.tungsten.fcl.control.data.ControlViewGroup;
 import com.tungsten.fcl.control.data.CustomControl;
 import com.tungsten.fcl.setting.GameOption;
-import com.tungsten.fcl.util.AndroidUtils;
+import com.mio.util.AndroidUtilKt;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.keycodes.FCLKeycodes;
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener;
@@ -111,8 +111,8 @@ public class ControlButton extends AppCompatButton implements CustomView {
         boundaryPaint.setColor(Color.RED);
         boundaryPaint.setStyle(Paint.Style.STROKE);
         boundaryPaint.setStrokeWidth(3);
-        screenWidth = AndroidUtils.getScreenWidth();
-        screenHeight = AndroidUtils.getScreenHeight();
+        screenWidth = AndroidUtilKt.getScreenWidth();
+        screenHeight = AndroidUtilKt.getScreenHeight();
 
         notifyListener = invalidate -> Schedulers.androidUIThread().execute(() -> {
             notifyData();
@@ -674,14 +674,14 @@ public class ControlButton extends AppCompatButton implements CustomView {
         }
         if (event.isSwitchTouchMode()) {
             menu.getMenuSetting().setGestureMode(menu.getMenuSetting().getGestureMode() == GestureMode.BUILD ? GestureMode.FIGHT : GestureMode.BUILD);
-            Toast.makeText(getContext(), AndroidUtils.getLocalizedText(getContext(), "menu_settings_gesture_current",
+            Toast.makeText(getContext(), getContext().getString(R.string.menu_settings_gesture_current,
                     menu.getMenuSetting().getGestureMode() == GestureMode.BUILD ?
                             getContext().getString(R.string.menu_settings_gesture_mode_build) :
                             getContext().getString(R.string.menu_settings_gesture_mode_fight)), Toast.LENGTH_SHORT).show();
         }
         if (event.isSwitchMouseMode()) {
             menu.getMenuSetting().setMouseMoveMode(menu.getMenuSetting().getMouseMoveMode() == MouseMoveMode.CLICK ? MouseMoveMode.SLIDE : MouseMoveMode.CLICK);
-            Toast.makeText(getContext(), AndroidUtils.getLocalizedText(getContext(), "menu_settings_gesture_current",
+            Toast.makeText(getContext(), getContext().getString(R.string.menu_settings_gesture_current,
                     menu.getMenuSetting().getMouseMoveMode() == MouseMoveMode.CLICK ?
                             getContext().getString(R.string.menu_settings_mouse_mode_click) :
                             getContext().getString(R.string.menu_settings_mouse_mode_slide)), Toast.LENGTH_SHORT).show();

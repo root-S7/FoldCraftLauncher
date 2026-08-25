@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.tungsten.fcl.R;
-import com.tungsten.fcl.util.AndroidUtils;
+import com.mio.util.AndroidUtilKt;
 import com.tungsten.fclcore.task.Task;
 import com.tungsten.fcllibrary.component.ui.FCLPage;
 
@@ -103,22 +103,22 @@ public class AboutPage extends FCLPage {
     private void openLink(int position) {
         switch (position) {
             case 1:
-                AndroidUtils.openLink(getContext(), "https://fcl-team.github.io/");
+                AndroidUtilKt.openLink(getContext(), "https://fcl-team.github.io/");
                 break;
             case 2:
-                AndroidUtils.openLink(getContext(), "https://github.com/root-S7");
+                AndroidUtilKt.openLink(getContext(), "https://github.com/root-S7");
                 break;
             case 3:
-                AndroidUtils.openLink(getContext(), GENERAL_SETTING.getProperty("discord-url", "https://icraft.ren:90/titles/Discord"));
+                AndroidUtilKt.openLink(getContext(), GENERAL_SETTING.getProperty("discord-url", "https://icraft.ren:90/titles/Discord"));
                 break;
             case 4:
                 joinQQGroup(QQ_GROUP_KEY);
                 break;
             case 5:
-                AndroidUtils.openLink(getContext(), "https://afdian.com/@tungs");
+                AndroidUtilKt.openLink(getContext(), "https://afdian.com/@tungs");
                 break;
             case 6:
-                AndroidUtils.openLink(getContext(), "https://github.com/root-S7/FoldCraftLauncher");
+                AndroidUtilKt.openLink(getContext(), "https://github.com/root-S7/FoldCraftLauncher");
                 break;
         }
     }

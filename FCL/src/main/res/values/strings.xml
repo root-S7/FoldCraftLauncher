@@ -11,6 +11,11 @@
     <string name="splash_permission_settings_msg">You have chosen "Never Allow" Please manually grant storage permissions in settings.</string>
     <string name="notification_permission">FCL requires permission to post notifications to prevent issues with normal game installation or startup.</string>
 
+    <string name="splash_loading_renderer">Initializing renderer...</string>
+    <string name="splash_loading_java">Initializing Java runtime...</string>
+    <string name="splash_loading_config">Loading configuration and versions...</string>
+    <string name="splash_loading_cache">Clearing cache...</string>
+
     <string name="splash_title">Welcome to Fold Craft Launcher</string>
     <string name="splash_eula_error">Cannot get EULA, please check the network.</string>
     <string name="splash_eula_next">Agree and Continue</string>
@@ -25,6 +30,7 @@
     <string name="splash_runtime_java25" translatable="false">JRE 25</string>
     <string name="splash_runtime_jna" translatable="false">JNA</string>
     <string name="splash_runtime_install">Install / Update</string>
+    <string name="splash_runtime_patching">Optimizing runtime…</string>
     <string name="missing_runtime_arch_files">The currently installed launcher is missing the runtime files required for your device\'s architecture(%s). Please download the installation package for the corresponding architecture(%s) or the universal installation package(%s).</string>
 
     <string name="account">Account</string>
@@ -627,6 +633,8 @@
     <string name="menu_settings_send_key_button">Send</string>
     <string name="menu_settings_soft_keyboard_adjust">DisableSoftKeyboardAutoAdjust</string>
     <string name="menu_settings_item_bar_scale">ItemBarScale</string>
+    <string name="menu_settings_item_bar_scale_width">ItemBarScale (Width)</string>
+    <string name="menu_settings_item_bar_scale_height">ItemBarScale (Height)</string>
     <string name="menu_settings_show_log">Show Log</string>
     <string name="menu_settings_show_log_auto">Show Log Automatically</string>
     <string name="menu_settings_performance_mode">Sustained Performance Mode</string>
@@ -691,6 +699,7 @@
     <string name="modpack_type_curse_not_found">Some dependencies are no longer available, please try to install a newer version of the modpack.</string>
     <string name="modpack_type_manual_warning">The modpack is manually packaged by the publisher, which may already contain a launcher. It is recommended to try to decompress and run the game with its own launcher. FCL can still import it, with no guarantee of its usability, still continue?</string>
     <string name="modpack_type_mcbbs">MCBBS Type</string>
+    <string name="modpack_type_hmcl">HMCL Type</string>
     <string name="modpack_type_mcbbs_export">Can be imported by FCL, HMCL and MultiMC</string>
     <string name="modpack_type_modrinth">Modrinth</string>
     <string name="modpack_type_multimc">MultiMC</string>
@@ -890,8 +899,6 @@
     <string name="settings_advanced_server_ip">Server Address</string>
     <string name="settings_advanced_server_ip_desc">Join the specified server automatically after the game starts (IP:port).</string>
     <string name="settings_advanced_server_ip_prompt">Join automatically after launching the game.</string>
-    <string name="settings_advanced_custom_uuid">Custom UUID</string>
-    <string name="settings_advanced_custom_uuid_desc">Customize the game UUID (for offline mode).</string>
     <string name="settings_advanced_force_resolution">Force set resolution</string>
     <string name="settings_advanced_force_resolution_desc">Force the game to run at a specified resolution (WxH). Experimental option, use with caution.</string>
 
@@ -940,9 +947,6 @@
     <string name="settings_launcher_upgrade">Update Launcher</string>
     <string name="settings_launcher_upgrade_desc">Check whether a new version of the launcher is available.</string>
     <string name="settings_launcher_upgrade_check">Check</string>
-    <string name="settings_launcher_cache">Cache Directory</string>
-    <string name="settings_launcher_cache_desc">Clear the launcher cache files.</string>
-    <string name="settings_launcher_clear_cache">Clear cache</string>
     <string name="settings_launcher_download">Download</string>
     <string name="settings_launcher_download_threads">Threads</string>
     <string name="settings_launcher_download_threads_desc">Set the number of concurrent download threads.</string>
@@ -1075,6 +1079,7 @@
     <string name="terracotta_menu">Multiplayer Menu</string>
     <string name="terracotta_menu_open">Open</string>
     <string name="terracotta_notification_title">Terracotta is running</string>
+    <string name="notification_title">FCL Process service is running!</string>
     <string name="terracotta_notification_desc">Identity: %s, State: %s</string>
     <string name="terracotta_status_waiting_host_title">I want to host a session</string>
     <string name="terracotta_status_waiting_host_desc">Create a room and generate an invite code to play with friends</string>

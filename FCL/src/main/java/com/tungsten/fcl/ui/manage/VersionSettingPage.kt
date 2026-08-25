@@ -25,7 +25,6 @@ import com.tungsten.fcl.setting.Profiles.getSelectedProfile
 import com.tungsten.fcl.setting.VersionSetting
 import com.tungsten.fcl.ui.UIManager
 import com.tungsten.fcl.ui.manage.ManageUI.VersionLoadable
-import com.tungsten.fcl.util.AndroidUtils
 import com.tungsten.fcl.util.WeakListenerHolder
 import com.tungsten.fclauncher.plugins.DriverPlugin.driverList
 import com.tungsten.fclauncher.plugins.DriverPlugin.selected
@@ -45,6 +44,7 @@ import com.tungsten.fclcore.util.platform.MemoryUtils
 import com.tungsten.fcllibrary.component.dialog.EditDialog
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import com.tungsten.fcllibrary.component.dialog.FullEditDialog
+import com.tungsten.fcllibrary.component.theme.ThemeEngine
 import com.tungsten.fcllibrary.component.ui.FCLPage
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -52,6 +52,10 @@ import java.io.File
 import java.io.IOException
 import java.util.Locale
 import java.util.logging.Level
+import com.mio.util.copyFileToDir
+import com.mio.util.isAdrenoGPU
+import com.mio.util.isDocUri
+import com.mio.util.openLink
 
 /**
  * 版本设置页。设置项由 [VersionSettingAdapter] 以 RecyclerView 行级复用渲染，
@@ -89,10 +93,23 @@ class VersionSettingPage(
         binding = PageVersionSettingBinding.bind(contentView)
         adapter = VersionSettingAdapter(context, globalSetting, this)
         binding.settingList.layoutManager = LinearLayoutManager(context)
-        // 行间用间距分隔（ItemDecoration），最后一行不加
+        // 行间用间距分隔（ItemDecoration），最后一行不加；同组相邻行间留 1dp 缝并绘制次要色分割线
+        val rowSpacing = (8 * context.resources.displayMetrics.density).toInt()
+        val groupDivider = (1 * context.resources.displayMetrics.density).toInt()
         binding.settingList.addItemDecoration(
-            SpacingItemDecoration((8 * context.resources.displayMetrics.density).toInt())
+            SpacingItemDecoration(
+                rowSpacing,
+                { parent, position ->
+                    val adapter = parent.adapter as? VersionSettingAdapter
+                    if (adapter?.isNextInSameGroup(position) == true) groupDivider else rowSpacing
+                },
+                { ThemeEngine.getInstance().getTheme().color }
+            )
         )
+        // 主题切换时重绘分割线颜色
+        ThemeEngine.getInstance().registerEvent(binding.settingList) {
+            binding.settingList.invalidate()
+        }
         binding.settingList.adapter = adapter
 
         // 切换 Profile 时刷新设置（Repository 单例 StateFlow，attach 时收集、detach 取消避免泄漏）
@@ -158,7 +175,7 @@ class VersionSettingPage(
             context.getString(R.string.message_install_plugin),
             listOf("Github", context.getString(R.string.settings_download_netdisk))
         ) { pos, _ ->
-            AndroidUtils.openLink(
+            openLink(
                 context, when (pos) {
                     0 -> githubUrl
                     1 -> netdiskUrl
@@ -253,9 +270,9 @@ class VersionSettingPage(
         MainActivity.getInstance().fileLauncher.launchSingleSelection(null, listOf(".png")) {
             var path = it?.get(0) ?: return@launchSingleSelection
             val uri = path.toUri()
-            if (AndroidUtils.isDocUri(uri)) {
+            if (isDocUri(uri)) {
                 path =
-                    AndroidUtils.copyFileToDir(activity, uri, File(FCLPath.CACHE_DIR))
+                    copyFileToDir(activity, uri, File(FCLPath.CACHE_DIR))
             }
             val selectedFile = File(path)
             val iconFile = profile.repository.getVersionIconFile(versionId)
@@ -409,7 +426,7 @@ class VersionSettingPage(
 
             VersionSettingTag.VULKAN -> {
                 lastVersionSetting.isVKDriverSystem = checked
-                if (checked && AndroidUtils.isAdrenoGPU()) {
+                if (checked && isAdrenoGPU()) {
                     val builder = FCLAlertDialog.Builder(context)
                     builder.setAlertLevel(FCLAlertDialog.AlertLevel.INFO)
                     builder.setMessage(context.getString(R.string.message_vulkan_driver_system))

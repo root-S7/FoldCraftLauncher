@@ -12,7 +12,6 @@ import androidx.appcompat.widget.LinearLayoutCompat;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.game.TexturesLoader;
 import com.tungsten.fcl.setting.Accounts;
-import com.tungsten.fcl.util.AndroidUtils;
 import com.tungsten.fclcore.auth.Account;
 import com.tungsten.fclcore.fakefx.beans.property.ObjectProperty;
 import com.tungsten.fclcore.fakefx.beans.property.SimpleObjectProperty;
@@ -123,23 +122,21 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
     }
 
     private void checkAnnouncement() {
-        if(GENERAL_SETTING.getProperty("enable-announcement-component", "true").equals("true")) {
-            try {
-                String url = LocaleUtils.isChinese(getContext()) ? ANNOUNCEMENT_URL_CN : ANNOUNCEMENT_URL;
-                Task.supplyAsync(() -> HttpRequest.HttpGetRequest.GET(url).getJson(Announcement.class))
-                        .thenAcceptAsync(Schedulers.androidUIThread(), announcement -> {
-                            this.announcement = announcement;
-                            if (!announcement.shouldDisplay(getContext()))
-                                return;
-                            announcementContainer.setVisibility(View.VISIBLE);
-                            title.setText(AndroidUtils.getLocalizedText(getContext(), "announcement", announcement.getDisplayTitle(getContext())));
-                            announcementView.setText(announcement.getDisplayContent(getContext()));
-                            date.setText(AndroidUtils.getLocalizedText(getContext(), "update_date", announcement.getDate()));
-                        }).start();
-            } catch (Exception e) {
-                Logging.LOG.log(Level.WARNING, "Failed to get announcement!", e);
-            }
-        }else hideAnnouncement();
+        if(!GENERAL_SETTING.getProperty("enable-announcement-component", "true").equals("true")) return;
+        try {
+            String url = LocaleUtils.isChinese(getContext()) ? ANNOUNCEMENT_URL_CN : ANNOUNCEMENT_URL;
+            Task.supplyAsync(() -> HttpRequest.HttpGetRequest.GET(url).getJson(Announcement.class))
+                    .thenAcceptAsync(Schedulers.androidUIThread(), announcement -> {
+                        this.announcement = announcement;
+                        if (!announcement.shouldDisplay(getContext())) return;
+                        announcementContainer.setVisibility(View.VISIBLE);
+                        title.setText(getContext().getString(R.string.announcement, announcement.getDisplayTitle(getContext())));
+                        announcementView.setText(announcement.getDisplayContent(getContext()));
+                        date.setText(getContext().getString(R.string.update_date, announcement.getDate()));
+                    }).start();
+        } catch (Exception e) {
+            Logging.LOG.log(Level.WARNING, "Failed to get announcement!", e);
+        }
     }
 
     private void hideAnnouncement() {
