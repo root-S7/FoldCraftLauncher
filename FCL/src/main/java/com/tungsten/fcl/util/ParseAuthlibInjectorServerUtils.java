@@ -1,6 +1,5 @@
 package com.tungsten.fcl.util;
 
-import static com.tungsten.fcl.util.AndroidUtils.*;
 import static com.tungsten.fclauncher.utils.AssetsPath.*;
 import static com.tungsten.fclcore.util.io.IOUtils.*;
 

@@ -1,5 +1,7 @@
 package com.tungsten.fcl.setting.rule.launch;
 
+import static com.tungsten.fcl.FCLApp.getAppContext;
+
 import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.SerializedName;
@@ -53,7 +55,7 @@ public class Memory extends LaunchRule {
 
     @Override
     protected void initPlaceholders(@NonNull VersionSetting setting) {
-        this.totalMemory = (int) Math.ceil(MemoryUtils.getTotalDeviceMemory(FCLPath.CONTEXT) / 1000.0);
+        this.totalMemory = (int) Math.ceil(MemoryUtils.getTotalDeviceMemory(getAppContext()) / 1000.0);
         this.setMemory = setting.getMaxMemory();
     }
 }
