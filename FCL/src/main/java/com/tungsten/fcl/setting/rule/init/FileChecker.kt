@@ -1,7 +1,7 @@
 package com.tungsten.fcl.setting.rule.init
 
-import com.mio.CRendererManager.CRenderer_TYPE
-import com.mio.CRendererManager.CUSTOM_RENDERER_GSON
+import com.mio.manager.CRendererManager.CRenderer_TYPE
+import com.mio.manager.CRendererManager.CUSTOM_RENDERER_GSON
 import com.mio.data.Renderer
 import com.tungsten.fcl.game.*
 import com.tungsten.fcl.setting.*
@@ -13,7 +13,6 @@ import com.tungsten.fclauncher.utils.AssetsPath
 import com.tungsten.fclauncher.utils.FCLPath.*
 
 import kotlinx.coroutines.*
-import kotlin.io.path.pathString
 
 object FileChecker {
     val checkFiles: Map<InitCheckFile, FileCheckRule?> = mapOf(

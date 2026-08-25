@@ -24,7 +24,7 @@ import static com.tungsten.fclcore.util.Pair.pair;
 import android.content.Context;
 import android.os.Build;
 
-import com.mio.JavaManager;
+import com.mio.manager.JavaManager;
 import com.mio.data.Renderer;
 import com.tungsten.fclauncher.FCLConfig;
 import com.tungsten.fclauncher.FCLauncher;
@@ -65,7 +65,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
