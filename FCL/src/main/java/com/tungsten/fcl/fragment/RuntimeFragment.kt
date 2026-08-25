@@ -18,7 +18,6 @@ import com.tungsten.fcl.databinding.FragmentRuntimeBinding
 import com.tungsten.fcl.setting.Config
 import com.tungsten.fcl.setting.ConfigHolder
 import com.tungsten.fcl.setting.rule.init.FileChecker
-import com.tungsten.fcl.util.InstallResources
 import com.tungsten.fcl.util.ParseAuthlibInjectorServerUtils
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.Architecture
