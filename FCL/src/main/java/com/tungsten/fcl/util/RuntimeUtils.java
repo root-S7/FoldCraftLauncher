@@ -1,5 +1,6 @@
 package com.tungsten.fcl.util;
 
+import static com.tungsten.fclcore.util.io.FileUtils.forceDeleteQuietly;
 import static com.tungsten.fcllibrary.util.ConvertUtils.stringToLong;
 
 import android.content.Context;
@@ -65,6 +66,8 @@ public class RuntimeUtils {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void install(Context context, String targetDir, String srcDir) throws IOException {
+        forceDeleteQuietly(new File(targetDir));
+        new File(targetDir).mkdirs();
         install(context, targetDir, srcDir, null);
     }
 
@@ -164,6 +167,8 @@ public class RuntimeUtils {
                 listener.onUpdate(relative + " (" + done.incrementAndGet() + "/" + total + ")");
             }
             File outFile = new File(dest);
+            File parentDir = outFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) parentDir.mkdirs();
             InputStream is = context.getAssets().open(src);
             FileOutputStream fos = new FileOutputStream(outFile);
             byte[] buffer = new byte[1024];
