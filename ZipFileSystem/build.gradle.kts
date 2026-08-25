@@ -18,6 +18,9 @@ android {
         getByName("release") {
             isMinifyEnabled = false
         }
+        create("fordebug") {
+            initWith(getByName("debug"))
+        }
     }
 
     compileOptions {
