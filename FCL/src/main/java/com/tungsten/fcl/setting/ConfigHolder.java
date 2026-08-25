@@ -17,6 +17,7 @@
  */
 package com.tungsten.fcl.setting;
 
+import static com.tungsten.fcl.FCLApp.getAppContext;
 import static com.tungsten.fcl.setting.Config.*;
 import static com.tungsten.fclauncher.utils.FCLPath.*;
 import static com.tungsten.fclcore.util.Logging.LOG;
@@ -161,7 +162,7 @@ public final class ConfigHolder {
             if(selected != null) configurations.remove(selected);
 
 
-            String privateName = CONTEXT.getString(R.string.profile_private);
+            String privateName = getAppContext().getString(R.string.profile_private);
             Profile privateProfile = new Profile("global", new File(PRIVATE_COMMON_DIR));
             configurations.put(privateName, privateProfile);
             config.setSelectedProfile(privateName);

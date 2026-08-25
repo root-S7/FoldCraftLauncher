@@ -2,9 +2,9 @@ package com.tungsten.fcl.setting.rule.launch;
 
 import static com.mio.manager.RendererManager.RENDERER_GL4ES;
 import static com.mio.manager.RendererManager.getRendererOrNull;
-import static com.tungsten.fcl.util.AndroidUtils.getFirstOrDefault;
+import static com.mio.util.AndroidUtilKt.getFirstOrDefault;
+import static com.tungsten.fcl.FCLApp.getAppContext;
 import static com.tungsten.fcl.util.RuleCheckState.*;
-import static com.tungsten.fclauncher.utils.FCLPath.CONTEXT;
 
 import androidx.annotation.NonNull;
 
@@ -70,7 +70,7 @@ public class GLRender extends LaunchRule {
         boolean shouldContinue = Optional.of(setting)
                 .filter(s -> canDetectRule())
                 .map(s -> {
-                    RendererManager.INSTANCE.refresh(CONTEXT);
+                    RendererManager.INSTANCE.refresh(getAppContext());
                     return s;
                 })
                 .filter(s -> fChange || !isCurrentRendererValid(s))

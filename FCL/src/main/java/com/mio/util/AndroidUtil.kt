@@ -24,6 +24,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.WebActivity
 import com.tungsten.fclcore.util.Logging
+import com.tungsten.fclcore.util.StringUtils.getStringField
 import com.tungsten.fclcore.util.io.FileUtils
 import com.tungsten.fclcore.util.io.IOUtils
 import net.fornwall.jelf.ElfFile
@@ -35,6 +36,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Level
+import java.util.regex.Pattern
 import java.util.zip.ZipFile
 
 @SuppressLint("DiscouragedApi")
@@ -363,4 +365,35 @@ fun ViewPager2.disableMouseWheelScroll() {
             }
         }
     }
+}
+
+/**
+ * 从集合中获取第一个非 null 的元素。
+ *
+ * 如果集合为 null、为空或所有元素均为 null，则返回指定默认值。
+ *
+ * @param defaultValue 未找到有效元素时返回的默认值
+ */
+fun <T> Collection<T>?.getFirstOrDefault(defaultValue: T): T {
+    return this?.firstOrNull { it != null } ?: defaultValue
+}
+
+@JvmField
+val PLACEHOLDER_PATTERN: Pattern = Pattern.compile("\\$\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}")
+
+fun resolveGameDir(gameDir: String): String {
+    if(gameDir.isBlank()) return gameDir
+    val matcher = PLACEHOLDER_PATTERN.matcher(gameDir)
+    val sb = StringBuilder(gameDir.length)
+    var lastEnd = 0
+
+    while (matcher.find()) {
+        sb.append(gameDir, lastEnd, matcher.start())
+        val value = getStringField(matcher.group(1))
+        sb.append(value ?: matcher.group())
+        lastEnd = matcher.end()
+    }
+
+    sb.append(gameDir, lastEnd, gameDir.length)
+    return sb.toString()
 }

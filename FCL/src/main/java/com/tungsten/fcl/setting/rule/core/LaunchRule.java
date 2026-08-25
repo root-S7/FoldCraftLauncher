@@ -1,6 +1,6 @@
 package com.tungsten.fcl.setting.rule.core;
 
-import static com.tungsten.fcl.util.AndroidUtils.PLACEHOLDER_PATTERN;
+import static com.mio.util.AndroidUtilKt.PLACEHOLDER_PATTERN;
 import static com.tungsten.fcl.util.RuleCheckState.NO_CHANGE;
 import static com.tungsten.fcl.util.RuleCheckState.UNKNOWN;
 import static com.tungsten.fclcore.util.gson.JsonUtils.GSON;
@@ -111,7 +111,7 @@ public abstract class LaunchRule {
         Matcher matcher = PLACEHOLDER_PATTERN.matcher(content);
 
         int count = 0;
-        while(matcher.find() && count < 22) {
+        while (matcher.find() && count < 22) {
             placeholders.add(matcher.group(1));
             count++;
         }

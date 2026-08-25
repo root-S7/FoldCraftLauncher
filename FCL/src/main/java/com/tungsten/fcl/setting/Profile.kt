@@ -9,9 +9,9 @@ import com.google.gson.JsonParseException
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import com.google.gson.annotations.JsonAdapter
+import com.mio.util.resolveGameDir
 import com.tungsten.fcl.game.FCLCacheRepository
 import com.tungsten.fcl.game.FCLGameRepository
-import com.tungsten.fcl.util.AndroidUtils.resolveGameDir
 import com.tungsten.fcl.util.WeakListenerHolder
 import com.tungsten.fclcore.download.DefaultDependencyManager
 import com.tungsten.fclcore.download.DownloadProvider

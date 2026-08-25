@@ -17,7 +17,8 @@
  */
 package com.tungsten.fclcore.util.io;
 
-import static com.tungsten.fcl.FCLApplication.INSTANCE;
+import static com.tungsten.fcl.FCLApp.getAppContext;
+import static com.tungsten.fclcore.util.Lang.requireNonNullElse;
 import static com.tungsten.fclcore.util.platform.OperatingSystem.NATIVE_CHARSET;
 
 import org.glavo.chardet.DetectedCharset;
@@ -33,13 +34,9 @@ import java.security.MessageDigest;
 import java.util.zip.GZIPInputStream;
 
 import static java.nio.charset.StandardCharsets.*;
-import static java.util.Objects.requireNonNullElse;
 
 import android.content.Context;
-import android.content.res.AssetManager;
 
-import com.tungsten.fcl.FCLApplication;
-import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.DigestUtils;
 
 /**
@@ -167,7 +164,7 @@ public final class IOUtils {
         File parentDir = outFile.getParentFile();
         if(parentDir != null && !parentDir.exists()) parentDir.mkdirs();
 
-        try(InputStream inputStream = INSTANCE().getAssets().open(assetFileName); FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
+        try(InputStream inputStream = getAppContext().getAssets().open(assetFileName); FileOutputStream fileOutputStream = new FileOutputStream(outFile)) {
             copyTo(inputStream, fileOutputStream, new byte[DEFAULT_BUFFER_SIZE]);
         }
     }
@@ -207,7 +204,7 @@ public final class IOUtils {
     **/
     public static InputStream openAssets(Context context, String assPath) throws Exception {
         try {
-            return requireNonNullElse(context, INSTANCE()).getAssets().open(assPath);
+            return requireNonNullElse(context, getAppContext()).getAssets().open(assPath);
         }catch(FileNotFoundException e) {
             throw new FileNotFoundException("『" + assPath + "』文件不存在");
         }
