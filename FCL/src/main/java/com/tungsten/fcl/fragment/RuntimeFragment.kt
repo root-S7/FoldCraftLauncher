@@ -215,9 +215,9 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
             RuntimeUtils.deleteDirectory(dir, listener)
         }
 
-        for(file in FileChecker.checkFiles.keys) {
+        for(file in FileChecker.checkFiles.keys.filter { !it.outPath.isNullOrEmpty() }) {
             listener.onUpdate("Installing: ${file.assPath}")
-            RuntimeUtils.copyAssets(requireContext(), file.assPath, file.outPath, listener)
+            RuntimeUtils.copyAssets(requireContext(), file.assPath, file.outPath!!, listener)
         }
 
         val rawJson = IOUtils.readFullyAsString(IOUtils.openAssets(requireContext(), AssetsPath.LAUNCHER_CONFIG))
