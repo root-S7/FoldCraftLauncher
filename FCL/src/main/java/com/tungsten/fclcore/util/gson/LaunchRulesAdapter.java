@@ -1,4 +1,4 @@
-package com.tungsten.fcl.util.gson;
+package com.tungsten.fclcore.util.gson;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
@@ -7,7 +7,6 @@ import com.mio.data.Renderer;
 import com.tungsten.fcl.setting.rule.core.LaunchRule;
 import com.tungsten.fcl.setting.rule.launch.*;
 import com.tungsten.fclcore.game.JavaVersion;
-import com.tungsten.fclcore.util.gson.*;
 
 import java.io.IOException;
 import java.net.URL;

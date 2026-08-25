@@ -1,4 +1,4 @@
-package com.tungsten.fcl.util.gson;
+package com.tungsten.fclcore.util.gson;
 
 import static com.mio.manager.RendererManager.getRenderer;
 import static com.tungsten.fclcore.util.StringUtils.getStringValue;

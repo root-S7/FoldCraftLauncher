@@ -5,7 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.tungsten.fcl.setting.rule.core.LaunchRule
-import com.tungsten.fcl.util.gson.LaunchRulesAdapter
+import com.tungsten.fclcore.util.gson.LaunchRulesAdapter
 import com.tungsten.fclauncher.utils.AssetsPath
 import com.tungsten.fclcore.util.StringUtils.isRegexMatch
 import com.tungsten.fclcore.util.io.IOUtils
