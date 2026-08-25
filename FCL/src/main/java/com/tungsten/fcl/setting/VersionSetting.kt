@@ -27,7 +27,7 @@ import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import com.google.gson.annotations.JsonAdapter
-import com.mio.JavaManager
+import com.mio.manager.JavaManager
 import com.mio.data.Renderer
 import com.tungsten.fcl.FCLApp
 import com.tungsten.fclcore.util.Lang

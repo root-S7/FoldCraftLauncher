@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
-import com.mio.JavaManager;
+import com.mio.manager.JavaManager;
 import com.mio.manager.RendererManager;
 import com.tungsten.fcl.activity.JVMActivity;
 import com.tungsten.fcl.control.MenuType;

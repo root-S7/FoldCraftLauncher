@@ -1,4 +1,4 @@
-package com.mio
+package com.mio.manager
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

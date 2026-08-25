@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.mio.JavaManager
+import com.mio.manager.JavaManager
 import com.mio.ui.adapter.ManageJavaItemAdapter
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.MainActivity

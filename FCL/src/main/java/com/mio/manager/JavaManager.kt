@@ -1,4 +1,4 @@
-package com.mio
+package com.mio.manager
 
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.game.JavaVersion

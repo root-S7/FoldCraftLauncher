@@ -20,7 +20,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.mio.JavaManager
+import com.mio.manager.JavaManager
 import com.mio.manager.RendererManager
 import com.mio.util.ImageUtil
 import com.mio.util.getFileName
@@ -44,7 +44,6 @@ import com.tungsten.fcllibrary.component.FCLActivity
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
-import com.tungsten.fcllibrary.util.LocaleUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -52,7 +51,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
-import java.util.Locale
 import java.util.logging.Level
 import kotlin.coroutines.cancellation.CancellationException
 

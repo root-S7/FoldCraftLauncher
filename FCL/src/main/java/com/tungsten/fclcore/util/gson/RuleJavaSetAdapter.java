@@ -1,6 +1,6 @@
 package com.tungsten.fclcore.util.gson;
 
-import static com.mio.JavaManager.getJavaList;
+import static com.mio.manager.JavaManager.getJavaList;
 import static com.tungsten.fclcore.util.StringUtils.isRegexMatch;
 import static java.util.stream.StreamSupport.stream;
 

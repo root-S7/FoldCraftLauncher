@@ -2,7 +2,7 @@ package com.tungsten.fcl.game;
 
 import android.content.Context;
 
-import com.mio.JavaManager;
+import com.mio.manager.JavaManager;
 import com.mio.manager.RendererManager;
 import com.tungsten.fcl.setting.Profiles;
 import com.tungsten.fclauncher.FCLConfig;

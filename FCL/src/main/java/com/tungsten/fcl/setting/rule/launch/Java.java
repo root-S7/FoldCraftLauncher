@@ -5,7 +5,7 @@ import static com.tungsten.fcl.util.RuleCheckState.*;
 import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.*;
-import com.mio.JavaManager;
+import com.mio.manager.JavaManager;
 import com.tungsten.fcl.setting.VersionSetting;
 import com.tungsten.fcl.setting.rule.core.LaunchRule;
 import com.tungsten.fcl.util.RuleCheckState;

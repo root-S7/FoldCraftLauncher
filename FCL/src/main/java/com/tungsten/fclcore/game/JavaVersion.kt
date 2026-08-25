@@ -1,6 +1,6 @@
 package com.tungsten.fclcore.game
 
-import com.mio.JavaManager
+import com.mio.manager.JavaManager
 import com.tungsten.fclauncher.utils.FCLPath
 
 class JavaVersion(val isAuto: Boolean, val versionName: String, val name: String) {

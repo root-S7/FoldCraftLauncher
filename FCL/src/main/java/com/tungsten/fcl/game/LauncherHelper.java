@@ -39,7 +39,7 @@ import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.gson.GsonBuilder;
-import com.mio.JavaManager;
+import com.mio.manager.JavaManager;
 import com.mio.data.Renderer;
 import com.mio.manager.RendererManager;
 import com.mio.minecraft.ModCheckException;
