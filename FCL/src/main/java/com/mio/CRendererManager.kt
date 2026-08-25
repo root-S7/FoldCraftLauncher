@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.mio.data.Renderer
-import com.tungsten.fcl.FCLApplication.INSTANCE
+import com.tungsten.fcl.FCLApp.getAppContext
 import com.tungsten.fclauncher.utils.AssetsPath
 import com.tungsten.fclcore.util.gson.CustomRendererSetAdapter
 import com.tungsten.fclcore.util.io.IOUtils.openAssets
@@ -19,7 +19,7 @@ object CRendererManager {
 
     val CUSTOM_RENDERER_GSON: Gson = GsonBuilder()
         .setPrettyPrinting()
-        .registerTypeAdapter(CRenderer_TYPE, CustomRendererSetAdapter(INSTANCE().applicationInfo.nativeLibraryDir))
+        .registerTypeAdapter(CRenderer_TYPE, CustomRendererSetAdapter(getAppContext().applicationInfo.nativeLibraryDir))
         .create()
 
     @JvmStatic
