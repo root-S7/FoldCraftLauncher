@@ -74,7 +74,7 @@ class SplashActivity : FCLActivity() {
     var jna: Boolean = false
     lateinit var binding: ActivitySplashBinding
     private lateinit var sharedPreferences: SharedPreferences
-    val oldSelectedPath: String = getSelectedPath(initTempConfig()).absolutePath
+    val oldSelectedPath: String by lazy { getSelectedPath(initTempConfig()).absolutePath }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
