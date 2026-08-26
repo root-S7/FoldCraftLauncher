@@ -1,15 +1,15 @@
 {
   "tips": {
-    "color": "主要主题色 — 自定义启动器辅助色（浅色主题）",
-    "color2": "次要主题色 — 自定义启动器辅助色（浅色主题）",
-    "color2Dark": "次要主题色 — 自定义启动器辅助色（深色主题）",
+    "color": "主要主题色 — 自定义启动器辅助色（浅色主题），颜色转换链接：https://icraft.ren:90/ARGB-To-Int.html",
+    "color2": "次要主题色 — 自定义启动器辅助色（浅色主题），颜色转换链接：https://icraft.ren:90/ARGB-To-Int.html",
+    "color2Dark": "次要主题色 — 自定义启动器辅助色（深色主题），颜色转换链接：https://icraft.ren:90/ARGB-To-Int.html",
     "fullscreen": "全屏 — 忽略屏幕刘海区域，全屏显示",
     "closeSkinModel": "关闭皮肤模型阅览 — 关闭主界面皮肤模型显示",
     "animationSpeed": "动画速度 — 调整界面动画速度"
   },
-  "color": -9928536,
-  "color2": -1564632,
-  "color2Dark": -1564632,
+  "color": -8939569,
+  "color2": -12763843,
+  "color2Dark": -10526881,
   "fullscreen": true,
   "closeSkinModel": true,
   "animationSpeed": 7
