@@ -4,11 +4,17 @@ import static com.tungsten.fclcore.util.io.FileUtils.forceDeleteQuietly;
 import static com.tungsten.fcllibrary.util.ConvertUtils.stringToLong;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.system.Os;
 
 import com.tungsten.fcl.R;
+import com.tungsten.fcl.setting.Config;
+import com.tungsten.fcl.setting.ConfigHolder;
+import com.tungsten.fcl.setting.rule.core.InitCheckFile;
+import com.tungsten.fcl.setting.rule.init.FileChecker;
 import com.tungsten.fclauncher.FCLauncher;
 import com.tungsten.fclauncher.utils.Architecture;
+import com.tungsten.fclauncher.utils.AssetsPath;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.Pack200Utils;
@@ -24,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
@@ -271,5 +278,30 @@ public class RuntimeUtils {
         for(String path : paths) {
             if(path != null) deleteDirectory(new File(path), listener);
         }
+    }
+
+    public static void installConfigFiles(Context context, InstallListener listener) throws Exception {
+        List.of(new File(FCLPath.FILES_DIR), new File(FCLPath.CONFIG_DIR), context.getCacheDir(), context.getCodeCacheDir())
+                .forEach(dir -> deleteDirectory(dir, listener));
+
+        for(InitCheckFile file : FileChecker.INSTANCE.getCheckFiles().keySet()) {
+            if(file.getOutPath() != null && !file.getOutPath().isEmpty()) {
+                if(listener != null) listener.onUpdate("Installing: " + file.getAssPath());
+                copyAssets(context, file.getAssPath(), file.getOutPath(), listener);
+            }
+        }
+
+        String rawJson = IOUtils.readFullyAsString(IOUtils.openAssets(context, AssetsPath.LAUNCHER_CONFIG));
+        Config parsedConfig = ConfigHolder.validateProfile(Config.fromJson(rawJson));
+        ParseAuthlibInjectorServerUtils.parseUrlToConfig(parsedConfig);
+        ConfigHolder.writeToConfig(parsedConfig);
+    }
+
+    public static void installGameFiles(Context context, String oldSelectedPath, String srcDir, InstallListener listener) throws IOException {
+        forceDelete(listener, FCLPath.LOG_DIR, FCLPath.CONTROLLER_DIR, oldSelectedPath);
+
+        Config currentConfig = ConfigHolder.initTempConfig();
+        String targetPath = ConfigHolder.getSelectedPath(currentConfig).getAbsolutePath();
+        install(context, targetPath, srcDir, listener);
     }
 }

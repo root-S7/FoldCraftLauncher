@@ -1,7 +1,6 @@
 package com.tungsten.fcl.fragment
 
 import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -15,17 +14,11 @@ import com.tungsten.fcl.FCLApp.getAppContext
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.SplashActivity
 import com.tungsten.fcl.databinding.FragmentRuntimeBinding
-import com.tungsten.fcl.setting.Config
-import com.tungsten.fcl.setting.ConfigHolder
-import com.tungsten.fcl.setting.rule.init.FileChecker
-import com.tungsten.fcl.util.ParseAuthlibInjectorServerUtils
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.Architecture
-import com.tungsten.fclauncher.utils.AssetsPath
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclauncher.utils.FCLPath.DK_BACKGROUND_PATH
 import com.tungsten.fclauncher.utils.FCLPath.LT_BACKGROUND_PATH
-import com.tungsten.fclcore.util.io.IOUtils
 import com.tungsten.fcllibrary.component.FCLFragment
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
@@ -35,9 +28,8 @@ import com.tungsten.fcllibrary.component.view.FCLTextView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
+import androidx.core.content.edit
 
 class RuntimeFragment : FCLFragment(), View.OnClickListener {
     private lateinit var bind: FragmentRuntimeBinding
@@ -51,8 +43,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     var java17 = false
     var java21 = false
     var jna = false
-
-    private val sharedPreferences = getAppContext().getSharedPreferences("launcher", MODE_PRIVATE)
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -119,7 +109,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
     }
 
     private var installing = false
-    private val showErrDialog = AtomicBoolean(false)
 
     private fun install() {
         if (installing) return
@@ -127,18 +116,31 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
         installing = true
         bind.apply {
             installing = true
-            showErrDialog.set(false)
-            if (!configFiles) {
-                launchInstall(configState, configProgress, configDetail, {
-                    configFiles = true
-                    if (!gameFiles) launchInstall(gameFileState, gameFileProgress, gameFilesDetail, { gameFiles = true }) { listener -> installGameFilesInternal((activity as SplashActivity).oldSelectedPath, ".minecraft", sharedPreferences.edit(), listener) }
-                }) { listener ->
-                    installConfigFilesInternal(listener)
-                    ThemeEngine.getInstance().applyAndSave(requireContext(), bind.root, LT_BACKGROUND_PATH, DK_BACKGROUND_PATH)
+            if (!configFiles || !gameFiles) {
+                if (!configFiles && !gameFiles) {
+                    gameFileState.visibility = View.GONE
+                    gameFileProgress.visibility = View.VISIBLE
                 }
-            } else if (!gameFiles) {
-                launchInstall(gameFileState, gameFileProgress, gameFilesDetail, { gameFiles = true }) { listener ->
-                    installGameFilesInternal((activity as SplashActivity).oldSelectedPath, ".minecraft", sharedPreferences.edit(), listener)
+
+                launchInstall(configState, configProgress, configDetail, {
+                    if (!gameFiles) {
+                        launchInstall(gameFileState, gameFileProgress, gameFilesDetail, {
+                            getAppContext().getSharedPreferences("launcher", MODE_PRIVATE).edit {
+                                putBoolean("isFirstInstall", false)
+                            }
+                            gameFiles = true
+                        }) { listener ->
+                            RuntimeUtils.installGameFiles(requireContext(), (activity as SplashActivity).oldSelectedPath, ".minecraft", listener)
+                        }
+                    }
+                }) { listener ->
+                    if (!configFiles) {
+                        RuntimeUtils.installConfigFiles(requireContext(), listener)
+                        withContext(Dispatchers.Main) {
+                            ThemeEngine.getInstance().applyAndSave(requireContext(), bind.root, LT_BACKGROUND_PATH, DK_BACKGROUND_PATH)
+                        }
+                        configFiles = true
+                    }
                 }
             }
             if (!lwjgl) {
@@ -207,32 +209,6 @@ class RuntimeFragment : FCLFragment(), View.OnClickListener {
                 }
             }
         }
-    }
-
-    private suspend fun installConfigFilesInternal(listener: RuntimeUtils.InstallListener) = withContext(Dispatchers.IO) {
-        listOf(File(FCLPath.FILES_DIR), File(FCLPath.CONFIG_DIR), requireContext().cacheDir, requireContext().codeCacheDir).forEach { dir ->
-            RuntimeUtils.deleteDirectory(dir, listener)
-        }
-
-        for(file in FileChecker.checkFiles.keys.filter { !it.outPath.isNullOrEmpty() }) {
-            listener.onUpdate("Installing: ${file.assPath}")
-            RuntimeUtils.copyAssets(requireContext(), file.assPath, file.outPath!!, listener)
-        }
-
-        val rawJson = IOUtils.readFullyAsString(IOUtils.openAssets(requireContext(), AssetsPath.LAUNCHER_CONFIG))
-        val parsedConfig = ConfigHolder.validateProfile(Config.fromJson(rawJson))
-        ParseAuthlibInjectorServerUtils.parseUrlToConfig(parsedConfig)
-        ConfigHolder.writeToConfig(parsedConfig)
-    }
-
-    private suspend fun installGameFilesInternal(oldSelectedPath: String, srcDir: String, editor: SharedPreferences.Editor?, listener: RuntimeUtils.InstallListener) = withContext(Dispatchers.IO) {
-        RuntimeUtils.forceDelete(listener, FCLPath.LOG_DIR, FCLPath.CONTROLLER_DIR, oldSelectedPath)
-
-        val currentConfig = ConfigHolder.initTempConfig()
-        val targetPath = ConfigHolder.getSelectedPath(currentConfig).absolutePath
-        RuntimeUtils.install(requireContext(), targetPath, srcDir, listener)
-
-        editor?.putBoolean("isFirstInstall", false)?.apply()
     }
 
     private fun launchInstall(
