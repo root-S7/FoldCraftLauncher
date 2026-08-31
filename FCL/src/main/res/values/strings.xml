@@ -1342,7 +1342,7 @@
     <string name="jar_executor_warn">Note! This feature is not for installing mods. If you are installing mods, please use the launcher\'s download function or add them in "Manage Mods".</string>
 
     <!-- 原 FCLLibrary 模块字符串（模块已并入 FCL） -->
-    <string name="file_browser_provider" translatable="false">com.tungsten.fcl.provider</string>
+    <string name="file_browser_provider" translatable="false">com.tungsten.fcl.server.provider</string>
     <string name="file_browser_title">File Browser</string>
     <string name="file_browser_back">Back</string>
     <string name="file_browser_close">Exit</string>
