@@ -9,20 +9,24 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.mio.ui.adapter.ViewHolder
+import com.mio.util.LoginStageTextBinder
 import com.mio.util.copyToClipBoard
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.MainActivity
 import com.tungsten.fcl.databinding.ItemAccountBinding
 import com.tungsten.fcl.setting.Accounts
 import com.tungsten.fcl.ui.UIManager.Companion.instance
+import com.tungsten.fclcore.auth.microsoft.MicrosoftAccount
 import com.tungsten.fclcore.auth.offline.OfflineAccount
 import com.tungsten.fclcore.auth.offline.Skin
+import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.task.Schedulers
 import com.tungsten.fcllibrary.component.dialog.EditDialog
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.UUID
 
 class AccountListAdapter(
@@ -66,10 +70,28 @@ class AccountListAdapter(
         binding.refresh.setOnClickListener {
             binding.refresh.setVisibility(View.INVISIBLE)
             binding.refreshProgress.visibility = View.VISIBLE
+            // 微软账户刷新期间，副标题位置替换为实时登录阶段文字
+            val microsoft = item.account as? MicrosoftAccount
+            if (microsoft != null) {
+                val typeProperty = binding.type.stringProperty()
+                typeProperty.unbind()
+                binding.type.setVisibility(View.GONE)
+                binding.loginProgress.setVisibility(View.VISIBLE)
+                microsoft.setProgressCallback(LoginStageTextBinder(context, binding.loginProgress))
+            }
             item.refreshAsync()
                 .whenComplete(Schedulers.androidUIThread()) { ex: Exception? ->
                     binding.refresh.setVisibility(View.VISIBLE)
                     binding.refreshProgress.visibility = View.INVISIBLE
+                    if (microsoft != null) {
+                        microsoft.setProgressCallback(null)
+                        // 恢复副标题的属性绑定（bind 会自动同步当前值）
+                        val typeProperty = binding.type.stringProperty()
+                        typeProperty.unbind()
+                        typeProperty.bind(item.subtitle)
+                        binding.type.setVisibility(View.VISIBLE)
+                        binding.loginProgress.setVisibility(View.GONE)
+                    }
                     if (ex != null) {
                         val builder1 = FCLAlertDialog.Builder(context)
                         builder1.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT)
@@ -152,9 +174,12 @@ class AccountListAdapter(
                 null,
                 listOf(".png")
             ) {
-                val path = it?.get(0) ?: return@launchSingleSelection
+                val selected = it?.get(0) ?: return@launchSingleSelection
+                // 皮肤路径会持久化到 accounts.json，文件必须放在不受缓存清理影响的固定位置
+                val dest = File(FCLPath.SKIN_DIR, "${item.account.uuid}.png")
+                selected.copyTo(context, dest)
                 item.account.skin =
-                    Skin(Skin.Type.LOCAL_FILE, null, path, null)
+                    Skin(Skin.Type.LOCAL_FILE, null, dest.absolutePath, null)
                 item.refreshSkinBinding()
             }
             return@setOnLongClickListener true

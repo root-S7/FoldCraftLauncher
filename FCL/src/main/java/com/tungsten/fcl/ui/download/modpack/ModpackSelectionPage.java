@@ -1,7 +1,6 @@
 package com.tungsten.fcl.ui.download.modpack;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.View;
 import android.widget.Toast;
 
@@ -12,7 +11,6 @@ import com.tungsten.fcl.activity.MainActivity;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.ui.UIManager;
-import com.mio.util.AndroidUtilKt;
 import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.mod.server.ServerModpackManifest;
@@ -40,8 +38,8 @@ public class ModpackSelectionPage extends FCLPage implements View.OnClickListene
     private FCLLinearLayout local;
     private FCLLinearLayout remote;
 
-    public ModpackSelectionPage(Context context, int id, int resId, Profile profile, String updateVersion) {
-        super(context, id, resId);
+    public ModpackSelectionPage(Context context, int id, Profile profile, String updateVersion) {
+        super(context, id, R.layout.page_modpack_selection);
         this.profile = profile;
         this.updateVersion = updateVersion;
     }
@@ -64,16 +62,9 @@ public class ModpackSelectionPage extends FCLPage implements View.OnClickListene
         suffix.add(".rar");
         MainActivity.getInstance().fileLauncher.launchSingleSelection(null, suffix, files -> {
             if (files == null) return;
-            String path = files.get(0);
-            Uri uri = Uri.parse(path);
-            if (AndroidUtilKt.isDocUri(uri)) {
-                path = AndroidUtilKt.copyFileToDir(getActivity(), uri, new File(FCLPath.CACHE_DIR));
-            }
-            if (path == null)
-                return;
-            File selectedFile = new File(path);
+            File selectedFile = files.get(0).toFile(getActivity(), new File(FCLPath.CACHE_DIR));
             Schedulers.androidUIThread().execute(() -> {
-                LocalModpackPage page = new LocalModpackPage(getContext(), FCLPage.PAGE_ID_TEMP, R.layout.page_modpack, profile, updateVersion, selectedFile);
+                LocalModpackPage page = new LocalModpackPage(getContext(), FCLPage.PAGE_ID_TEMP, profile, updateVersion, selectedFile);
                 if (updateVersion == null) {
                     UIManager.getInstance().getDownloadUI().dismissCurrentTempPage();
                     UIManager.getInstance().getDownloadUI().showTempPage(page);
@@ -98,7 +89,7 @@ public class ModpackSelectionPage extends FCLPage implements View.OnClickListene
                         if (manifest == null) {
                             Toast.makeText(getContext(), getContext().getString(R.string.modpack_type_server_malformed), Toast.LENGTH_SHORT).show();
                         } else if (e == null) {
-                            RemoteModpackPage page = new RemoteModpackPage(getContext(), FCLPage.PAGE_ID_TEMP, R.layout.page_modpack, profile, updateVersion, manifest);
+                            RemoteModpackPage page = new RemoteModpackPage(getContext(), FCLPage.PAGE_ID_TEMP, profile, updateVersion, manifest);
                             if (updateVersion == null) {
                                 UIManager.getInstance().getDownloadUI().dismissCurrentTempPage();
                                 UIManager.getInstance().getDownloadUI().showTempPage(page);
@@ -123,7 +114,7 @@ public class ModpackSelectionPage extends FCLPage implements View.OnClickListene
                     TaskExecutor executor = new FileDownloadTask(url, modpack.toFile(), null)
                             .whenComplete(Schedulers.androidUIThread(), e -> {
                                 if (e == null) {
-                                    LocalModpackPage page = new LocalModpackPage(getContext(), FCLPage.PAGE_ID_TEMP, R.layout.page_modpack, profile, updateVersion, modpack.toFile());
+                                    LocalModpackPage page = new LocalModpackPage(getContext(), FCLPage.PAGE_ID_TEMP, profile, updateVersion, modpack.toFile());
                                     if (updateVersion == null) {
                                         UIManager.getInstance().getDownloadUI().dismissCurrentTempPage();
                                         UIManager.getInstance().getDownloadUI().showTempPage(page);

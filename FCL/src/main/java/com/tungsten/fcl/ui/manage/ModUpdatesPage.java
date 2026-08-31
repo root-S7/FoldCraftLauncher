@@ -9,6 +9,8 @@ import android.os.Environment;
 import android.view.View;
 import android.widget.ListView;
 
+import com.mio.download.DownloadManager;
+
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.util.TaskCancellationAction;
@@ -31,7 +33,6 @@ import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 import com.tungsten.fcllibrary.component.ui.FCLPage;
 import com.tungsten.fcllibrary.component.view.FCLButton;
-import com.tungsten.fcllibrary.component.view.FCLUILayout;
 
 import java.io.File;
 import java.net.URL;
@@ -56,8 +57,8 @@ public class ModUpdatesPage extends FCLPage implements View.OnClickListener {
     private FCLButton updateWithout;
     private FCLButton cancel;
 
-    public ModUpdatesPage(Context context, int id, int resId, ModListPage modListPage, ModManager modManager, List<LocalModFile.ModUpdate> list) {
-        super(context, id, resId);
+    public ModUpdatesPage(Context context, int id, ModListPage modListPage, ModManager modManager, List<LocalModFile.ModUpdate> list) {
+        super(context, id, R.layout.page_mod_update);
         this.modListPage = modListPage;
         this.modManager = modManager;
         this.objects = FXCollections.observableList(list.stream().map(it -> new ModUpdateObject(getContext(), it)).collect(Collectors.toList()));
@@ -110,8 +111,6 @@ public class ModUpdatesPage extends FCLPage implements View.OnClickListener {
                         .filter(o -> o.enabled.get())
                         .map(object -> pair(object.data.getLocalMod(), object.data.getCandidates().get(0)))
                         .collect(Collectors.toList()), keepOldVersion);
-        TaskDialog taskDialog = new TaskDialog(getContext(), TaskCancellationAction.NORMAL);
-        taskDialog.setTitle(getContext().getString(R.string.mods_check_updates_update));
         TaskExecutor executor = task.whenComplete(Schedulers.androidUIThread(), exception -> {
             UIManager.getInstance().getManageUI().dismissCurrentTempPage();
             modListPage.refresh();
@@ -134,8 +133,7 @@ public class ModUpdatesPage extends FCLPage implements View.OnClickListener {
                 builder.create().show();
             }
         }).executor();
-        taskDialog.setExecutor(executor);
-        taskDialog.show();
+        DownloadManager.submit(getContext().getString(R.string.mods_check_updates_update), task, executor);
         executor.start();
     }
 
@@ -194,9 +192,9 @@ public class ModUpdatesPage extends FCLPage implements View.OnClickListener {
 
             enabled.set(!data.getLocalMod().getModManager().isDisabled(data.getLocalMod().getFile()));
             fileName.set(data.getLocalMod().getFileName());
-            currentVersion.set(data.getCurrentVersion().getVersion());
-            targetVersion.set(data.getCandidates().get(0).getVersion());
-            switch (data.getCurrentVersion().getSelf().getType()) {
+            currentVersion.set(data.getCurrentVersion().version());
+            targetVersion.set(data.getCandidates().get(0).version());
+            switch (data.getCurrentVersion().self().getType()) {
                 case CURSEFORGE:
                     source.set(context.getString(com.tungsten.fcl.R.string.mods_curseforge));
                     break;
@@ -283,15 +281,15 @@ public class ModUpdatesPage extends FCLPage implements View.OnClickListener {
                 dependents.add(Task
                         .runAsync(Schedulers.androidUIThread(), () -> local.setOld(true))
                         .thenComposeAsync(() -> {
-                            String fileName = remote.getFile().getFilename();
+                            String fileName = remote.file().filename();
                             if (isDisabled)
                                 fileName += ModManager.DISABLED_EXTENSION;
 
                             FileDownloadTask task = new FileDownloadTask(
-                                    new URL(remote.getFile().getUrl()),
+                                    new URL(remote.file().url()),
                                     modManager.getModsDirectory().resolve(fileName).toFile());
 
-                            task.setName(remote.getName());
+                            task.setName(remote.name());
                             return task;
                         })
                         .whenComplete(Schedulers.androidUIThread(), exception -> {

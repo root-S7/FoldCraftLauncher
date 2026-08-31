@@ -87,6 +87,12 @@
     <string name="account_methods_microsoft_hint">请点击“登录”按钮，稍后将自动复制一段代码，在打开的浏览器页面中输入复制的代码并完成登录过程。</string>
     <string name="account_login_refresh">重新登录</string>
     <string name="account_login_refresh_microsoft_hint">由于账号授权无效，需要重新登录您的微软账号\n请点击“确认”按钮，稍后将自动复制一段代码，在打开的浏览器页面中输入复制的代码并完成登录过程。</string>
+    <string name="login_state_microsoft_wait_browser">等待在浏览器中完成授权…</string>
+    <string name="login_state_microsoft_xbox">正在验证 Xbox Live 账户…</string>
+    <string name="login_state_microsoft_xsts">正在获取 Xbox XSTS 令牌…</string>
+    <string name="login_state_microsoft_minecraft">正在登录 Minecraft 服务…</string>
+    <string name="login_state_microsoft_ownership">正在校验游戏所有权…</string>
+    <string name="login_state_microsoft_profile">正在获取玩家档案…</string>
     <string name="account_select_character">选择角色</string>
     <string name="account_skin">皮肤</string>
     <string name="account_skin_type_default">默认</string>
@@ -130,6 +136,7 @@
     <string name="button_cancel">取消</string>
     <string name="button_copy">复制</string>
     <string name="button_download">下载</string>
+    <string name="button_download_all">一键下载</string>
     <string name="button_export">导出</string>
     <string name="button_hide">不再显示</string>
     <string name="button_install">安装</string>
@@ -492,6 +499,7 @@
     <string name="install_installer_install_offline_extension">Forge/OptiFine 安装器</string>
     <string name="installer_running_processor">正在运行安装器（Java %s）…</string>
     <string name="installer_recent_logs">最近日志：</string>
+    <string name="installer_process_retrying">安装器进程超时，正在重试（%1$d/%2$d）…</string>
     <string name="installer_process_start_error">无法启动安装器进程</string>
     <string name="installer_process_no_exit_code">安装器进程未返回退出码，可能已异常退出</string>
     <string name="installer_process_no_response">安装器进程无响应，已强制结束</string>
@@ -614,6 +622,12 @@
     <string name="message_copy">复制成功！</string>
     <string name="message_doing">请耐心等待</string>
     <string name="message_downloading">正在下载</string>
+    <string name="mods_dependency_skipped_note">另有 %1$d 个前置模组解析失败，已跳过</string>
+    <string name="download_ready_to_install">下载完成，点击安装</string>
+    <string name="mods_already_installed">该模组已安装，无需重复下载</string>
+    <string name="mods_installed_skipped_note">%1$d 个前置模组本地已安装，已跳过</string>
+    <string name="mods_dependency_resolving">正在解析前置模组…</string>
+    <string name="download_manager">下载管理</string>
     <string name="message_error">错误</string>
     <string name="message_failed">操作失败</string>
     <string name="message_file_exist">文件已存在</string>
@@ -906,6 +920,10 @@
     <string name="settings_launcher_download_source">下载源</string>
     <string name="settings_launcher_download_source_desc">选择下载源，自动选择时按版本自动匹配</string>
     <string name="settings_launcher_download_source_auto">自动选择下载源</string>
+    <string name="settings_launcher_mod_cache">模组缓存</string>
+    <string name="settings_launcher_mod_cache_clear">清除</string>
+    <string name="settings_launcher_mod_cache_desc">清除 CurseForge / Modrinth 的查询结果缓存，清除后将重新联网获取</string>
+    <string name="settings_launcher_mod_cache_cleared">模组缓存已清除</string>
     <string name="settings_launcher_language">语言</string>
     <string name="settings_launcher_language_desc">切换启动器界面语言，部分语言需重启生效</string>
     <string name="settings_launcher_language_system">跟随系统语言</string>
@@ -918,7 +936,9 @@
     <string name="settings_launcher_theme_mode_light">亮色模式</string>
     <string name="settings_launcher_theme_mode_dark">暗色模式</string>
     <string name="settings_launcher_theme">主要主题色</string>
-    <string name="settings_launcher_theme_desc">自定义启动器主色调</string>
+    <string name="settings_launcher_theme_desc">自定义启动器主色（浅色主题）</string>
+    <string name="settings_launcher_theme_dark">主要主题色</string>
+    <string name="settings_launcher_theme_dark_desc">自定义启动器主色（深色主题）</string>
     <string name="settings_launcher_theme2">次要主题色</string>
     <string name="settings_launcher_theme2_desc">自定义启动器辅助色（浅色主题）</string>
     <string name="settings_launcher_theme2_dark">次要主题色</string>
@@ -1246,7 +1266,6 @@
     <string name="message_check_plugin">当前插件 %s 不支持该游戏版本，继续使用可能导致游戏崩溃！是否继续？</string>
     <string name="enabled">已启用</string>
     <string name="disabled">已禁用</string>
-    <string name="message_warn_restart_after_change">改动的内容将在重启后生效。</string>
     <string name="message_check_path_valid">当前选择的游戏文件路径（%s）可能包含非法字符，启动后可能会闪退，建议检查游戏目录或是重命名版本，是否继续启动？</string>
     <string name="message_check_has_modloader">检测到当前启动的游戏版本已安装模组但是似乎未安装相应的模组加载器，启动后模组可能无法运行，是否继续启动？</string>
     <string name="message_data_is_loading">数据还未加载完成，无法修改。</string>
@@ -1297,4 +1316,6 @@
     <string name="log_upload_share">分享</string>
     <string name="log_upload_share_template">我在启动器里遇到问题了，以下是日志链接：\n%s</string>
     <string name="close">关闭</string>
+    <string name="create_account_first">启动游戏前请先创建游戏账户</string>
+    <string name="version_list_refreshing">正在获取远程版本列表…</string>
 </resources>

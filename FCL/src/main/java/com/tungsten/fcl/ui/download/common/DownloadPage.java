@@ -15,7 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatDialog;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,14 +26,12 @@ import com.tungsten.fcl.game.LocalizedRemoteModRepository;
 import com.tungsten.fcl.setting.DownloadProviders;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.setting.Profiles;
-import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.ui.UIManager;
 import com.tungsten.fcl.ui.download.TranslationDialog;
-import com.tungsten.fcl.ui.manage.ManageUI;
 import com.tungsten.fcl.ui.version.Versions;
+import com.mio.download.DownloadManager;
 import com.mio.util.AndroidUtilKt;
 import com.tungsten.fcl.util.FXUtils;
-import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclcore.download.DownloadProvider;
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener;
 import com.tungsten.fclcore.fakefx.beans.property.BooleanProperty;
@@ -49,6 +46,7 @@ import com.tungsten.fclcore.fakefx.beans.property.SimpleStringProperty;
 import com.tungsten.fclcore.fakefx.beans.property.StringProperty;
 import com.tungsten.fclcore.fakefx.collections.FXCollections;
 import com.tungsten.fclcore.mod.ModLoaderType;
+import com.tungsten.fclcore.mod.ModDependenciesResolver;
 import com.tungsten.fclcore.mod.ModManager;
 import com.tungsten.fclcore.mod.RemoteMod;
 import com.tungsten.fclcore.mod.RemoteModRepository;
@@ -81,6 +79,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.stream.Collectors;
 
@@ -91,7 +90,7 @@ import kotlin.Unit;
  * 通过 {@link #switchType(int)} 切换 repository、下载回调与特有控件，
  * 各模式的搜索状态由 ViewModel 按页面 id 保存，切回时直接恢复。
  */
-public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, View.OnClickListener {
+public class DownloadPage extends FCLPage implements View.OnClickListener {
 
     private int pageId = PAGE_ID_DOWNLOAD_MOD;
     protected RemoteModRepository repository;
@@ -99,7 +98,6 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
     private final IntegerProperty pageOffset = new SimpleIntegerProperty(0);
     private final IntegerProperty pageCount = new SimpleIntegerProperty(-1);
     protected final BooleanProperty supportChinese = new SimpleBooleanProperty();
-    private final ObjectProperty<Profile.ProfileVersion> version = new SimpleObjectProperty<>();
     protected final ListProperty<String> downloadSources = new SimpleListProperty<>(this, "downloadSources", FXCollections.observableArrayList());
     protected final StringProperty downloadSource = new SimpleStringProperty();
     private final StringProperty gameVersion = new SimpleStringProperty(this, "gameVersion", "");
@@ -134,29 +132,27 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
 
     protected PageDownloadBinding binding;
     protected ModLoaderType selectedModLoader;
-    private ModManager modManager;
     private final DownloadProvider downloadProvider;
     /**
      * 搜索状态（挂 Activity 的 ViewModel，模式切换与页面重建后恢复）
      */
     protected DownloadSearchViewModel.State searchState;
     /**
-     * 下载源变化时刷新分类并重新搜索（用户手动切换源时触发）
+     * 下载源变化时重置页码、刷新分类并重新搜索（用户手动切换源时触发）
      */
-    private final InvalidationListener sourceListener = observable -> refreshCategory(true);
+    private final InvalidationListener sourceListener = observable -> {
+        pageOffset.set(0);
+        refreshCategory(true);
+    };
 
-    public DownloadPage(Context context, int resId) {
-        super(context, FCLPage.PAGE_ID_TEMP, resId);
+    public DownloadPage(Context context) {
+        super(context, FCLPage.PAGE_ID_TEMP, R.layout.page_download);
         this.downloadProvider = DownloadProviders.getDownloadProvider();
         create();
     }
 
     public int getPageId() {
         return pageId;
-    }
-
-    public ModManager getModManager() {
-        return modManager;
     }
 
     /**
@@ -187,19 +183,20 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
                 break;
         }
 
-        // 下载回调（按模式决定安装目录）
+        // 下载回调（按模式决定安装目录）：触发下载时动态取当前选中的游戏目录与版本，
+        // 避免页面存活期间切换目录后仍下载到旧目录
         switch (pageId) {
             case PAGE_ID_DOWNLOAD_MODPACK:
-                callback = (profile, version, file) -> Versions.downloadModpackImpl(getContext(), profile, file);
+                callback = file -> Versions.downloadModpackImpl(getContext(), Profiles.getSelectedProfile(), file);
                 break;
             case PAGE_ID_DOWNLOAD_MOD:
-                callback = (profile, version, file) -> download(getContext(), profile, version, file, "mods");
+                callback = file -> download(getContext(), file, "mods");
                 break;
             case PAGE_ID_DOWNLOAD_RESOURCE_PACK:
-                callback = (profile, version, file) -> download(getContext(), profile, version, file, "resourcepacks");
+                callback = file -> download(getContext(), file, "resourcepacks");
                 break;
             case PAGE_ID_DOWNLOAD_SHADER_PACK:
-                callback = (profile, version, file) -> download(getContext(), profile, version, file, "shaderpacks");
+                callback = file -> download(getContext(), file, "shaderpacks");
                 break;
             default:
                 callback = null;
@@ -359,7 +356,7 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
                     if (pageId == PAGE_ID_DOWNLOAD_MOD && selectedModLoader != null) {
                         list = (ArrayList<RemoteMod>) list.parallelStream().filter(mod -> {
                             try {
-                                return mod.getData().loadVersions(repository).flatMap(v -> v.getLoaders().stream()).collect(Collectors.toCollection(ArrayList::new)).contains(selectedModLoader);
+                                return mod.getData().loadVersions(repository).flatMap(v -> v.loaders().stream()).collect(Collectors.toCollection(ArrayList::new)).contains(selectedModLoader);
                             } catch (Throwable ignore) {
                             }
                             return true;
@@ -399,7 +396,7 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
 
     private RemoteModListAdapter createAdapter(ArrayList<RemoteMod> list) {
         return new RemoteModListAdapter(getContext(), this, list, mod -> {
-            RemoteModInfoPage page = new RemoteModInfoPage(getContext(), FCLPage.PAGE_ID_TEMP, R.layout.page_download_addon_info, this, mod, version.get(), callback);
+            RemoteModInfoPage page = new RemoteModInfoPage(getContext(), FCLPage.PAGE_ID_TEMP, this, mod, callback);
             UIManager.getInstance().getDownloadUI().showTempPage(page);
         });
     }
@@ -440,7 +437,7 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
         }
         Object self = indented.category().self();
         if (self instanceof CurseAddon.Category curseCategory) {
-            result.append(curseCategory.getName());
+            result.append(curseCategory.name());
         } else if (self instanceof ModrinthRemoteModRepository.Category modrinthCategory) {
             result.append(modrinthCategory.name());
         }
@@ -567,22 +564,22 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
         });
     }
 
-    private static void download(Context context, Profile profile, @Nullable String version, RemoteMod.Version file, String subdirectoryName) {
-        if (version == null) version = profile.getSelectedVersion();
+    /**
+     * 下载到当前选中游戏目录的指定子目录（版本未选中时落到根目录）
+     */
+    private static void download(Context context, RemoteMod.Version file, String subdirectoryName) {
+        Profile profile = Profiles.getSelectedProfile();
+        String version = profile.getSelectedVersion();
 
-        Path runDirectory = profile.getRepository().hasVersion(version) ? profile.getRepository().getRunDirectory(version).toPath() : profile.getRepository().getBaseDirectory().toPath();
+        Path runDirectory = version != null && profile.getRepository().hasVersion(version) ? profile.getRepository().getRunDirectory(version).toPath() : profile.getRepository().getBaseDirectory().toPath();
 
-        DownloadAddonDialog dialog = new DownloadAddonDialog(context, file.getFile().getFilename(), name -> {
+        DownloadAddonDialog dialog = new DownloadAddonDialog(context, file.file().filename(), name -> {
             Path dest = runDirectory.resolve(subdirectoryName).resolve(name);
 
-            TaskDialog taskDialog = new TaskDialog(context, new TaskCancellationAction(AppCompatDialog::dismiss));
-            taskDialog.setTitle(context.getString(R.string.message_downloading));
-            Schedulers.androidUIThread().execute(() -> {
-                TaskExecutor executor = Task.composeAsync(() -> {
-                    FileDownloadTask task = new FileDownloadTask(NetworkUtils.toURL(file.getFile().getUrl()), dest.toFile());
-                    task.setName(file.getName());
-                    return task;
-                }).whenComplete(Schedulers.androidUIThread(), exception -> {
+            FileDownloadTask fileTask = new FileDownloadTask(NetworkUtils.toURL(file.file().url()), dest.toFile());
+            fileTask.setName(file.name());
+            Task<Void> downloadTask = Task.composeAsync(() -> fileTask);
+            TaskExecutor executor = downloadTask.whenComplete(Schedulers.androidUIThread(), exception -> {
                     if (exception != null) {
                         if (exception instanceof CancellationException) {
                             Toast.makeText(context, context.getString(R.string.message_cancelled), Toast.LENGTH_SHORT).show();
@@ -599,20 +596,68 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
                         Toast.makeText(context, context.getString(R.string.install_success), Toast.LENGTH_SHORT).show();
                     }
                 }).executor();
-                taskDialog.setExecutor(executor);
-                taskDialog.show();
+                DownloadManager.submit(name, fileTask, executor);
                 executor.start();
-            });
         });
         dialog.show();
     }
 
-    @Override
-    public void loadVersion(Profile profile, String version) {
-        this.version.set(new Profile.ProfileVersion(profile, version));
-        if (pageId == PAGE_ID_DOWNLOAD_MOD) {
-            modManager = Profiles.getSelectedProfile().getRepository().getModManager(Profiles.getSelectedVersion());
-        }
+    /**
+     * 一键下载：后台解析该模组的全部 REQUIRED 前置闭包（含传递依赖、防循环），
+     * 解析完成后主模组与所有前置一起加入下载队列；
+     * 不弹命名对话框，直接使用原始文件名；解析失败的前置跳过并提示数量。
+     * 本地 mods 目录已安装的模组（含本体）通过当前下载源的反查接口去重跳过。
+     */
+    public static void downloadWithDependencies(Context context, Profile profile, @Nullable String version, RemoteMod.Version file, String subdirectoryName) {
+        if (version == null) version = profile.getSelectedVersion();
+        Path runDirectory = profile.getRepository().hasVersion(version) ? profile.getRepository().getRunDirectory(version).toPath() : profile.getRepository().getBaseDirectory().toPath();
+        Path modsDirectory = runDirectory.resolve(subdirectoryName);
+
+        Toast.makeText(context, context.getString(R.string.mods_dependency_resolving), Toast.LENGTH_SHORT).show();
+
+        // 前置的兼容性以所选模组版本自身的 gameVersions / loaders 为准，解析完一起入队；
+        // 本体已安装时跳过本体，前置仍会安装
+        Task.supplyAsync(() -> ModDependenciesResolver.resolve(file, modsDirectory,
+                file.self().getType().getRemoteModRepository()))
+                .whenComplete(Schedulers.androidUIThread(), (result, exception) -> {
+                    if (exception != null || result == null)
+                        return;
+                    if (!result.rootInstalled()) {
+                        submitModDownload(context, file.file().filename(), file, modsDirectory);
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.mods_already_installed), Toast.LENGTH_SHORT).show();
+                    }
+                    for (ModDependenciesResolver.ResolvedDependency dep : result.dependencies()) {
+                        submitModDownload(context, dep.version().file().filename(), dep.version(), modsDirectory);
+                    }
+                    if (result.installedSkipped() > 0) {
+                        Toast.makeText(context, context.getString(R.string.mods_installed_skipped_note, result.installedSkipped()), Toast.LENGTH_SHORT).show();
+                    }
+                    if (!result.failedTitles().isEmpty()) {
+                        Toast.makeText(context, context.getString(R.string.mods_dependency_skipped_note, result.failedTitles().size()), Toast.LENGTH_SHORT).show();
+                    }
+                }).start();
+    }
+
+    /** 提交单个模组文件到下载队列：队列标题与保存文件均使用原始文件名 */
+    private static void submitModDownload(Context context, String filename, RemoteMod.Version version, Path modsDirectory) {
+        Path dest = modsDirectory.resolve(filename);
+        FileDownloadTask fileTask = new FileDownloadTask(NetworkUtils.toURL(version.file().url()), dest.toFile(), version.file().getIntegrityCheck());
+        fileTask.setName(filename);
+        Task<Void> downloadTask = Task.composeAsync(() -> fileTask);
+        TaskExecutor executor = downloadTask.whenComplete(Schedulers.androidUIThread(), exception -> {
+            if (exception != null && !(exception instanceof CancellationException)) {
+                FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context);
+                builder.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT);
+                builder.setCancelable(false);
+                builder.setTitle(context.getString(R.string.install_failed_downloading));
+                builder.setMessage(DownloadProviders.localizeErrorMessage(context, exception));
+                builder.setNegativeButton(context.getString(com.tungsten.fcl.R.string.dialog_positive), null);
+                builder.create().show();
+            }
+        }).executor();
+        DownloadManager.submit(filename, fileTask, executor);
+        executor.start();
     }
 
     @Override
@@ -746,7 +791,7 @@ public class DownloadPage extends FCLPage implements ManageUI.VersionLoadable, V
             sourceSpinner.setSelection(1);
             downloadSource.set(sourceSpinner.getItemAtPosition(1).toString());
         }
-        RemoteModInfoPage page = new RemoteModInfoPage(getContext(), FCLPage.PAGE_ID_TEMP, R.layout.page_download_addon_info, this, mod, version.get(), callback);
+        RemoteModInfoPage page = new RemoteModInfoPage(getContext(), FCLPage.PAGE_ID_TEMP, this, mod, callback);
         UIManager.getInstance().getDownloadUI().showTempPage(page);
     }
 }

@@ -3,7 +3,6 @@ package com.tungsten.fcl.ui.manage;
 import static com.tungsten.fcl.ui.download.version.VersionInstallInfoPage.alertFailureMessage;
 
 import android.content.Context;
-import android.net.Uri;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
@@ -52,8 +51,8 @@ public class InstallerListPage extends FCLPage implements ManageUI.VersionLoadab
 
     private FCLButton installOfflineButton;
 
-    public InstallerListPage(Context context, int id, int resId) {
-        super(context, id, resId);
+    public InstallerListPage(Context context, int id) {
+        super(context, id, R.layout.page_manage_auto_install);
         create();
     }
 
@@ -108,7 +107,7 @@ public class InstallerListPage extends FCLPage implements ManageUI.VersionLoadab
                 installerItem.upgradable.set(libraryConfigurable);
                 installerItem.installable.set(true);
                 installerItem.action.set(() -> {
-                    com.tungsten.fcl.ui.download.version.InstallerListPage page = new com.tungsten.fcl.ui.download.version.InstallerListPage(getContext(), FCLPage.PAGE_ID_TEMP, R.layout.page_install_version, gameVersion, libraryId, remoteVersion -> {
+                    com.tungsten.fcl.ui.download.version.InstallerListPage page = new com.tungsten.fcl.ui.download.version.InstallerListPage(getContext(), FCLPage.PAGE_ID_TEMP, gameVersion, libraryId, remoteVersion -> {
                         if (libraryVersion == null) {
                             finish(profile, remoteVersion);
                         } else {
@@ -140,13 +139,9 @@ public class InstallerListPage extends FCLPage implements ManageUI.VersionLoadab
         suffix.add(".jar");
         MainActivity.getInstance().fileLauncher.launchSingleSelection(null, suffix, files -> {
             if (files == null) return;
-            String path = files.get(0);
-            Uri uri = Uri.parse(path);
-            if (AndroidUtilKt.isDocUri(uri)) {
-                path = AndroidUtilKt.copyFileToDir(getActivity(), uri, new File(FCLPath.CACHE_DIR));
-            }
-            if (new File(path).exists()) {
-                doInstallOffline(new File(path));
+            File file = files.get(0).toFile(getActivity(), new File(FCLPath.CACHE_DIR));
+            if (file.exists()) {
+                doInstallOffline(file);
             }
         });
     }

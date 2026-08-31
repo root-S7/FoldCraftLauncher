@@ -5,7 +5,6 @@ import android.content.Context.MODE_PRIVATE
 import android.view.View
 import android.widget.Toast
 import androidx.core.content.edit
-import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mio.ui.adapter.SpacingItemDecoration
@@ -52,9 +51,7 @@ import java.io.File
 import java.io.IOException
 import java.util.Locale
 import java.util.logging.Level
-import com.mio.util.copyFileToDir
 import com.mio.util.isAdrenoGPU
-import com.mio.util.isDocUri
 import com.mio.util.openLink
 
 /**
@@ -64,9 +61,8 @@ import com.mio.util.openLink
 class VersionSettingPage(
     context: Context?,
     id: Int,
-    resId: Int,
     private val globalSetting: Boolean
-) : FCLPage(context, id, resId), VersionLoadable, VersionSettingAdapter.Listener {
+) : FCLPage(context, id, R.layout.page_version_setting), VersionLoadable, VersionSettingAdapter.Listener {
     private lateinit var lastVersionSetting: VersionSetting
     private lateinit var profile: Profile
     private lateinit var listenerHolder: WeakListenerHolder
@@ -103,7 +99,7 @@ class VersionSettingPage(
                     val adapter = parent.adapter as? VersionSettingAdapter
                     if (adapter?.isNextInSameGroup(position) == true) groupDivider else rowSpacing
                 },
-                { ThemeEngine.getInstance().getTheme().color }
+                { ThemeEngine.getInstance().getTheme().getColor() }
             )
         )
         // 主题切换时重绘分割线颜色
@@ -269,13 +265,8 @@ class VersionSettingPage(
         if (versionId == null) return
 
         MainActivity.getInstance().fileLauncher.launchSingleSelection(null, listOf(".png")) {
-            var path = it?.get(0) ?: return@launchSingleSelection
-            val uri = path.toUri()
-            if (isDocUri(uri)) {
-                path =
-                    copyFileToDir(activity, uri, File(FCLPath.CACHE_DIR))
-            }
-            val selectedFile = File(path)
+            val selected = it?.get(0) ?: return@launchSingleSelection
+            val selectedFile = selected.toFile(activity, File(FCLPath.CACHE_DIR))
             val iconFile = profile.repository.getVersionIconFile(versionId)
             try {
                 FileUtils.copyFile(selectedFile, iconFile)

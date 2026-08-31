@@ -18,6 +18,7 @@ import com.mio.util.format
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.MainActivity
 import com.tungsten.fcl.databinding.ItemRemoteModBinding
+import com.tungsten.fcl.setting.Profiles
 import com.tungsten.fcl.ui.download.DownloadUI
 import com.tungsten.fcl.util.ModTranslations
 import com.tungsten.fclcore.mod.LocalModFile
@@ -45,24 +46,23 @@ class RemoteModListAdapter(
             ModTranslations.getTranslationsByRepositoryType(downloadPage.repository.getType())
                 .preload()
             if (downloadPage.pageId == DownloadUI.PAGE_ID_DOWNLOAD_MOD) {
-                val modManager = downloadPage.modManager
+                // 动态取当前选中的目录/版本（页面存活期间可能被切换）
+                val modManager = Profiles.getSelectedProfile().repository
+                    .getModManager(Profiles.getSelectedVersion())
                 val modFiles = runCatching {
                     modManager.getMods().parallelStream().collect(Collectors.toList())
                 }.getOrNull() ?: emptyList<LocalModFile>()
                 for (localModFile in modFiles) {
                     try {
-                        val size = localModFile.file.toFile().length()
-                        if (size > 104857600) continue
                         val remoteVersionOptional = downloadPage.getRepository()
                             .getRemoteVersionByLocalFile(localModFile, localModFile.file)
                         remoteVersionOptional.ifPresent {
                             localModFile.remoteVersion = it
                         }
                         localModFile.remoteVersion?.let {
-                            modIdList.add(it.modid)
+                            modIdList.add(it.modid())
                         }
                     } catch (e: Throwable) {
-                        System.gc()
                         Logging.LOG.log(Level.SEVERE, e.toString())
                     }
                 }

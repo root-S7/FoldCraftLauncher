@@ -27,6 +27,7 @@ import com.tungsten.fclcore.download.DownloadProvider;
 import com.tungsten.fclcore.mod.LocalModFile;
 import com.tungsten.fclcore.mod.ModLoaderType;
 import com.tungsten.fclcore.mod.RemoteMod;
+import com.tungsten.fclcore.mod.RemoteModCache;
 import com.tungsten.fclcore.mod.RemoteModRepository;
 import com.tungsten.fclcore.util.DigestUtils;
 import com.tungsten.fclcore.util.Lang;
@@ -38,6 +39,7 @@ import com.tungsten.fclcore.util.io.ResponseCodeException;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -72,20 +74,13 @@ public final class ModrinthRemoteModRepository implements RemoteModRepository {
     }
 
     private static String convertSortType(SortType sortType) {
-        switch (sortType) {
-            case DATE_CREATED:
-                return "newest";
-            case POPULARITY:
-            case NAME:
-            case AUTHOR:
-                return "relevance";
-            case LAST_UPDATED:
-                return "updated";
-            case TOTAL_DOWNLOADS:
-                return "downloads";
-            default:
-                throw new IllegalArgumentException("Unsupported sort type " + sortType);
-        }
+        return switch (sortType) {
+            case DATE_CREATED -> "newest";
+            case POPULARITY, NAME, AUTHOR -> "relevance";
+            case LAST_UPDATED -> "updated";
+            case TOTAL_DOWNLOADS -> "downloads";
+            default -> throw new IllegalArgumentException("Unsupported sort type " + sortType);
+        };
     }
 
     @Override
@@ -134,24 +129,34 @@ public final class ModrinthRemoteModRepository implements RemoteModRepository {
     public Optional<RemoteMod.Version> getRemoteVersionByLocalFile(LocalModFile localModFile, Path file) throws IOException {
         String sha1 = DigestUtils.digestToString("SHA-1", file);
 
-        try {
-            ProjectVersion mod = HttpRequest.GET(PREFIX + "/v2/version_file/" + sha1,
-                            pair("algorithm", "sha1"))
-                    .getJson(ProjectVersion.class);
-            return mod.toVersion();
-        } catch (ResponseCodeException e) {
-            if (e.getResponseCode() == 404) {
-                return Optional.empty();
-            } else {
-                throw e;
-            }
-        }
+        LOG.info("Matching file " + file.getFileName() + " (sha1: " + sha1 + ") via " + PREFIX + "/v2/version_file/" + sha1);
+        // SHA-1 按文件内容寻址，命中结果与负结果（404 未命中）均永久缓存
+        ProjectVersion mod = RemoteModCache.getOrFetch("mr:sha1:" + sha1, RemoteModCache.TTL_PERMANENT,
+                ProjectVersion.class, () -> {
+                    try {
+                        return HttpRequest.GET(PREFIX + "/v2/version_file/" + sha1,
+                                        pair("algorithm", "sha1"))
+                                .getJson(ProjectVersion.class);
+                    } catch (ResponseCodeException e) {
+                        if (e.getResponseCode() == 404) {
+                            return null;
+                        } else {
+                            throw e;
+                        }
+                    } catch (FileNotFoundException e) {
+                        // HttpGetRequest 不检查状态码，404/410 直接从 getInputStream 抛出，
+                        // 必须归为负缓存，否则每次扫描都会重复白查
+                        return null;
+                    }
+                });
+        return mod == null ? Optional.empty() : mod.toVersion();
     }
 
     @Override
     public RemoteMod getModById(String id) throws IOException {
-        id = StringUtils.removePrefix(id, "local-");
-        Project project = HttpRequest.GET(PREFIX + "/v2/project/" + id).getJson(Project.class);
+        String modId = StringUtils.removePrefix(id, "local-");
+        Project project = RemoteModCache.getOrFetch("mr:mod:" + modId, RemoteModCache.TTL_DETAIL,
+                Project.class, () -> HttpRequest.GET(PREFIX + "/v2/project/" + modId).getJson(Project.class));
         return project.toMod();
     }
 
@@ -162,16 +167,27 @@ public final class ModrinthRemoteModRepository implements RemoteModRepository {
 
     @Override
     public Stream<RemoteMod.Version> getRemoteVersionsById(String id) throws IOException {
-        id = StringUtils.removePrefix(id, "local-");
-        List<ProjectVersion> versions = HttpRequest.GET(PREFIX + "/v2/project/" + id + "/version")
-                .getJson(new TypeToken<List<ProjectVersion>>() {
-                }.getType());
+        String modId = StringUtils.removePrefix(id, "local-");
+        List<ProjectVersion> versions = RemoteModCache.getOrFetch("mr:ver:" + modId, RemoteModCache.TTL_VERSIONS,
+                JsonUtils.listTypeOf(ProjectVersion.class).getType(),
+                () -> {
+                    List<ProjectVersion> list = HttpRequest.GET(PREFIX + "/v2/project/" + modId + "/version")
+                            .getJson(new TypeToken<List<ProjectVersion>>() {
+                            }.getType());
+                    return list;
+                });
         return versions.stream().map(ProjectVersion::toVersion).flatMap(Lang::toStream);
     }
 
     public List<Category> getCategoriesImpl() throws IOException {
-        List<Category> categories = HttpRequest.GET(PREFIX + "/v2/tag/category").getJson(new TypeToken<List<Category>>() {
-        }.getType());
+        List<Category> categories = RemoteModCache.getOrFetch("mr:cat:" + projectType, RemoteModCache.TTL_CATEGORIES,
+                JsonUtils.listTypeOf(Category.class).getType(),
+                () -> {
+                    List<Category> list = HttpRequest.GET(PREFIX + "/v2/tag/category")
+                            .getJson(new TypeToken<List<Category>>() {
+                            }.getType());
+                    return list;
+                });
         return categories.stream().filter(category -> category.projectType().equals(projectType)).collect(Collectors.toList());
     }
 
@@ -226,7 +242,7 @@ public final class ModrinthRemoteModRepository implements RemoteModRepository {
         @Override
         public List<RemoteMod> loadDependencies(RemoteModRepository modRepository) throws IOException {
             Set<RemoteMod.Dependency> dependencies = modRepository.getRemoteVersionsById(id())
-                    .flatMap(version -> version.getDependencies().stream())
+                    .flatMap(version -> version.dependencies().stream())
                     .collect(Collectors.toSet());
             List<RemoteMod> mods = new ArrayList<>();
             for (RemoteMod.Dependency dependency : dependencies) {
@@ -449,7 +465,7 @@ public final class ModrinthRemoteModRepository implements RemoteModRepository {
         @Override
         public List<RemoteMod> loadDependencies(RemoteModRepository modRepository) throws IOException {
             Set<RemoteMod.Dependency> dependencies = modRepository.getRemoteVersionsById(projectId())
-                    .flatMap(version -> version.getDependencies().stream())
+                    .flatMap(version -> version.dependencies().stream())
                     .collect(Collectors.toSet());
             List<RemoteMod> mods = new ArrayList<>();
             for (RemoteMod.Dependency dependency : dependencies) {

@@ -96,6 +96,12 @@
     <string name="account_methods_microsoft_hint">Vui lòng nhấp vào nút "Đăng nhập", một đoạn mã sẽ được tự động sao chép sau đó, nhập mã vào trình duyệt đã mở để hoàn tất quá trình đăng nhập.</string>
     <string name="account_login_refresh">Đăng nhập lại</string>
     <string name="account_login_refresh_microsoft_hint">Vì ủy quyền tài khoản không hợp lệ, bạn cần thêm lại tài khoản Microsoft của mình.\nVui lòng nhấp vào nút "OK", một đoạn mã sẽ được tự động sao chép sau đó, nhập mã vào trình duyệt đã mở để hoàn tất quá trình đăng nhập.</string>
+    <string name="login_state_microsoft_wait_browser">Đang chờ ủy quyền trên trình duyệt…</string>
+    <string name="login_state_microsoft_xbox">Đang xác thực với Xbox Live…</string>
+    <string name="login_state_microsoft_xsts">Đang lấy mã thông báo XSTS của Xbox…</string>
+    <string name="login_state_microsoft_minecraft">Đang đăng nhập vào dịch vụ Minecraft…</string>
+    <string name="login_state_microsoft_ownership">Đang xác minh quyền sở hữu trò chơi…</string>
+    <string name="login_state_microsoft_profile">Đang tải hồ sơ người chơi…</string>
     <string name="account_select_character">Chọn nhân vật</string>
     <string name="account_skin">Skin</string>
     <string name="account_skin_type_default">Mặc định</string>
@@ -123,6 +129,7 @@
     <string name="button_cancel">Hủy</string>
     <string name="button_copy">Sao chép</string>
     <string name="button_download">Tải xuống</string>
+    <string name="button_download_all">Tải tất cả</string>
     <string name="button_export">Xuất</string>
     <string name="button_hide">Ẩn</string>
     <string name="button_install">Cài đặt</string>
@@ -591,6 +598,12 @@
     <string name="message_copy">Sao chép thành công!</string>
     <string name="message_doing">Vui lòng đợi</string>
     <string name="message_downloading">Đang tải xuống</string>
+    <string name="mods_dependency_skipped_note">%1$d phụ thuộc không thể phân giải và đã bị bỏ qua</string>
+    <string name="download_ready_to_install">Đã tải · chạm để cài đặt</string>
+    <string name="mods_already_installed">Mod đã được cài đặt</string>
+    <string name="mods_installed_skipped_note">%1$d phụ thuộc đã cài đặt và bị bỏ qua</string>
+    <string name="mods_dependency_resolving">Đang phân giải phụ thuộc bắt buộc…</string>
+    <string name="download_manager">Quản lý tải xuống</string>
     <string name="message_error">Lỗi</string>
     <string name="message_failed">Thao tác thất bại</string>
     <string name="message_file_exist">Tệp đã tồn tại</string>
@@ -864,6 +877,10 @@
     <string name="settings_launcher_download_threads_auto">Tự động Xác định</string>
     <string name="settings_launcher_download_source">Nguồn Tải xuống</string>
     <string name="settings_launcher_download_source_auto">Tự động Chọn Máy nhân bản Tải xuống</string>
+    <string name="settings_launcher_mod_cache">Bộ nhớ đệm mod</string>
+    <string name="settings_launcher_mod_cache_clear">Xóa</string>
+    <string name="settings_launcher_mod_cache_desc">Xóa kết quả truy vấn CurseForge / Modrinth đã lưu trong bộ nhớ đệm.</string>
+    <string name="settings_launcher_mod_cache_cleared">Đã xóa bộ nhớ đệm mod</string>
     <string name="settings_launcher_language">Ngôn ngữ</string>
     <string name="settings_launcher_language_system">Sử dụng Ngôn ngữ Hệ thống</string>
     <string name="settings_launcher_language_english" translatable="false">English</string>
@@ -882,6 +899,8 @@
     <string name="settings_launcher_theme_mode_light">Chế độ Sáng</string>
     <string name="settings_launcher_theme_mode_dark">Chế độ Tối</string>
     <string name="settings_launcher_theme">Màu Giao diện Chính</string>
+    <string name="settings_launcher_theme_dark">Màu Giao diện Chính (Chế độ Tối)</string>
+    <string name="settings_launcher_theme_dark_desc">Tùy chỉnh màu chính của giao diện (chế độ tối).</string>
     <string name="settings_launcher_theme2">Màu Giao diện Phụ (Chế độ Sáng)</string>
     <string name="settings_launcher_theme2_dark">Màu Giao diện Phụ (Chế độ Tối)</string>
     <string name="settings_launcher_theme_fetch_background">Trích xuất từ ảnh nền</string>
@@ -1179,7 +1198,6 @@
     <string name="message_check_plugin">Plugin hiện tại %s không hỗ trợ phiên bản trò chơi này. Tiếp tục sử dụng nó có thể khiến trò chơi bị sự cố! Bạn có muốn tiếp tục không?</string>
     <string name="enabled">Đã bật</string>
     <string name="disabled">Đã tắt</string>
-    <string name="message_warn_restart_after_change">Các thay đổi sẽ có hiệu lực sau khi khởi động lại.</string>
     <string name="message_check_path_valid">Đường dẫn tệp trò chơi đã chọn hiện tại (%s) có thể chứa các ký tự không hợp lệ, có thể khiến trò chơi bị sự cố khi khởi chạy. Bạn nên kiểm tra thư mục trò chơi hoặc đổi tên phiên bản. Bạn có muốn tiếp tục khởi chạy không?</string>
     <string name="message_check_has_modloader">Đã phát hiện phiên bản trò chơi đang khởi chạy có cài đặt mods, nhưng có vẻ như trình tải mod tương ứng chưa được cài đặt. Các mods có thể không hoạt động bình thường sau khi khởi chạy. Bạn có muốn tiếp tục khởi chạy không?</string>
     <string name="message_data_is_loading">Dữ liệu vẫn đang tải và không thể sửa đổi.</string>
@@ -1187,4 +1205,6 @@
     <string name="slide_selection">Lựa chọn Trượt</string>
     <string name="swap_hands">Nhấp đúp để Đổi Tay</string>
     <string name="jar_executor_warn">Lưu ý! Tính năng này không dành cho việc cài đặt mods. Nếu bạn đang cài đặt mods, vui lòng sử dụng chức năng tải xuống của trình khởi chạy hoặc thêm chúng trong "Quản lý Mods".</string>
+    <string name="create_account_first">Vui lòng tạo tài khoản trò chơi trước khi khởi động</string>
+    <string name="version_list_refreshing">Đang lấy danh sách phiên bản từ xa…</string>
 </resources>

@@ -78,6 +78,12 @@
     <string name="account_methods_microsoft_hint">Натисніть «Увійти», код автоматично скопіюється. Вставте його в браузері.</string>
     <string name="account_login_refresh">Повторний вхід</string>
     <string name="account_login_refresh_microsoft_hint">"Оскільки авторизація облікового запису недійсна, вам потрібно повторно додати свій обліковий запис Microsoft. \nНатисніть кнопку «ОК», вставте код у браузері, щоб завершити процес входу."</string>
+    <string name="login_state_microsoft_wait_browser">Очікування авторизації у браузері…</string>
+    <string name="login_state_microsoft_xbox">Виконується вхід до Xbox Live…</string>
+    <string name="login_state_microsoft_xsts">Отримання токена XSTS Xbox…</string>
+    <string name="login_state_microsoft_minecraft">Виконується вхід до служб Minecraft…</string>
+    <string name="login_state_microsoft_ownership">Перевірка права власності на гру…</string>
+    <string name="login_state_microsoft_profile">Отримання профілю гравця…</string>
     <string name="account_select_character">Виберіть персонажа</string>
     <string name="account_skin">Скін</string>
     <string name="account_skin_type_default">За замовчуванням</string>
@@ -102,6 +108,7 @@
     <string name="button_cancel">Скасувати</string>
     <string name="button_copy">Копіювати</string>
     <string name="button_download">Завантажити</string>
+    <string name="button_download_all">Завантажити все</string>
     <string name="button_export">Експортувати</string>
     <string name="button_hide">Приховати</string>
     <string name="button_install">Встановити</string>
@@ -484,6 +491,12 @@
     <string name="message_copy">Успішно скопійовано!</string>
     <string name="message_doing">Зачекайте</string>
     <string name="message_downloading">Завантаження</string>
+    <string name="mods_dependency_skipped_note">%1$d залежностей не вдалося розв\'язати, їх пропущено</string>
+    <string name="download_ready_to_install">Завантажено · натисніть для встановлення</string>
+    <string name="mods_already_installed">Мод вже встановлено</string>
+    <string name="mods_installed_skipped_note">%1$d залежностей вже встановлено, їх пропущено</string>
+    <string name="mods_dependency_resolving">Вирішення обов\'язкових залежностей…</string>
+    <string name="download_manager">Менеджер завантажень</string>
     <string name="message_error">Помилка</string>
     <string name="message_failed">Операція не вдалася</string>
     <string name="message_file_exist">Файл уже існує</string>
@@ -674,12 +687,18 @@
     <string name="settings_launcher_download_threads_auto">Автоматично визначати</string>
     <string name="settings_launcher_download_source">Джерело</string>
     <string name="settings_launcher_download_source_auto">Автоматичний вибір дзеркала завантаження</string>
+    <string name="settings_launcher_mod_cache">Кеш модів</string>
+    <string name="settings_launcher_mod_cache_clear">Очистити</string>
+    <string name="settings_launcher_mod_cache_desc">Очистити кешовані результати запитів CurseForge / Modrinth.</string>
+    <string name="settings_launcher_mod_cache_cleared">Кеш модів очищено</string>
     <string name="settings_launcher_language">Мова</string>
     <string name="settings_launcher_language_system">Системна</string>
     <string name="settings_launcher_launcher_log_export">Експортувати</string>
     <string name="settings_launcher_launcher_log_export_failed">Неможливо експортувати журнали</string>
     <string name="settings_launcher_launcher_log_export_success">Журнали експортовано в %s</string>
     <string name="settings_launcher_theme">Основний колір теми</string>
+    <string name="settings_launcher_theme_dark">Основний колір теми (темна)</string>
+    <string name="settings_launcher_theme_dark_desc">Налаштування основного кольору теми (темна тема).</string>
     <string name="settings_launcher_theme2">Додатковий колір теми</string>
     <string name="settings_launcher_theme_fetch_background">Колір фону</string>
     <string name="settings_launcher_background_lt">Фон у світлій темі (макс. 5120x5120)</string>
@@ -914,4 +933,6 @@
     <string name="log_upload_share">Поділитися посиланням</string>
     <string name="log_upload_share_template">Я зіткнувся з проблемою в лаунчері, ось посилання на журнал:\n%s</string>
     <string name="close">Закрити</string>
+    <string name="create_account_first">Створіть ігровий акаунт перед запуском гри</string>
+    <string name="version_list_refreshing">Отримання списку віддалених версій…</string>
 </resources>

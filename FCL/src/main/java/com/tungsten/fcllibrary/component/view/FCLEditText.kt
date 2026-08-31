@@ -40,7 +40,6 @@ class FCLEditText @JvmOverloads constructor(
             }
         }
         addTextWatcher()
-        setOnClickListener { }
         ThemeEngine.registerEvent(this) { refreshTheme() }
     }
 
@@ -51,12 +50,12 @@ class FCLEditText @JvmOverloads constructor(
             intArrayOf()
         )
         val color = intArrayOf(
-            ThemeEngine.getTheme().color,
+            ThemeEngine.getTheme().getColor(),
             ThemeEngine.getTheme().dkColor
         )
         setBackgroundTintList(ColorStateList(state, color))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            textCursorDrawable?.setTint(ThemeEngine.getTheme().color)
+            textCursorDrawable?.setTint(ThemeEngine.getTheme().getColor())
         }
         if (autoTint) {
             setTextColor(ThemeEngine.getTheme().autoTint)

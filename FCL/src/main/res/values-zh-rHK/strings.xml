@@ -12,7 +12,6 @@
     <string name="splash_loading_java">正在初始化 Java 執行環境…</string>
     <string name="splash_loading_config">正在加載配置同版本列表…</string>
     <string name="splash_loading_cache">正在清理快取…</string>
-
     <string name="splash_title">歡迎使用 Fold Craft Launcher</string>
     <string name="splash_eula_error">無法獲取用戶協議，請檢查網絡。</string>
     <string name="splash_eula_next">同意並繼續</string>
@@ -80,6 +79,12 @@
     <string name="account_methods_microsoft_hint">請點擊「登錄」按鈕，稍後會自動複製一段代碼，喺打開嘅瀏覽器頁面中輸入複製嘅代碼並完成登錄過程。</string>
     <string name="account_login_refresh">重新登錄</string>
     <string name="account_login_refresh_microsoft_hint">由於賬號授權無效，需要重新登錄你嘅微軟賬號\n請點擊「確認」按鈕，稍後會自動複製一段代碼，喺打開嘅瀏覽器頁面中輸入複製嘅代碼並完成登錄過程。</string>
+    <string name="login_state_microsoft_wait_browser">等待在瀏覽器完成授權…</string>
+    <string name="login_state_microsoft_xbox">正在驗證 Xbox Live 帳戶…</string>
+    <string name="login_state_microsoft_xsts">正在取得 Xbox XSTS 憑證…</string>
+    <string name="login_state_microsoft_minecraft">正在登入 Minecraft 服務…</string>
+    <string name="login_state_microsoft_ownership">正在驗證遊戲所有權…</string>
+    <string name="login_state_microsoft_profile">正在獲取玩家檔案…</string>
     <string name="account_select_character">選擇角色</string>
     <string name="account_skin">皮膚</string>
     <string name="account_skin_type_default">默認</string>
@@ -104,6 +109,7 @@
     <string name="button_cancel">取消</string>
     <string name="button_copy">複製</string>
     <string name="button_download">下載</string>
+    <string name="button_download_all">一鍵下載</string>
     <string name="button_export">導出</string>
     <string name="button_hide">不再顯示</string>
     <string name="button_install">安裝</string>
@@ -429,6 +435,7 @@
     <string name="install_installer_install_offline_extension">Forge/OptiFine 安裝器</string>
     <string name="installer_running_processor">正在運行安裝器（Java %s）…</string>
     <string name="installer_recent_logs">最近日誌：</string>
+    <string name="installer_process_retrying">安裝器進程超時，正在重試（%1$d/%2$d）…</string>
     <string name="installer_process_start_error">無法啟動安裝器進程</string>
     <string name="installer_process_no_exit_code">安裝器進程未返回退出碼，可能已經異常退出</string>
     <string name="installer_process_no_response">安裝器進程無回應，已強制結束</string>
@@ -538,6 +545,12 @@
     <string name="message_copy">複製成功！</string>
     <string name="message_doing">請耐心等待</string>
     <string name="message_downloading">正在下載</string>
+    <string name="mods_dependency_skipped_note">另有 %1$d 個前置模組解析失敗，已跳過</string>
+    <string name="download_ready_to_install">下載完成，點擊安裝</string>
+    <string name="mods_already_installed">該模組已安裝，無需重複下載</string>
+    <string name="mods_installed_skipped_note">%1$d 個前置模組本地已安裝，已跳過</string>
+    <string name="mods_dependency_resolving">正在解析前置模組…</string>
+    <string name="download_manager">下載管理</string>
     <string name="message_error">錯誤</string>
     <string name="message_failed">操作失敗</string>
     <string name="message_file_exist">文件已存在</string>
@@ -784,12 +797,18 @@
     <string name="settings_launcher_download_threads_auto">自動選擇併發數</string>
     <string name="settings_launcher_download_source">下載源</string>
     <string name="settings_launcher_download_source_auto">自動選擇下載源</string>
+    <string name="settings_launcher_mod_cache">模組快取</string>
+    <string name="settings_launcher_mod_cache_clear">清除</string>
+    <string name="settings_launcher_mod_cache_desc">清除 CurseForge / Modrinth 的查詢結果快取，清除後將重新連線獲取</string>
+    <string name="settings_launcher_mod_cache_cleared">模組快取已清除</string>
     <string name="settings_launcher_language">語言</string>
     <string name="settings_launcher_language_system">跟隨系統語言</string>
     <string name="settings_launcher_launcher_log_export">導出啟動器日誌</string>
     <string name="settings_launcher_launcher_log_export_failed">無法導出日誌</string>
     <string name="settings_launcher_launcher_log_export_success">日誌已被導出至 %s</string>
     <string name="settings_launcher_theme">主要主題色</string>
+    <string name="settings_launcher_theme_dark">主要主題色</string>
+    <string name="settings_launcher_theme_dark_desc">自訂啟動器主色（深色主題）</string>
     <string name="settings_launcher_theme2">次要主題色</string>
     <string name="settings_launcher_theme_fetch_background">從背景圖片提取</string>
     <string name="settings_launcher_background_lt">亮色模式啟動器背景圖片(最大分辨率5120x5120)</string>
@@ -1036,4 +1055,12 @@
     <string name="log_upload_share">分享連結</string>
     <string name="log_upload_share_template">我喺啟動器入面遇到咗問題，呢度係日誌連結：\n%s</string>
     <string name="close">關閉</string>
+    <string name="create_account_first">啟動遊戲前請先建立遊戲帳戶</string>
+    <string name="message_check_has_modloader">檢測到當前推出的遊戲版本安裝了mods，但似乎沒有安裝相應的mod加載器。 啟動後，模組可能無法正常運行。 您想繼續啟動嗎？</string>
+    <string name="message_data_is_loading">數據仍在加載中，無法修改。</string>
+    <string name="exception_no_suitable_java">找不到合適的Java！</string>
+    <string name="slide_selection">幻燈片選擇</string>
+    <string name="swap_hands">按兩下交換手</string>
+    <string name="jar_executor_warn">注意！ 此功能不適用於安裝模組。如果您正在安裝模組，請使用啟動器的下載功能或將其添加到管理模組中。</string>
+    <string name="version_list_refreshing">正在獲取遠程版本列表…</string>
 </resources>

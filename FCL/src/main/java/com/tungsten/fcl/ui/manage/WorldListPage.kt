@@ -3,7 +3,6 @@ package com.tungsten.fcl.ui.manage
 import android.content.Context
 import android.view.View
 import android.widget.Toast
-import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mio.util.showErrorDialog
@@ -40,11 +39,9 @@ import java.util.logging.Level
 import java.util.stream.Collectors
 import kotlin.coroutines.resume
 import kotlin.io.path.pathString
-import com.mio.util.copyFileToDir
 import com.mio.util.getLocalizedText
-import com.mio.util.isDocUri
 
-class WorldListPage(context: Context?, id: Int, resId: Int) : FCLPage(context, id, resId), VersionLoadable, View.OnClickListener {
+class WorldListPage(context: Context?, id: Int) : FCLPage(context, id, R.layout.page_manage_world), VersionLoadable, View.OnClickListener {
     private val itemsProperty: ListProperty<WorldListItem> =
         SimpleListProperty(FXCollections.observableArrayList())
 
@@ -175,14 +172,8 @@ class WorldListPage(context: Context?, id: Int, resId: Int) : FCLPage(context, i
 
     fun add() {
         MainActivity.getInstance().fileLauncher.launchSingleSelection(null, listOf(".zip")) {
-            var path = it?.get(0) ?: return@launchSingleSelection
-            val uri = path.toUri()
-            if (isDocUri(uri)) {
-                path =
-                    copyFileToDir(activity, uri, File(FCLPath.CACHE_DIR))
-            }
-            val file = File(path)
-            installWorld(file)
+            val selected = it?.get(0) ?: return@launchSingleSelection
+            installWorld(selected.toFile(activity, File(FCLPath.CACHE_DIR)))
         }
     }
 
