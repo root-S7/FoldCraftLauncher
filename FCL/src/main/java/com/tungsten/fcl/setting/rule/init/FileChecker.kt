@@ -30,7 +30,7 @@ object FileChecker {
         InitCheckFile(AssetsPath.CUSTOM_RENDERER) to jsonRule<MutableSet<Renderer>>(CRenderer_TYPE, CUSTOM_RENDERER_GSON),
         InitCheckFile(AssetsPath.THEME) to themeRule(), // 特殊：不需要释放到对应目录，而是让它通过ThemeEngine的Flow更新就行
         InitCheckFile(AssetsPath.MENU, "${FILES_DIR}/menu_setting.json") to jsonRule(MenuSetting::class.java),
-        InitCheckFile(AssetsPath.DEF_CONTROL, "${CONTROLLER_DIR}/00000000.json") to jsonRule(Controller::class.java)
+        InitCheckFile(AssetsPath.DEF_CONTROL, "${CONTROLLER_DIR}/00000000.json") to jsonRule(Controller::class.java, Controller.GSON)
     )
 
     suspend fun checkFiles(): Boolean = withContext(Dispatchers.IO) {

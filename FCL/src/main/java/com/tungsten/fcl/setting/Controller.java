@@ -215,7 +215,7 @@ public class Controller implements Cloneable, Observable {
     /**
      * 完整反序列化用（与 saveToDisk 相同的配置；Controller 各嵌套类自带 @JsonAdapter）。
      */
-    static final Gson GSON = new GsonBuilder()
+    public static final Gson GSON = new GsonBuilder()
             .registerTypeAdapterFactory(new JavaFxPropertyTypeAdapterFactory(true, true))
             .setPrettyPrinting()
             .create();
