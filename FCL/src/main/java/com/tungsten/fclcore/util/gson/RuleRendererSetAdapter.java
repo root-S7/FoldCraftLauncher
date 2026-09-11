@@ -62,7 +62,7 @@ public class RuleRendererSetAdapter implements JsonSerializer<LinkedHashSet<Rend
                 .filter(o -> name != null && !name.trim().isEmpty())
                 .filter(o -> packageName != null && !packageName.trim().isEmpty())
                 .filter(this::isValidCustomJson)
-                .map(o -> new Renderer(name, "", "", "", "", null, null, packageName, "", ""))
+                .map(o -> new Renderer(name, "", "", "", "", null, null, packageName, "", "", "", "", ""))
                 .orElse(null);
     }
 

@@ -90,37 +90,53 @@ object RendererPlugin : AbstractPlugin<Renderer>() {
         }
     }
 
-    private fun parseV1(app: PluginManager.PluginApp, metaData: Bundle) {
-        val rendererString = metaData.getString("renderer") ?: return
-        val des = metaData.getString("des") ?: return
-        val boatEnvString = metaData.getString("boatEnv") ?: return
-        val pojavEnvString = metaData.getString("pojavEnv") ?: return
+    @JvmStatic
+    fun parseAndCollect(apps: Iterable<PluginManager.PluginApp>): Set<Renderer> { // 给自定义渲染器适配器专用得方法
+        val rendererSet = mutableSetOf<Renderer>()
+        for(app in apps) {
+            val metaData = app.appInfo.metaData ?: continue
+            val renderer = when {
+                metaData.containsKey(PluginManager.META_PLUGIN_V2) -> parseV2(app, metaData, false)
+                metaData.getBoolean(PluginManager.META_PLUGIN, false) -> parseV1(app, metaData, false)
+                else -> null
+            }
+            renderer?.let { rendererSet.add(it) }
+        }
+        return rendererSet
+    }
+
+    private fun parseV1(app: PluginManager.PluginApp, metaData: Bundle, add: Boolean = true): Renderer? {
+        val rendererString = metaData.getString("renderer") ?: return null
+        val des = metaData.getString("des") ?: return null
+        val boatEnvString = metaData.getString("boatEnv") ?: return null
+        val pojavEnvString = metaData.getString("pojavEnv") ?: return null
         val nativeLibraryDir = app.appInfo.nativeLibraryDir
         val renderer = rendererString.split(":")
         val boatEnv = boatEnvString.split(":")
         val pojavEnv = pojavEnvString.split(":")
         val minMCVer = metaData.safeGetString("minMCVer") ?: ""
         val maxMCVer = metaData.safeGetString("maxMCVer") ?: ""
-        addRenderer(
-            Renderer(
-                renderer[0],
-                des,
-                renderer[1],
-                renderer[2],
-                nativeLibraryDir,
-                boatEnv,
-                pojavEnv,
-                app.packageName,
-                minMCVer,
-                maxMCVer,
-                source = app.label
-            )
+
+        val rendererObj = Renderer(
+            renderer[0],
+            des,
+            renderer[1],
+            renderer[2],
+            nativeLibraryDir,
+            boatEnv,
+            pojavEnv,
+            app.packageName,
+            minMCVer,
+            maxMCVer,
+            source = app.label
         )
+        if(add) addRenderer(rendererObj)
+        return rendererObj
     }
 
-    private fun parseV2(app: PluginManager.PluginApp, metaData: Bundle) {
+    private fun parseV2(app: PluginManager.PluginApp, metaData: Bundle, add: Boolean = true): Renderer? {
         val configResId = metaData.getInt(PluginManager.META_PLUGIN_V2)
-        if (configResId == 0) return
+        if (configResId == 0) return null
         val entry = runCatching {
             val pm = FCLApp.getAppContext().packageManager
             val resources = pm.getResourcesForApplication(app.appInfo)
@@ -139,9 +155,11 @@ object RendererPlugin : AbstractPlugin<Renderer>() {
                 }
             }
             V2Entry(config, app.appInfo.nativeLibraryDir, titles, app.label)
-        }.getOrNull() ?: return
+        }.getOrNull() ?: return null
         v2Entries[app.packageName] = entry
-        addRenderer(buildV2Renderer(app.packageName, entry))
+        val rendererObj = buildV2Renderer(app.packageName, entry)
+        if(add) addRenderer(rendererObj)
+        return rendererObj
     }
 
     /** 按当前用户配置把 v2 配置转成 v1 语义的 Renderer（path 非空分支） */
