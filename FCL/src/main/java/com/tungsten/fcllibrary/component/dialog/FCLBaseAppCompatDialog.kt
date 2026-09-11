@@ -15,11 +15,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
 import com.tungsten.fcl.R
 
-/**
- * 对AppCompatDialog的一个封装，默认采用非全屏的主题
- * 注意，如果cancelOnTouchOutside和cancelOnBackPressed均设置的是1
- * 那么在style中务必要设置android:windowIsFloating为false，否则会造成状态栏和导航栏视觉上奇怪问题
- */
 abstract class FCLBaseAppCompatDialog<VB : ViewBinding> protected constructor(
     context: Context,
     themeResId: Int = R.style.Dialog_Default,
@@ -154,8 +149,7 @@ abstract class FCLBaseAppCompatDialog<VB : ViewBinding> protected constructor(
         private fun resolveThemeResId(): Int {
             if(themeResId != 0) return themeResId
 
-            val isFullScreen = widthPercent == 1f && heightPercent == 1f
-            return if (isFullScreen) R.style.Dialog_Full_Default else R.style.Dialog_Default
+            return R.style.Dialog_Default
         }
     }
 }
