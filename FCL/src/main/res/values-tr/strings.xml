@@ -9,10 +9,6 @@
     <string name="splash_permission_settings">Ayarlar</string>
     <string name="splash_permission_settings_msg">Asla İzin Verme seçeneğini seçtiniz. Lütfen depolama izinlerini ayarlardan manuel olarak verin.</string>
     <string name="notification_permission">FCL, oyunun normal kurulumu veya başlatılmasıyla ilgili sorunları önlemek için bildirim gönderme iznine ihtiyaç duyar.</string>
-    <string name="splash_loading_renderer">Renderer başlatılıyor...</string>
-    <string name="splash_loading_java">Java runtime (çalışma zamanı) başlatılıyor...</string>
-    <string name="splash_loading_config">Ayarlar ve versiyon yükleniyor...</string>
-    <string name="splash_loading_cache">Bellek temizleniyor...</string>
     <string name="splash_title">Fold Craft Launcher\'a hoş geldin</string>
     <string name="splash_eula_error">EULA alınamıyor, lütfen internet bağlantınızı kontrol edin.</string>
     <string name="splash_eula_next">Kabul et ve Devam et</string>
@@ -190,6 +186,7 @@
     <string name="control_converting">Dönüştürülüyor…</string>
     <string name="control_convert_failed">Dönüştürme başarısız oldu!</string>
     <string name="control_convert_unsupported">Bu cihazda ZL2 dönüştürmesi desteklenmiyor (arm64 gerekli)</string>
+    <string name="control_import_zl2_converted">ZalithLauncher2 düzeni algılandı ve otomatik dönüştürülerek içe aktarıldı</string>
     <string name="control_upload">Kontrolcü Yükle</string>
     <string name="curse_category_0">Hepsi</string>
     <string name="curse_category_4474">Bilim Kurgu</string>
@@ -263,4 +260,17 @@
     <string name="curse_category_404">Animasyon</string>
     <string name="curse_category_4465">Mod Desteği</string>
     <string name="curse_category_402">Ortaçağ</string>
+    <string name="renderer_source">Kaynak:</string>
+    <string name="renderer_source_builtin">Yerleşik</string>
+    <string name="animation_select">Animasyon seç</string>
+    <string name="animation_idle">Bekleme</string>
+    <string name="animation_idle_variant_1">Bekleme 1</string>
+    <string name="animation_idle_variant_2">Bekleme 2</string>
+    <string name="animation_idle_variant_3">Bekleme 3</string>
+    <string name="menu_controls_edit_hint">Seçmek için dokunun, taşımak için sürükleyin, boyutlandırmak için köşe tutamaklarını sürükleyin</string>
+    <string name="edit_button_event_swipable">Kaydırma Zinciri</string>
+    <string name="edit_direction_event_dead_zone">Ölü Bölge</string>
+    <string name="edit_direction_event_can_lock">İleri Kilidi</string>
+    <string name="edit_direction_event_lock_threshold">Kilit Eşiği</string>
+    <string name="menu_settings_controls_opacity">Kontrol Opaklığı</string>
 </resources>

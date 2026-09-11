@@ -6,11 +6,6 @@
     <string name="splash_permission_close">Launcher schließen</string>
     <string name="splash_permission_settings">Einstellungen</string>
     <string name="splash_permission_settings_msg">Sie haben „Verweigern“ gewählt. Bitte gewähren Sie den Speicherzugriff manuell in den Einstellungen.</string>
-    <string name="splash_loading_renderer">Renderer wird initialisiert...</string>
-    <string name="splash_loading_java">Java-Laufzeit wird initialisiert...</string>
-    <string name="splash_loading_config">Konfiguration und Versionen werden geladen...</string>
-    <string name="splash_loading_cache">Cache wird bereinigt...</string>
-
     <string name="splash_title">Willkommen bei Fold Craft Launcher</string>
     <string name="splash_eula_error">Die Lizenz konnte aufgrund von Verbindungsproblemen nicht überprüft werden.</string>
     <string name="splash_eula_next">Akzeptieren und fortfahren</string>
@@ -26,6 +21,21 @@
     <string name="multiplayer">Multiplayer</string>
     <string name="setting">Einstellungen</string>
     <string name="about">Über den Launcher</string>
+    <string name="settings_plugin">Plugins</string>
+    <string name="plugin_empty">Keine Plugins gefunden</string>
+    <string name="plugin_type_renderer">Renderer</string>
+    <string name="plugin_type_driver">Treiber</string>
+    <string name="plugin_type_native">Native Bibliothek</string>
+    <string name="plugin_enable">Aktivieren</string>
+    <string name="plugin_uninstall">Deinstallieren</string>
+    <string name="plugin_miolibpatcher_desc">JVM-Bytecode-Patch zur Behebung von Mod-Kompatibilitätsproblemen unter Android</string>
+    <string name="plugin_miolibpatcher_alc10">ALC10-Patch</string>
+    <string name="plugin_miolibpatcher_alc10_desc">Ersetzt alcGetCurrentContext zur Behebung des Tonproblems in Mite (1.6.4)</string>
+    <string name="plugin_miolibpatcher_sable">Sable-Rapier-Patch</string>
+    <string name="plugin_miolibpatcher_sable_desc">Standardmäßig aktiviert (keine Eigenschaft gesetzt); Deaktivieren erzwingt die Deaktivierung des Rapier-Patchs</string>
+    <string name="plugin_miolibpatcher_asm">ASM-Hintertür</string>
+    <string name="plugin_miolibpatcher_asm_desc">Entfernt die ASM-5.0.4-Prüfung für Kompatibilität mit älteren Mods wie AE1 (betrifft alle ASM-5.0.4-Mods, mit Vorsicht verwenden)</string>
+    <string name="plugin_env_config">Konfigurieren</string>
     <string name="about_sponsor">Sponsoren</string>
     <string name="about_source">Quellcode</string>
     <string name="about_desc">Fold Craft Launcher ist ein Launcher, um Minecraft: Java Edition auf Android-Geräten zu starten.\n\nFold Craft Launcher wurde vom FCL-Team entwickelt.\n\nDie meisten Funktionen von Fold Craft Launcher basieren auf HMCLCore. Der Launcher verwendet und zitiert Teile des Codes von PojavLauncher und Boat. Wenn Sie diesen Launcher verbreiten möchten, halten Sie sich bitte an die GPL-v3-Lizenz.</string>
@@ -47,7 +57,7 @@
     <string name="account_injector_server">Authentifizierungsserver</string>
     <string name="account_login">Anmelden</string>
     <string name="account_methods_offline">Offline-Konto</string>
-    <string name="account_methods_offline_name_invalid">"Benutzername (bis zu 16 Zeichen) darf nur lateinische Buchstaben, Zahlen und Unterstriche enthalten. \nBeispiele für gültige Namen: Llerey, Tungsten, Tungsten123; \nBeispiele für ungültige Namen: Exam ple, Exam-a%%%, Tungsten_hello_world_hello_world. Wenn ein Mod auf dem Server diese Einschränkungen aufhebt, können Sie diese Warnung ignorieren."</string>
+    <string name="account_methods_offline_name_invalid">Benutzername (bis zu 16 Zeichen) darf nur lateinische Buchstaben, Zahlen und Unterstriche enthalten. \nBeispiele für gültige Namen: Llerey, Tungsten, Tungsten123; \nBeispiele für ungültige Namen: Exam ple, Exam-a%%%, Tungsten_hello_world_hello_world. Wenn ein Mod auf dem Server diese Einschränkungen aufhebt, können Sie diese Warnung ignorieren.</string>
     <string name="account_methods_yggdrasil">Mojang-Konto</string>
     <string name="account_methods_authlib_injector">Externes Konto</string>
     <string name="account_methods_microsoft">Microsoft-Konto</string>
@@ -72,12 +82,12 @@
     <string name="account_methods_microsoft_error_missing_xbox_account">Mit Ihrem Microsoft-Konto ist noch kein Xbox-Konto verknüpft. Erstellen Sie eines, bevor Sie fortfahren.</string>
     <string name="account_methods_microsoft_error_unknown">Anmeldung fehlgeschlagen.</string>
     <string name="account_methods_microsoft_error_wrong_verify_method">Melden Sie sich mit der E-Mail-Adresse und dem Passwort Ihres Microsoft-Kontos an. Bestätigungscodes werden nicht unterstützt.</string>
-    <string name="account_methods_microsoft_error_no_character">"Ihr Konto besitzt keine Minecraft Java Edition.\nMöglicherweise wurde kein Spielprofil erstellt."</string>
+    <string name="account_methods_microsoft_error_no_character">Ihr Konto besitzt keine Minecraft Java Edition.\nMöglicherweise wurde kein Spielprofil erstellt.</string>
     <string name="account_methods_microsoft_error_add_family_probably">Überprüfen Sie, ob in den Einstellungen Ihres Kontos ein Alter von 18 Jahren angegeben ist. Falls nicht und Sie glauben, dass dies ein Fehler ist, ändern Sie es auf der Microsoft-Konto-Website.</string>
     <string name="account_methods_microsoft_close_page">Die Authentifizierung des Microsoft-Kontos ist abgeschlossen.</string>
     <string name="account_methods_microsoft_hint">Klicken Sie auf „Anmelden“, der Code wird automatisch kopiert. Fügen Sie ihn im Browser ein.</string>
     <string name="account_login_refresh">Erneut anmelden</string>
-    <string name="account_login_refresh_microsoft_hint">"Da die Kontoauthentifizierung ungültig ist, müssen Sie Ihr Microsoft-Konto erneut hinzufügen.\nKlicken Sie auf „OK“, fügen Sie den Code im Browser ein, um den Anmeldevorgang abzuschließen."</string>
+    <string name="account_login_refresh_microsoft_hint">Da die Kontoauthentifizierung ungültig ist, müssen Sie Ihr Microsoft-Konto erneut hinzufügen.\nKlicken Sie auf „OK“, fügen Sie den Code im Browser ein, um den Anmeldevorgang abzuschließen.</string>
     <string name="login_state_microsoft_wait_browser">Warten auf Autorisierung im Browser …</string>
     <string name="login_state_microsoft_xbox">Authentifizierung mit Xbox Live …</string>
     <string name="login_state_microsoft_xsts">Xbox-XSTS-Token wird abgerufen …</string>
@@ -140,7 +150,7 @@
     <string name="control_edit">Bearbeiten</string>
     <string name="control_import">Importieren</string>
     <string name="control_import_failed">Importfehler</string>
-    <string name="control_upgrade">"Controller: %s ist veraltet und kann Fehler verursachen, wird aber weiterhin unterstützt. \nMöchten Sie ihn auf die neue Version übertragen?"</string>
+    <string name="control_upgrade">Controller: %s ist veraltet und kann Fehler verursachen, wird aber weiterhin unterstützt. \nMöchten Sie ihn auf die neue Version übertragen?</string>
     <string name="control_incompatible">Controller %s ist inkompatibel. Dies kann durch eine zu niedrige Version des Launchers oder Controllers verursacht werden.</string>
     <string name="control_upload_requirement">Treten Sie zuerst der QQ-Gruppe bei, klicken Sie dann auf „Teilen“, um den Controller und seine Informationen mit dem Administrator zu teilen, und warten Sie auf die Überprüfung. Kontaktieren Sie den Administrator, um die Kategorie Ihres Controllers mitzuteilen.</string>
     <string name="control_info_author">Autor:</string>
@@ -262,6 +272,7 @@
     <string name="edit_button_text">Schaltflächentext</string>
     <string name="edit_button_event_follow">Berührung durchlassen</string>
     <string name="edit_button_event_movable">Bewegliche Schaltfläche</string>
+    <string name="edit_button_event_swipable">Wisch-Verknüpfung</string>
     <string name="edit_button_event_press">Drücken</string>
     <string name="edit_button_event_long_press">Langes Drücken</string>
     <string name="edit_button_event_click">Klicken</string>
@@ -285,6 +296,9 @@
     <string name="edit_direction_event_left">Linke Schaltfläche</string>
     <string name="edit_direction_event_right">Rechte Schaltfläche</string>
     <string name="edit_direction_event_follow">Stick</string>
+    <string name="edit_direction_event_dead_zone">Toter Bereich</string>
+    <string name="edit_direction_event_can_lock">Vorwärts-Arretierung</string>
+    <string name="edit_direction_event_lock_threshold">Arretierungsschwelle</string>
     <string name="edit_direction_event_follow_fix">Fest</string>
     <string name="edit_direction_event_follow_center">Halb-dynamisch</string>
     <string name="edit_direction_event_follow_always">Dynamisch</string>
@@ -412,6 +426,7 @@
     <string name="menu_controls_current">Aktuelle Steuerung</string>
     <string name="menu_controls_edit_mode">Bearbeitungsmodus</string>
     <string name="menu_controls_show_boundary">Schaltflächengrenzen anzeigen</string>
+    <string name="menu_controls_edit_hint">Zum Auswählen tippen, zum Verschieben ziehen, zum Skalieren die Eckgriffe ziehen</string>
     <string name="menu_controls_hide_all">Alle Elemente ausblenden</string>
     <string name="menu_controls_auto_fit">Automatische Positionierung</string>
     <string name="menu_controls_auto_fit_dist">Automatischer Abstand zur Position</string>
@@ -549,7 +564,7 @@
     <string name="modpack_wizard_step_3_title">Wählen Sie den Typ des Modpacks, das Sie exportieren möchten.</string>
     <string name="modpack_wizard_step_initialization_exported_version">Spielversion für den Export</string>
     <string name="modpack_wizard_step_initialization_force_update">Modpack auf die neueste Version zwingen (erfordert einen Filehoster)</string>
-    <string name="modpack_wizard_step_initialization_warning">"Stellen Sie vor der Erstellung eines Modpacks sicher, dass das Spiel stabil läuft und es sich um eine stabile Version handelt, nicht um einen Snapshot.\n\nBitte beachten Sie, dass Sie keine Mods und Ressourcenpakete einbinden dürfen, die ausdrücklich als nicht für die Verbreitung oder Einbindung in Modpacks gekennzeichnet sind."</string>
+    <string name="modpack_wizard_step_initialization_warning">Stellen Sie vor der Erstellung eines Modpacks sicher, dass das Spiel stabil läuft und es sich um eine stabile Version handelt, nicht um einen Snapshot.\n\nBitte beachten Sie, dass Sie keine Mods und Ressourcenpakete einbinden dürfen, die ausdrücklich als nicht für die Verbreitung oder Einbindung in Modpacks gekennzeichnet sind.</string>
     <string name="modrinth_category_adventure">Abenteuer</string>
     <string name="modrinth_category_challenging">Herausfordernd</string>
     <string name="modrinth_category_combat">Kampf</string>
@@ -616,8 +631,8 @@
     <string name="mods_url">Offizielle Seite</string>
     <string name="mods_update_modpack_mod_warning">Das Aktualisieren von Mods in einem Modpack kann zu irreparablen Schäden führen, möglicherweise wird das Modpack beschädigt und kann nicht mehr gestartet werden. Sind Sie sicher, dass Sie aktualisieren möchten?</string>
     <string name="mods_screenshot_no_result">Keine Screenshots verfügbar</string>
-    <string name="profile_shared">"Mit Ordner teilen \n(Gerätespeicher)"</string>
-    <string name="profile_private">"Privater Ordner \n(Spielspeicher)"</string>
+    <string name="profile_shared">Mit Ordner teilen \n(Gerätespeicher)</string>
+    <string name="profile_private">Privater Ordner \n(Spielspeicher)</string>
     <string name="profile_name">Name</string>
     <string name="profile_path">Pfad</string>
     <string name="profile_select">Ordner auswählen</string>
@@ -647,9 +662,8 @@
     <string name="settings_fcl_controller">Controller</string>
     <string name="settings_fcl_vulkan_driver_system">System-Vulkan-Treiber verwenden</string>
     <string name="settings_fcl_renderer">OpenGL-Implementierung (Renderer)</string>
-    <string name="settings_fcl_pojav_bigcore">Leistungskerne für Rendering erzwingen</string>
-    <string name="settings_fcl_renderer_vgpu">VGPU (OpenGL 2.1+, nur 1.17-)</string>
-    <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, nur für GPU a616-a660)</string>
+    <string name="settings_fcl_renderer_vgpu">VGPU (OpenGL 2.1+)</string>
+    <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, nur für adreno616-660)</string>
     <string name="settings_fcl_driver">Vulkan-Treiber</string>
     <string name="settings_download_netdisk">Netdisk(Qıtayda qullanğanlar içün tevsiye etile)</string>
     <string name="settings_game">Spieleinstellungen</string>
@@ -838,7 +852,7 @@
     <string name="install_apk">Launcher installieren</string>
     <string name="modpack_download_warn_title">Warnung</string>
     <string name="modpack_download_warn_msg">Die meisten Modpacks sind für PC entwickelt, daher sind Abstürze möglich. Der Launcher-Entwickler übernimmt keine Verantwortung für die Modpack-Kompatibilität.</string>
-    <string name="guide_theme2">Falls der Text rechts unscharf angezeigt wird, klicken Sie hier, dann "Launcher-Einstellungen" und wählen Sie "Zusätzliche Theme-Farbe"</string>
+    <string name="guide_theme2">Falls der Text rechts unscharf angezeigt wird, klicken Sie hier, dann Launcher-Einstellungen und wählen Sie Zusätzliche Theme-Farbe</string>
     <string name="guide_share_log">Hier drücken und halten, um das Spiel-Log (latest_game.log) zu teilen.</string>
     <string name="joystick_l">Linker Stick</string>
     <string name="gamepad_dpad">D-Pad</string>
@@ -870,7 +884,7 @@
     <string name="launch">Starten</string>
     <string name="tip_hide_menu_view">Menü ist ausgeblendet. Drücken Sie die Lautstärketaste, um das Menü zu öffnen.</string>
     <string name="modloader">Mod-Loader</string>
-    <string name="message_warn_renderer_global_setting">Die von Ihnen gewählte Version hat separate Einstellungen für jedes Profil, daher kann der hier angegebene Renderer nicht auf die aktuelle Version angewendet werden. Es wird empfohlen, die "Starten"-Taste lange zu drücken, um den Renderer auszuwählen.</string>
+    <string name="message_warn_renderer_global_setting">Die von Ihnen gewählte Version hat separate Einstellungen für jedes Profil, daher kann der hier angegebene Renderer nicht auf die aktuelle Version angewendet werden. Es wird empfohlen, die Starten-Taste lange zu drücken, um den Renderer auszuwählen.</string>
     <!-- 原 FCLLibrary 模块字符串（模块已并入 FCL） -->
     <string name="file_browser_title">Datei-Browser</string>
     <string name="file_browser_back">Zurück</string>
@@ -914,9 +928,16 @@
     <string name="log_upload_share">Link teilen</string>
     <string name="log_upload_share_template">Ich habe ein Problem mit dem Launcher, hier ist der Log-Link:\n%s</string>
     <string name="close">Schließen</string>
-
     <string name="menu_settings_item_bar_scale_width">Hotbar-Skalierung (Breite)</string>
     <string name="menu_settings_item_bar_scale_height">Hotbar-Skalierung (Höhe)</string>
+    <string name="menu_settings_controls_opacity">Deckkraft der Tasten</string>
     <string name="create_account_first">Bitte erstelle ein Spielkonto, bevor du das Spiel startest</string>
     <string name="version_list_refreshing">Remote-Versionsliste wird abgerufen…</string>
+    <string name="renderer_source">Quelle:</string>
+    <string name="renderer_source_builtin">Integriert</string>
+    <string name="animation_select">Animation wählen</string>
+    <string name="animation_idle">Stillstehen</string>
+    <string name="animation_idle_variant_1">Stillstehen 1</string>
+    <string name="animation_idle_variant_2">Stillstehen 2</string>
+    <string name="animation_idle_variant_3">Stillstehen 3</string>
 </resources>

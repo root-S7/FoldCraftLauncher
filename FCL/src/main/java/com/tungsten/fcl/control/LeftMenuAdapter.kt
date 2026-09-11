@@ -5,8 +5,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.ItemMenuButtonBinding
@@ -15,13 +13,14 @@ import com.tungsten.fcl.databinding.ItemMenuSpinnerBinding
 import com.tungsten.fcl.databinding.ItemMenuSwitchBinding
 import com.tungsten.fcl.setting.Controllers
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener
+import com.tungsten.fcllibrary.component.view.FCLSpinner
 import com.tungsten.fcllibrary.component.view.FCLTextView
 
 /** 左菜单条目标签，交互回调按此分发 */
 enum class LeftMenuTag {
-    EDIT_MODE, SHOW_BOUNDARY, HIDE_ALL, AUTO_FIT, AUTO_FIT_DIST,
-    CURRENT_CONTROLLER, CURRENT_VIEW_GROUP,
-    MANAGE_VIEW_GROUPS, ADD_BUTTON, ADD_DIRECTION, MANAGE_BUTTON_STYLE, MANAGE_DIRECTION_STYLE
+    EDIT_MODE, SHOW_BOUNDARY, CONTROLS_OPACITY, HIDE_ALL, AUTO_FIT, AUTO_FIT_DIST,
+    CURRENT_CONTROLLER,
+    ADD_BUTTON, ADD_DIRECTION, MANAGE_BUTTON_STYLE, MANAGE_DIRECTION_STYLE
 }
 
 /**
@@ -47,6 +46,8 @@ class LeftMenuAdapter(
     private val typeSpinner = 2
     private val typeSeekBar = 3
 
+    private val density = context.resources.displayMetrics.density
+
     private var rows: List<Row> = emptyList()
 
     @SuppressLint("NotifyDataSetChanged")
@@ -58,8 +59,6 @@ class LeftMenuAdapter(
     private fun buildRows(): List<Row> {
         val controllers = Controllers.getControllers()
         val currentController = gameMenu.controller
-        val currentViewGroup = gameMenu.viewGroup
-        val viewGroups = currentController?.viewGroups() ?: emptyList()
         var rows = listOf(
             Row.SpinnerRow(
                 R.string.menu_controls_current,
@@ -69,6 +68,8 @@ class LeftMenuAdapter(
             ),
             Row.SwitchRow(R.string.menu_controls_edit_mode, { gameMenu.isEditMode }, LeftMenuTag.EDIT_MODE),
             Row.SwitchRow(R.string.menu_controls_show_boundary, { gameMenu.isShowViewBoundaries }, LeftMenuTag.SHOW_BOUNDARY),
+            Row.SeekBarRow(R.string.menu_settings_controls_opacity, 100, 10,
+                { gameMenu.menuSetting.controlsOpacity }, LeftMenuTag.CONTROLS_OPACITY, "%"),
             Row.SwitchRow(R.string.menu_controls_hide_all, { gameMenu.isHideAllViews }, LeftMenuTag.HIDE_ALL),
             Row.SwitchRow(R.string.menu_controls_auto_fit, { gameMenu.menuSetting.isAutoFit }, LeftMenuTag.AUTO_FIT),
             Row.SeekBarRow(R.string.menu_controls_auto_fit_dist, 10, 0,
@@ -76,13 +77,6 @@ class LeftMenuAdapter(
         )
         if (gameMenu.isEditMode) {
             rows = rows + listOf(
-                Row.SpinnerRow(
-                    R.string.menu_controls_current_view_group,
-                    viewGroups.map { it.name },
-                    currentViewGroup?.let { viewGroups.indexOf(it).coerceAtLeast(0) } ?: 0,
-                    LeftMenuTag.CURRENT_VIEW_GROUP
-                ),
-                Row.ButtonRow(R.string.menu_controls_groups, listOf(R.string.menu_controls_manage to LeftMenuTag.MANAGE_VIEW_GROUPS)),
                 Row.ButtonRow(R.string.menu_controls_add_button, listOf(R.string.menu_controls_add_view_button to LeftMenuTag.ADD_BUTTON)),
                 Row.ButtonRow(R.string.menu_controls_add_direction, listOf(R.string.menu_controls_add_view_button to LeftMenuTag.ADD_DIRECTION)),
                 Row.ButtonRow(R.string.menu_controls_button_style, listOf(R.string.menu_controls_manage to LeftMenuTag.MANAGE_BUTTON_STYLE)),
@@ -148,8 +142,8 @@ class LeftMenuAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val row = rows[position]
-        // 菜单条目背景透明，露出抽屉背景
-        holder.itemView.setBackground(null)
+        // 条目卡片背景与右菜单一致：半透明深色，暗色下仅微亮避免刺眼
+        holder.itemView.background = menuCardBackground(density)
         holder.itemView.findViewById<FCLTextView>(R.id.description)?.visibility = View.GONE
         when (row) {
             is Row.SwitchRow -> bindSwitch(holder, row)
@@ -172,11 +166,7 @@ class LeftMenuAdapter(
     private fun bindButton(holder: Holder, row: Row.ButtonRow) {
         val binding = ItemMenuButtonBinding.bind(holder.itemView)
         binding.label.text = context.getString(row.labelRes)
-        listOf(
-            Triple(binding.button1, 0, LeftMenuTag.MANAGE_VIEW_GROUPS),
-            Triple(binding.button2, 1, LeftMenuTag.MANAGE_VIEW_GROUPS),
-            Triple(binding.button3, 2, LeftMenuTag.MANAGE_VIEW_GROUPS)
-        ).forEach { (button, index, _) ->
+        listOf(binding.button1 to 0, binding.button2 to 1, binding.button3 to 2).forEach { (button, index) ->
             if (index < row.buttons.size) {
                 val (textRes, tag) = row.buttons[index]
                 button.text = context.getString(textRes)
@@ -192,21 +182,13 @@ class LeftMenuAdapter(
     private fun bindSpinner(holder: Holder, row: Row.SpinnerRow) {
         val binding = ItemMenuSpinnerBinding.bind(holder.itemView)
         binding.label.text = context.getString(row.labelRes)
-        val adapter = ArrayAdapter(context, R.layout.item_spinner_small, row.data)
-        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown_small)
-        binding.spinner.onItemSelectedListener = null
-        binding.spinner.adapter = adapter
-        binding.spinner.setSelection(row.selection)
-        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                listener.onSpinnerSelect(row.tag, position)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-        // 视图组尚未选中时（如切换控制器后）主动选中当前项，与原 refreshViewGroupList 的默认选中行为一致
-        if (row.tag == LeftMenuTag.CURRENT_VIEW_GROUP && gameMenu.viewGroup == null && row.data.isNotEmpty()) {
-            listener.onSpinnerSelect(row.tag, binding.spinner.selectedItemPosition)
+        // ViewBinding 对布局中的泛型控件生成 raw 类型，条目实际为 String
+        @Suppress("UNCHECKED_CAST")
+        val spinner = binding.spinner as FCLSpinner<String>
+        spinner.setItems(row.data)
+        spinner.setSelection(row.selection)
+        spinner.setOnItemSelectedListener { position, _ ->
+            listener.onSpinnerSelect(row.tag, position)
         }
     }
 

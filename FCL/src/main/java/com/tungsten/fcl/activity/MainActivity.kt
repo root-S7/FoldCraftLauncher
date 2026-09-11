@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.BounceInterpolator
 import android.view.animation.OvershootInterpolator
-import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,7 +27,6 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import androidx.core.content.edit
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.forEach
@@ -37,8 +35,8 @@ import androidx.core.view.postDelayed
 import androidx.lifecycle.lifecycleScope
 import com.mio.download.DownloadManager
 import com.mio.manager.RendererManager
+import com.mio.plugin.DriverPlugin
 import com.mio.ui.dialog.RendererSelectDialog
-import com.mio.ui.view.DownloadSlidePanel
 import com.mio.util.AnimUtil
 import com.mio.util.AnimUtil.Companion.interpolator
 import com.mio.util.AnimUtil.Companion.startAfter
@@ -63,7 +61,6 @@ import com.tungsten.fcl.ui.download.modpack.LocalModpackPage
 import com.tungsten.fcl.ui.main.MainUI
 import com.tungsten.fcl.ui.version.Versions
 import com.tungsten.fcl.upgrade.UpdateChecker
-import com.tungsten.fclauncher.plugins.DriverPlugin
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclcore.auth.Account
 import com.tungsten.fclcore.auth.authlibinjector.AuthlibInjectorAccount
@@ -88,6 +85,7 @@ import com.tungsten.fcllibrary.component.ui.FCLPage
 import com.tungsten.fcllibrary.component.view.FCLMenuView
 import com.tungsten.fcllibrary.component.view.FCLMenuView.OnSelectListener
 import com.tungsten.fcllibrary.util.ConvertUtils
+import com.tungsten.fcllibrary.util.shareLogFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -131,8 +129,14 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
     var mediaPlayer: MediaPlayer? = null
     private var videoPosition = 0
 
-    /** 下载管理面板（左侧菜单开关按钮控制，有任务时自动显示） */
-    private lateinit var downloadPanel: DownloadSlidePanel
+    /** 右列内容当前是否为下载面板（true 时波浪/账号等让位给任务列表） */
+    private var downloadPanelOpen = false
+
+    /** 是否有下载任务（收起面板时用于决定波浪指示器显隐） */
+    private var hasTasks = false
+
+    /** 通知点击进入后待执行的"定位到下载页"请求（uiManager 初始化前先排队） */
+    private var pendingOpenDownload = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -243,8 +247,10 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                         0 -> {
                             refreshMenuView(home)
                             home.setSelected(true)
-                            // 主页重建/重新进入时应用皮肤位置状态（right_menu 隐藏则固定）
-                            fixSkinViewerPosition(binding.rightMenu.visibility != View.VISIBLE)
+                            // 主页重建/重新进入时应用皮肤位置状态（right_menu 隐藏则固定；
+                            // skinViewerWidth 仅在隐藏右菜单时捕获，未捕获过（为 0）时保持默认百分比布局，
+                            // 否则会把皮肤宽度设为 0 导致模型消失
+                            fixSkinViewerPosition(binding.rightMenu.visibility != View.VISIBLE && skinViewerWidth > 0)
                         }
 
                         1 -> {
@@ -298,7 +304,7 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                 setting.setOnSelectListener(this@MainActivity)
                 home.setSelected(true)
                 home.setOnLongClickListener {
-                    shareLog()
+                    shareLogFile(this@MainActivity, FCLPath.getLatestGameLog())
                     true
                 }
                 back.setOnClickListener(this@MainActivity)
@@ -342,27 +348,22 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
         permissionResultLauncher =
             registerForActivityResult(ActivityResultContracts.RequestPermission()) {
             }
-        // 下载管理：有任务时右侧菜单顶部显示波浪进度，点击打开面板
-        downloadPanel = DownloadSlidePanel(this)
-        binding.root.addView(
-            downloadPanel,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT
-            )
-        )
-        binding.downloadWaveProgress.setOnClickListener { downloadPanel.toggle() }
+        // 下载管理：有任务时右侧菜单顶部显示波浪进度，点击切换为下载面板内容
+        binding.downloadPanel.onCloseRequest = { closeDownloadPanel() }
+        binding.downloadWaveProgress.setOnClickListener {
+            if (downloadPanelOpen) closeDownloadPanel() else openDownloadPanel()
+        }
         lifecycleScope.launch {
             var tasksEmpty = true
             DownloadManager.tasks.collect { tasks ->
-                downloadPanel.updateTasks(tasks)
+                binding.downloadPanel.updateTasks(tasks)
+                hasTasks = tasks.isNotEmpty()
                 if (tasks.isEmpty()) {
-                    binding.downloadWaveProgress.visibility = View.GONE
-                    downloadPanel.close()
-                } else {
-                    binding.downloadWaveProgress.visibility = View.VISIBLE
-                    // 从无任务变为有任务：直接显示面板
-                    if (tasksEmpty) downloadPanel.open()
+                    if (downloadPanelOpen) closeDownloadPanel()
+                    else binding.downloadWaveProgress.visibility = View.GONE
+                } else if (tasksEmpty) {
+                    // 从无任务变为有任务：自动展开面板
+                    openDownloadPanel()
                 }
                 tasksEmpty = tasks.isEmpty()
             }
@@ -373,7 +374,31 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
                 binding.downloadWaveProgress.setProgress(progress)
             }
         }
+        // 通知点击进入：定位到下载页并展开面板（此时 uiManager 可能尚未初始化，先排队）
+        handleNotificationIntent(intent)
+        applyPendingOpenDownload()
         setupLiveBackground()
+    }
+
+    /** 通知点击进入启动器时，切换到下载页并展开面板 */
+    private fun handleNotificationIntent(intent: Intent?) {
+        if (intent?.getBooleanExtra(DownloadManager.EXTRA_OPEN_PANEL, false) == true) {
+            pendingOpenDownload = true
+            applyPendingOpenDownload()
+        }
+    }
+
+    private fun applyPendingOpenDownload() {
+        if (!pendingOpenDownload) return
+        if (_uiManager == null) return
+        uiManager.switchUI(uiManager.downloadUI)
+        openDownloadPanel()
+        pendingOpenDownload = false
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNotificationIntent(intent)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -593,6 +618,71 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
             params.marginEnd = 0
         }
         skin.layoutParams = params
+    }
+
+    /** 展开下载面板：常规内容向下滑出、面板自上方滑入；右菜单隐藏或尚未布局时静态切换 */
+    private fun openDownloadPanel() {
+        if (downloadPanelOpen) return
+        binding.apply {
+            val menuReady = rightMenu.visibility == View.VISIBLE &&
+                rightMenuContent.height > 0 && downloadPanel.height > 0
+            if (!menuReady) {
+                // 菜单隐藏或首帧未布局（如通知冷启动）：面板直接作为列内容（随菜单）出现
+                rightMenuContent.visibility = View.INVISIBLE
+                downloadPanel.apply { visibility = View.VISIBLE; translationY = 0f }
+                if (rightMenu.visibility != View.VISIBLE) showRightMenu()
+            } else {
+                // 常规内容向下滑出
+                rightMenuContent.animate().translationY(rightMenuContent.height.toFloat())
+                    .setDuration(200)
+                    .withEndAction {
+                        // 期间可能已被收起，仅在仍处于展开态时收尾
+                        if (downloadPanelOpen) {
+                            rightMenuContent.visibility = View.INVISIBLE
+                            rightMenuContent.translationY = 0f
+                        }
+                    }
+                    .start()
+                // 面板自上方滑入
+                downloadPanel.visibility = View.VISIBLE
+                downloadPanel.translationY = -downloadPanel.height.toFloat()
+                downloadPanel.animate().translationY(0f).setDuration(200).start()
+            }
+            downloadPanelOpen = true
+        }
+    }
+
+    /** 收起下载面板：面板向上滑出、常规内容自下方滑入；波浪指示器按任务状态恢复 */
+    private fun closeDownloadPanel() {
+        if (!downloadPanelOpen) return
+        binding.apply {
+            val menuReady = rightMenu.visibility == View.VISIBLE &&
+                rightMenuContent.height > 0 && downloadPanel.height > 0
+            if (!menuReady) {
+                // 菜单隐藏或尚未布局：直接静态恢复内容
+                downloadPanel.apply { visibility = View.INVISIBLE; translationY = 0f }
+                rightMenuContent.visibility = View.VISIBLE
+                downloadWaveProgress.visibility = if (hasTasks) View.VISIBLE else View.GONE
+            } else {
+                // 面板自上方滑出
+                downloadPanel.animate().translationY(-downloadPanel.height.toFloat())
+                    .setDuration(200)
+                    .withEndAction {
+                        // 期间可能已被重新展开，仅在仍处于收起态时收尾
+                        if (!downloadPanelOpen) {
+                            downloadPanel.visibility = View.INVISIBLE
+                            downloadPanel.translationY = 0f
+                        }
+                    }
+                    .start()
+                // 常规内容自下方滑入（波浪显隐按当前任务状态决定）
+                downloadWaveProgress.visibility = if (hasTasks) View.VISIBLE else View.GONE
+                rightMenuContent.visibility = View.VISIBLE
+                rightMenuContent.translationY = rightMenuContent.height.toFloat()
+                rightMenuContent.animate().translationY(0f).setDuration(200).start()
+            }
+            downloadPanelOpen = false
+        }
     }
 
     fun refreshMenuView(view: FCLMenuView?) {
@@ -876,31 +966,6 @@ class MainActivity : FCLActivity(), OnSelectListener, View.OnClickListener {
             ).forEachIndexed { index, objectAnimator ->
                 objectAnimator.interpolator(BounceInterpolator()).startAfter((index + 1) * 100L)
             }
-        }
-    }
-
-    private fun shareLog() {
-        try {
-            val file = File(FCLPath.LOG_DIR).resolve("latest_game.log")
-            if (!file.exists()) return
-            val intent = Intent(Intent.ACTION_SEND)
-
-            val uri = FileProvider.getUriForFile(
-                this,
-                "${application.packageName}.provider",
-                file
-            )
-            intent.type = "text/plain"
-            intent.putExtra(Intent.EXTRA_STREAM, uri)
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            startActivity(
-                Intent.createChooser(
-                    intent,
-                    getString(R.string.crash_reporter_share)
-                )
-            )
-        } catch (e: Exception) {
-            LOG.log(Level.INFO, "Share error: $e")
         }
     }
 

@@ -1,10 +1,8 @@
 package com.tungsten.fcl.util;
 
 import static com.tungsten.fclcore.util.io.FileUtils.forceDeleteQuietly;
-import static com.tungsten.fcllibrary.util.ConvertUtils.stringToLong;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.system.Os;
 
 import com.tungsten.fcl.R;
@@ -20,7 +18,6 @@ import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.Pack200Utils;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.io.IOUtils;
-import com.tungsten.fclcore.util.io.Unzipper;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -55,20 +52,16 @@ public class RuntimeUtils {
 
     public static boolean isLatest(String targetDir, String srcDir) throws IOException {
         File targetFile = new File(targetDir + "/version");
-
-        try(InputStream stream = RuntimeUtils.class.getResourceAsStream(srcDir + "/version")) {
-            if(stream == null) return true;
-
-            String assetsStr = IOUtils.readFullyAsString(stream).trim();
-            long assetsVersion = stringToLong(assetsStr, -1);
-            if(!targetFile.exists()) return false;
-
-            String installedStr = FileUtils.readText(targetFile).trim();
-            if(installedStr.isEmpty()) return false;
-            long installedVersion = stringToLong(installedStr, -1);
-
-            return assetsVersion == installedVersion;
+        try (InputStream stream = RuntimeUtils.class.getResourceAsStream(srcDir + "/version")) {
+            if (stream == null) {
+                return true;
+            }
         }
+        if (!targetFile.exists()) return false;
+        long version = Long.parseLong(IOUtils.readFullyAsString(RuntimeUtils.class.getResourceAsStream(srcDir + "/version")).trim());
+        String installedVersion = FileUtils.readText(targetFile).trim();
+        if (installedVersion.isEmpty()) return false;
+        return targetFile.exists() && Long.parseLong(installedVersion) == version;
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -92,15 +85,16 @@ public class RuntimeUtils {
     public static void installJna(Context context, String targetDir, String srcDir, InstallListener listener) throws IOException {
         FileUtils.deleteDirectory(new File(targetDir));
         new File(targetDir).mkdirs();
-        copyAssets(context, srcDir, targetDir, listener);
-        File file = new File(FCLPath.JNA_PATH, "jna-arm64.zip");
-        new Unzipper(file, new File(FCLPath.RUNTIME_DIR)).setFilter((zipEntry, isDirectory, destFile, entryPath) -> {
-            if (listener != null && !isDirectory) {
-                listener.onUpdate(entryPath);
+        copyAssets(context, srcDir + "/version", targetDir + "/version", listener);
+        // assets 按 <版本>/natives/<abi>/libjnidispatch.so 分架构存放，
+        // 将当前架构的 so 复制到 <版本>/ 下，得到运行时加载所需的 libjnidispatch.so 结构
+        String abi = Architecture.archAsStringAndroid(Architecture.getDeviceArchitecture());
+        for (String version : context.getAssets().list(srcDir)) {
+            String nativesDir = srcDir + "/" + version + "/natives/" + abi;
+            if (context.getAssets().list(nativesDir).length > 0) {
+                copyAssets(context, nativesDir, targetDir + "/" + version, listener);
             }
-            return true;
-        }).unzip();
-        file.delete();
+        }
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -259,6 +253,14 @@ public class RuntimeUtils {
         File fileLib = new File(dest, libFolder + "/libawt_xawt.so");
         fileLib.delete();
         FileUtils.copyFile(new File(context.getApplicationInfo().nativeLibraryDir, "libawt_xawt.so"), fileLib);
+        // 补装 libjsound.so：jre17/21/25 资产原生缺失该库，jre8 自带的 ALSA 版在
+        // Android 上无后端，统一替换为 OpenAL 后端的原生 Java Sound 实现
+        File jsound = new File(context.getApplicationInfo().nativeLibraryDir, "libjsound.so");
+        if (jsound.exists()) {
+            File jsoundDest = new File(dest, libFolder + "/libjsound.so");
+            jsoundDest.delete();
+            FileUtils.copyFile(jsound, jsoundDest);
+        }
     }
 
     public static void deleteDirectory(File file, InstallListener listener) {

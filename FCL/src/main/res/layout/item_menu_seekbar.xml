@@ -3,13 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:paddingStart="15dp"
+    android:paddingTop="8dp"
+    android:paddingEnd="15dp"
+    android:paddingBottom="8dp">
 
     <com.tungsten.fcllibrary.component.view.FCLTextView
         android:id="@+id/label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingStart="5dp"
         android:singleLine="true"
         android:textSize="12sp"
         app:auto_text_tint="true" />
@@ -18,9 +21,8 @@
         android:id="@+id/seekBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="5dp"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp" />
+        android:layout_marginTop="5dp"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"/>
 
 </LinearLayout>

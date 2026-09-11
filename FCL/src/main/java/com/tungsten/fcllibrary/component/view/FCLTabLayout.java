@@ -20,6 +20,7 @@ public class FCLTabLayout extends TabLayout {
 
     private BooleanProperty visibilityProperty;
     private final boolean followTheme;
+    private final boolean autoTextTint;
 
     /** 主题刷新回调（registerEvent 注册，主题变化时全量执行） */
     private void refreshTheme() {
@@ -31,7 +32,13 @@ public class FCLTabLayout extends TabLayout {
 
                     }
             };
-            int[] color = {
+            // 图标 Tab 与界面文字同色系：选中为对比色，未选中为半透明对比色（当前仅游戏菜单使用图标 Tab）
+            int[] iconColor = {
+                    ThemeEngine.getInstance().getTheme().getAutoTint(),
+                    ThemeEngine.getInstance().getTheme().getAutoHintTint()
+            };
+            // 文字 Tab 默认选中为主题深色、未选中灰；autoTextTint 开启后与图标 Tab 同色系
+            int[] color = autoTextTint ? iconColor : new int[]{
                     ThemeEngine.getInstance().getTheme().getDkColor(),
                     followTheme ? ThemeEngine.getInstance().getTheme().getAutoTint() : Color.GRAY
             };
@@ -45,7 +52,7 @@ public class FCLTabLayout extends TabLayout {
             };
             setSelectedTabIndicatorColor(ThemeEngine.getInstance().getTheme().getDkColor());
             setTabTextColors(new ColorStateList(state, color));
-            setTabIconTint(new ColorStateList(state, color));
+            setTabIconTint(new ColorStateList(state, iconColor));
             if (followTheme) {
                 setBackgroundTintList(new ColorStateList(bgState, bgColor));
             }
@@ -54,6 +61,7 @@ public class FCLTabLayout extends TabLayout {
     public FCLTabLayout(@NonNull Context context) {
         super(context);
         followTheme = false;
+        autoTextTint = false;
         ThemeEngine.getInstance().registerEvent(this, this::refreshTheme);
     }
 
@@ -61,6 +69,7 @@ public class FCLTabLayout extends TabLayout {
         super(context, attrs);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.FCLTabLayout);
         followTheme = typedArray.getBoolean(R.styleable.FCLTabLayout_follow_theme, false);
+        autoTextTint = typedArray.getBoolean(R.styleable.FCLTabLayout_auto_text_tint, false);
         typedArray.recycle();
         ThemeEngine.getInstance().registerEvent(this, this::refreshTheme);
     }
@@ -69,6 +78,7 @@ public class FCLTabLayout extends TabLayout {
         super(context, attrs, defStyleAttr);
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.FCLTabLayout);
         followTheme = typedArray.getBoolean(R.styleable.FCLTabLayout_follow_theme, false);
+        autoTextTint = typedArray.getBoolean(R.styleable.FCLTabLayout_auto_text_tint, false);
         typedArray.recycle();
         ThemeEngine.getInstance().registerEvent(this, this::refreshTheme);
     }

@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:textSize="11sp"
         android:text="@string/edit_view_info"
+        app:auto_text_tint="true"
         android:singleLine="true"/>
 
     <View
@@ -30,6 +31,7 @@
             android:layout_height="wrap_content"
             android:text="@string/edit_button_text"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -42,6 +44,7 @@
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:gravity="center"
+            app:auto_edit_tint="true"
             android:id="@+id/text"/>
 
     </com.tungsten.fcllibrary.component.view.FCLLinearLayout>
@@ -57,6 +60,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_info_visibility"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -83,6 +87,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_info_x"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -90,21 +95,13 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <com.tungsten.fcllibrary.component.view.FCLPreciseSeekBar
+        <com.tungsten.fcllibrary.component.view.FCLNumberSeekBar
             android:id="@+id/x_position"
-            app:min_value="0"
-            app:max_value="1000"
+            android:max="1000"
+            app:suffix="%"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
-
-        <com.tungsten.fcllibrary.component.view.FCLTextView
-            android:gravity="end"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:id="@+id/x_position_text"/>
 
     </com.tungsten.fcllibrary.component.view.FCLLinearLayout>
 
@@ -119,6 +116,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_info_y"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -126,21 +124,13 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <com.tungsten.fcllibrary.component.view.FCLPreciseSeekBar
+        <com.tungsten.fcllibrary.component.view.FCLNumberSeekBar
             android:id="@+id/y_position"
-            app:min_value="0"
-            app:max_value="1000"
+            android:max="1000"
+            app:suffix="%"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
-
-        <com.tungsten.fcllibrary.component.view.FCLTextView
-            android:gravity="end"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:id="@+id/y_position_text"/>
 
     </com.tungsten.fcllibrary.component.view.FCLLinearLayout>
 
@@ -155,6 +145,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_info_size_type"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -182,6 +173,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_info_width_reference"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -208,6 +200,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_info_width"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -215,20 +208,13 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <com.tungsten.fcllibrary.component.view.FCLPreciseSeekBar
+        <com.tungsten.fcllibrary.component.view.FCLNumberSeekBar
             android:id="@+id/width"
-            app:min_value="1"
+            android:min="1"
+            android:max="1000"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
-
-        <com.tungsten.fcllibrary.component.view.FCLTextView
-            android:gravity="end"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:id="@+id/width_text"/>
 
     </com.tungsten.fcllibrary.component.view.FCLLinearLayout>
 
@@ -244,6 +230,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_info_height_reference"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -270,6 +257,7 @@
             android:layout_height="wrap_content"
             android:text="@string/view_info_height"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -277,20 +265,13 @@
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
-        <com.tungsten.fcllibrary.component.view.FCLPreciseSeekBar
+        <com.tungsten.fcllibrary.component.view.FCLNumberSeekBar
             android:id="@+id/height"
-            app:min_value="1"
+            android:min="1"
+            android:max="1000"
             android:layout_width="260dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"/>
-
-        <com.tungsten.fcllibrary.component.view.FCLTextView
-            android:gravity="end"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="10dp"
-            android:id="@+id/height_text"/>
 
     </com.tungsten.fcllibrary.component.view.FCLLinearLayout>
 
@@ -305,6 +286,7 @@
             android:layout_height="wrap_content"
             android:text="@string/edit_view_style"
             android:layout_gravity="center"
+            app:auto_text_tint="true"
             android:singleLine="true"/>
 
         <View
@@ -319,6 +301,7 @@
             android:ellipsize="end"
             android:maxEms="10"
             android:maxLines="1"
+            app:auto_text_tint="true"
             android:id="@+id/style_text"/>
 
         <com.tungsten.fcllibrary.component.view.FCLButton

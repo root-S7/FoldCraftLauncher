@@ -94,7 +94,7 @@ class Gamepad(val context: Context, val fclInput: FCLInput) : GamepadHandler {
 
 
     override fun handleGamepadInput(code: Int, value: Float) {
-        if (fclInput.menu.isGamepadDisabled)
+        if (!fclInput.menu.isGamepadControl)
             return
         val isKeyEventDown = value == 1f
         when (code) {

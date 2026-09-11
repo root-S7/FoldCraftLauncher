@@ -11,7 +11,7 @@
 #include "environ/environ.h"
 #include "gl_bridge.h"
 #include "egl_loader.h"
-#include "fcl/include/fcl_internal.h"
+#include "log.h"
 
 //
 // Created by maks on 17.09.2022.
@@ -227,12 +227,6 @@ void gl_setup_window() {
 
 void gl_swap_interval(int swapInterval) {
     if (pojav_environ->force_vsync) swapInterval = 1;
-
-    const char *renderer = getenv("POJAV_RENDERER");
-    if (renderer && !strcmp(renderer, "opengles3_desktopgl_zink_kopper") &&
-        !getenv("POJAV_VSYNC_IN_ZINK")) {
-        return;
-    }
 
     eglSwapInterval_p(g_EglDisplay, swapInterval);
 }

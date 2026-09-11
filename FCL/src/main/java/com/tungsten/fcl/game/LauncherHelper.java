@@ -44,6 +44,7 @@ import com.mio.data.Renderer;
 import com.mio.manager.RendererManager;
 import com.mio.minecraft.ModCheckException;
 import com.mio.minecraft.ModChecker;
+import com.mio.plugin.NativeLibPlugin;
 import com.mio.util.LoginProgressKt;
 import com.mio.util.ParseUtil;
 import com.tungsten.fcl.FCLApp;
@@ -65,7 +66,6 @@ import com.tungsten.fcl.ui.UIManager;
 import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclauncher.bridge.FCLBridge;
-import com.tungsten.fclauncher.plugins.NativeLibPlugin;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.auth.Account;
 import com.tungsten.fclcore.auth.AuthInfo;
@@ -259,6 +259,7 @@ public final class LauncherHelper {
                         }).thenComposeAsync(fclBridge -> {
                             GameOption gameOption = new GameOption(repository.getRunDirectory(selectedVersion).getAbsolutePath());
                             gameOption.set("preferredGraphicsBackend", setting.getGraphicsBackend());
+                            gameOption.set("startedCleanly", "true");
                             gameOption.save();
                             return Task.completed(fclBridge);
                         }).thenAcceptAsync(fclBridge -> Schedulers.androidUIThread().execute(() -> {

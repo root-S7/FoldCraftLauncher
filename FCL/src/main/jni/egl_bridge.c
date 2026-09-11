@@ -31,8 +31,10 @@
 #include <android/dlext.h>
 #include "ctxbridges/bridge_tbl.h"
 #include "ctxbridges/osm_bridge.h"
-#include "driver_helper/nsbypass.h"
-#include "fcl/include/fcl_internal.h"
+#include <androidnsbypass/nsbypass_t.h>
+#include <androidnsbypass/nsbypass.h>
+#include "global_state.h"
+#include "log.h"
 #include <stdatomic.h>
 
 // 由 input_bridge_v3.c 提供，上报 monitor size 到 Java 侧 GLFW
@@ -51,7 +53,8 @@ extern void updateMonitorSize(int width, int height);
 EGLConfig config;
 struct PotatoBridge potatoBridge;
 
-void bigcore_set_affinity();
+// MC 最近一次请求的交换间隔；-1 表示尚未请求
+static int lastSwapInterval = -1;
 
 #define RENDERER_GL4ES 1
 #define RENDERER_VK_ZINK 2
@@ -88,7 +91,14 @@ EXTERNAL_API void pojavTerminate() {
 JNIEXPORT void JNICALL
 Java_org_lwjgl_glfw_CallbackBridge_setupBridgeWindow(JNIEnv *env, ABI_COMPAT jclass clazz,
                                                      jobject surface) {
+    // 首个窗口由 pojavInit 应用交换间隔；此处处理窗口重建（旋转、分屏等）：
+    // 生产者状态会随新窗口重置，若不重新应用，MC 不会再次发起交换间隔调用，帧率会退回锁定在屏幕刷新率
+    bool windowRecreated = pojav_environ->pojavWindow != NULL;
     pojav_environ->pojavWindow = ANativeWindow_fromSurface(env, surface);
+    if (windowRecreated && pojav_environ->config_renderer != RENDERER_VULKAN) {
+        if (lastSwapInterval >= 0) setNativeWindowSwapInterval(pojav_environ->pojavWindow, lastSwapInterval);
+        else if (!getenv("POJAV_VSYNC_IN_ZINK")) setNativeWindowSwapInterval(pojav_environ->pojavWindow, 0);
+    }
     if (br_setup_window != NULL) br_setup_window();
 }
 
@@ -103,8 +113,15 @@ EXTERNAL_API void *pojavGetCurrentContext() {
     if (pojav_environ->config_renderer == RENDERER_VIRGL) {
         return virglGetCurrentContext();
     }
+    // SDL 模式下渲染桥未初始化（br_* 为 NULL），返回 NULL 而非空指针调用
+    if (br_get_current == NULL) {
+        return NULL;
+    }
     return br_get_current();
 }
+
+// 已加载的 Vulkan 句柄缓存（set_vulkan_ptr 与 loadTurnipVulkan 共用，各 ABI 都需要）
+static void* g_vulkan_ptr = NULL;
 
 #ifdef ADRENO_POSSIBLE
 
@@ -153,62 +170,43 @@ bool checkAdrenoGraphics() {
     return is_adreno;
 }
 
+static struct android_namespace_t* vulkanLoaderNs;
+
 void* loadTurnipVulkan() {
+    if (g_vulkan_ptr) return g_vulkan_ptr;
     if (!checkAdrenoGraphics())
         return NULL;
 
-    const char* native_dir = getenv("DRIVER_PATH");
     const char* cache_dir = getenv("TMPDIR");
-
-    if (!native_dir)
-        return NULL;
-
-    if (!linker_ns_load(native_dir))
-        return NULL;
-
-    void* linkerhook = linker_ns_dlopen("liblinkerhook.so", RTLD_LOCAL | RTLD_NOW);
-    if (!linkerhook)
-        return NULL;
-
-    void* turnip_driver_handle = linker_ns_dlopen("libvulkan_freedreno.so", RTLD_LOCAL | RTLD_NOW);
-    if (!turnip_driver_handle) {
-        dlclose(linkerhook);
-        return NULL;
-    }
-
-    void* dl_android = linker_ns_dlopen("libdl_android.so", RTLD_LOCAL | RTLD_LAZY);
-    if (!dl_android) {
-        dlclose(linkerhook);
-        dlclose(turnip_driver_handle);
-        return NULL;
-    }
-
-    void* android_get_exported_namespace = dlsym(dl_android, "android_get_exported_namespace");
-    void (*linkerhookPassHandles)(void*, void*, void*) = dlsym(linkerhook, "app__pojav_linkerhook_pass_handles");
-
-    if (!linkerhookPassHandles || !android_get_exported_namespace) {
-        dlclose(dl_android);
-        dlclose(linkerhook);
-        dlclose(turnip_driver_handle);
-        return NULL;
-    }
-
-    linkerhookPassHandles(turnip_driver_handle, android_dlopen_ext, android_get_exported_namespace);
-
-    void* libvulkan = linker_ns_dlopen_unique(cache_dir, "libvulkan.so", RTLD_LOCAL | RTLD_NOW);
-    if (!libvulkan) {
-        dlclose(dl_android);
-        dlclose(linkerhook);
-        dlclose(turnip_driver_handle);
-        return NULL;
-    }
-
-    return libvulkan;
+    vulkanLoaderNs = private_create_namespace(
+            "vulkan-loader-NS",
+            NULL,
+            NULL,
+            ANDROID_NAMESPACE_TYPE_SHARED_ISOLATED,
+            NULL,
+            NULL,
+            __builtin_return_address(0)
+            );
+    // 先加载 hook，使其符号优先进入符号表从而拦截 android_dlopen_ext
+    linker_ns_dlopen("liblinkerhook.so", RTLD_LOCAL | RTLD_NOW, vulkanLoaderNs);
+    // 授予命名空间访问系统库的权限
+    private_link_namespaces_all_libs(vulkanLoaderNs, get_escape_namespace());
+#if defined(__aarch64__) || defined(__x86_64__)
+#define VULKAN_LOADER_PATH "/system/lib64/libvulkan.so"
+#elif defined(__arm__) || defined(__i386__)
+#define VULKAN_LOADER_PATH "/system/lib/libvulkan.so"
+#endif
+    return linker_ns_dlopen_unique(
+            VULKAN_LOADER_PATH,
+            cache_dir,
+            RTLD_LOCAL | RTLD_NOW,
+            vulkanLoaderNs);
 }
 
 #endif
 
 static void set_vulkan_ptr(void* ptr) {
+    g_vulkan_ptr = ptr;
     char envval[64];
     sprintf(envval, "%"PRIxPTR, (uintptr_t)ptr);
     setenv("VULKAN_PTR", envval, 1);
@@ -245,6 +243,7 @@ int pojavInitOpenGL() {
             load_vulkan();
             setenv("GALLIUM_DRIVER", "zink", 1);
             setenv("MESA_ANDROID_NO_KMS_SWRAST", "1", 1);
+            setenv("MESA_LOADER_DRIVER_OVERRIDE", "zink", 1);
         }
         set_gl_bridge_tbl();
     }
@@ -311,6 +310,10 @@ EXTERNAL_API int pojavInit() {
                                      AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM);
     updateMonitorSize(pojav_environ->savedWidth, pojav_environ->savedHeight);
     pojavInitOpenGL();
+    // 垂直同步开关关闭时主动切入异步模式，解除帧率对屏幕刷新率的锁定；开启时交由 MC 的交换间隔调用决定
+    if (pojav_environ->config_renderer != RENDERER_VULKAN && !getenv("POJAV_VSYNC_IN_ZINK")) {
+        setNativeWindowSwapInterval(pojav_environ->pojavWindow, 0);
+    }
     return 1;
 }
 
@@ -322,9 +325,9 @@ EXTERNAL_API void pojavSetWindowHint(int hint, int value) {
             /* Nothing to do: initialization is handled in Java-side */
             // pojavInitVulkan();
             break;
-        case GLFW_OPENGL_API:
+        case GLFW_OPENGL_API: {
             const char *renderer = getenv("POJAV_RENDERER");
-            if (!strncmp("opengles", renderer, 8)) {
+            if (strncmp(renderer, "opengles", 8) == 0) {
                 pojav_environ->config_renderer = RENDERER_GL4ES;
             } else if (!strcmp(renderer, "vulkan_zink")) {
                 pojav_environ->config_renderer = RENDERER_VK_ZINK;
@@ -332,6 +335,7 @@ EXTERNAL_API void pojavSetWindowHint(int hint, int value) {
             /* Nothing to do: initialization is called in pojavCreateContext */
             // pojavInitOpenGL();
             break;
+        }
         default:
             printf("GLFW: Unimplemented API 0x%x\n", value);
             abort();
@@ -340,17 +344,26 @@ EXTERNAL_API void pojavSetWindowHint(int hint, int value) {
 
 EXTERNAL_API void pojavSwapBuffers() {
     atomic_fetch_add(&fps, 1);
-    if (pojav_environ->config_renderer == RENDERER_VIRGL)
+    // SDL 模式（config_renderer 未匹配任何渲染桥）下这些调用必须为 no-op，
+    // 否则 br_* 函数指针为 NULL 会空指针崩溃（fixPojavGLContext 路径）
+    if (pojav_environ->config_renderer == RENDERER_VK_ZINK
+     || pojav_environ->config_renderer == RENDERER_GL4ES) {
+        br_swap_buffers();
+    }
+    if (pojav_environ->config_renderer == RENDERER_VIRGL) {
         virglSwapBuffers();
-    else br_swap_buffers();
+    }
 }
 
 
 EXTERNAL_API void pojavMakeCurrent(void *window) {
-    if (getenv("POJAV_BIG_CORE_AFFINITY") != NULL) bigcore_set_affinity();
-    if (pojav_environ->config_renderer == RENDERER_VIRGL)
+    if (pojav_environ->config_renderer == RENDERER_VK_ZINK
+     || pojav_environ->config_renderer == RENDERER_GL4ES) {
+        br_make_current((basic_render_window_t *) window);
+    }
+    if (pojav_environ->config_renderer == RENDERER_VIRGL) {
         virglMakeCurrent(window);
-    else br_make_current((basic_render_window_t *) window);
+    }
 }
 
 EXTERNAL_API void *pojavCreateContext(void *contextSrc) {
@@ -359,6 +372,9 @@ EXTERNAL_API void *pojavCreateContext(void *contextSrc) {
 
     if (pojav_environ->config_renderer == RENDERER_VIRGL)
         return virglCreateContext(contextSrc);
+
+    if (br_init_context == NULL)
+        return NULL;
 
     return br_init_context((basic_render_window_t *) contextSrc);
 }
@@ -378,14 +394,25 @@ Java_org_lwjgl_vulkan_VK_getVulkanDriverHandle(ABI_COMPAT JNIEnv *env, ABI_COMPA
 }
 
 EXTERNAL_API void pojavSwapInterval(int interval) {
-    if (pojav_environ->config_renderer == RENDERER_VIRGL)
+    lastSwapInterval = interval;
+
+    if (pojav_environ->config_renderer == RENDERER_VK_ZINK
+     || pojav_environ->config_renderer == RENDERER_GL4ES) {
+        br_swap_interval(interval);
+    }
+    if (pojav_environ->config_renderer == RENDERER_VIRGL) {
         virglSwapInterval(interval);
-    else br_swap_interval(interval);
+    }
 }
 
 JNIEXPORT jint JNICALL
 Java_org_lwjgl_glfw_CallbackBridge_getFps(JNIEnv *env, jclass clazz) {
     return atomic_exchange(&fps, 0);
+}
+
+// SDL 路径下由 eglSwapBuffers 代理调用来计帧（sdl_hook.c）
+EXTERNAL_API void calculateFPS(void) {
+    atomic_fetch_add(&fps, 1);
 }
 
 EXTERNAL_API JNIEXPORT void JNICALL

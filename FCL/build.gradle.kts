@@ -9,6 +9,25 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.serialization)
+    id("checkstyle")
+}
+
+checkstyle {
+    // 规则集 config/checkstyle/checkstyle.xml 与 Android Studio 默认格式对齐，仅检查 Java 代码
+    toolVersion = "10.12.5"
+    configFile = rootProject.file("config/checkstyle/checkstyle.xml")
+}
+
+// AGP 不提供 Java 插件的 SourceSetContainer，checkstyle 插件不会自动创建任务，
+// 因此手动注册 checkstyle 任务，检查范围为主源码目录的 Java 文件
+tasks.register<Checkstyle>("checkstyle") {
+    description = "Run checkstyle on the FCL Java sources."
+    group = "verification"
+    source(layout.projectDirectory.dir("src/main/java"))
+    include("**/*.java")
+    classpath = files()
+    maxErrors = 0
+    maxWarnings = 0
 }
 
 android {
@@ -50,8 +69,8 @@ android {
         applicationId = "com.tungsten.fcl.server"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1329
-        versionName = "1.3.2.9"
+        versionCode = 1331
+        versionName = "1.3.3.1"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -94,6 +113,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // core library desugaring：java.time / java.util.stream / Optional 等脱糖到 minSdk 26 可用
+        isCoreLibraryDesugaringEnabled = true
     }
 
     packaging {
@@ -176,7 +197,8 @@ androidComponents {
         }
 
         // LWJGL natives 打包在 lwjgl-*-natives aar 的 assets/app_runtime/lwjgl/<版本>/natives/<abi> 下，
-        // 不走 AGP 的 abiFilters，需在 mergeAssets 后手动按架构删除其他 ABI 的 natives 目录。
+        // JNA natives 在 assets/app_runtime/jna/<版本>/natives/<abi> 下，
+        // 均不走 AGP 的 abiFilters，需在 mergeAssets 后手动按架构删除其他 ABI 的 natives 目录。
         val variantName = variant.name.replaceFirstChar { it.uppercaseChar() }
         afterEvaluate {
             val mergeAssets =
@@ -212,6 +234,18 @@ androidComponents {
                             }
                         }
                     }
+                    // JNA natives 在 assets/app_runtime/jna/<版本>/natives/<abi> 下，同样按架构裁剪
+                    File(assetsDir, "app_runtime/jna").listFiles()?.forEach { versionDir ->
+                        val nativesDir = File(versionDir, "natives")
+                        if (nativesDir.isDirectory) {
+                            nativesDir.listFiles()?.forEach { dir ->
+                                if (dir.isDirectory && dir.name != abi) {
+                                    logger.lifecycle("删除非目标架构 natives: $dir")
+                                    dir.deleteRecursively()
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -225,6 +259,7 @@ kotlin {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar", "*.aar"))))
     implementation(project(":ZipFileSystem"))
     implementation(project(":Terracotta"))
@@ -260,6 +295,7 @@ dependencies {
     implementation(libs.datastore)
     implementation(libs.kotlinx.serialization.json)
 
+    testImplementation("junit:junit:4.13.2")
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.ext.junit)
 }

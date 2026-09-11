@@ -11,11 +11,6 @@
     <string name="splash_permission_settings_msg">You have chosen "Never Allow" Please manually grant storage permissions in settings.</string>
     <string name="notification_permission">FCL requires permission to post notifications to prevent issues with normal game installation or startup.</string>
 
-    <string name="splash_loading_renderer">Initializing renderer...</string>
-    <string name="splash_loading_java">Initializing Java runtime...</string>
-    <string name="splash_loading_config">Loading configuration and versions...</string>
-    <string name="splash_loading_cache">Clearing cache...</string>
-
     <string name="splash_title">Welcome to Fold Craft Launcher</string>
     <string name="splash_eula_error">Cannot get EULA, please check the network.</string>
     <string name="splash_eula_next">Agree and Continue</string>
@@ -43,6 +38,22 @@
     <string name="setting">Setting</string>
 
     <string name="about">About</string>
+    <string name="settings_plugin">Plugins</string>
+    <string name="plugin_empty">No plugins detected</string>
+    <string name="plugin_type_renderer">Renderer</string>
+    <string name="plugin_type_driver">Driver</string>
+    <string name="plugin_type_native">Native Library</string>
+    <string name="plugin_enable">Enable</string>
+    <string name="plugin_uninstall">Uninstall</string>
+    <string name="plugin_miolibpatcher_name" translatable="false">MioLibPatcher</string>
+    <string name="plugin_miolibpatcher_desc">JVM bytecode patch that fixes mod compatibility issues on Android</string>
+    <string name="plugin_miolibpatcher_alc10">ALC10 patch</string>
+    <string name="plugin_miolibpatcher_alc10_desc">Replaces alcGetCurrentContext to fix the no-audio issue in Mite (1.6.4)</string>
+    <string name="plugin_miolibpatcher_sable">Sable Rapier patch</string>
+    <string name="plugin_miolibpatcher_sable_desc">Enabled by default (no property is set); disable to force-disable the Rapier patch</string>
+    <string name="plugin_miolibpatcher_asm">ASM backdoor</string>
+    <string name="plugin_miolibpatcher_asm_desc">Removes the ASM 5.0.4 API check to support older mods like AE1 (affects all ASM 5.0.4 mods, use with caution)</string>
+    <string name="plugin_env_config">Configure</string>
     <string name="about_launcher" translatable="false">Fold Craft Launcher</string>
     <string name="about_developer" translatable="false">FCL-Team</string>
     <string name="about_sponsor">Sponsor</string>
@@ -224,6 +235,7 @@
     <string name="control_converting">Converting…</string>
     <string name="control_convert_failed">Conversion failed!</string>
     <string name="control_convert_unsupported">ZL2 conversion is not supported on this device (arm64 required)</string>
+    <string name="control_import_zl2_converted">ZalithLauncher2 layout detected and converted</string>
     <string name="control_upload">Upload Controller</string>
 
     <string name="curse_category_0">All</string>
@@ -382,6 +394,8 @@
     <string name="edit_button_text">Displayed Text</string>
     <string name="edit_button_event_follow">Pointer Follows Finger</string>
     <string name="edit_button_event_movable">Movable</string>
+    <string name="edit_button_event_swipable">Swipe Link</string>
+    <string name="edit_button_event_tabs_hint">The button supports all four trigger types at the same time. Switch the tabs below to configure each one.</string>
     <string name="edit_button_event_press">Press</string>
     <string name="edit_button_event_long_press">Long Press</string>
     <string name="edit_button_event_click">Click</string>
@@ -406,6 +420,9 @@
     <string name="edit_direction_event_left">Left Keycode</string>
     <string name="edit_direction_event_right">Right Keycode</string>
     <string name="edit_direction_event_follow">Follow Option (Only for rocker style)</string>
+    <string name="edit_direction_event_dead_zone">Dead Zone</string>
+    <string name="edit_direction_event_can_lock">Forward Lock</string>
+    <string name="edit_direction_event_lock_threshold">Lock Threshold</string>
     <string name="edit_direction_event_follow_fix">Fixed</string>
     <string name="edit_direction_event_follow_center">Center Follows Finger</string>
     <string name="edit_direction_event_follow_always">All Parts Follow Finger</string>
@@ -572,6 +589,7 @@
     <string name="menu_controls_current">Current Controller</string>
     <string name="menu_controls_edit_mode">Edit Mode</string>
     <string name="menu_controls_show_boundary">Show View Boundaries</string>
+    <string name="menu_controls_edit_hint">Tap to select, drag to move, drag the corner handles to resize</string>
     <string name="menu_controls_hide_all">Hide All Views</string>
     <string name="menu_controls_auto_fit">Auto Fit Position</string>
     <string name="menu_controls_auto_fit_dist">Auto Fit Position Distance</string>
@@ -596,6 +614,9 @@
     <string name="menu_control_style_add">Add Style</string>
     <string name="menu_control_style_edit">Edit Style</string>
     <string name="menu_control_view_group_add">Add View Group</string>
+    <string name="menu_control_view_group_copy">Copy view group</string>
+    <string name="menu_control_view_group_copy_suffix"> - copy</string>
+    <string name="menu_control_view_group_copy_failed">Failed to copy view group</string>
     <string name="menu_control_view_group_delete">Are you sure to delete this view group?</string>
     <string name="menu_control_view_group_name">Name</string>
     <string name="menu_control_view_group_visibility">Initial Visibility</string>
@@ -634,12 +655,21 @@
     <string name="menu_settings_mouse_offset_y">Mouse Offset Y</string>
     <string name="menu_settings_physical_mouse_mode">Physical Mouse</string>
     <string name="menu_settings_gamepad">GamePad</string>
-    <string name="menu_settings_gamepad_disable_mapping">Disable Gamepad Mapping</string>
+    <string name="menu_settings_gamepad_control">Gamepad Control</string>
     <string name="menu_settings_gamepad_reset_mapper">ResetMapper</string>
     <string name="menu_settings_gamepad_button_binding">Button binding</string>
     <string name="menu_settings_gamepad_open_button">Open</string>
     <string name="menu_settings_gamepad_reset">Reset</string>
     <string name="menu_settings_gamepad_deadzone">DeadZone</string>
+    <string name="menu_settings_gamepad_input_mode">Gamepad Input Mode</string>
+    <string name="menu_settings_gamepad_input_mode_mapped">Mapped</string>
+    <string name="menu_settings_gamepad_input_mode_sdl_direct">SDL Direct</string>
+    <string name="menu_settings_sdl_auto_show_ime">Auto Show IME (SDL)</string>
+    <string name="gamepad_mode_prompt_title">Gamepad Input Mode</string>
+    <string name="gamepad_mode_prompt_description">A gamepad input was detected. Choose how gamepad input should be handled:</string>
+    <string name="gamepad_mode_prompt_mapped_summary">Map gamepad buttons and sticks to virtual keyboard and mouse. Suitable for older versions or games without native gamepad support.</string>
+    <string name="gamepad_mode_prompt_sdl_direct_summary">Pass gamepad input directly to SDL/GLFW. Enables native gamepad support of Minecraft 26.3+.</string>
+    <string name="gamepad_mode_prompt_hint">You can change the mode anytime from the in-game menu.</string>
     <string name="menu_settings_multiplayer">Multiplayer Menu</string>
     <string name="menu_settings_multiplayer_button">Open</string>
     <string name="menu_settings_quick_input">Quick Input</string>
@@ -650,6 +680,7 @@
     <string name="menu_settings_item_bar_scale">ItemBarScale</string>
     <string name="menu_settings_item_bar_scale_width">ItemBarScale (Width)</string>
     <string name="menu_settings_item_bar_scale_height">ItemBarScale (Height)</string>
+    <string name="menu_settings_controls_opacity">Controls Opacity</string>
     <string name="menu_settings_show_log">Show Log</string>
     <string name="menu_settings_show_log_auto">Show Log Automatically</string>
     <string name="menu_settings_performance_mode">Sustained Performance Mode</string>
@@ -931,14 +962,12 @@
     <string name="settings_fcl_graphics_backend_desc">Choose the graphics rendering backend. Only effective for 26.2+.</string>
     <string name="settings_fcl_renderer">OpenGL Implementation</string>
     <string name="settings_fcl_renderer_desc">Choose the OpenGL renderer implementation.</string>
-    <string name="settings_fcl_pojav_bigcore">Force the renderer to run on the big core</string>
-    <string name="settings_fcl_pojav_bigcore_desc">Force the renderer to run on performance big cores.</string>
-    <string name="settings_fcl_renderer_gl4es" translatable="false">Holy GL4ES (OpenGL 2.1, 1.21.5-)</string>
+    <string name="settings_fcl_renderer_gl4es" translatable="false">Holy GL4ES (OpenGL 2.1)</string>
     <string name="settings_fcl_renderer_virgl" translatable="false">VirGLRenderer (OpenGL 4.3)</string>
-    <string name="settings_fcl_renderer_vgpu">VGPU (OpenGL 2.1+, only support 1.17-)</string>
+    <string name="settings_fcl_renderer_vgpu">VGPU (OpenGL 2.1+)</string>
     <string name="settings_fcl_renderer_zink" translatable="false">Kopper Zink (OpenGL 4.6)</string>
-    <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, only support GPU a616-a660)</string>
-    <string name="settings_fcl_renderer_nggl4es">Krypton Wrapper (OpenGL 3.1+, built-in)</string>
+    <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, only support adreno616-a660)</string>
+    <string name="settings_fcl_renderer_nggl4es">Krypton Wrapper (OpenGL 3.1+)</string>
 
     <string name="settings_fcl_driver">Vulkan Driver</string>
     <string name="settings_fcl_driver_desc">Choose the Vulkan driver implementation.</string>
@@ -990,6 +1019,9 @@
     <string name="settings_launcher_language_ukrainian" translatable="false">Українська Мова</string>
     <string name="settings_launcher_language_german" translatable="false">Deutsch</string>
     <string name="settings_launcher_language_traditional_chinese_hk" translatable="false">繁體中文（香港）</string>
+    <string name="settings_launcher_language_japanese" translatable="false">日本語</string>
+    <string name="settings_launcher_language_turkish" translatable="false">Türkçe</string>
+    <string name="settings_launcher_language_traditional_chinese_tw" translatable="false">繁體中文（台灣）</string>
     <string name="settings_launcher_launcher_log_export">Export launcher logs</string>
     <string name="settings_launcher_launcher_log_export_failed">Unable to export logs</string>
     <string name="settings_launcher_launcher_log_export_success">Logs have been exported to %s</string>
@@ -1329,6 +1361,8 @@
     <string name="message_warn_renderer_global_setting">The version you have currently selected has enabled per-instance settings, so the renderer selected here cannot be applied to the current version. Suggest long pressing the "Launch" button to select the renderer.</string>
     <string name="message_select_url">Please select a link to download (it will open in your browser).</string>
     <string name="supported_mc_version">Supported MC version:</string>
+    <string name="renderer_source">Source:</string>
+    <string name="renderer_source_builtin">Built-in</string>
     <string name="message_check_renderer">The current renderer %s does not support this game version. Continuing to use it may cause rendering errors or game crashes! Do you want to continue?</string>
     <string name="message_check_plugin">The current plugin %s does not support this game version. Continuing to use it may cause the game to crash! Do you want to continue?</string>
     <string name="enabled">Enabled</string>
@@ -1385,4 +1419,9 @@
     <string name="close">Close</string>
     <string name="create_account_first">Please create a game account before launching</string>
     <string name="version_list_refreshing">Fetching remote version list…</string>
+    <string name="animation_select">Select Animation</string>
+    <string name="animation_idle">Idle</string>
+    <string name="animation_idle_variant_1">Idle variant 1</string>
+    <string name="animation_idle_variant_2">Idle variant 2</string>
+    <string name="animation_idle_variant_3">Idle variant 3</string>
 </resources>

@@ -5,23 +5,26 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.annotation.StringRes
 import androidx.recyclerview.widget.RecyclerView
 import com.mio.util.getScreenHeight
 import com.mio.util.getScreenWidth
+import com.mio.ui.selectedCardBackground
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.ItemMenuButtonBinding
-import com.tungsten.fcl.databinding.ItemMenuCategoryBinding
+import com.tungsten.fcl.databinding.ItemMenuControlGroupBinding
 import com.tungsten.fcl.databinding.ItemMenuSeekbarBinding
 import com.tungsten.fcl.databinding.ItemMenuSpinnerBinding
 import com.tungsten.fcl.databinding.ItemMenuSwitchBinding
+import com.tungsten.fcl.game.sdl.SdlSettings
 import com.tungsten.fcl.setting.MenuSetting
+import com.tungsten.fcl.control.data.ControlViewGroup
 import com.tungsten.fclcore.fakefx.beans.InvalidationListener
+import com.tungsten.fcllibrary.component.theme.ThemeEngine
+import com.tungsten.fcllibrary.component.view.FCLSpinner
 import com.tungsten.fcllibrary.component.view.FCLTextView
 
-/** 右菜单一级分类 */
+/** 右菜单分类，与右菜单顶部标签栏一一对应 */
 enum class RightMenuCategory(@param:StringRes val titleRes: Int) {
     FUNCTION(R.string.menu_settings_function),
     GESTURE(R.string.menu_settings_gesture),
@@ -45,18 +48,26 @@ enum class RightMenuTag {
     MOUSE_OFFSET_X, MOUSE_OFFSET_Y, PHYSICAL_MOUSE,
 
     // 手柄
-    DISABLE_GAMEPAD_MAPPING, GAMEPAD_RESET_MAPPER, GAMEPAD_BUTTON_BINDING, GAMEPAD_DEADZONE,
+    GAMEPAD_CONTROL, GAMEPAD_RESET_MAPPER, GAMEPAD_BUTTON_BINDING, GAMEPAD_DEADZONE,
+    GAMEPAD_INPUT_MODE,
 
     // 陀螺仪
     GYRO, GYRO_INVERT, GYRO_SENSITIVITY,
 
     // 调试
-    SHOW_MEMORY, PERFORMANCE_MODE, SHOW_LOG, AUTO_SHOW_LOG, FORCE_EXIT
+    SHOW_MEMORY, PERFORMANCE_MODE, SHOW_LOG, AUTO_SHOW_LOG, FORCE_EXIT,
+
+    // SDL
+    SDL_AUTO_SHOW_IME,
+
+    // 编辑模式控件组面板
+    EDIT_GROUP, REMOVE_GROUP
 }
 
 /**
- * 右菜单两级 RecyclerView 适配器。
- * 一级为分类列表，点击分类后切换到该分类下的功能项列表（二级），回调分发与设置页适配器一致。
+ * 右菜单 RecyclerView 适配器。
+ * 分类由菜单顶部标签栏切换，适配器只负责渲染当前分类的功能项列表；
+ * 编辑模式下整体替换为控件组管理面板，回调分发与设置页适配器一致。
  */
 class RightMenuAdapter(
     private val context: Context,
@@ -66,38 +77,51 @@ class RightMenuAdapter(
 
     /** 交互回调，由 GameMenu 实现并分派到原菜单逻辑 */
     interface Listener {
-        fun onCategoryClick(category: RightMenuCategory)
         fun onButtonClick(tag: RightMenuTag)
         fun onSwitchToggle(tag: RightMenuTag, checked: Boolean)
         fun onSwitchLongClick(tag: RightMenuTag)
         fun onSpinnerSelect(tag: RightMenuTag, position: Int)
         fun onSeekBarChange(tag: RightMenuTag, progress: Int)
+
+        /** 编辑模式控件组面板：点击组名切换当前编辑组 */
+        fun onEditGroupSelect(group: ControlViewGroup)
+
+        /** 编辑模式控件组面板：切换组在编辑画布的显示/隐藏（可多组同时显示） */
+        fun onEditGroupToggle(group: ControlViewGroup, visible: Boolean)
+
+        /** 编辑模式控件组面板：复制控件组（含全部控件，控件 id 重新生成） */
+        fun onEditGroupCopy(group: ControlViewGroup)
+
+        /** 编辑模式控件组面板：新建控件组 */
+        fun onEditGroupAdd()
+
+        /** 编辑模式控件组面板：编辑组属性（名称/初始可见性） */
+        fun onEditGroupEdit(group: ControlViewGroup)
+
+        /** 编辑模式控件组面板：删除组（含确认） */
+        fun onEditGroupRemove(group: ControlViewGroup)
     }
 
     private val menuSetting: MenuSetting get() = gameMenu.menuSetting
     private val screenWidth = getScreenWidth()
     private val screenHeight = getScreenHeight()
+    private val density = context.resources.displayMetrics.density
     private val multiplayerEnabled =
         context.getSharedPreferences("third_party", Context.MODE_PRIVATE)
             .getBoolean("terracotta", false)
 
-    private val typeCategory = 0
     private val typeSwitch = 1
     private val typeButton = 2
     private val typeSpinner = 3
     private val typeSeekBar = 4
+    private val typeControlGroup = 5
 
-    /** 当前所在二级分类，null 表示处于一级分类列表 */
-    private var currentCategory: RightMenuCategory? = null
+    /** 当前显示的分类，由顶部标签栏切换 */
+    private var currentCategory: RightMenuCategory = RightMenuCategory.FUNCTION
     private var rows: List<Row> = emptyList()
 
     fun showCategory(category: RightMenuCategory) {
         currentCategory = category
-        rebuild()
-    }
-
-    fun showCategories() {
-        currentCategory = null
         rebuild()
     }
 
@@ -107,24 +131,16 @@ class RightMenuAdapter(
         notifyDataSetChanged()
     }
 
-    private fun buildRows(): List<Row> = when (currentCategory) {
-        null -> listOf(
+    private fun buildRows(): List<Row> {
+        // 编辑模式：右菜单整体替换为控件组管理面板（显示/隐藏、层级排序、切换编辑组）
+        if (gameMenu.isEditMode) {
+            return buildEditRows()
+        }
+        return when (currentCategory) {
+        RightMenuCategory.FUNCTION -> listOfNotNull(
             Row.ButtonRow(
                 R.string.menu_settings_force_exit,
                 listOf(R.string.menu_settings_force_exit_button to RightMenuTag.FORCE_EXIT)
-            )
-        ) + RightMenuCategory.entries.map { Row.CategoryRow(it) }
-
-        RightMenuCategory.FUNCTION -> listOfNotNull(
-            Row.SwitchRow(
-                R.string.menu_settings_lock_view,
-                { menuSetting.isLockMenuView },
-                RightMenuTag.LOCK_VIEW
-            ),
-            Row.SwitchRow(
-                R.string.menu_settings_hide_view,
-                { menuSetting.isHideMenuView },
-                RightMenuTag.HIDE_VIEW
             ),
             Row.SwitchRow(
                 R.string.menu_settings_show_fps,
@@ -153,17 +169,10 @@ class RightMenuAdapter(
                 { menuSetting.isDisableSoftKeyAdjust },
                 RightMenuTag.SOFT_KEYBOARD_ADJUST
             ),
-            Row.SeekBarRow(
-                R.string.menu_settings_item_bar_scale_width, 100, 0,
-                { menuSetting.itemBarWidth * 100 / screenWidth }, RightMenuTag.ITEM_BAR_WIDTH, "%"
-            ),
-            Row.SeekBarRow(
-                R.string.menu_settings_item_bar_scale_height,
-                100,
-                0,
-                { menuSetting.itemBarHeight * 100 / screenHeight },
-                RightMenuTag.ITEM_BAR_HEIGHT,
-                "%"
+            Row.SwitchRow(
+                R.string.menu_settings_sdl_auto_show_ime,
+                { SdlSettings.sdlAutoShowIme.value },
+                RightMenuTag.SDL_AUTO_SHOW_IME
             ),
             Row.SeekBarRow(
                 R.string.settings_game_dimension, 300, 1,
@@ -189,6 +198,18 @@ class RightMenuAdapter(
                 R.string.menu_settings_disable_left_touch,
                 { menuSetting.isDisableLeftTouch },
                 RightMenuTag.DISABLE_LEFT_TOUCH
+            ),
+            Row.SeekBarRow(
+                R.string.menu_settings_item_bar_scale_width, 100, 0,
+                { menuSetting.itemBarWidth * 100 / screenWidth }, RightMenuTag.ITEM_BAR_WIDTH, "%"
+            ),
+            Row.SeekBarRow(
+                R.string.menu_settings_item_bar_scale_height,
+                100,
+                0,
+                { menuSetting.itemBarHeight * 100 / screenHeight },
+                RightMenuTag.ITEM_BAR_HEIGHT,
+                "%"
             )
         )
 
@@ -242,9 +263,19 @@ class RightMenuAdapter(
 
         RightMenuCategory.GAMEPAD -> listOf(
             Row.SwitchRow(
-                R.string.menu_settings_gamepad_disable_mapping,
-                { gameMenu.isGamepadDisabled },
-                RightMenuTag.DISABLE_GAMEPAD_MAPPING
+                R.string.menu_settings_gamepad_control,
+                { gameMenu.isGamepadControl },
+                RightMenuTag.GAMEPAD_CONTROL
+            ),
+            Row.SpinnerRow(
+                R.string.menu_settings_gamepad_input_mode,
+                listOf(
+                    context.getString(R.string.menu_settings_gamepad_input_mode_mapped),
+                    context.getString(R.string.menu_settings_gamepad_input_mode_sdl_direct)
+                ),
+                SdlSettings.gamepadInputMode.value.ordinal,
+                RightMenuTag.GAMEPAD_INPUT_MODE,
+                enabled = gameMenu.isGamepadControl
             ),
             Row.ButtonRow(
                 R.string.menu_settings_gamepad_reset_mapper,
@@ -279,6 +310,16 @@ class RightMenuAdapter(
 
         RightMenuCategory.DEBUG -> listOf(
             Row.SwitchRow(
+                R.string.menu_settings_lock_view,
+                { menuSetting.isLockMenuView },
+                RightMenuTag.LOCK_VIEW
+            ),
+            Row.SwitchRow(
+                R.string.menu_settings_hide_view,
+                { menuSetting.isHideMenuView },
+                RightMenuTag.HIDE_VIEW
+            ),
+            Row.SwitchRow(
                 R.string.menu_settings_show_memory,
                 { menuSetting.isShowMemory },
                 RightMenuTag.SHOW_MEMORY,
@@ -301,9 +342,21 @@ class RightMenuAdapter(
             )
         )
     }
+    }
+
+    /** 编辑模式控件组面板：各组行（点击切组、开关显隐、编辑属性、删除），组行长按拖动排序 */
+    private fun buildEditRows(): List<Row> {
+        val groups = gameMenu.controller?.viewGroups() ?: emptyList()
+        return groups.map { group ->
+            Row.ControlGroupRow(group)
+        }
+    }
 
     private sealed class Row {
-        data class CategoryRow(val category: RightMenuCategory) : Row()
+        /** 控件组行：组名（点击切换编辑组）+ 属性编辑 + 删除 + 显示开关；长按拖动调整渲染层级 */
+        data class ControlGroupRow(
+            val group: ControlViewGroup
+        ) : Row()
 
         data class SwitchRow(
             val labelRes: Int,
@@ -321,7 +374,8 @@ class RightMenuAdapter(
             val labelRes: Int,
             val data: List<String>,
             val selection: Int,
-            val tag: RightMenuTag
+            val tag: RightMenuTag,
+            val enabled: Boolean = true
         ) : Row()
 
         data class SeekBarRow(
@@ -342,20 +396,20 @@ class RightMenuAdapter(
     override fun getItemCount(): Int = rows.size
 
     override fun getItemViewType(position: Int): Int = when (rows[position]) {
-        is Row.CategoryRow -> typeCategory
         is Row.SwitchRow -> typeSwitch
         is Row.ButtonRow -> typeButton
         is Row.SpinnerRow -> typeSpinner
         is Row.SeekBarRow -> typeSeekBar
+        is Row.ControlGroupRow -> typeControlGroup
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
         val inflater = LayoutInflater.from(parent.context)
         val view = when (viewType) {
-            typeCategory -> ItemMenuCategoryBinding.inflate(inflater, parent, false).root
             typeSwitch -> ItemMenuSwitchBinding.inflate(inflater, parent, false).root
             typeButton -> ItemMenuButtonBinding.inflate(inflater, parent, false).root
             typeSpinner -> ItemMenuSpinnerBinding.inflate(inflater, parent, false).root
+            typeControlGroup -> ItemMenuControlGroupBinding.inflate(inflater, parent, false).root
             else -> ItemMenuSeekbarBinding.inflate(inflater, parent, false).root
         }
         return Holder(view)
@@ -363,23 +417,45 @@ class RightMenuAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val row = rows[position]
-        // 菜单条目背景透明，露出抽屉背景
-        holder.itemView.background = null
+        // 条目卡片背景：以对话框背景为基准微亮，暗色下仅微亮避免刺眼（与 AnimationDialog 行样式一致）
+        holder.itemView.background = menuCardBackground(density)
         holder.itemView.findViewById<FCLTextView>(R.id.description)?.visibility = View.GONE
         when (row) {
-            is Row.CategoryRow -> bindCategory(holder, row)
             is Row.SwitchRow -> bindSwitch(holder, row)
             is Row.ButtonRow -> bindButton(holder, row)
             is Row.SpinnerRow -> bindSpinner(holder, row)
             is Row.SeekBarRow -> bindSeekBar(holder, row)
+            is Row.ControlGroupRow -> bindControlGroup(holder, row)
         }
     }
 
-    private fun bindCategory(holder: Holder, row: Row.CategoryRow) {
-        val binding = ItemMenuCategoryBinding.bind(holder.itemView)
-        binding.label.text = context.getString(row.category.titleRes)
-        holder.itemView.setOnClickListener { listener.onCategoryClick(row.category) }
+    /** 控件组行：当前编辑组主题色高亮，组名点击切换，开关控制编辑画布显隐，按钮编辑/删除属性 */
+    private fun bindControlGroup(holder: Holder, row: Row.ControlGroupRow) {
+        val binding = ItemMenuControlGroupBinding.bind(holder.itemView)
+        val isCurrent = row.group == gameMenu.viewGroup
+        binding.label.text = row.group.getName()
+        if (isCurrent) {
+            holder.itemView.background = selectedCardBackground(ThemeEngine.getTheme().getColor(), density)
+        }
+        binding.root.setOnClickListener { listener.onEditGroupSelect(row.group) }
+        binding.copy.setOnClickListener { listener.onEditGroupCopy(row.group) }
+        binding.edit.setOnClickListener { listener.onEditGroupEdit(row.group) }
+        binding.delete.setOnClickListener { listener.onEditGroupRemove(row.group) }
+        binding.switchView.setOnCheckedChangeListener(null)
+        binding.switchView.isChecked = !gameMenu.isEditorGroupHidden(row.group)
+        // 当前编辑组始终显示，不允许隐藏
+        binding.switchView.isEnabled = !isCurrent
+        binding.switchView.setOnCheckedChangeListener { _, checked ->
+            listener.onEditGroupToggle(row.group, checked)
+        }
     }
+
+    /** 该位置是否为控件组行（编辑模式列表全部为组行） */
+    fun isControlGroupPosition(position: Int): Boolean =
+        gameMenu.isEditMode && position in rows.indices
+
+    /** 控件组行位置转组列表索引 */
+    fun groupIndexOf(position: Int): Int = position
 
     private fun bindSwitch(holder: Holder, row: Row.SwitchRow) {
         val binding = ItemMenuSwitchBinding.bind(holder.itemView)
@@ -424,23 +500,14 @@ class RightMenuAdapter(
     private fun bindSpinner(holder: Holder, row: Row.SpinnerRow) {
         val binding = ItemMenuSpinnerBinding.bind(holder.itemView)
         binding.label.text = context.getString(row.labelRes)
-        val adapter = ArrayAdapter(context, R.layout.item_spinner_small, row.data)
-        adapter.setDropDownViewResource(R.layout.item_spinner_dropdown_small)
-        // 先清监听再设 adapter/selection，避免复用行时触发旧监听
-        binding.spinner.onItemSelectedListener = null
-        binding.spinner.adapter = adapter
-        binding.spinner.setSelection(row.selection)
-        binding.spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                listener.onSpinnerSelect(row.tag, position)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        // ViewBinding 对布局中的泛型控件生成 raw 类型，条目实际为 String
+        @Suppress("UNCHECKED_CAST")
+        val spinner = binding.spinner as FCLSpinner<String>
+        spinner.setItems(row.data)
+        spinner.setSelection(row.selection)
+        spinner.isEnabled = row.enabled
+        spinner.setOnItemSelectedListener { position, _ ->
+            listener.onSpinnerSelect(row.tag, position)
         }
     }
 

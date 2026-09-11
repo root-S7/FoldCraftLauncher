@@ -3,6 +3,6 @@
     android:id="@+id/switchView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingStart="5dp"
-    android:paddingEnd="5dp"
+    android:paddingStart="15dp"
+    android:paddingEnd="15dp"
     android:textSize="12sp" />

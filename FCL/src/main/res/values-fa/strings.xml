@@ -5,12 +5,7 @@
     <string name="splash_permission_title">مجوز دسترسی به حافظه</string>
     <string name="splash_permission_close">بستن</string>
     <string name="splash_permission_settings">تنظیمات</string>
-    <string name="splash_permission_settings_msg">شما گزینه "هرگز اجازه داده نشود" را انتخاب کرده اید، لطفا به صورت دستی مجوز های دسترسی به حافظه را در تنظیمات فعال کنید.</string>
-    <string name="splash_loading_renderer">در حال راه‌اندازی رندرر...</string>
-    <string name="splash_loading_java">در حال راه‌اندازی جاوا...</string>
-    <string name="splash_loading_config">در حال بارگذاری پیکربندی و نسخه‌ها...</string>
-    <string name="splash_loading_cache">در حال پاک‌سازی حافظه پنهان...</string>
-
+    <string name="splash_permission_settings_msg">شما گزینه هرگز اجازه داده نشود را انتخاب کرده اید، لطفا به صورت دستی مجوز های دسترسی به حافظه را در تنظیمات فعال کنید.</string>
     <string name="splash_title">به فولد کرفت لانچر خوش آمدید</string>
     <string name="splash_eula_error">خطا در دریافت قرارداد مجوز کاربر نهایی، لطفا اتصال به اینترنت را بررسی کنید.</string>
     <string name="splash_eula_next">پذیرفتن و ادامه</string>
@@ -25,6 +20,21 @@
     <string name="multiplayer">چند نفره</string>
     <string name="setting">تنظیمات</string>
     <string name="about">درباره ما</string>
+    <string name="settings_plugin">افزونه‌ها</string>
+    <string name="plugin_empty">هیچ افزونه‌ای یافت نشد</string>
+    <string name="plugin_type_renderer">رندرر</string>
+    <string name="plugin_type_driver">درایور</string>
+    <string name="plugin_type_native">کتابخانه بومی</string>
+    <string name="plugin_enable">فعال</string>
+    <string name="plugin_uninstall">حذف نصب</string>
+    <string name="plugin_miolibpatcher_desc">وصله بایت‌کد JVM برای رفع مشکلات سازگاری مادها در اندروید</string>
+    <string name="plugin_miolibpatcher_alc10">وصله ALC10</string>
+    <string name="plugin_miolibpatcher_alc10_desc">جایگزینی پیاده‌سازی alcGetCurrentContext برای رفع مشکل بی‌صدایی در Mite (1.6.4)</string>
+    <string name="plugin_miolibpatcher_sable">وصله Sable Rapier</string>
+    <string name="plugin_miolibpatcher_sable_desc">به‌صورت پیش‌فرض فعال است (ویژگی تنظیم نمی‌شود)؛ غیرفعال کردن، غیرفعال‌سازی اجباری وصله Rapier را انجام می‌دهد</string>
+    <string name="plugin_miolibpatcher_asm">در پشتی ASM</string>
+    <string name="plugin_miolibpatcher_asm_desc">حذف بررسی ASM 5.0.4 برای سازگاری با مادهای قدیمی مانند AE1 (بر همه مادهای ASM 5.0.4 تأثیر می‌گذارد؛ با احتیاط فعال کنید)</string>
+    <string name="plugin_env_config">پیکربندی</string>
     <string name="about_sponsor">حمایت مالی</string>
     <string name="about_source">متن باز</string>
     <string name="about_desc">فولد کرفت لانچر یک لانچر ماینکرفت برای اندروید است که به کاربر امکان اجرای ماینکرفت نسخه جاوا ادیشن را در دستگاه های اندرویدی می دهد.\n\nفولد کرفت لانچر توسط تیم FCL توسعه داده شده است.\n\nبیشتر ویژگی های فولد کرفت لانچر بر اساس HMCLCore اصلاح شده اند.\n\nبرنامه برخی از کد های PojavLauncher و Boat را قرض گرفته و استفاده می کند، بنابراین اگر می خواهید این برنامه را توزیع کنید، لطفا از مجوز GPL-v3 پیروی کنید.</string>
@@ -73,9 +83,9 @@
     <string name="account_methods_microsoft_error_no_character">این حساب مالک ماینکرفت جاوا ادیشن نیست.\nممکن است پروفایل بازی ساخته نشده باشد.</string>
     <string name="account_methods_microsoft_error_add_family_probably">لطفا بررسی کنید که سن ذکر شده در تنظیمات حساب شما حداقل ۱۸ سال باشد. اگر اینطور نیست و فکر می کنید این یک خطا است، می توانید برای تغییر آن به وبسایت رسمی مراجعه کنید.</string>
     <string name="account_methods_microsoft_close_page">مجوز حساب مایکروسافت با موفقیت دریافت شد.</string>
-    <string name="account_methods_microsoft_hint">لطفا روی دکمه "ورود" کلیک کنید، یک کد به طور خودکار کپی می شود، کد را در مرورگری که باز می شود وارد کنید تا فرآیند ورود به سیستم تکمیل شود.</string>
+    <string name="account_methods_microsoft_hint">لطفا روی دکمه ورود کلیک کنید، یک کد به طور خودکار کپی می شود، کد را در مرورگری که باز می شود وارد کنید تا فرآیند ورود به سیستم تکمیل شود.</string>
     <string name="account_login_refresh">ورود دوباره</string>
-    <string name="account_login_refresh_microsoft_hint">از آنجایی که مجوز حساب نامعتبر است، باید حساب مایکروسافت خود را دوباره اضافه کنید\nلطفا روی دکمه "تایید" کلیک کنید، یک کد به طور خودکار کپی می شود، کد را در مرورگری که باز می شود وارد کنید تا فرآیند ورود به سیستم تکمیل شود.</string>
+    <string name="account_login_refresh_microsoft_hint">از آنجایی که مجوز حساب نامعتبر است، باید حساب مایکروسافت خود را دوباره اضافه کنید\nلطفا روی دکمه تایید کلیک کنید، یک کد به طور خودکار کپی می شود، کد را در مرورگری که باز می شود وارد کنید تا فرآیند ورود به سیستم تکمیل شود.</string>
     <string name="login_state_microsoft_wait_browser">در انتظار تأیید در مرورگر…</string>
     <string name="login_state_microsoft_xbox">در حال تأیید حساب Xbox Live…</string>
     <string name="login_state_microsoft_xsts">در حال دریافت توکن XSTS ایکس‌باکس…</string>
@@ -141,7 +151,7 @@
     <string name="control_import_failed">وارد کردن کنترلر ناموفق بود!</string>
     <string name="control_upgrade">کنترلر: %s یک کنترلر منسوخ است و ممکن است باعث ایجاد اشکالات ناشناخته شود، آیا می خواهید آن را به نسخه جدید بروزرسانی کنید؟</string>
     <string name="control_incompatible">کنترلر: %s با فولد کرفت لانچر سازگار نیست، ممکن است نسخه لانچر یا کنترلر خیلی قدیمی باشد، لطفا بررسی کنید.</string>
-    <string name="control_upload_requirement">لطفا ابتدا به گروه QQ بپیوندید، سپس روی "اشتراک گذاری" کلیک کنید تا کنترلر و اطلاعات آن را با ادمین به اشتراک بگذارید و منتظر تایید باشید. لطفا با ادمین تماس بگیرید و کنترلر خود را به او معرفی کنید.</string>
+    <string name="control_upload_requirement">لطفا ابتدا به گروه QQ بپیوندید، سپس روی اشتراک گذاری کلیک کنید تا کنترلر و اطلاعات آن را با ادمین به اشتراک بگذارید و منتظر تایید باشید. لطفا با ادمین تماس بگیرید و کنترلر خود را به او معرفی کنید.</string>
     <string name="control_info_author">سازنده:</string>
     <string name="control_info_icon">آیکون:</string>
     <string name="control_info_lang">زبان:</string>
@@ -294,6 +304,7 @@
     <string name="edit_button_text">متن نمایشی</string>
     <string name="edit_button_event_follow">نشانگر انگشت را دنبال می کند</string>
     <string name="edit_button_event_movable">متحرک</string>
+    <string name="edit_button_event_swipable">اتصال کشیدنی</string>
     <string name="edit_button_event_press">فشردن</string>
     <string name="edit_button_event_long_press">فشار طولانی</string>
     <string name="edit_button_event_click">کلیک</string>
@@ -317,6 +328,9 @@
     <string name="edit_direction_event_left">کد کلید چپ</string>
     <string name="edit_direction_event_right">کد کلید راست</string>
     <string name="edit_direction_event_follow">دنبال کردن (فقط برای استایل جوی استیک)</string>
+    <string name="edit_direction_event_dead_zone">ناحیه مرده</string>
+    <string name="edit_direction_event_can_lock">قفل رو به جلو</string>
+    <string name="edit_direction_event_lock_threshold">آستانه قفل</string>
     <string name="edit_direction_event_follow_fix">دنبال کردن ثابت</string>
     <string name="edit_direction_event_follow_center">دنبال کردن انگشت</string>
     <string name="edit_direction_event_follow_always">همه قسمت ها انگشت را دنبال می کنند</string>
@@ -444,6 +458,7 @@
     <string name="menu_controls_current">کنترلر فعلی</string>
     <string name="menu_controls_edit_mode">حالت ویرایش</string>
     <string name="menu_controls_show_boundary">نمایش مرز های ویو</string>
+    <string name="menu_controls_edit_hint">برای انتخاب ضربه بزنید، برای جابه‌جایی بکشید، برای تغییر اندازه دستگیره های گوشه را بکشید</string>
     <string name="menu_controls_hide_all">پنهان کردن همه ویو ها</string>
     <string name="menu_controls_auto_fit">موقعیت تناسب خودکار</string>
     <string name="menu_controls_auto_fit_dist">فاصله موقعیت تناسب خودکار</string>
@@ -509,6 +524,7 @@
     <string name="menu_settings_item_bar_scale">اندازه نوار آیتم</string>
     <string name="menu_settings_item_bar_scale_width">اندازه نوار آیتم (عرض)</string>
     <string name="menu_settings_item_bar_scale_height">اندازه نوار آیتم (ارتفاع)</string>
+    <string name="menu_settings_controls_opacity">شفافیت کنترل ها</string>
     <string name="menu_settings_show_log">نمایش لاگ</string>
     <string name="message_cancelled">عملیات لغو شد</string>
     <string name="message_copy">با موفقیت کپی شد!</string>
@@ -892,4 +908,11 @@
     <string name="world_time">EEE, MMM d, yyyy HH:mm:ss</string>
     <string name="create_account_first">لطفاً پیش از اجرای بازی یک حساب بازی بسازید</string>
     <string name="version_list_refreshing">در حال دریافت فهرست نسخه‌های راه دور…</string>
+    <string name="renderer_source">منبع:</string>
+    <string name="renderer_source_builtin">داخلی</string>
+    <string name="animation_select">انتخاب انیمیشن</string>
+    <string name="animation_idle">بی‌حرکت</string>
+    <string name="animation_idle_variant_1">بی‌حرکت 1</string>
+    <string name="animation_idle_variant_2">بی‌حرکت 2</string>
+    <string name="animation_idle_variant_3">بی‌حرکت 3</string>
 </resources>

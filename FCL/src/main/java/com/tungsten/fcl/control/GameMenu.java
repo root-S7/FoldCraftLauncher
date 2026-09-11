@@ -14,18 +14,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.TranslateAnimation;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,6 +28,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.target.CustomViewTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.material.tabs.TabLayout;
 import com.google.gson.GsonBuilder;
 import com.mio.touchcontroller.TouchController;
 import com.mio.touchcontroller.TouchControllerInputView;
@@ -60,6 +56,8 @@ import com.tungsten.fcl.control.view.LogWindow;
 import com.tungsten.fcl.control.view.MenuView;
 import com.tungsten.fcl.control.view.TouchPad;
 import com.tungsten.fcl.control.view.ViewManager;
+import com.tungsten.fcl.game.sdl.GamepadInputMode;
+import com.tungsten.fcl.game.sdl.SdlSettings;
 import com.tungsten.fcl.setting.Controller;
 import com.tungsten.fcl.setting.Controllers;
 import com.tungsten.fcl.setting.GameOption;
@@ -83,6 +81,8 @@ import com.tungsten.fcllibrary.component.FCLActivity;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 import com.tungsten.fcllibrary.component.view.FCLProgressBar;
+import com.tungsten.fcllibrary.component.view.FCLButton;
+import com.tungsten.fcllibrary.component.view.FCLTabLayout;
 import com.tungsten.fcllibrary.component.view.FCLTextView;
 import com.tungsten.fcllibrary.util.ConvertUtils;
 
@@ -90,6 +90,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -127,19 +131,17 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
     private LeftMenuAdapter leftMenuAdapter;
     private RightMenuAdapter rightMenuAdapter;
     private FCLTextView rightMenuTitle;
-    private FCLTextView rightMenuBack;
+    private FCLTabLayout menuTabs;
+    private FCLButton addGroupButton;
     private RecyclerView rightMenuList;
 
     private MultiplayerDialog multiplayerDialog;
-
-    /** 右菜单切换动画进行中标记，避免动画叠加 */
-    private boolean rightMenuAnimating;
 
     private MenuView menuView;
 
     private TouchController touchController;
 
-    private boolean gamepadDisabled = false;
+    private boolean gamepadControl = true;
     private Thread fpsThread;
     private Thread memoryThread;
     private int lastCursorMode = FCLBridge.CursorEnabled;
@@ -265,6 +267,90 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         return hideAllViewsProperty.get();
     }
 
+    /**
+     * 编辑会话内手动开启显示的控件组（默认只显示当前编辑组，避免大型布局多组叠加渲染卡顿）
+     */
+    private final Set<String> editorVisibleGroups = new HashSet<>();
+
+    public boolean isEditorGroupHidden(@NonNull ControlViewGroup group) {
+        // 当前编辑组始终显示
+        return group != getViewGroup() && !editorVisibleGroups.contains(group.getId());
+    }
+
+    public void setEditorGroupHidden(@NonNull ControlViewGroup group, boolean hidden) {
+        if (hidden) {
+            editorVisibleGroups.remove(group.getId());
+        } else {
+            editorVisibleGroups.add(group.getId());
+        }
+    }
+
+    /**
+     * 复制控件组：完整克隆按键与方向键数据（控件 id 重新生成），
+     * 新组插入源组之后并立即在编辑画布显示
+     */
+    private void copyViewGroup(@NonNull ControlViewGroup group) {
+        ControlViewGroup copy = new ControlViewGroup(UUID.randomUUID().toString());
+        copy.setName(group.getName() + getActivity().getString(R.string.menu_control_view_group_copy_suffix));
+        copy.setVisibility(group.getVisibility());
+        ControlViewGroup.ViewData viewData = new ControlViewGroup.ViewData();
+        for (ControlButtonData button : group.getViewData().buttonList()) {
+            viewData.buttonList().add(button.clone());
+        }
+        for (ControlDirectionData direction : group.getViewData().directionList()) {
+            viewData.directionList().add(direction.clone());
+        }
+        copy.setViewData(viewData);
+        copy.setDataLoaded(true);
+        List<ControlViewGroup> groups = getController().viewGroups();
+        groups.add(groups.indexOf(group) + 1, copy);
+        // 副本在编辑画布立即显示
+        setEditorGroupHidden(copy, false);
+        rightMenuAdapter.rebuild();
+        viewManager.initializeController();
+    }
+
+    /**
+     * 新建控件组（右侧面板"添加控件组"）
+     */
+    private void addEditGroup() {
+        EditViewGroupDialog dialog = new EditViewGroupDialog(getActivity(), this, new ControlViewGroup(UUID.randomUUID().toString()), (name, visibility) -> {
+            ControlViewGroup viewGroup = new ControlViewGroup(UUID.randomUUID().toString());
+            viewGroup.setName(name);
+            viewGroup.setVisibility(visibility);
+            getController().addViewGroup(viewGroup);
+            rightMenuAdapter.rebuild();
+            viewManager.initializeController();
+        });
+        dialog.show();
+    }
+
+    /**
+     * 切换当前编辑组（含样式名重解析），并刷新控件组面板
+     */
+    private void selectViewGroup(@Nullable ControlViewGroup viewGroup) {
+        setViewGroup(viewGroup);
+        if (viewGroup != null) {
+            viewGroup.getViewData().buttonList().forEach(it -> {
+                String name = it.getStyle().getName();
+                ControlButtonStyle style = ButtonStyles.findStyleByName(name);
+                if (name.equals(style.getName())) {
+                    it.setStyle(style);
+                }
+            });
+            viewGroup.getViewData().directionList().forEach(it -> {
+                String name = it.getStyle().getName();
+                ControlDirectionStyle style = DirectionStyles.findStyleByName(name);
+                if (name.equals(style.getName())) {
+                    it.setStyle(style);
+                }
+            });
+        }
+        if (rightMenuAdapter != null) {
+            rightMenuAdapter.rebuild();
+        }
+    }
+
     private final ObjectProperty<Controller> controllerProperty = new SimpleObjectProperty<>(this, "controller", null);
 
     public ObjectProperty<Controller> controllerProperty() {
@@ -289,7 +375,9 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         viewGroupProperty.set(viewGroup);
     }
 
-    /** 编辑模式下未选中视图组时选中第一个，保证编辑视图立即可加载，不依赖菜单列表绑定时的兜底回调 */
+    /**
+     * 编辑模式下未选中视图组时选中第一个，保证编辑视图立即可加载，不依赖菜单列表绑定时的兜底回调
+     */
     private void selectDefaultViewGroup() {
         if (editModeProperty.get() && getViewGroup() == null && !getController().viewGroups().isEmpty()) {
             setViewGroup(getController().viewGroups().get(0));
@@ -301,12 +389,14 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         return viewGroupProperty.get();
     }
 
-    public boolean isGamepadDisabled() {
-        return gamepadDisabled;
+    public boolean isGamepadControl() {
+        return gamepadControl;
     }
 
-    public void setGamepadDisabled(boolean gamepadDisabled) {
-        this.gamepadDisabled = gamepadDisabled;
+    public void setGamepadControl(boolean gamepadControl) {
+        this.gamepadControl = gamepadControl;
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("launcher", MODE_PRIVATE);
+        sharedPreferences.edit().putBoolean("gamepad_control", gamepadControl).apply();
     }
 
     private void initLeftMenu() {
@@ -335,14 +425,56 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         });
         leftMenuList.setAdapter(leftMenuAdapter);
         leftMenuAdapter.rebuild();
+        leftMenuList.addItemDecoration(new SpacingDecoration(
+                Math.round(6 * activity.getResources().getDisplayMetrics().density)));
 
         getController().addListener(i -> leftMenuAdapter.rebuild());
         controllerProperty.addListener(invalidate -> {
             setViewGroup(null);
+            if (isEditMode()) {
+                selectDefaultViewGroup();
+            }
             leftMenuAdapter.rebuild();
+            if (rightMenuAdapter != null) {
+                rightMenuAdapter.rebuild();
+            }
             getController().addListener(i -> leftMenuAdapter.rebuild());
         });
-        editModeProperty.addListener(i -> leftMenuAdapter.rebuild());
+        editModeProperty.addListener(i -> {
+            leftMenuAdapter.rebuild();
+            if (!isEditMode()) {
+                // 退出编辑：恢复分类标签页面板（分类保持标签栏当前选中项）
+                if (rightMenuAdapter != null) {
+                    rightMenuAdapter.rebuild();
+                }
+                if (rightMenuList != null) {
+                    rightMenuList.scrollToPosition(0);
+                }
+                if (addGroupButton != null) {
+                    addGroupButton.setVisibility(View.GONE);
+                }
+                if (rightMenuTitle != null) {
+                    rightMenuTitle.setVisibility(View.GONE);
+                }
+                if (menuTabs != null) {
+                    menuTabs.setVisibility(View.VISIBLE);
+                }
+                return;
+            }
+            // 进入编辑：隐藏标签栏，右菜单整体替换为控件组面板
+            if (rightMenuAdapter != null) {
+                rightMenuAdapter.rebuild();
+            }
+            if (addGroupButton != null) {
+                addGroupButton.setVisibility(View.VISIBLE);
+            }
+            if (rightMenuTitle != null) {
+                rightMenuTitle.setVisibility(View.VISIBLE);
+            }
+            if (menuTabs != null) {
+                menuTabs.setVisibility(View.GONE);
+            }
+        });
 
         hideAllViewsProperty.addListener(i -> {
             if (isHideAllViews()) {
@@ -351,16 +483,10 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         });
     }
 
-    @SuppressLint("SetTextI18n")
     private void initRightMenu() {
         rightMenuList = findViewById(R.id.right_menu_list);
         rightMenuList.setLayoutManager(new LinearLayoutManager(activity));
         rightMenuAdapter = new RightMenuAdapter(activity, this, new RightMenuAdapter.Listener() {
-            @Override
-            public void onCategoryClick(@NonNull RightMenuCategory category) {
-                showCategory(category);
-            }
-
             @Override
             public void onButtonClick(@NonNull RightMenuTag tag) {
                 handleRightButtonClick(tag);
@@ -385,84 +511,159 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             public void onSeekBarChange(@NonNull RightMenuTag tag, int progress) {
                 handleRightSeekBarChange(tag, progress);
             }
+
+            @Override
+            public void onEditGroupSelect(@NonNull ControlViewGroup group) {
+                selectViewGroup(group);
+            }
+
+            @Override
+            public void onEditGroupToggle(@NonNull ControlViewGroup group, boolean visible) {
+                setEditorGroupHidden(group, !visible);
+                viewManager.initializeController();
+            }
+
+            @Override
+            public void onEditGroupCopy(@NonNull ControlViewGroup group) {
+                // 轻量加载的组先补全 viewData 再整体克隆
+                Controllers.loadViewGroup(getController(), group, new Controllers.ViewGroupLoadCallback() {
+                    @Override
+                    public void onLoaded(ControlViewGroup loaded) {
+                        copyViewGroup(loaded);
+                    }
+
+                    @Override
+                    public void onFailed(Throwable e) {
+                        Logging.LOG.log(Level.SEVERE, "Failed to copy view group", e);
+                        Toast.makeText(getActivity(), getActivity().getString(R.string.menu_control_view_group_copy_failed), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            @Override
+            public void onEditGroupAdd() {
+                addEditGroup();
+            }
+
+            @Override
+            public void onEditGroupEdit(@NonNull ControlViewGroup group) {
+                EditViewGroupDialog dialog = new EditViewGroupDialog(getActivity(), GameMenu.this, group, (name, visibility) -> {
+                    group.setName(name);
+                    group.setVisibility(visibility);
+                    getController().updateViewGroup(group);
+                    rightMenuAdapter.rebuild();
+                });
+                dialog.show();
+            }
+
+            @Override
+            public void onEditGroupRemove(@NonNull ControlViewGroup group) {
+                FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(activity);
+                builder.setCancelable(false);
+                builder.setAlertLevel(FCLAlertDialog.AlertLevel.INFO);
+                builder.setMessage(activity.getString(R.string.menu_control_view_group_delete));
+                builder.setPositiveButton(() -> {
+                    getController().removeViewGroup(group);
+                    if (group == getViewGroup()) {
+                        setViewGroup(null);
+                    }
+                    rightMenuAdapter.rebuild();
+                    viewManager.initializeController();
+                });
+                builder.setNegativeButton(null);
+                builder.create().show();
+            }
         });
         rightMenuList.setAdapter(rightMenuAdapter);
         rightMenuAdapter.rebuild();
+        rightMenuList.addItemDecoration(new SpacingDecoration(
+                Math.round(6 * activity.getResources().getDisplayMetrics().density)));
+        // 编辑模式控件组长按拖动排序：拖动中实时交换组顺序，松手持久化并按新 z 序重建控件
+        ItemTouchHelper.SimpleCallback dragCallback = new ItemTouchHelper.SimpleCallback(
+                ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0) {
+            @Override
+            public boolean isLongPressDragEnabled() {
+                return isEditMode();
+            }
+
+            @Override
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                return rightMenuAdapter.isControlGroupPosition(viewHolder.getBindingAdapterPosition())
+                        ? makeMovementFlags(ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0)
+                        : makeMovementFlags(0, 0);
+            }
+
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView,
+                                  @NonNull RecyclerView.ViewHolder viewHolder,
+                                  @NonNull RecyclerView.ViewHolder target) {
+                int from = rightMenuAdapter.groupIndexOf(viewHolder.getBindingAdapterPosition());
+                int to = rightMenuAdapter.groupIndexOf(target.getBindingAdapterPosition());
+                List<ControlViewGroup> groups = getController().viewGroups();
+                if (from < 0 || to < 0 || from >= groups.size() || to >= groups.size()) {
+                    return false;
+                }
+                Collections.swap(groups, from, to);
+                rightMenuAdapter.notifyItemMoved(viewHolder.getBindingAdapterPosition(), target.getBindingAdapterPosition());
+                return true;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+            }
+
+            @Override
+            public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                super.clearView(recyclerView, viewHolder);
+                // 拖动结束：持久化组顺序并按新 z 序重建控件
+                getViewManager().saveController();
+                viewManager.initializeController();
+            }
+        };
+        new ItemTouchHelper(dragCallback).attachToRecyclerView(rightMenuList);
+
+        // 分类标签栏：顶部图标切换分类，下方列表直接显示所选分类的功能项。
+        // menu_right.xml 的 TabItem 顺序须与 RightMenuCategory 声明顺序一致
+        menuTabs = findViewById(R.id.menu_tabs);
+        RightMenuCategory[] categories = RightMenuCategory.values();
+        for (int i = 0; i < menuTabs.getTabCount() && i < categories.length; i++) {
+            TabLayout.Tab tab = menuTabs.getTabAt(i);
+            if (tab != null) {
+                // 纯图标 Tab 无文字，以分类名作无障碍描述
+                tab.setContentDescription(activity.getString(categories[i].getTitleRes()));
+            }
+        }
+        menuTabs.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(@NonNull TabLayout.Tab tab) {
+                if (tab.getPosition() < categories.length) {
+                    rightMenuAdapter.showCategory(categories[tab.getPosition()]);
+                    rightMenuList.scrollToPosition(0);
+                }
+            }
+
+            @Override
+            public void onTabUnselected(@NonNull TabLayout.Tab tab) {
+            }
+
+            @Override
+            public void onTabReselected(@NonNull TabLayout.Tab tab) {
+            }
+        });
+        // XML 声明的 TabItem 无默认选中态，需显式选中第一个分类
+        menuTabs.selectTab(menuTabs.getTabAt(0));
 
         rightMenuTitle = findViewById(R.id.menu_title);
-        rightMenuBack = findViewById(R.id.menu_back);
-        rightMenuBack.setOnClickListener(v -> showCategories());
+        // 编辑模式控件组面板的底部固定按钮
+        addGroupButton = findViewById(R.id.add_group_button);
+        addGroupButton.setOnClickListener(v -> addEditGroup());
+        addGroupButton.setVisibility(isEditMode() ? View.VISIBLE : View.GONE);
+        // editModeProperty 的监听注册于本方法之前，启动即处于编辑态（布局编辑器）时
+        // 监听回调会因标题未初始化而跳过，此处补一次同步
+        rightMenuTitle.setVisibility(isEditMode() ? View.VISIBLE : View.GONE);
+        menuTabs.setVisibility(isEditMode() ? View.GONE : View.VISIBLE);
 
         logWindow.setVisibility(menuSetting.isShowLog() || (!isSimulated() && menuSetting.isAutoShowLog()));
-    }
-
-    private void showCategory(RightMenuCategory category) {
-        switchRightMenuContent(true, () -> {
-            rightMenuAdapter.showCategory(category);
-            rightMenuTitle.setText(category.getTitleRes());
-            rightMenuBack.setVisibility(View.VISIBLE);
-        });
-    }
-
-    private void showCategories() {
-        switchRightMenuContent(false, () -> {
-            rightMenuAdapter.showCategories();
-            rightMenuTitle.setText(R.string.menu_settings);
-            rightMenuBack.setVisibility(View.GONE);
-        });
-    }
-
-    /** 菜单切换动画：旧列表淡出后切换内容，新列表滑入淡入 */
-    private void switchRightMenuContent(boolean toCategory, Runnable refresh) {
-        if (rightMenuAnimating) {
-            refresh.run();
-            return;
-        }
-        rightMenuAnimating = true;
-        AlphaAnimation fadeOut = new AlphaAnimation(1f, 0f);
-        fadeOut.setDuration(150);
-        fadeOut.setInterpolator(new AccelerateInterpolator());
-        fadeOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                refresh.run();
-                rightMenuList.scrollToPosition(0);
-                AnimationSet enter = new AnimationSet(true);
-                enter.addAnimation(new AlphaAnimation(0f, 1f));
-                // 进入二级菜单从右侧滑入，返回一级从左侧滑入
-                enter.addAnimation(new TranslateAnimation(
-                        Animation.RELATIVE_TO_SELF, toCategory ? 0.15f : -0.15f,
-                        Animation.RELATIVE_TO_SELF, 0f,
-                        Animation.RELATIVE_TO_SELF, 0f,
-                        Animation.RELATIVE_TO_SELF, 0f));
-                enter.setDuration(180);
-                enter.setInterpolator(new DecelerateInterpolator());
-                enter.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        rightMenuAnimating = false;
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-                    }
-                });
-                rightMenuList.startAnimation(enter);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
-        rightMenuList.startAnimation(fadeOut);
     }
 
     @Override
@@ -470,6 +671,7 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         this.activity = activity;
         this.fclBridge = fclBridge;
         this.simulated = fclBridge == null;
+        this.gamepadControl = activity.getSharedPreferences("launcher", MODE_PRIVATE).getBoolean("gamepad_control", true);
         this.fclInput = new FCLInput(this);
         if (!Controllers.isInitialized()) {
             Controllers.init();
@@ -742,11 +944,6 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
 
     private void handleLeftButtonClick(LeftMenuTag tag) {
         switch (tag) {
-            case MANAGE_VIEW_GROUPS: {
-                ViewGroupDialog dialog = new ViewGroupDialog(getActivity(), this, false, FXCollections.observableList(new ArrayList<>()), null);
-                dialog.show();
-                break;
-            }
             case ADD_BUTTON: {
                 if (getViewGroup() == null) {
                     Toast.makeText(getActivity(), getActivity().getString(R.string.edit_view_no_group), Toast.LENGTH_SHORT).show();
@@ -803,7 +1000,10 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             case EDIT_MODE:
                 setEditMode(checked);
                 if (checked) {
+                    // 每次进入编辑模式重置为只显示当前编辑组，其他组由右侧面板手动开启
+                    editorVisibleGroups.clear();
                     selectDefaultViewGroup();
+                    Toast.makeText(getActivity(), R.string.menu_controls_edit_hint, Toast.LENGTH_LONG).show();
                 }
                 break;
             case SHOW_BOUNDARY:
@@ -821,31 +1021,15 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
     private void handleLeftSpinnerSelect(LeftMenuTag tag, int position) {
         if (tag == LeftMenuTag.CURRENT_CONTROLLER) {
             setController(Controllers.getControllers().get(position));
-        } else if (tag == LeftMenuTag.CURRENT_VIEW_GROUP) {
-            ControlViewGroup viewGroup = getController().viewGroups().get(position);
-            setViewGroup(viewGroup);
-            if (viewGroup != null) {
-                viewGroup.getViewData().buttonList().forEach(it -> {
-                    String name = it.getStyle().getName();
-                    ControlButtonStyle style = ButtonStyles.findStyleByName(name);
-                    if (name.equals(style.getName())) {
-                        it.setStyle(style);
-                    }
-                });
-                viewGroup.getViewData().directionList().forEach(it -> {
-                    String name = it.getStyle().getName();
-                    ControlDirectionStyle style = DirectionStyles.findStyleByName(name);
-                    if (name.equals(style.getName())) {
-                        it.setStyle(style);
-                    }
-                });
-            }
         }
     }
 
     private void handleLeftSeekBarChange(LeftMenuTag tag, int progress) {
         if (tag == LeftMenuTag.AUTO_FIT_DIST) {
             menuSetting.setAutoFitDist(progress);
+        } else if (tag == LeftMenuTag.CONTROLS_OPACITY) {
+            menuSetting.setControlsOpacity(progress);
+            viewManager.applyControlsOpacity();
         }
     }
 
@@ -942,8 +1126,10 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             case PHYSICAL_MOUSE:
                 menuSetting.setPhysicalMouseMode(checked);
                 break;
-            case DISABLE_GAMEPAD_MAPPING:
-                gamepadDisabled = checked;
+            case GAMEPAD_CONTROL:
+                setGamepadControl(checked);
+                // 联动刷新：手柄关闭时输入模式选择器禁用
+                rightMenuAdapter.rebuild();
                 break;
             case PERFORMANCE_MODE:
                 menuSetting.setPerformanceMode(checked);
@@ -958,6 +1144,9 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
                 if (baseLayout.getBackground() != null) {
                     logWindow.setVisibility(menuSetting.isAutoShowLog());
                 }
+                break;
+            case SDL_AUTO_SHOW_IME:
+                SdlSettings.setSdlAutoShowIme(checked);
                 break;
         }
     }
@@ -975,6 +1164,8 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             menuSetting.setGestureMode(GestureMode.getById(position));
         } else if (tag == RightMenuTag.MOUSE_MODE) {
             menuSetting.setMouseMoveMode(MouseMoveMode.getById(position));
+        } else if (tag == RightMenuTag.GAMEPAD_INPUT_MODE) {
+            SdlSettings.setGamepadInputMode(GamepadInputMode.values()[position]);
         }
     }
 

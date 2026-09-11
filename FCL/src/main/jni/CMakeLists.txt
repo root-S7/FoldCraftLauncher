@@ -11,103 +11,133 @@ find_package(bytehook REQUIRED CONFIG)
 
 # 设置全局包含目录
 include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 # 检查架构
-if(${ANDROID_ABI} STREQUAL "arm64-v8a")
+if (${ANDROID_ABI} STREQUAL "arm64-v8a")
     add_definitions(-DADRENO_POSSIBLE)
-endif()
+endif ()
 
-# 模块：fcl
+# 模块：androidnsbypass - Android linker 命名空间绕过工具库
+# （vendor 自 Amethyst-Android 的 androidnsbypass 子模块 616dc33，MIT 协议）
 add_library(
-    fcl
-    SHARED
-    fcl/fcl_bridge.c
-    fcl/fcl_loader.c
+        androidnsbypass
+        SHARED
+        androidnsbypass/android_linker_ns.cpp
+        androidnsbypass/elf_soname_patcher.c
+        androidnsbypass/nsbypass.c
+        androidnsbypass/nsbypass_dlfcn.c
+        androidnsbypass/utils.c
+)
+
+set_target_properties(
+        androidnsbypass
+        PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
 )
 
 target_include_directories(
-    fcl
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/fcl/include
-    ${CMAKE_CURRENT_SOURCE_DIR}
+        androidnsbypass
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/androidnsbypass/include
 )
 
 target_link_libraries(
-    fcl
-    PRIVATE
-    bytehook::bytehook
-    log
-    dl
-    android
+        androidnsbypass
+        PRIVATE
+        log
 )
 
-# 模块：linkerhook - 与 Amethyst-Android 布局一致，hook.c 位于 driver_helper/
+# 模块：fcl
 add_library(
-    linkerhook
-    SHARED
-    driver_helper/hook.c
+        fcl
+        SHARED
+        fcl/fcl_loader.c
 )
 
+target_include_directories(
+        fcl
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/fcl/include
+        ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+target_link_libraries(
+        fcl
+        PRIVATE
+        bytehook::bytehook
+        log
+        dl
+        android
+)
+
+# 模块：linkerhook - 拦截 libvulkan 加载器以加载 Turnip 驱动
+add_library(
+        linkerhook
+        SHARED
+        driver_helper/internal_android_dlopen_hook/turnip/hook.c
+)
+
+target_link_libraries(
+        linkerhook
+        PRIVATE
+        androidnsbypass
+)
+
+# 符号全局化，确保 libvulkan 加载器优先解析到 hook 的 android_dlopen_ext
 target_link_options(
-    linkerhook
-    PRIVATE
-    -z global
+        linkerhook
+        PRIVATE
+        -z global
 )
 
 # 模块：awt_headless - 占位库
 add_library(
-    awt_headless
-    SHARED
-    # 空库，仅作为占位
-    ${CMAKE_CURRENT_SOURCE_DIR}/awt_headless/placeholder.c
+        awt_headless
+        SHARED
+        # 空库，仅作为占位
+        ${CMAKE_CURRENT_SOURCE_DIR}/awt_headless/placeholder.c
 )
 
 # 为占位库添加必要的链接选项
 target_link_libraries(
-    awt_headless
-    PRIVATE
-    log
+        awt_headless
+        PRIVATE
+        log
 )
 
 # 模块：awt_xawt
 add_library(
-    awt_xawt
-    SHARED
-    awt_xawt/xawt_fake.c
+        awt_xawt
+        SHARED
+        awt_xawt/xawt_fake.c
 )
 
 target_include_directories(
-    awt_xawt
-    PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}/awt_xawt
+        awt_xawt
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/awt_xawt
 )
 
 target_link_libraries(
-    awt_xawt
-    PRIVATE
-    awt_headless
+        awt_xawt
+        PRIVATE
+        awt_headless
 )
 
 # 模块：pojavexec_awt
 add_library(
-    pojavexec_awt
-    SHARED
-    awt_bridge.c
-)
-
-target_link_libraries(
-    pojavexec_awt
-    PRIVATE
-    fcl
+        pojavexec_awt
+        SHARED
+        awt_bridge.c
 )
 
 # 模块：pojavexec
 add_library(
     pojavexec
     SHARED
-    bigcoreaffinity.c
     egl_bridge.c
     ctxbridges/loader_dlopen.c
     ctxbridges/gl_bridge.c
@@ -119,36 +149,139 @@ add_library(
     input_bridge_v3.c
     virgl/virgl.c
     jre_launcher.c
+    utils.c
     jvm_hooks/java_exec_hooks.c
     jvm_hooks/emui_iterator_fix_hook.c
     jvm_hooks/lwjgl_dlopen_hook.c
-    driver_helper/nsbypass.c
+    native_hooks/exit_hook.c
+    native_hooks/chmod_hook.c
+    native_hooks/sdl_hook.c
+    native_hooks/sdl_dlopen_hook.c
 )
 
 target_include_directories(
-    pojavexec
-    PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/ctxbridges
-    ${CMAKE_CURRENT_SOURCE_DIR}/environ
-    ${CMAKE_CURRENT_SOURCE_DIR}/virgl
+        pojavexec
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/ctxbridges
+        ${CMAKE_CURRENT_SOURCE_DIR}/environ
+        ${CMAKE_CURRENT_SOURCE_DIR}/virgl
 )
 
 target_link_libraries(
-    pojavexec
-    PRIVATE
-    fcl
-    log
-    dl
-    android
+        pojavexec
+        PRIVATE
+        fcl
+        androidnsbypass
+        log
+        dl
+        android
+        bytehook::bytehook
 )
 
 # 仅在arm64-v8a架构下链接EGL和GLESv2
-if(${ANDROID_ABI} STREQUAL "arm64-v8a")
+if (${ANDROID_ABI} STREQUAL "arm64-v8a")
     target_link_libraries(
-        pojavexec
-        PRIVATE
-        EGL
-        GLESv2
+            pojavexec
+            PRIVATE
+            EGL
+            GLESv2
     )
-endif()
+endif ()
+
+# 模块：glxshim - 为 LWJGL 3.3.5 之前的版本提供 glXGetProcAddress 符号
+add_library(
+        glxshim
+        SHARED
+        driver_helper/glxshim/glxshim.c
+)
+
+target_link_libraries(
+        glxshim
+        PRIVATE
+        pojavexec
+)
+
+# 模块：jsound - OpenJDK libjsound 核心 + OpenAL 平台后端
+# 为四套 JRE（jre8/17/21/25）提供 javax.sound.sampled 的原生实现，
+# 核心 .c/.h 文件 vendor 自 openjdk/jdk17u
+# （https://github.com/openjdk/jdk17u/blob/master/src/java.desktop/share/native/libjsound，
+# GPL-2.0 + Classpath 异常，与本项目 GPL-3.0 兼容；8u 与 17u 的该目录字节级一致，
+# 故一套源码可同时服务两代 ABI）。PORT/MIDI 子系统关闭（桩返回 0 设备），
+# 音频路径由 jsound_openal.c 桥接 OpenAL，JDK8 的 Platform 额外 native 由 jdk8_compat.c 补齐
+add_library(
+        jsound
+        SHARED
+        jsound/Utilities.c
+        jsound/Platform.c
+        jsound/DirectAudioDevice.c
+        jsound/DirectAudioDeviceProvider.c
+        jsound/PortMixer.c
+        jsound/PortMixerProvider.c
+        jsound/MidiOutDevice.c
+        jsound/MidiOutDeviceProvider.c
+        jsound/MidiInDevice.c
+        jsound/MidiInDeviceProvider.c
+        jsound/PlatformMidi.c
+        jsound/jsound_openal.c
+        jsound/jdk8_compat.c
+)
+
+target_include_directories(
+        jsound
+        PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/jsound
+)
+
+target_compile_definitions(
+        jsound
+        PRIVATE
+        X_PLATFORM=X_LINUX
+        _LITTLE_ENDIAN
+        USE_DAUDIO=TRUE
+        USE_PORTS=FALSE
+        USE_PLATFORM_MIDI_OUT=FALSE
+        USE_PLATFORM_MIDI_IN=FALSE
+)
+
+target_link_libraries(
+        jsound
+        PRIVATE
+        log
+        dl
+)
+
+# 模块：flite 系列 shim —— 游戏 text2speech 经 JNA 按名加载的 flite 语音引擎接口，
+# 桥接到安卓系统 TTS（核心见 flite/flite_bridge.c 与 com.mio.flite.FliteTts，
+# 依赖启动器注入的 DALVIK_JAVAVM / DALVIK_APPLICATION 环境变量）
+add_library(
+        flite
+        SHARED
+        flite/flite_bridge.c
+)
+
+target_link_libraries(
+        flite
+        PRIVATE
+        log
+)
+
+# fliteWrapper：text2speech 1.13.9 及更早的接口名（init/say），转发 libflite
+add_library(
+        fliteWrapper
+        SHARED
+        flite/flite_wrapper.c
+)
+
+target_link_libraries(
+        fliteWrapper
+        PRIVATE
+        flite
+)
+
+# flite_cmu_us_kal16：仅提供非空 voice 指针的占位符号
+add_library(
+        flite_cmu_us_kal16
+        SHARED
+        flite/flite_cmu_us_kal16.c
+)

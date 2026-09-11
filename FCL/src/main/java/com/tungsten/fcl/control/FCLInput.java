@@ -11,6 +11,10 @@ import android.view.View;
 import androidx.annotation.NonNull;
 
 import com.tungsten.fcl.control.gamepad.Gamepad;
+import com.tungsten.fcl.game.sdl.GamepadInputMode;
+import com.tungsten.fcl.game.sdl.GamepadModePromptDialog;
+import com.tungsten.fcl.game.sdl.SdlBridge;
+import com.tungsten.fcl.game.sdl.SdlSettings;
 import com.tungsten.fcl.setting.GameOption;
 import com.mio.util.AndroidUtilKt;
 import com.tungsten.fclauncher.bridge.FCLBridge;
@@ -18,6 +22,7 @@ import com.tungsten.fclauncher.keycodes.AndroidKeycodeMap;
 import com.tungsten.fclauncher.keycodes.FCLKeycodes;
 import com.tungsten.fclauncher.keycodes.LwjglKeycodeMap;
 
+import org.libsdl.app.SDLActivity;
 import org.lwjgl.glfw.CallbackBridge;
 
 import java.util.HashMap;
@@ -256,8 +261,20 @@ public class FCLInput implements View.OnCapturedPointerListener {
         }
 
         //gamepad
-        if (!menu.isGamepadDisabled() && Gamepad.isGamepadEvent(event)) {
+        if (menu.isGamepadControl() && Gamepad.isGamepadEvent(event)) {
+            // 首次手柄输入时弹窗选择输入模式，确认前吞掉手柄输入
+            if (GamepadModePromptDialog.checkAndShow(menu.getActivity())) {
+                return true;
+            }
             checkGamepad();
+            // SDL 直通模式：原始事件交给 SDL 手柄子系统；SDL 未就绪时也吞掉，
+            // 不落入映射层，避免直通与映射同时响应造成双重操作
+            if (SdlSettings.getGamepadInputMode().getValue() == GamepadInputMode.SDL_DIRECT) {
+                if (SdlBridge.getSdlEnabled()) {
+                    return SDLActivity.handleKeyEvent(null, event.getKeyCode(), event, null);
+                }
+                return true;
+            }
             return gamepad.handleKeyEvent(event);
         }
         //keyboard
@@ -271,8 +288,23 @@ public class FCLInput implements View.OnCapturedPointerListener {
     }
 
     public boolean handleGenericMotionEvent(MotionEvent event) {
-        if (!menu.isGamepadDisabled() && Gamepad.isGamepadEvent(event)) {
+        if (menu.isGamepadControl() && Gamepad.isGamepadEvent(event)) {
+            // 首次手柄输入时弹窗选择输入模式，确认前吞掉手柄输入
+            if (GamepadModePromptDialog.checkAndShow(menu.getActivity())) {
+                return true;
+            }
             checkGamepad();
+            // SDL 直通模式：原始摇杆事件交给 SDL；SDL 未就绪或转发失败时也吞掉，
+            // 不落入映射层，避免直通与映射同时响应造成双重操作
+            if (SdlSettings.getGamepadInputMode().getValue() == GamepadInputMode.SDL_DIRECT) {
+                if (SdlBridge.getSdlEnabled()) {
+                    try {
+                        return SDLActivity.forwardGenericMotionToSDL(null, event);
+                    } catch (Throwable ignored) {
+                    }
+                }
+                return true;
+            }
             if (choreographer == null) {
                 choreographer = Choreographer.getInstance();
                 Choreographer.FrameCallback frameCallback = new Choreographer.FrameCallback() {
