@@ -8,6 +8,7 @@
       "minMCVer": "1.17",
       "maxMCVer": ""
     },
+    "ignore": true,
     "label": "MobileGlues Plugin",
     "versionName": "2.0.0"
   }

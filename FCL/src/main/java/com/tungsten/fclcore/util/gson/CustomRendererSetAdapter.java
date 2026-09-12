@@ -36,6 +36,7 @@ public class CustomRendererSetAdapter implements JsonSerializer<Set<Renderer>>, 
         for (Map.Entry<String, JsonElement> entry : jsonObject.entrySet()) {
             if(!entry.getValue().isJsonObject()) continue;
             var appJson = entry.getValue().getAsJsonObject();
+            if(appJson.has("ignore") && appJson.get("ignore").getAsBoolean()) continue;
 
             var label = getStringValue(appJson, "label");
             if(label == null || label.trim().isEmpty()) label = entry.getKey();

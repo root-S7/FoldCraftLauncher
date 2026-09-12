@@ -2,7 +2,6 @@ package com.mio.util
 
 import android.content.pm.ApplicationInfo
 import android.os.Bundle
-import android.util.Log
 import com.google.gson.JsonObject
 import com.mio.data.Renderer
 import com.mio.plugin.PluginManager
@@ -54,10 +53,13 @@ fun checkRendererSo(r: Renderer): Boolean {
     list.asSequence()
         .flatMap { it.split(Regex("[^A-Za-z0-9_.-]+")).asSequence() }
         .filter { it.endsWith(".so") }
+        .ifEmpty {
+            require(false) { "“${r.name}”渲染器没有检测到任何so文件！" }
+            emptySequence()
+        }
         .distinct()
         .forEach { so ->
             val file = File(NATIVE_LIB_DIR, so)
-            Log.d("事件", "缺少native库：${file.absolutePath}")
             require(file.exists()) { "缺少native库：${file.absolutePath}" }
         }
 
