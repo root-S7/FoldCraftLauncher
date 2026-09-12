@@ -3,7 +3,7 @@ package com.tungsten.fclcore.util.gson;
 import static com.mio.plugin.RendererPlugin.parseAndCollect;
 import static com.mio.util.CustomRendererLoaderKt.buildApplicationInfo;
 import static com.mio.util.CustomRendererLoaderKt.buildBundle;
-import static com.tungsten.fcl.FCLApp.getAppContext;
+import static com.tungsten.fclauncher.utils.FCLPath.NATIVE_LIB_DIR;
 import static com.tungsten.fclcore.util.StringUtils.getStringValue;
 
 import com.mio.data.Renderer;
@@ -15,7 +15,6 @@ import com.google.gson.*;
 import com.mio.plugin.PluginManager;
 
 import java.lang.reflect.Type;
-import java.util.stream.Collectors;
 
 public class CustomRendererSetAdapter implements JsonSerializer<Set<Renderer>>, JsonDeserializer<Set<Renderer>> {
 
@@ -58,16 +57,17 @@ public class CustomRendererSetAdapter implements JsonSerializer<Set<Renderer>>, 
     }
 
     private boolean checkRendererSo(Renderer r) {
-        var nativeDir = new File(getAppContext().getApplicationInfo().nativeLibraryDir);
         var list = new ArrayList<String>();
         list.add(r.getGlName());
         list.add(r.getEglName());
         if(r.getBoatEnv() != null) list.addAll(r.getBoatEnv());
         if(r.getPojavEnv() != null) list.addAll(r.getPojavEnv());
 
-        return list.stream().filter(Objects::nonNull).allMatch(text -> Arrays.stream(text.split("[^A-Za-z0-9_\\-.]+"))
+        return list.stream()
+                .filter(Objects::nonNull)
+                .flatMap(text -> Arrays.stream(text.split("[^A-Za-z0-9_.-]+")))
                 .filter(part -> part.endsWith(".so"))
-                .allMatch(part -> new File(nativeDir, part).exists())
-        );
+                .distinct()
+                .allMatch(so -> new File(NATIVE_LIB_DIR, so).exists());
     }
 }
