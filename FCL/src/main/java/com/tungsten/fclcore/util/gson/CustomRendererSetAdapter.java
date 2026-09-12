@@ -3,12 +3,11 @@ package com.tungsten.fclcore.util.gson;
 import static com.mio.plugin.RendererPlugin.parseAndCollect;
 import static com.mio.util.CustomRendererLoaderKt.buildApplicationInfo;
 import static com.mio.util.CustomRendererLoaderKt.buildBundle;
-import static com.tungsten.fclauncher.utils.FCLPath.NATIVE_LIB_DIR;
+import static com.mio.util.CustomRendererLoaderKt.checkRendererSo;
 import static com.tungsten.fclcore.util.StringUtils.getStringValue;
 
 import com.mio.data.Renderer;
 
-import java.io.File;
 import java.util.*;
 
 import com.google.gson.*;
@@ -54,20 +53,5 @@ public class CustomRendererSetAdapter implements JsonSerializer<Set<Renderer>>, 
         var renderers = parseAndCollect(fakeApps);
         renderers.removeIf(r -> !checkRendererSo(r));
         return renderers;
-    }
-
-    private boolean checkRendererSo(Renderer r) {
-        var list = new ArrayList<String>();
-        list.add(r.getGlName());
-        list.add(r.getEglName());
-        if(r.getBoatEnv() != null) list.addAll(r.getBoatEnv());
-        if(r.getPojavEnv() != null) list.addAll(r.getPojavEnv());
-
-        return list.stream()
-                .filter(Objects::nonNull)
-                .flatMap(text -> Arrays.stream(text.split("[^A-Za-z0-9_.-]+")))
-                .filter(part -> part.endsWith(".so"))
-                .distinct()
-                .allMatch(so -> new File(NATIVE_LIB_DIR, so).exists());
     }
 }

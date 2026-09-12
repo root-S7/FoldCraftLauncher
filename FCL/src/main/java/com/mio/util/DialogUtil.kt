@@ -57,8 +57,8 @@ fun Context.showErrorTips(message: String = "") {
     FCLBaseAppCompatDialog.Builder(this, DialogRuleErrorBinding::inflate)
         .setCancelOnBackPressed(false)
         .setCancelOnTouchOutside(false)
-        .setHeightPercent(0.7F)
-        .setWidthPercent(0.6F)
+        .setHeightPercent(0.644F)
+        .setWidthPercent(0.555F)
         .onInitView { binding ->
             binding.tips.text = message
             binding.cancel.text = getString(R.string.dialog_positive)
