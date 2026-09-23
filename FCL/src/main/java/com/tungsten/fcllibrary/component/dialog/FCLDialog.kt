@@ -1,11 +1,16 @@
 package com.tungsten.fcllibrary.component.dialog
 
 import android.content.Context
+import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatDialog
 import com.tungsten.fcl.R
 import com.tungsten.fcllibrary.component.theme.ThemeEngine
 
-open class FCLDialog(context: Context, themeResId: Int = 0) : AppCompatDialog(context, themeResId) {
+open class FCLDialog : AppCompatDialog {
+
+    constructor(context: Context) : super(context)
+
+    constructor(context: Context, @StyleRes themeId: Int) : super(context, themeId)
 
     private fun applyFullscreen() {
         ThemeEngine.getInstance()
