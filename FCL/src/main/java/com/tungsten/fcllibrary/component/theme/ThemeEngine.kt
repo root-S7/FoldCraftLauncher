@@ -235,4 +235,9 @@ object ThemeEngine {
         updateTheme { it.copy(animationSpeed = animationSpeed) }
     }
 
+    /** 派生色（ltColor/dkColor）透明度 */
+    fun applyColorAlpha(alpha: Int) {
+        updateTheme { it.copy(colorAlpha = alpha) }
+    }
+
 }

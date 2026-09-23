@@ -216,16 +216,38 @@ public final class NetworkUtils {
     }
 
     public static String doGet(URL url, String agent) throws IOException {
-        HttpURLConnection conn = null;
-        try {
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestProperty("User-Agent", agent);
-            conn.setConnectTimeout(5555);
-            conn.setReadTimeout(5555);
+        HttpURLConnection con = createHttpConnection(url);
+        con.setRequestProperty("User-Agent", agent);
+        con = resolveConnection(con);
+        return IOUtils.readFullyAsString(con.getInputStream());
+    }
 
-            return readData(conn);
-        } finally {
-            if (conn != null) conn.disconnect();
+    /**
+     * 依次尝试每个候选地址，全部失败时抛出携带各次异常的 IOException。
+     */
+    public static String doGet(List<URL> urls) throws IOException {
+        List<IOException> exceptions = null;
+        for (URL url : urls) {
+            try {
+                return doGet(url);
+            } catch (IOException e) {
+                if (exceptions == null) {
+                    exceptions = new ArrayList<>(1);
+                }
+                exceptions.add(e);
+            }
+        }
+
+        if (exceptions == null) {
+            throw new IOException("No candidate URL");
+        } else if (exceptions.size() == 1) {
+            throw exceptions.get(0);
+        } else {
+            IOException exception = new IOException("Failed to doGet");
+            for (IOException e : exceptions) {
+                exception.addSuppressed(e);
+            }
+            throw exception;
         }
     }
 

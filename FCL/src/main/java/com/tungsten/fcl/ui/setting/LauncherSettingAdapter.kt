@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tungsten.fcl.R
 import com.tungsten.fcl.databinding.ItemLauncherSettingButtonBinding
 import com.tungsten.fcl.databinding.ItemLauncherSettingSeekbarBinding
-import com.tungsten.fcl.databinding.ItemLauncherSettingSourceBinding
 import com.tungsten.fcl.databinding.ItemLauncherSettingSpinnerBinding
 import com.tungsten.fcl.databinding.ItemLauncherSettingThreadsBinding
 import com.tungsten.fcl.databinding.ItemVersionSettingEditBinding
@@ -68,17 +67,17 @@ enum class LauncherSettingTag {
     // Spinner 行
     SPINNER_LANGUAGE,
     SPINNER_THEME_MODE,
-    SPINNER_SOURCE_AUTO,
-    SPINNER_SOURCE,
+    SPINNER_VERSION_LIST_SOURCE,
+    SPINNER_FILE_DOWNLOAD_SOURCE,
 
     // SeekBar 行
     SEEKBAR_VIDEO_VOLUME,
     SEEKBAR_ANIMATION_SPEED,
+    SEEKBAR_COLOR_ALPHA,
     SEEKBAR_VIBRATION,
     SEEKBAR_THREADS,
 
     // 勾选行
-    CHECK_AUTO_SOURCE,
     CHECK_AUTO_THREADS
 }
 
@@ -105,8 +104,7 @@ class LauncherSettingAdapter(
     private val TYPE_SPINNER = 2
     private val TYPE_SEEKBAR = 3
     private val TYPE_EDIT = 4
-    private val TYPE_SOURCE = 5
-    private val TYPE_THREADS = 6
+    private val TYPE_THREADS = 5
 
     private val prefs = context.getSharedPreferences("launcher", MODE_PRIVATE)
     private var rows: List<Row> = emptyList()
@@ -215,6 +213,13 @@ class LauncherSettingAdapter(
                 R.string.settings_launcher_theme2_dark_desc,
                 group = SettingGroup.Theme
             ),
+            Row.SeekBarRow(
+                R.string.settings_launcher_color_alpha, 255, 0,
+                { ThemeEngine.getInstance().getTheme().colorAlpha },
+                LauncherSettingTag.SEEKBAR_COLOR_ALPHA,
+                descriptionRes = R.string.settings_launcher_color_alpha_desc,
+                group = SettingGroup.Theme
+            ),
             Row.ButtonRow(
                 R.string.settings_launcher_background_lt,
                 listOf(
@@ -320,13 +325,19 @@ class LauncherSettingAdapter(
                 R.string.settings_disable_fullscreen_input_desc,
                 group = SettingGroup.TouchController
             ),
-            Row.SourceRow(
-                { config.autoChooseDownloadTypeProperty().get() },
-                ArrayList(DownloadProviders.providersById.keys),
-                { getSourcePosition(config.versionListSourceProperty().get()) },
-                ArrayList(DownloadProviders.rawProviders.keys),
-                { getSourcePosition(config.downloadTypeProperty().get()) },
+            Row.SpinnerRow(
+                R.string.settings_launcher_download_source_version_list,
+                downloadSourceList,
+                getSourcePosition(config.versionListSource),
+                LauncherSettingTag.SPINNER_VERSION_LIST_SOURCE,
                 R.string.settings_launcher_download_source_desc,
+                group = SettingGroup.Download
+            ),
+            Row.SpinnerRow(
+                R.string.settings_launcher_download_source_file,
+                downloadSourceList,
+                getSourcePosition(config.fileDownloadSource),
+                LauncherSettingTag.SPINNER_FILE_DOWNLOAD_SOURCE,
                 group = SettingGroup.Download
             ),
             Row.ThreadsRow(
@@ -344,10 +355,16 @@ class LauncherSettingAdapter(
         )
     }
 
+    private val downloadSourceList = listOf(
+        context.getString(R.string.download_source_default),
+        context.getString(R.string.download_source_official),
+        context.getString(R.string.download_source_mirror),
+    )
+
     private fun getSourcePosition(source: String): Int = when (source) {
-        "official", "mojang" -> 0
-        "mirror" -> 2
-        else -> 1
+        "OFFICIAL" -> 1
+        "MIRROR" -> 2
+        else -> 0
     }
 
     private sealed class Row {
@@ -410,16 +427,6 @@ class LauncherSettingAdapter(
             override val group: SettingGroup? = null
         ) : Row()
 
-        data class SourceRow(
-            val autoChecked: () -> Boolean,
-            val autoData: List<String>,
-            val autoSelection: () -> Int,
-            val manualData: List<String>,
-            val manualSelection: () -> Int,
-            override val descriptionRes: Int = 0,
-            override val group: SettingGroup? = null
-        ) : Row()
-
         data class ThreadsRow(
             val autoChecked: () -> Boolean,
             val threads: () -> Int,
@@ -441,7 +448,6 @@ class LauncherSettingAdapter(
         is Row.SpinnerRow -> TYPE_SPINNER
         is Row.SeekBarRow -> TYPE_SEEKBAR
         is Row.EditRow -> TYPE_EDIT
-        is Row.SourceRow -> TYPE_SOURCE
         is Row.ThreadsRow -> TYPE_THREADS
     }
 
@@ -453,7 +459,6 @@ class LauncherSettingAdapter(
             TYPE_SPINNER -> ItemLauncherSettingSpinnerBinding.inflate(inflater, parent, false).root
             TYPE_SEEKBAR -> ItemLauncherSettingSeekbarBinding.inflate(inflater, parent, false).root
             TYPE_EDIT -> ItemVersionSettingEditBinding.inflate(inflater, parent, false).root
-            TYPE_SOURCE -> ItemLauncherSettingSourceBinding.inflate(inflater, parent, false).root
             else -> ItemLauncherSettingThreadsBinding.inflate(inflater, parent, false).root
         }
         return Holder(view)
@@ -501,7 +506,6 @@ class LauncherSettingAdapter(
             is Row.SpinnerRow -> bindSpinner(holder, row)
             is Row.SeekBarRow -> bindSeekBar(holder, row)
             is Row.EditRow -> bindEdit(holder, row)
-            is Row.SourceRow -> bindSource(holder, row)
             is Row.ThreadsRow -> bindThreads(holder, row)
         }
     }
@@ -580,10 +584,12 @@ class LauncherSettingAdapter(
     private fun bindSeekBar(holder: Holder, row: Row.SeekBarRow) {
         val binding = ItemLauncherSettingSeekbarBinding.bind(holder.itemView)
         binding.label.text = context.getString(row.labelRes)
+        // 先摘监听再设属性：setMax/setMin 对越界进度的钳制会同步回调 onProgressChanged，
+        // 旧监听仍持有上一行的 tag，会把钳制值写进上一行对应的设置项
+        binding.seekBar.setOnSeekBarChangeListener(null)
         binding.seekBar.max = row.max
         binding.seekBar.min = row.min
-        row.suffix?.let { binding.seekBar.setSuffix(it) }
-        binding.seekBar.setOnSeekBarChangeListener(null)
+        binding.seekBar.setSuffix(row.suffix.orEmpty())
         binding.seekBar.progress = row.value()
         binding.seekBar.setOnSeekBarChangeListener(object :
             android.widget.SeekBar.OnSeekBarChangeListener {
@@ -619,49 +625,6 @@ class LauncherSettingAdapter(
         }
         binding.editText.addTextChangedListener(watcher)
         holder.textWatcher = watcher
-    }
-
-    private fun bindSource(holder: Holder, row: Row.SourceRow) {
-        val binding = ItemLauncherSettingSourceBinding.bind(holder.itemView)
-        val auto = row.autoChecked()
-        binding.checkAutoSource.setOnCheckedChangeListener(null)
-        binding.checkAutoSource.isChecked = auto
-        // 自动/手动源交替显示
-        binding.sourceAuto.visibility = if (auto) View.VISIBLE else View.GONE
-        binding.source.visibility = if (auto) View.GONE else View.VISIBLE
-        binding.checkAutoSource.setOnCheckedChangeListener { _, checked ->
-            listener.onCheckToggle(LauncherSettingTag.CHECK_AUTO_SOURCE, checked)
-            binding.sourceAuto.visibility = if (checked) View.VISIBLE else View.GONE
-            binding.source.visibility = if (checked) View.GONE else View.VISIBLE
-        }
-        bindSourceSpinner(
-            binding.sourceAuto,
-            row.autoData,
-            row.autoSelection(),
-            LauncherSettingTag.SPINNER_SOURCE_AUTO
-        )
-        bindSourceSpinner(
-            binding.source,
-            row.manualData,
-            row.manualSelection(),
-            LauncherSettingTag.SPINNER_SOURCE
-        )
-    }
-
-    private fun bindSourceSpinner(
-        spinner: FCLSpinner<*>,
-        data: List<String>,
-        selection: Int,
-        tag: LauncherSettingTag
-    ) {
-        // ViewBinding 对布局中的泛型控件生成 raw 类型，条目实际为 String
-        @Suppress("UNCHECKED_CAST")
-        val s = spinner as FCLSpinner<String>
-        s.setItems(data)
-        s.setSelection(selection)
-        s.setOnItemSelectedListener { position, _ ->
-            listener.onSpinnerSelect(tag, position)
-        }
     }
 
     private fun bindThreads(holder: Holder, row: Row.ThreadsRow) {

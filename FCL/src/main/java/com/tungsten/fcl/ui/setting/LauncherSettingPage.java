@@ -29,7 +29,7 @@ import com.mio.ui.adapter.SpacingItemDecoration;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.MainActivity;
 import com.tungsten.fcl.databinding.PageSettingListBinding;
-import com.tungsten.fcl.setting.DownloadProviders;
+import com.tungsten.fcl.setting.DownloadSource;
 import com.tungsten.fcl.upgrade.UpdateChecker;
 import com.tungsten.fclcore.mod.RemoteModCache;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -450,11 +450,11 @@ public class LauncherSettingPage extends FCLPage implements LauncherSettingAdapt
                 // 亮暗切换需显式刷新主题控件与背景（ThemeEngine.isNightMode 读 themeMode 设置）
                 ThemeEngine.getInstance().refreshTheme();
                 break;
-            case SPINNER_SOURCE_AUTO:
-                config().versionListSourceProperty().set(new ArrayList<>(DownloadProviders.providersById.keySet()).get(position));
+            case SPINNER_VERSION_LIST_SOURCE:
+                config().setVersionListSource(toDownloadSourceName(position));
                 break;
-            case SPINNER_SOURCE:
-                config().downloadTypeProperty().set(new ArrayList<>(DownloadProviders.rawProviders.keySet()).get(position));
+            case SPINNER_FILE_DOWNLOAD_SOURCE:
+                config().setFileDownloadSource(toDownloadSourceName(position));
                 break;
             default:
                 break;
@@ -472,6 +472,10 @@ public class LauncherSettingPage extends FCLPage implements LauncherSettingAdapt
                 ThemeEngine.getInstance().setAnimationSpeed(progress);
                 ThemeData.saveTheme(getContext(), ThemeEngine.getInstance().getTheme());
                 break;
+            case SEEKBAR_COLOR_ALPHA:
+                ThemeEngine.getInstance().applyColorAlpha(progress);
+                ThemeData.saveTheme(getContext(), ThemeEngine.getInstance().getTheme());
+                break;
             case SEEKBAR_VIBRATION:
                 sharedPreferences.edit().putInt("vibrationDuration", progress).apply();
                 break;
@@ -483,12 +487,17 @@ public class LauncherSettingPage extends FCLPage implements LauncherSettingAdapt
         }
     }
 
+    private static String toDownloadSourceName(int position) {
+        return switch (position) {
+            case 1 -> DownloadSource.OFFICIAL.name();
+            case 2 -> DownloadSource.MIRROR.name();
+            default -> DownloadSource.DEFAULT.name();
+        };
+    }
+
     @Override
     public void onCheckToggle(LauncherSettingTag tag, boolean checked) {
         switch (tag) {
-            case CHECK_AUTO_SOURCE:
-                config().autoChooseDownloadTypeProperty().set(checked);
-                break;
             case CHECK_AUTO_THREADS:
                 config().autoDownloadThreadsProperty().set(checked);
                 if (checked) {

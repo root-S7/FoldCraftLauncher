@@ -1,5 +1,183 @@
 # Changelog
 
+## [1.3.3.4] - 2026-09-23
+
+### 中文
+
+#### ✨ 新功能
+
+1. **下载页资源收藏与分组**：下载列表左滑即可收藏资源，支持自定义分组（管理入口为分组区扳手图标）、分组筛选、多选与批量一键下载
+2. **资源包管理页**：管理页新增资源包 tab，支持启用/禁用（写 options.txt）、导入、重命名、多选删除与搜索
+3. **版本卡片快速切换**：长按主界面版本卡片弹出版本快速切换菜单（右侧启动按钮可直接切换并启动），数据与版本列表页共享会话快照；另新增首次使用的点击卡片引导提示（仅显示一次）
+4. **皮肤模型开关**：新增 3D 皮肤层开关，禁用时第二层回落原版面片，状态随动画一起持久化；新增身体与腿部分离开关，关闭后上身贴合腿部
+
+#### ⚡ 优化
+
+1. **管理页与设置页 tab 图标化**：tab 标题旁显示对应图标，视觉更直观
+2. **FCLTabLayout 滑动指示箭头**：tab 栏可左右滑动时在对应边缘显示指示箭头，提示还有未展示的内容
+3. **控件转换器字段同步**：滑动联动与摇杆死区/前进锁字段支持双向映射
+
+#### 🐛 修复
+
+1. 修复 Cleanroom 字母键与聊天输入失效：补齐按键与字符事件成对发送
+2. 修复导入含 null 的控制器 JSON 保存时崩溃：控件数据反序列化全链空安全加固
+3. 修复新建控件组后因数据未标记加载完成而无法添加按键
+4. 修复下载与收藏列表标题过长时来源徽标被挤出可视区：标题行改用 ConstraintLayout 保证徽标固定行尾
+
+### English
+
+#### ✨ New Features
+
+1. **Download page favorites and groups**: Swipe left on download list items to favorite resources, with custom groups (manage via the wrench icon in the group area), group filtering, multi-select and one-tap batch download
+2. **Resource pack management page**: A new resource pack tab in the manage page supports enabling/disabling (writes options.txt), importing, renaming, multi-select deletion and search
+3. **Quick version switch on the version card**: Long-press the version card on the main screen to open a quick version switch menu (the button on the right switches and launches directly); the data shares a session snapshot with the version list page. A one-time guide hint for tapping the card was also added
+4. **Skin model toggles**: A new 3D skin layer toggle — disabling it falls the second layer back to vanilla faces, with the state persisted alongside animations; a new body/leg separation toggle — when off, the upper body fits onto the legs
+
+#### ⚡ Improvements
+
+1. **Icons on manage and setting page tabs**: Tabs now show an icon next to the title for quicker recognition
+2. **FCLTabLayout scroll indicator arrows**: When the tab bar can scroll left/right, indicator arrows appear at the corresponding edge to hint at hidden content
+3. **Control converter field sync**: Swipe-chain linkage and joystick dead zone / forward-lock fields now support two-way mapping
+
+#### 🐛 Bug Fixes
+
+1. Fixed Cleanroom letter keys and chat input not working: key and character events are now sent in pairs
+2. Fixed crashes when saving imported controller JSON containing nulls: null-safety hardening across the whole control-data deserialization chain
+3. Fixed being unable to add keys after creating a new control group (the data was not marked as loaded)
+4. Fixed the source badge being squeezed out of view on long download/favorite list titles: the title row now uses ConstraintLayout to keep the badge pinned to the end of the line
+
+## [1.3.3.3] - 2026-09-18
+
+### 中文
+
+#### ✨ 新功能
+
+1. **下载页聚合搜索**：CurseForge 与 Modrinth 双源并行搜索，结果交错合并并按标识/标题归一化去重，单源失败时自动降级只显示可用来源
+2. **MultiMC 整合包导入**：同步上游 HMCL 实现，支持 natives 字符串键、本地库文件名推导、minecraftArguments 兼容等适配，可导入 lwj3ify 等特殊实例
+3. **FCL 弹窗彩蛋**：点击启动游戏按保底概率触发
+
+#### ⚡ 优化
+
+1. **下载源体系跟进上游重构**：DownloadProvider 全链路对齐上游 HMCL，URL/URI 与组件类型模型精简
+2. **版本列表会话级快照缓存**：命中快照即时显示、后台重算覆盖，切换页面不再等待；排序改用 GameVersionNumber 真实游戏版本号降序，手动刷新强制失效缓存
+3. **主界面右菜单布局调整**：执行 Jar 功能移入 Java 管理对话框，右菜单更聚焦版本与账户
+4. **渲染器选择体验**：对话框打开时自动定位到当前选中的渲染器
+5. **FCLNumberSeekBar 轨道自绘**：数值文本两侧断开并圆角收口，视觉更完整
+6. **主题派生色透明度独立设置**：主色全透明时背景不再不可见
+7. **版本图标像素感知加载**：按图标尺寸切换缩放插值（小图最近邻、大图双线性），禁用密度预缩放解码，安装器、下载页等全部加载点统一，像素风图标放大不再发糊；更换 NeoForge 版本图标
+
+#### 🐛 修复
+
+1. 修复 SDL 复用窗口被提前销毁导致游戏崩溃
+2. 修复 Controlify 环境无法呼出软键盘：SDL 输入法按渲染路径分流，仅 SDL 渲染激活时走 SDL 通道，其余回落原路径
+3. 微软登录体验修复：登录结束或设备码轮询成功后自动关闭内嵌登录页，返回键直接退出不回退网页；修复 OAuth 事件监听残留导致堆叠多个登录页
+4. 修复多任务返回后导航栏常驻遮挡底部按钮（对话框重获焦点时恢复沉浸标志）；编辑控件对话框背景补 10dp inset 恢复屏幕边缘间隔
+5. 修复皮肤半透明像素体素化重叠产生的大量条纹，半透明回落零厚度面片呈现
+6. 修复 SeekBar 行复用时 max/min 钳制回调误写数据
+7. 修复下载源空缓存在后台线程早读导致的崩溃（DownloadProviders 改惰性查表）
+8. 修复 goSetting 菜单已选中时不触发切页；usesGlobal 反序列化缺省值改为 true
+
+### English
+
+#### ✨ New Features
+
+1. **Aggregated search on the download page**: CurseForge and Modrinth are searched in parallel, results are interleaved and deduplicated by normalized identifier/title, and a failing source degrades gracefully to the other
+2. **MultiMC modpack import**: Synced from upstream HMCL, with adaptations for string-keyed natives, local library filename derivation, and minecraftArguments compatibility — imports special instances such as lwj3ify
+3. **FCL easter egg dialog**: Triggered with a pity probability when launching the game
+
+#### ⚡ Improvements
+
+1. **Download provider system follows the upstream refactor**: The full DownloadProvider chain is aligned with upstream HMCL, with a leaner URL/URI and component-type model
+2. **Session-level version list snapshot cache**: A cache hit shows instantly while recomputation runs in the background, so switching pages no longer waits; sorting now uses real game version numbers (GameVersionNumber) in descending order, and manual refresh invalidates the cache
+3. **Main screen right menu layout reworked**: "Execute Jar" moved into the Java management dialog, keeping the right menu focused on versions and accounts
+4. **Renderer selection UX**: The dialog now auto-scrolls to the currently selected renderer when opened
+5. **Self-drawn FCLNumberSeekBar track**: The track breaks and rounds around the value text for a cleaner look
+6. **Separate theme derived-color alpha setting**: The background no longer disappears when the theme color is fully transparent
+7. **Pixel-aware version icon loading**: Scaling interpolation switches by icon size (nearest-neighbor for small icons, bilinear for large ones), density pre-scaling decoding is disabled, and all loading points (installer, download pages, etc.) are unified — pixel-art icons stay sharp when scaled up; the NeoForge version icon was replaced
+
+#### 🐛 Bug Fixes
+
+1. Fixed game crashes caused by SDL reused windows being destroyed early
+2. Fixed the soft keyboard not opening with Controlify: SDL IME now routes by render path — the SDL channel is used only when SDL rendering is active, otherwise it falls back to the original path
+3. Microsoft login fixes: the embedded login page now closes automatically when login finishes or device-code polling succeeds, and Back exits directly instead of navigating back through web pages; fixed stacked login pages caused by leaked OAuth event listeners
+4. Fixed the navigation bar staying on top and covering bottom buttons after returning from multitasking (immersive flags are restored when dialogs regain focus); the control edit dialog background gains a 10dp inset to restore screen-edge spacing
+5. Fixed heavy striping from overlapping semi-transparent voxels in skins — translucency now falls back to zero-thickness faces
+6. Fixed SeekBar row reuse writing wrong data through max/min clamping callbacks
+7. Fixed background crashes from an early read of the empty download-provider cache (DownloadProviders now uses lazy lookup)
+8. Fixed goSetting not switching pages when already selected; the usesGlobal deserialization default is now true
+
+## [1.3.3.2] - 2026-09-13
+
+### 中文
+
+#### ✨ 新功能
+
+1. **游戏内复述功能恢复（TTS）**：libflite 桥接安卓系统 TTS，游戏复述改走系统语音引擎
+2. **原生 JSound**：原生 libjsound.so 桥接 OpenAL，一套源码服务 jre8/17/21/25，修复 Forge 加载器下 Java Sound 失效
+3. **控制布局编辑与运行时增强**：控件双角手柄缩放、悬浮操作栏、控件组管理面板与控件组复制、滑动链、摇杆死区与前进锁、全局控件不透明度
+4. **控件编辑器重构为 Kotlin**：全面对齐游戏菜单视觉，修复吸附与编辑条问题，新增控件组复制
+5. **游戏内右菜单重构**：顶部图标 Tab 直接显示分类内容；物品栏缩放移入手势页、控件不透明度移入左菜单、锁定/隐藏控件移入调试页
+6. **渲染器版本上限调整**：判断/展示双轨版本号与 26.3 版本目录，修正各渲染器版本适配情况
+
+#### ⚡ 优化
+
+1. **解除帧率锁定**：游戏帧率不再锁定屏幕刷新率，启动时向系统投票设备最高刷新率；关闭垂直同步时交换间隔强制置 0 并切入 BufferQueue 异步模式
+2. **JNA natives 分架构打包**：去 zip 化，改为分架构 natives 目录并随 APK 架构裁剪打包
+3. **FCLNumberSeekBar 重构为 Kotlin**：轨道加粗为胶囊条、数值文本去除底衬，修复两端点击热区与显示位置不一致
+4. **皮肤模型细节**：缩小腰部接缝间隙
+5. **下载管理面板样式调整**
+
+#### 🐛 修复
+
+1. 修复游戏内无法解析 SRV 记录的问题
+2. 修复使用 zink 启动 26.3+ 时无法自动回退 Vulkan
+3. 修复 lwjgl-sdl 并入合并产物后与 Forge 模块解析的 split package 冲突
+4. 修复插件卸载缺少 REQUEST_DELETE_PACKAGES 权限导致系统卸载器立即退出
+5. 修复模组更新保留旧版本时切换后崩溃
+6. 修复熄屏状态下打开启动器可能崩溃
+7. 修复主题色带透明度时 ltColor/dkColor 透明度不跟随
+8. 修复 ViewPager2 布局时误清输入框焦点导致的输入异常（FCLEditText 增加焦点恢复守卫）
+9. 修复下载模组列表已安装标记不实时刷新：扫描完成后通知列表、下载成功回调触发重检、payload 局部绑定避免动画重播
+
+#### 🔧 其他
+
+1. 更新多语言翻译
+
+### English
+
+#### ✨ New Features
+
+1. **In-game narration restored (TTS)**: libflite now bridges Android system TTS, so game narration uses the system speech engine
+2. **Native JSound**: Native libjsound.so bridging OpenAL, one set of sources serving jre8/17/21/25, fixing Java Sound failures under the Forge loader
+3. **Control layout editing and runtime enhancements**: Dual-corner handle scaling, floating action bar, control group management panel with group duplication, sliding chains, joystick dead zone and forward lock, global control opacity
+4. **Control editor rewritten in Kotlin**: Fully aligned with the in-game menu visuals, fixed snapping and editing bar issues, added control group duplication
+5. **In-game right menu rework**: Top icon tabs now show category content directly; hotbar scale moved to the gestures page, control opacity to the left menu, and lock/hide controls to the debug page
+6. **Renderer version limits adjusted**: Dual-track version numbers for checking/display plus a 26.3 version catalog, with renderer compatibility corrected
+
+#### ⚡ Improvements
+
+1. **Frame rate unlocked**: The game frame rate is no longer locked to the screen refresh rate — the launcher votes for the device's maximum refresh rate at startup; with vsync off the swap interval is forced to 0 and the BufferQueue switches to async mode
+2. **Per-ABI JNA natives packaging**: De-zipped, switched to per-ABI natives directories pruned together with the APK architecture
+3. **FCLNumberSeekBar rewritten in Kotlin**: Track thickened into a capsule bar, value text background removed, and mismatched edge click hotspots/display positions fixed
+4. **Skin model detail**: Narrowed the waist seam gap
+5. **Download manager panel style refresh**
+
+#### 🐛 Bug Fixes
+
+1. Fixed SRV record resolution failing in game
+2. Fixed failing to fall back to Vulkan when launching 26.3+ with zink
+3. Fixed the split package conflict between the merged lwjgl-sdl artifact and Forge module resolution
+4. Fixed plugin uninstall exiting immediately due to the missing REQUEST_DELETE_PACKAGES permission
+5. Fixed a crash when switching mods kept as old versions after an update
+6. Fixed a possible crash when opening the launcher while the screen is off
+7. Fixed ltColor/dkColor alpha not following when the theme color has transparency
+8. Fixed input anomalies caused by ViewPager2 layout clearing EditText focus (FCLEditText now guards focus restoration)
+9. Fixed installed badges in the mod download list not refreshing in real time: the list is notified after scanning, download success callbacks trigger a re-check, and payload-based partial binding avoids animation replays
+
+#### 🔧 Other
+
+1. Updated translations
+
 ## [1.3.3.1] - 2026-09-08
 
 ### 中文

@@ -198,6 +198,9 @@ class GltfModel private constructor() {
     private val drawOrder = ArrayList<Node>()
     private val clips = ArrayList<GltfClip>()
 
+    /** 当前已应用到 LIFT_NODES 的总抬高量（0 = 未分离） */
+    private var appliedLift = 0f
+
     private var currentClip: GltfClip? = null
     private var time = 0f
 
@@ -207,6 +210,19 @@ class GltfModel private constructor() {
     private val tempMatrix = FloatArray(16)
 
     // ---- 对外 API ----
+
+    /** 体素化第二层开关：关闭时 *_Layer 网格回落零厚度面片（渲染线程读写） */
+    var solidLayerEnabled = true
+
+    /** 身体与腿部分离开关：关闭时上身与腿部贴合，腰部接缝可能闪烁（渲染线程读写） */
+    var upperBodySeparated = true
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            applyUpperBodyLift()
+        }
 
     fun findClip(id: String): GltfClip? = clips.firstOrNull { it.name == id }
 
@@ -247,8 +263,11 @@ class GltfModel private constructor() {
         computeWorldMatrices()
     }
 
-    /** 按 material 分组绘制：capeOnly=true 画披风网格，false 画其余（皮肤）网格；
-     * 已重建体素层的 *_Layer 网格以体素网格替代零厚度面片 */
+    /** 按 material 分组绘制：capeOnly=true 画披风网格，false 画其余（皮肤）网格。
+     * 分两遍：第一遍画基础网格与全不透明体素立方体（正常深度写入）；第二遍对已体素化
+     * 部件回落绘制零厚度面片呈现半透明像素，期间关闭深度写入（不遮挡披风等后续透明
+     * 混合）并把深度比较收紧为 GL_LESS（面片位于体素表面内侧，深度量化同值时不盖染立方体）。
+     * [solidLayerEnabled] 关闭时第一遍全部回落面片，第二遍整遍跳过（面片不可二次绘制） */
     fun draw(
         positionLocation: Int,
         texCoordLocation: Int,
@@ -259,6 +278,42 @@ class GltfModel private constructor() {
         mvpBase: FloatArray,
         modelBase: FloatArray,
         capeOnly: Boolean
+    ) {
+        drawMeshes(mvpBase, modelBase, capeOnly) { mesh, mvp, normalMatrix ->
+            val layer = if (capeOnly || !solidLayerEnabled) null else mesh.solidLayer
+            if (layer != null) {
+                layer.draw(
+                    positionLocation, texCoordLocation, normalLocation, lightMixLocation,
+                    mvpMatrixLocation, normalMatrixLocation, mvp, normalMatrix
+                )
+            } else {
+                mesh.draw(
+                    positionLocation, texCoordLocation, normalLocation, lightMixLocation,
+                    mvpMatrixLocation, normalMatrixLocation, mvp, normalMatrix
+                )
+            }
+        }
+        if (solidLayerEnabled) {
+            GLES20.glDepthMask(false)
+            GLES20.glDepthFunc(GLES20.GL_LESS)
+            drawMeshes(mvpBase, modelBase, capeOnly) { mesh, mvp, normalMatrix ->
+                if (!capeOnly && mesh.solidLayer != null) {
+                    mesh.draw(
+                        positionLocation, texCoordLocation, normalLocation, lightMixLocation,
+                        mvpMatrixLocation, normalMatrixLocation, mvp, normalMatrix
+                    )
+                }
+            }
+            GLES20.glDepthFunc(GLES20.GL_LEQUAL)
+            GLES20.glDepthMask(true)
+        }
+    }
+
+    private fun drawMeshes(
+        mvpBase: FloatArray,
+        modelBase: FloatArray,
+        capeOnly: Boolean,
+        block: (GltfMesh, FloatArray, FloatArray) -> Unit
     ) {
         val normalMatrix = FloatArray(16)
         for (node in drawOrder) {
@@ -271,20 +326,7 @@ class GltfModel private constructor() {
                 if ((mesh.materialName == CAPE_MATERIAL) != capeOnly) {
                     continue
                 }
-                if (!capeOnly) {
-                    val layer = mesh.solidLayer
-                    if (layer != null) {
-                        layer.draw(
-                            positionLocation, texCoordLocation, normalLocation, lightMixLocation,
-                            mvpMatrixLocation, normalMatrixLocation, tempMatrix, normalMatrix
-                        )
-                        continue
-                    }
-                }
-                mesh.draw(
-                    positionLocation, texCoordLocation, normalLocation, lightMixLocation,
-                    mvpMatrixLocation, normalMatrixLocation, tempMatrix, normalMatrix
-                )
+                block(mesh, tempMatrix, normalMatrix)
             }
         }
     }
@@ -313,6 +355,24 @@ class GltfModel private constructor() {
     }
 
     // ---- 姿势与绘制辅助 ----
+
+    /** 按分离开关重设上身部件 rest 抬高量，随后重新居中并恢复 rest 姿势 */
+    private fun applyUpperBodyLift() {
+        val lift = if (upperBodySeparated) UPPER_BODY_LIFT else 0f
+        if (lift == appliedLift) {
+            return
+        }
+        val delta = lift - appliedLift
+        appliedLift = lift
+        for (node in nodes) {
+            if (node.name in LIFT_NODES) {
+                node.restTranslation[1] += delta
+                node.rebuildLocalMatrix()
+            }
+        }
+        centerModel()
+        nodes.forEach { it.resetPose() }
+    }
 
     private fun computeWorldMatrices() {
         for (root in rootNodes) {
@@ -392,15 +452,10 @@ class GltfModel private constructor() {
             }
         }
 
-        // rest 局部矩阵 → 部件抬高 → 绘制顺序 → 以原点为中心 → 运行时姿势初始化
+        // rest 局部矩阵 → 绘制顺序 → 部件抬高（含重新居中） → 运行时姿势初始化
         nodes.forEach { it.rebuildLocalMatrix() }
-        nodes.forEach { node ->
-            if (node.name in LIFT_NODES) {
-                node.restTranslation[1] += UPPER_BODY_LIFT
-            }
-        }
         collectDrawOrder(rootNodes)
-        centerModel()
+        applyUpperBodyLift()
         nodes.forEach { it.resetPose() }
     }
 
@@ -552,6 +607,7 @@ class GltfModel private constructor() {
          * 非腿部部件相对腿部的抬高量（像素）：抬高用于分隔腰部共面接缝防闪烁，
          * 但待机动画躯干下沉 0.64px、变体腿部前缘抬升 0.17px，取值过小会在动画中
          * 重新贴面——该值保证基础待机全程不接触，变体仅余瞬时擦过。
+         * 由 [upperBodySeparated] 开关控制，关闭时抬高量为 0。
          */
         private const val UPPER_BODY_LIFT = 0.75f
 
