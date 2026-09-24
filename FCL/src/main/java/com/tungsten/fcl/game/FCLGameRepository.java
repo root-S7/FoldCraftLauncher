@@ -29,6 +29,7 @@ import android.graphics.drawable.Drawable;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
 import com.google.gson.reflect.TypeToken;
 import com.mio.manager.RendererManager;
 import com.mio.util.AndroidUtilKt;
@@ -57,6 +58,7 @@ import com.tungsten.fclcore.util.gson.JsonUtils;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fclcore.util.platform.MemoryUtils;
 import com.tungsten.fclcore.util.platform.OperatingSystem;
+import com.tungsten.fclcore.util.versioning.GameVersionNumber;
 import com.tungsten.fclcore.util.versioning.VersionNumber;
 
 import org.jetbrains.annotations.Nullable;
@@ -171,6 +173,18 @@ public class FCLGameRepository extends DefaultGameRepository {
                 FileUtils.writeText(file, PROFILE);
         } catch (IOException ex) {
             LOG.log(Level.WARNING, "Unable to create launcher_profiles.json, Forge/LiteLoader installer will not work.", ex);
+        }
+    }
+
+    //重新从磁盘读取版本 JSON 并同步内存缓存（含已解析版本缓存）。
+    public void reloadVersionFromDisk(String id) {
+        resolvedVersionCache.remove(id);
+        try {
+            File json = getVersionJson(id);
+            if (!json.exists()) return;
+            versions.put(id, readVersionJson(json));
+        } catch (IOException | JsonParseException e) {
+            LOG.log(Level.WARNING, "Failed to reload version json from disk: " + id, e);
         }
     }
 
@@ -340,11 +354,32 @@ public class FCLGameRepository extends DefaultGameRepository {
                 return getDrawable(R.drawable.img_optifine);
             else if (analyze.has(LibraryAnalyzer.LibraryType.FABRIC))
                 return getDrawable(R.drawable.img_fabric);
+            else if (analyze.has(LibraryAnalyzer.LibraryType.LEGACY_FABRIC))
+                return getDrawable(R.drawable.img_legacyfabric);
             else if (analyze.has(LibraryAnalyzer.LibraryType.QUILT))
                 return getDrawable(R.drawable.img_quilt);
             else
-                return getDrawable(R.drawable.img_grass);
+                return getVersionIconByGameVersion(id);
         }
+    }
+
+    /**
+     * 按游戏版本号推导原版图标：愚人节版、快照/预发布版（命令方块）、远古版本（工作台）或常规草方块
+     * <p>
+     * 参考 HMCLGameInstance（https://github.com/HMCL-dev/HMCL/blob/main/HMCL/src/main/java/org/jackhuang/hmcl/game/HMCLGameInstance.java）
+     */
+    private Drawable getVersionIconByGameVersion(String id) {
+        GameVersionNumber gameVersion = GameVersionNumber.asGameVersion(getGameVersion(id));
+        if (gameVersion.isAprilFools())
+            return getDrawable(R.drawable.april_fools);
+        else if (gameVersion instanceof GameVersionNumber.LegacySnapshot
+                || gameVersion instanceof GameVersionNumber.Release release
+                && release.getEaType() != GameVersionNumber.Release.ReleaseType.GA)
+            return getDrawable(R.drawable.img_command);
+        else if (gameVersion instanceof GameVersionNumber.Old)
+            return getDrawable(R.drawable.img_craft_table);
+        else
+            return getDrawable(R.drawable.img_grass);
     }
 
     private Drawable getDrawable(int id) {

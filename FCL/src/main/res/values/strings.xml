@@ -543,6 +543,9 @@
     <string name="install_installer_game" translatable="false">Minecraft</string>
     <string name="install_installer_incompatible">Incompatible with %s</string>
     <string name="install_installer_install">Install %s</string>
+    <string name="install_installer_legacyfabric" translatable="false">Legacy Fabric</string>
+    <string name="install_installer_legacyfabric_api" translatable="false">Legacy Fabric API</string>
+    <string name="install_installer_legacyfabric_api_warning">Warning: Legacy Fabric API is a mod, and will be installed into the mod directory of the game instance. Please do not change the working directory of the game, or the Legacy Fabric API will not work. If you do want to change these settings, you should reinstall it.</string>
     <string name="install_installer_install_offline">Install/Update from Local File</string>
     <string name="install_installer_install_offline_extension">Forge/OptiFine installer</string>
     <string name="installer_running_processor">Running installer (Java %s)…</string>
@@ -965,6 +968,17 @@
     <string name="resourcepack_info_file_name">File name: %s</string>
     <string name="resourcepack_info_file_size">Size: %s</string>
     <string name="resourcepack_info_format">Pack format: %s</string>
+    <string name="shaderpack_manage">Shader Packs</string>
+    <string name="shaderpack_add">Import shader pack</string>
+    <string name="shaderpack_invalid">Invalid shader pack</string>
+    <string name="shaderpack_rename_exists">A shader pack with the same name already exists</string>
+    <string name="shaderpack_add_success">Imported shader pack %s.</string>
+    <string name="shaderpack_add_failed">Failed to import shader pack %s.</string>
+    <string name="shaderpack_info_type">Type: %s</string>
+    <string name="shaderpack_info_type_folder">Folder</string>
+    <string name="shaderpack_info_type_zip">Zip archive</string>
+    <string name="shaderpack_info_file_name">File name: %s</string>
+    <string name="shaderpack_info_file_size">Size: %s</string>
 
     <string name="search">Search</string>
     <string name="search_hint_chinese">Search queries support both Chinese and English</string>
@@ -1091,7 +1105,7 @@
     <string name="settings_launcher_theme2_dark">Secondary Theme Color</string>
     <string name="settings_launcher_theme2_dark_desc">Customize the secondary color (dark theme).</string>
     <string name="settings_launcher_color_alpha">Color Opacity</string>
-    <string name="settings_launcher_color_alpha_desc">Opacity of theme-derived colors (cards, pressed states, etc.), independent of the main color. 0 = fully transparent, 255 = fully opaque.</string>
+    <string name="settings_launcher_color_alpha_desc" formatted="false">Opacity of theme-derived colors (cards, pressed states, etc.), independent of the main color. 0% = fully transparent, 100% = fully opaque.</string>
     <string name="settings_launcher_theme_fetch_background">Extract from background image</string>
     <string name="settings_launcher_background_lt">Light Mode Launcher Background</string>
     <string name="settings_launcher_background_lt_desc">Customize the background image of the light theme. Maximum resolution: 5120x5120.</string>
@@ -1311,6 +1325,7 @@
     <string name="world_datapack_1_13">Only Minecraft 1.13 or newer supports datapacks.</string>
     <string name="world_description">%s. Last played on %s. Game Version: %s.</string>
     <string name="world_download">Download a World</string>
+    <string name="world_duplicate">Copy World</string>
     <string name="world_export">Export World</string>
     <string name="world_export_title">Select a directory for this exported world</string>
     <string name="world_export_location">Export to</string>
@@ -1321,6 +1336,7 @@
     <string name="world_import_choose">Select the save archive you want to import</string>
     <string name="world_import_failed">Unable to import this world: %s</string>
     <string name="world_import_invalid">Unable to parse the save.</string>
+    <string name="world_locked_failed">This world is locked by the game or another launcher.</string>
     <string name="world_info_title">World %s - Information</string>
     <string name="world_info_basic">Basic Information</string>
     <string name="world_info_allow_cheats">Allow Cheats</string>
@@ -1339,6 +1355,7 @@
     <string name="world_info_player_game_type">Game Mode</string>
     <string name="world_info_player_game_type_adventure">Adventure</string>
     <string name="world_info_player_game_type_creative">Creative</string>
+    <string name="world_info_player_game_type_hardcore">Hardcore</string>
     <string name="world_info_player_game_type_spectator">Spectator</string>
     <string name="world_info_player_game_type_survival">Survival</string>
     <string name="world_info_player_health">Health</string>

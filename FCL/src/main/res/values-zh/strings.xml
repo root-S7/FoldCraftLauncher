@@ -481,6 +481,7 @@
     <string name="install_installer_fabric_api_warning">Fabric API 是一个模组, 并且将被安装至当前版本的模组文件夹。请不要修改此版本的版本隔离/游戏运行路径设置。如果你在之后修改了相关设置，Fabric API 需要被重新安装！</string>
     <string name="install_installer_incompatible">与 %s 不兼容</string>
     <string name="install_installer_install">安装 %s</string>
+    <string name="install_installer_legacyfabric_api_warning">Legacy Fabric API 是一个模组, 并且将被安装至当前版本的模组文件夹。请不要修改此版本的版本隔离/游戏运行路径设置。如果你在之后修改了相关设置，Legacy Fabric API 需要被重新安装！</string>
     <string name="install_installer_install_offline">从本地文件安装/升级</string>
     <string name="install_installer_install_offline_extension">Forge/OptiFine 安装器</string>
     <string name="installer_running_processor">正在运行安装器（Java %s）…</string>
@@ -871,6 +872,17 @@
     <string name="resourcepack_info_file_name">文件名：%s</string>
     <string name="resourcepack_info_file_size">大小：%s</string>
     <string name="resourcepack_info_format">格式版本：%s</string>
+    <string name="shaderpack_manage">光影</string>
+    <string name="shaderpack_add">导入光影</string>
+    <string name="shaderpack_invalid">无效光影包</string>
+    <string name="shaderpack_rename_exists">同名光影包已存在</string>
+    <string name="shaderpack_add_success">导入光影包 %s 成功</string>
+    <string name="shaderpack_add_failed">导入光影包 %s 失败</string>
+    <string name="shaderpack_info_type">类型：%s</string>
+    <string name="shaderpack_info_type_folder">文件夹</string>
+    <string name="shaderpack_info_type_zip">zip 压缩包</string>
+    <string name="shaderpack_info_file_name">文件名：%s</string>
+    <string name="shaderpack_info_file_size">大小：%s</string>
     <string name="search">搜索</string>
     <string name="search_hint_chinese">支持中英文搜索</string>
     <string name="search_hint_english">仅支持英文搜索</string>
@@ -970,7 +982,7 @@
     <string name="settings_launcher_theme2_dark">次要主题色</string>
     <string name="settings_launcher_theme2_dark_desc">自定义启动器辅助色（深色主题）</string>
     <string name="settings_launcher_color_alpha">主题色透明度</string>
-    <string name="settings_launcher_color_alpha_desc">主题派生色（卡片、按压态等）的透明度，独立于主要主题色。0 完全透明，255 完全不透明</string>
+    <string name="settings_launcher_color_alpha_desc" formatted="false">主题派生色（卡片、按压态等）的透明度，独立于主要主题色。0% 完全透明，100% 完全不透明</string>
     <string name="settings_launcher_theme_fetch_background">从背景图片提取</string>
     <string name="settings_launcher_background_lt">亮色模式启动器背景图片</string>
     <string name="settings_launcher_background_lt_desc">自定义浅色主题的背景图片，最大分辨率5120x5120</string>
@@ -1182,6 +1194,7 @@
     <string name="world_datapack_1_13">仅 Minecraft 1.13 及之后的版本支持数据包</string>
     <string name="world_description">%s。 上一次游戏时间: %s。 游戏版本: %s。</string>
     <string name="world_download">存档下载</string>
+    <string name="world_duplicate">复制世界</string>
     <string name="world_export">导出此世界</string>
     <string name="world_export_title">选择该世界的存储位置</string>
     <string name="world_export_location">保存到</string>
@@ -1192,6 +1205,7 @@
     <string name="world_import_choose">选择要导入的存档压缩包</string>
     <string name="world_import_failed">无法导入此世界：%s</string>
     <string name="world_import_invalid">无法识别该存档压缩包</string>
+    <string name="world_locked_failed">该世界已被游戏或其他启动器锁定。</string>
     <string name="world_info_title">世界 %s - 世界信息</string>
     <string name="world_info_basic">基本信息</string>
     <string name="world_info_allow_cheats">允许作弊</string>
@@ -1210,6 +1224,7 @@
     <string name="world_info_player_game_type">游戏模式</string>
     <string name="world_info_player_game_type_adventure">冒险</string>
     <string name="world_info_player_game_type_creative">创造</string>
+    <string name="world_info_player_game_type_hardcore">极限模式</string>
     <string name="world_info_player_game_type_spectator">旁观</string>
     <string name="world_info_player_game_type_survival">生存</string>
     <string name="world_info_player_health">生命值</string>

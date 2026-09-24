@@ -1,17 +1,17 @@
 package com.tungsten.fcl.ui.manage
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.mio.minecraft.ResourcePack
-import com.mio.minecraft.listResourcePacks
-import com.mio.minecraft.readEnabledResourcePacks
-import com.mio.minecraft.setResourcePackEnabled
+import com.mio.minecraft.ShaderPack
+import com.mio.minecraft.listShaderPacks
 import com.tungsten.fcl.R
 import com.tungsten.fcl.activity.MainActivity
-import com.tungsten.fcl.databinding.PageManageResourcePackBinding
+import com.tungsten.fcl.databinding.PageManageShaderPackBinding
 import com.tungsten.fcl.setting.Profile
 import com.tungsten.fcl.ui.download.DownloadUI
 import com.tungsten.fcl.ui.manage.ManageUI.VersionLoadable
@@ -26,24 +26,24 @@ import java.io.File
 import java.io.IOException
 import java.util.Locale
 
-class ResourcePackListPage(context: Context?, id: Int) :
-    FCLPage(context, id, R.layout.page_manage_resource_pack), VersionLoadable, View.OnClickListener {
+class ShaderPackListPage(context: Context?, id: Int) :
+    FCLPage(context, id, R.layout.page_manage_shader_pack), VersionLoadable, View.OnClickListener {
 
-    private val binding: PageManageResourcePackBinding = PageManageResourcePackBinding.bind(contentView)
-    private val adapter: ResourcePackListAdapter
+    private lateinit var binding: PageManageShaderPackBinding
+    private lateinit var adapter: ShaderPackListAdapter
 
     private var profile: Profile? = null
     private var versionId: String? = null
 
-    /** 全部已解析的资源包，搜索时在其中过滤 */
-    private var allPacks: List<ResourcePack> = emptyList()
+    /** 全部已解析的光影包，搜索时在其中过滤 */
+    private var allPacks: List<ShaderPack> = emptyList()
     private var query: String = ""
 
     init {
-        adapter = ResourcePackListAdapter(
+        binding = PageManageShaderPackBinding.bind(contentView)
+        adapter = ShaderPackListAdapter(
             context!!,
             onSelectionChanged = { count -> switchLayout(count > 0) },
-            onEnableChanged = { pack, enabled -> setEnabled(pack, enabled) },
             onRename = { rename(it) },
             onInfo = { showInfo(it) },
         )
@@ -56,10 +56,10 @@ class ResourcePackListPage(context: Context?, id: Int) :
         binding.selectAll.setOnClickListener(this)
         binding.selectInvert.setOnClickListener(this)
         binding.cancel.setOnClickListener(this)
-        binding.searchFilter.addTextChangedListener(object : android.text.TextWatcher {
+        binding.searchFilter.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
+            override fun afterTextChanged(s: Editable?) {
                 query = s?.toString() ?: ""
                 applyFilter()
             }
@@ -86,22 +86,20 @@ class ResourcePackListPage(context: Context?, id: Int) :
         }
     }
 
-    /** 跳转到下载页的资源包 tab */
+    /** 跳转到下载页的光影 tab */
     private fun download() {
         val main = MainActivity.getInstance()
         main.refreshMenuView(null)
         main.binding.download.isSelected = true
-        main.uiManager.downloadUI.showDownloadPage(DownloadUI.PAGE_ID_DOWNLOAD_RESOURCE_PACK)
+        main.uiManager.downloadUI.showDownloadPage(DownloadUI.PAGE_ID_DOWNLOAD_SHADER_PACK)
     }
 
     fun refresh() {
-        val dir = resourcePacksDir() ?: return
+        val dir = shaderPacksDir() ?: return
         setLoading(true)
         MainActivity.getInstance().lifecycleScope.launch {
             val result = withContext(Dispatchers.IO) {
-                runCatching {
-                    listResourcePacks(dir, readEnabledResourcePacks(gameDir()))
-                }.getOrElse { emptyList() }
+                runCatching { listShaderPacks(dir) }.getOrElse { emptyList() }
             }
             setLoading(false)
             allPacks = result
@@ -109,24 +107,16 @@ class ResourcePackListPage(context: Context?, id: Int) :
         }
     }
 
-    private fun gameDir(): File {
-        val profile = this.profile
-        val version = this.versionId
-        if (profile == null || version == null) throw IllegalStateException("Version not loaded")
-        return profile.repository.getRunDirectory(version)
-    }
-
-    private fun resourcePacksDir(): File? {
+    private fun shaderPacksDir(): File? {
         val profile = this.profile ?: return null
         val version = this.versionId ?: return null
-        return File(profile.repository.getRunDirectory(version), "resourcepacks")
+        return File(profile.repository.getRunDirectory(version), "shaderpacks")
     }
 
     private fun applyFilter() {
-        val q = query.trim().lowercase(Locale.ROOT)
+        val q = query.trim()
         val filtered = if (q.isEmpty()) allPacks else allPacks.filter {
-            it.name.lowercase(Locale.ROOT).contains(q)
-                || it.description?.lowercase(Locale.ROOT)?.contains(q) == true
+            it.name.contains(q, ignoreCase = true) || it.file.name.contains(q, ignoreCase = true)
         }
         adapter.submitList(filtered)
     }
@@ -144,7 +134,7 @@ class ResourcePackListPage(context: Context?, id: Int) :
     }
 
     private fun add() {
-        val dir = resourcePacksDir() ?: return
+        val dir = shaderPacksDir() ?: return
         MainActivity.getInstance().fileLauncher.launchMultiSelection(null, listOf(".zip")) { files ->
             if (files.isNullOrEmpty()) return@launchMultiSelection
             MainActivity.getInstance().lifecycleScope.launch {
@@ -167,9 +157,9 @@ class ResourcePackListPage(context: Context?, id: Int) :
                 }
                 val prompt = mutableListOf<String>()
                 if (succeeded.isNotEmpty())
-                    prompt.add(context.getString(R.string.resourcepack_add_success, succeeded.joinToString(", ")))
+                    prompt.add(context.getString(R.string.shaderpack_add_success, succeeded.joinToString(", ")))
                 if (failed.isNotEmpty())
-                    prompt.add(context.getString(R.string.resourcepack_add_failed, failed.joinToString(", ")))
+                    prompt.add(context.getString(R.string.shaderpack_add_failed, failed.joinToString(", ")))
                 if (prompt.isNotEmpty()) {
                     FCLAlertDialog.Builder(context)
                         .setAlertLevel(if (failed.isEmpty()) FCLAlertDialog.AlertLevel.INFO else FCLAlertDialog.AlertLevel.ALERT)
@@ -179,26 +169,6 @@ class ResourcePackListPage(context: Context?, id: Int) :
                         .show()
                 }
                 refresh()
-            }
-        }
-    }
-
-    /** 启用/禁用资源包：写入 options.txt 的 resourcePacks 列表，失败时回滚 checkbox */
-    private fun setEnabled(pack: ResourcePack, enabled: Boolean) {
-        MainActivity.getInstance().lifecycleScope.launch {
-            val success = withContext(Dispatchers.IO) {
-                runCatching { setResourcePackEnabled(gameDir(), pack.file.name, enabled) }
-                    .getOrDefault(false)
-            }
-            if (success) {
-                allPacks = allPacks.map {
-                    if (it.file == pack.file) it.copy(enabled = enabled) else it
-                }
-                adapter.updateItem(allPacks.first { it.file == pack.file })
-            } else {
-                // 写盘失败，重绑该条目回滚 checkbox 状态
-                adapter.updateItem(pack)
-                Toast.makeText(context, context.getString(R.string.message_failed), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -222,7 +192,7 @@ class ResourcePackListPage(context: Context?, id: Int) :
             .show()
     }
 
-    private fun rename(pack: ResourcePack) {
+    private fun rename(pack: ShaderPack) {
         val dialog = EditDialog(context, pack.name) { newName ->
             val trimmed = newName.trim()
             if (trimmed.isEmpty()) return@EditDialog
@@ -239,7 +209,7 @@ class ResourcePackListPage(context: Context?, id: Int) :
                 } else {
                     Toast.makeText(
                         context,
-                        context.getString(R.string.resourcepack_rename_exists),
+                        context.getString(R.string.shaderpack_rename_exists),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -249,37 +219,31 @@ class ResourcePackListPage(context: Context?, id: Int) :
         dialog.show()
     }
 
-    private fun showInfo(pack: ResourcePack) {
+    private fun showInfo(pack: ShaderPack) {
         val message = StringBuilder()
         message.append(
             context.getString(
-                R.string.resourcepack_info_type,
+                R.string.shaderpack_info_type,
                 context.getString(
-                    if (pack.isDirectory) R.string.resourcepack_info_type_folder
-                    else R.string.resourcepack_info_type_zip
+                    if (pack.isDirectory) R.string.shaderpack_info_type_folder
+                    else R.string.shaderpack_info_type_zip
                 )
             )
         )
-        message.append("\n").append(context.getString(R.string.resourcepack_info_file_name, pack.file.name))
+        message.append("\n").append(context.getString(R.string.shaderpack_info_file_name, pack.file.name))
         pack.fileSize?.let {
-            message.append("\n").append(context.getString(R.string.resourcepack_info_file_size, formatFileSize(it)))
-        }
-        pack.packFormat?.let {
-            message.append("\n").append(context.getString(R.string.resourcepack_info_format, it))
-        }
-        pack.description?.takeIf { it.isNotBlank() }?.let {
-            message.append("\n").append(it)
+            message.append("\n").append(context.getString(R.string.shaderpack_info_file_size, formatFileSize(it)))
         }
         FCLAlertDialog.Builder(context)
             .setAlertLevel(FCLAlertDialog.AlertLevel.INFO)
-            .setTitle(context.getString(R.string.resourcepack_manage))
+            .setTitle(context.getString(R.string.shaderpack_manage))
             .setMessage(message)
             .setPositiveButton(context.getString(R.string.dialog_positive), null)
             .create()
             .show()
     }
 
-    /** 重名导入时追加序号，避免覆盖已有资源包 */
+    /** 重名导入时追加序号，避免覆盖已有光影包 */
     private fun uniqueTarget(dir: File, fileName: String): File {
         val base = fileName.substringBeforeLast('.')
         val ext = fileName.substringAfterLast('.', "")
