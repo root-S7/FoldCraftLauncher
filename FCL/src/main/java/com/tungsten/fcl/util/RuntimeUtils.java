@@ -283,8 +283,7 @@ public class RuntimeUtils {
     }
 
     public static void installConfigFiles(Context context, InstallListener listener) throws Exception {
-        List.of(new File(FCLPath.FILES_DIR), new File(FCLPath.CONFIG_DIR), context.getCacheDir(), context.getCodeCacheDir())
-                .forEach(dir -> deleteDirectory(dir, listener));
+        forceDelete(listener, FCLPath.CONTROLLER_DIR, FCLPath.FILES_DIR, FCLPath.CONFIG_DIR, context.getCacheDir().getAbsolutePath(), context.getCodeCacheDir().getAbsolutePath());
 
         for(InitCheckFile file : FileChecker.INSTANCE.getCheckFiles().keySet()) {
             if(file.getOutPath() != null && !file.getOutPath().isEmpty()) {
@@ -300,7 +299,7 @@ public class RuntimeUtils {
     }
 
     public static void installGameFiles(Context context, String oldSelectedPath, String srcDir, InstallListener listener) throws IOException {
-        forceDelete(listener, FCLPath.LOG_DIR, FCLPath.CONTROLLER_DIR, oldSelectedPath);
+        forceDelete(listener, oldSelectedPath);
 
         Config currentConfig = ConfigHolder.initTempConfig();
         String targetPath = ConfigHolder.getSelectedPath(currentConfig).getAbsolutePath();
