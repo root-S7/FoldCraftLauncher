@@ -6,6 +6,7 @@ import android.content.Context;
 import android.system.Os;
 
 import com.tungsten.fcl.R;
+import com.tungsten.fcl.game.InstallConfigHelper;
 import com.tungsten.fcl.setting.Config;
 import com.tungsten.fcl.setting.ConfigHolder;
 import com.tungsten.fcl.setting.rule.core.InitCheckFile;
@@ -292,10 +293,7 @@ public class RuntimeUtils {
             }
         }
 
-        String rawJson = IOUtils.readFullyAsString(IOUtils.openAssets(context, AssetsPath.LAUNCHER_CONFIG));
-        Config parsedConfig = ConfigHolder.validateProfile(Config.fromJson(rawJson));
-        ParseAuthlibInjectorServerUtils.parseUrlToConfig(parsedConfig);
-        ConfigHolder.writeToConfig(parsedConfig);
+        new InstallConfigHelper().install(listener);
     }
 
     public static void installGameFiles(Context context, String oldSelectedPath, String srcDir, InstallListener listener) throws IOException {
