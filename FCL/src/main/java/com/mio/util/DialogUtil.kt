@@ -9,6 +9,9 @@ import com.tungsten.fcl.databinding.DialogRuleErrorBinding
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog
 import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog
 import com.tungsten.fcllibrary.component.dialog.FCLDialog
+import java.net.URL
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CancellationException
 import kotlin.system.exitProcess
 
 fun showErrorDialog(context: Context, message: Int, vararg args: String?) {
@@ -69,6 +72,39 @@ fun Context.showErrorTips(message: String = "") {
             params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
             params.endToStart = ConstraintLayout.LayoutParams.UNSET
             binding.cancel.layoutParams = params
+        }
+        .show()
+}
+
+fun errRuleDialog(context: Context, msg: String?, url: URL?, future: CompletableFuture<*>) {
+    FCLBaseAppCompatDialog.Builder(context, DialogRuleErrorBinding::inflate)
+        .setCancelOnBackPressed(false)
+        .setCancelOnTouchOutside(false)
+        .setHeightPercent(0.7F)
+        .setWidthPercent(0.7F)
+        .onInitView { binding ->
+
+            binding.tips.text = msg ?: "当前设置规则不满足该版本要求，请根据提示修改！"
+            if(url != null) {
+                binding.confirm.text = "下载"
+                binding.confirm.setOnClickListener {
+                    openLink(context, url.toString())
+                    future.completeExceptionally(CancellationException("由于用户设置不满足规则，取消本次启动"))
+                    dismiss()
+                }
+            }else {
+                binding.confirm.visibility = View.GONE
+
+                val params = binding.cancel.layoutParams as ConstraintLayout.LayoutParams
+                params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                params.endToStart = ConstraintLayout.LayoutParams.UNSET
+                binding.cancel.layoutParams = params
+            }
+
+            binding.cancel.setOnClickListener {
+                future.completeExceptionally(CancellationException("用户强行终止了启动"))
+                dismiss()
+            }
         }
         .show()
 }

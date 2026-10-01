@@ -4,12 +4,20 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.mio.util.errRuleDialog
+import com.tungsten.fcl.game.RuleException
+import com.tungsten.fcl.setting.VersionSetting
 import com.tungsten.fcl.setting.rule.core.LaunchRule
+import com.tungsten.fcl.util.RuleCheckState.isNormal
 import com.tungsten.fclcore.util.gson.LaunchRulesAdapter
 import com.tungsten.fclauncher.utils.AssetsPath
+import com.tungsten.fclcore.task.Schedulers
+import com.tungsten.fclcore.task.Task
 import com.tungsten.fclcore.util.StringUtils.isRegexMatch
+import com.tungsten.fclcore.util.function.ExceptionalFunction
 import com.tungsten.fclcore.util.io.IOUtils
 import java.lang.reflect.Type
+import java.util.concurrent.CompletableFuture
 import java.util.stream.Collectors
 
 object GameRuleUtils {
@@ -52,8 +60,28 @@ object GameRuleUtils {
     }
 
     @JvmStatic
-    fun <T : LaunchRule> MutableSet<LaunchRule>?.findRule(clazz: Class<T>?): T? = runCatching {
-        this?.firstOrNull { it.javaClass == clazz }
-            ?.let { clazz?.cast(it) }
-    }.getOrNull()
+    fun setGameRule(context: Context, setting: VersionSetting, rules: Set<LaunchRule>?): Task<Boolean> {
+        return Task.composeAsync {
+            if(rules.isNullOrEmpty()) return@composeAsync Task.completed(true)
+
+            try {
+                for(rule in rules) {
+                    val state = rule.setRule(setting)
+
+                    if(!isNormal(state)) throw RuleException(rule.tip, rule.downloadURL)
+                }
+
+                Task.completed(true)
+            }catch(ex: RuleException) {
+                val future = CompletableFuture<Task<Boolean>>()
+
+                Schedulers.androidUIThread().execute {
+                    errRuleDialog(context, ex.message, ex.url, future)
+                }
+
+                return@composeAsync Task.fromCompletableFuture(future)
+                    .thenComposeAsync(ExceptionalFunction { it })
+            }
+        }
+    }
 }
