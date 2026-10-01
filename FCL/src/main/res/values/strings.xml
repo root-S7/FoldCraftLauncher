@@ -582,6 +582,8 @@
     <string name="launch_failed">Unable to launch</string>
     <string name="launch_failed_download_library">Unable to download library %s.</string>
 
+    <string name="launch_state_version">Parsing version</string>
+    <string name="launch_state_mods">Scanning mods</string>
     <string name="launch_state_dependencies">Resolving dependencies</string>
     <string name="launch_state_modpack">Downloading dependencies</string>
     <string name="launch_state_java">Checking Java version</string>
@@ -598,6 +600,7 @@
     <string name="menu_controls_hide_all">Hide All Views</string>
     <string name="menu_controls_auto_fit">Auto Fit Position</string>
     <string name="menu_controls_auto_fit_dist">Auto Fit Position Distance</string>
+    <string name="menu_controls_snap_adjacent">Snap to Adjacent Controls Only</string>
     <string name="menu_controls_groups">View Groups</string>
     <string name="menu_controls_manage">Manage</string>
     <string name="menu_controls_current_view_group">Current View Group</string>
@@ -1062,6 +1065,9 @@
     <string name="settings_launcher_upgrade">Update Launcher</string>
     <string name="settings_launcher_upgrade_desc">Check whether a new version of the launcher is available.</string>
     <string name="settings_launcher_upgrade_check">Check</string>
+    <string name="settings_launcher_update_changelog">Notes</string>
+    <string name="update_changelog">What\'s New</string>
+    <string name="update_changelog_not_found">Update notes are not available for this version.</string>
     <string name="settings_launcher_download">Download</string>
     <string name="settings_launcher_download_threads">Threads</string>
     <string name="settings_launcher_download_threads_desc">Set the number of concurrent download threads.</string>
@@ -1298,6 +1304,10 @@
     <string name="version_manage_remove_confirm">Are you sure you want to permanently remove the version %s? This action cannot be undone!</string>
     <string name="version_manage_remove_confirm_independent">Since this instance is stored in an isolated directory, deleting it will also delete its saves and other data. Do you still want to delete instance %s?</string>
     <string name="version_manage_remove_libraries">Delete All Libraries</string>
+    <string name="version_manage_remove_deep">Deep Delete</string>
+    <string name="version_manage_remove_deep_hint">"Deep Delete" also cleans up libraries and assets referenced only by this version.</string>
+    <string name="version_manage_remove_deep_done">Removed version %1$s, cleaned %2$d unreferenced library/asset files, freed %3$.1f MB</string>
+    <string name="version_manage_remove_deep_failed">Failed to enumerate libraries and assets referenced by this version, only the version folder was removed</string>
     <string name="version_manage_rename">Rename Instance</string>
     <string name="version_manage_rename_message">Rename version</string>
     <string name="version_manage_rename_new">New name</string>
@@ -1384,7 +1394,7 @@
     <string name="modpack_download_warn_msg">Before installation, you should understand that most modpacks are designed for PC, so there is a high probability that you will encounter crashes or other issues when trying to launch. This is often not a problem that can be solved at the launcher level. Therefore, you need to understand the relevant knowledge and try to solve the problem yourself or seek help from others (do not ask the launcher developer!).</string>
     <string name="guide_theme2">If you find the color of the text on the right side is not clear, you can click here, then click \"Launcher Settings\", and select \"Secondary Theme Color\"</string>
     <string name="guide_share_log">Long press here to share the game log (latest_game.log).</string>
-    <string name="guide_version_card">Tap the version card to open the version list and manage your versions.</string>
+    <string name="guide_version_card">Tap the version card to open the version list and manage your versions. Long press to quickly select a version.</string>
     <string name="guide_account">No account yet? Tap here to add one.</string>
     <string name="guide_start">Tap to launch the selected version, long-press to pick a renderer and launch directly.</string>
     <string name="guide_manage">Adjust game settings, and manage game files, mods, saves, resource packs and more.</string>
@@ -1397,6 +1407,31 @@
     <string name="joystick_r">Right joystick</string>
     <string name="message_vulkan_driver_system">Warning: Using the system Vulkan driver may result in better performance, but may also cause crashes due to compatibility issues!</string>
     <string name="message_loading_controllers">Loading controllers, please wait...</string>
+
+    <string name="settings_fcl_vulkan_check">Check Vulkan</string>
+    <string name="settings_fcl_vulkan_check_desc">Check whether the device supports the Vulkan rendering backend required by Minecraft 26.2 and later.</string>
+    <string name="settings_fcl_vulkan_check_not_checked">Not checked</string>
+    <string name="vulkan_check_title">Vulkan Check</string>
+    <string name="vulkan_check_running">Checking Vulkan support...</string>
+    <string name="vulkan_check_failed">Vulkan check failed. The device may not support Vulkan, or the driver failed to load.</string>
+    <string name="vulkan_check_support_all">The device supports all Vulkan features required by Minecraft %s and later.</string>
+    <string name="vulkan_check_support_none">The device does not meet the Vulkan requirements of any Minecraft version.</string>
+    <string name="vulkan_check_support_partial">The device only supports the Vulkan backend for some Minecraft versions.</string>
+    <string name="vulkan_check_versions">Version ranges</string>
+    <string name="vulkan_check_version_range">Minecraft %s:</string>
+    <string name="vulkan_check_profile_support">Supported</string>
+    <string name="vulkan_check_profile_unsupport">Not supported</string>
+    <string name="vulkan_check_version">Vulkan version: %s</string>
+    <string name="vulkan_check_turnip">Driver: %s</string>
+    <string name="vulkan_check_driver_system">System driver</string>
+    <string name="vulkan_check_extensions">Extensions</string>
+    <string name="vulkan_check_features">Features</string>
+    <string name="vulkan_check_item_name_missing">%s (missing)</string>
+    <string name="vulkan_check_dep_required">Required in: %s</string>
+    <string name="vulkan_check_dep_optional">Optional in: %s</string>
+    <string name="vulkan_check_launch_tip">This version ships with a Vulkan rendering backend. Check whether the device supports it now?</string>
+    <string name="vulkan_check_launch_warning">The device does not fully meet the Vulkan requirements of this version. The Vulkan renderer in game may not work:\n%s</string>
+    <string name="vulkan_check_launch_continue">Launch anyway</string>
 
     <string name="mcmod" translatable="false">
         <u>MC百科</u>

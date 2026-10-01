@@ -54,6 +54,8 @@ class SkinRenderer(context: Context) {
     init {
         // 默认播放待机（账户弹窗等不调用 restoreSkinSettings 的场景也有动画）
         model.playAnimation(animationId)
+        // 初始默认皮肤为 alex（slim 布局），模型须与之匹配，否则手臂贴图采样到透明区域
+        model.setSlim(true)
     }
 
     // 手势状态（UI 线程写、渲染线程读，单字段读写无需同步）
@@ -89,7 +91,7 @@ class SkinRenderer(context: Context) {
     private var pendingCape: Bitmap? = null
 
     @Volatile
-    private var pendingSlim = false
+    private var pendingSlim = true
 
     @Volatile
     private var pendingHasUpdate = false
@@ -168,6 +170,7 @@ class SkinRenderer(context: Context) {
         GLES20.glEnable(GLES20.GL_BLEND)
         GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         texture[0]?.let { skinTextureId = uploadTexture(skinTextureId, it) }
+        texture[1]?.let { capeTextureId = uploadTexture(capeTextureId, it) }
     }
 
     fun onSurfaceChanged(width: Int, height: Int) {

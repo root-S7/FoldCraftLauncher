@@ -18,14 +18,11 @@
 package com.tungsten.fcl.game;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.view.View.GONE;
 import static com.mio.util.AndroidUtilKt.getLocalizedText;
 import static com.mio.util.AndroidUtilKt.hasStringId;
-import static com.mio.util.AndroidUtilKt.openLink;
-import static com.tungsten.fcl.util.GameRuleUtils.findRule;
 import static com.tungsten.fcl.util.GameRuleUtils.fromJson;
 import static com.tungsten.fcl.util.GameRuleUtils.getVersionRules;
-import static com.tungsten.fcl.util.RuleCheckState.isNormal;
+import static com.tungsten.fcl.util.GameRuleUtils.setGameRule;
 import static com.tungsten.fclcore.util.Logging.LOG;
 import static java.util.stream.Collectors.toList;
 
@@ -36,7 +33,6 @@ import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.annotation.Nullable;
 
 import com.google.gson.GsonBuilder;
@@ -53,18 +49,14 @@ import com.tungsten.fcl.R;
 import com.tungsten.fcl.activity.JVMActivity;
 import com.tungsten.fcl.activity.MainActivity;
 import com.tungsten.fcl.control.MenuType;
-import com.tungsten.fcl.databinding.DialogRuleErrorBinding;
 import com.tungsten.fcl.setting.GameOption;
 import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.setting.Profiles;
 import com.tungsten.fcl.setting.VersionSetting;
 import com.tungsten.fcl.setting.rule.core.LaunchRule;
-import com.tungsten.fcl.setting.rule.launch.GLRender;
-import com.tungsten.fcl.setting.rule.launch.Java;
 import com.tungsten.fcl.ui.TaskDialog;
 import com.tungsten.fcl.ui.UIManager;
-import com.tungsten.fcl.util.RuleCheckState;
 import com.tungsten.fcl.util.TaskCancellationAction;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.utils.FCLPath;
@@ -102,7 +94,6 @@ import com.tungsten.fclcore.util.io.ResponseCodeException;
 import com.tungsten.fclcore.util.versioning.GameVersionNumber;
 import com.tungsten.fclcore.util.versioning.VersionNumber;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
-import com.tungsten.fcllibrary.component.dialog.FCLBaseAppCompatDialog;
 import com.tungsten.fcllibrary.component.dialog.FCLDialog;
 import com.tungsten.fcllibrary.component.view.FCLButton;
 import com.tungsten.fcllibrary.component.view.FCLTabLayout;
@@ -125,11 +116,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-
-import kotlin.Unit;
 
 public final class LauncherHelper {
 
@@ -157,31 +147,47 @@ public final class LauncherHelper {
         LOG.info("Launching game version: " + selectedVersion);
 
         launchingStepsPane.show();
-        launch0();
+        // 版本解析与 mod 全量扫描较重，挪到后台执行，避免阻塞主线程导致弹窗延迟显示
+        Task.runAsync(this::launch0).whenComplete(Schedulers.androidUIThread(), e -> {
+            // 任务链尚未构建时（版本解析/mod 扫描准备段）失败不会触发链内 onStop，在此兜底
+            if (e != null) {
+                launchingStepsPane.dismiss();
+                showLaunchErrorMessage(e);
+            }
+        }).start();
     }
 
     private void launch0() {
         FCLGameRepository repository = profile.getRepository();
         DefaultDependencyManager dependencyManager = profile.getDependency();
-        AtomicReference<Version> version = new AtomicReference<>(MaintainTask.maintain(repository, repository.getResolvedVersion(selectedVersion)));
-        // 全量 mod 扫描一次，供 lwjgl3ify 补丁、modloader 与渲染器检查共用
-        List<LocalModFile> scannedMods = scanMods(repository, selectedVersion);
-        // GTNH/lwjgl3ify 兼容：mods 目录存在 lwjgl3ify 时改写版本 JSON，以 RFB + Java17+ 启动
-        Lwjgl3ifyPatcher.patchIfNeeded(repository, selectedVersion, scannedMods, version);
-        Optional<String> gameVersion = repository.getGameVersion(version.get());
-        boolean integrityCheck = repository.unmarkVersionLaunchedAbnormally(selectedVersion);
+        AtomicReference<Version> version = new AtomicReference<>();
+        AtomicReference<List<LocalModFile>> scannedModsRef = new AtomicReference<>();
+        AtomicReference<Optional<String>> gameVersionRef = new AtomicReference<>();
+        AtomicBoolean integrityCheckRef = new AtomicBoolean();
 
         AtomicReference<JavaVersion> javaVersionRef = new AtomicReference<>();
 
-        TaskExecutor executor = checkGameState(context, setting, version.get(), findRule(rules, Java.class))
+        // 版本解析与 mod 扫描较重，作为链首阶段任务执行，弹窗内可实时显示进度
+        TaskExecutor executor = Task.runAsync(() -> version.set(MaintainTask.maintain(repository, repository.getResolvedVersion(selectedVersion))))
+                .withStage("launch.state.version")
+                .thenComposeAsync(() -> {
+                    // 全量 mod 扫描一次，供 lwjgl3ify 补丁、modloader 与渲染器检查共用
+                    List<LocalModFile> scannedMods = scanMods(repository, selectedVersion);
+                    scannedModsRef.set(scannedMods);
+                    // GTNH/lwjgl3ify 兼容：mods 目录存在 lwjgl3ify 时在内存中合并 RFB 启动清单（不落盘），以 RFB + Java17+ 启动
+                    Lwjgl3ifyPatcher.patchIfNeeded(repository, selectedVersion, scannedMods, version);
+                    gameVersionRef.set(repository.getGameVersion(version.get()));
+                    integrityCheckRef.set(repository.unmarkVersionLaunchedAbnormally(selectedVersion));
+                    return null;
+                }).withStage("launch.state.mods")
+                .thenComposeAsync(() -> checkGameState(context, setting, version.get()))
                 .thenComposeAsync(javaVersion -> {
-                    rules.removeIf(rule -> rule instanceof Java); // 当Java检查完毕并通过后，就把rules内Java有关检测删除掉，这样后面的检查可以无脑check
                     javaVersionRef.set(Objects.requireNonNull(javaVersion));
                     version.set(LibFilter.filter(version.get(), false));
                     if (setting.isNotCheckGame())
                         return null;
                     return Task.allOf(
-                            dependencyManager.checkGameCompletionAsync(version.get(), integrityCheck),
+                            dependencyManager.checkGameCompletionAsync(version.get(), integrityCheckRef.get()),
                             Task.composeAsync(() -> {
                                 try {
                                     ModpackConfiguration<?> configuration = ModpackHelper.readModpackConfiguration(repository.getModpackConfiguration(selectedVersion));
@@ -214,7 +220,7 @@ public final class LauncherHelper {
                     }
                     return null;
                 })
-                .thenComposeAsync(() -> gameVersion.map(s -> new GameVerificationFixTask(dependencyManager, s, version.get())).orElse(null))
+                .thenComposeAsync(() -> gameVersionRef.get().map(s -> new GameVerificationFixTask(dependencyManager, s, version.get())).orElse(null))
                 .thenComposeAsync(() -> logIn(context, account,
                         // 微软登录阶段实时写入启动过程的日志区
                         text -> Schedulers.androidUIThread().execute(() -> launchingStepsPane.appendLog(text)))
@@ -268,15 +274,15 @@ public final class LauncherHelper {
                         .thenComposeAsync(fclBridge -> {
                             Renderer renderer = RendererManager.getRenderer(repository.getVersionSetting(selectedVersion).getRenderer());
                             fclBridge.setRenderer(renderer.getName());
-                            return checkRenderer(fclBridge, renderer, repository.getGameVersion(selectedVersion).orElse(""), scannedMods);
+                            return checkRenderer(fclBridge, renderer, repository.getGameVersion(selectedVersion).orElse(""), scannedModsRef.get());
                         }).thenComposeAsync(fclBridge -> checkNativeLibPlugin(fclBridge, repository.getGameVersion(selectedVersion).orElse("")))
                         .thenComposeAsync(fclBridge -> {
                             boolean skip = repository.getVersionSetting(selectedVersion).isNotCheckMod();
                             if (skip) return Task.supplyAsync(() -> fclBridge);
-                            return checkModLoader(fclBridge, repository, scannedMods);
+                            return checkModLoader(fclBridge, repository, scannedModsRef.get());
                         }).thenComposeAsync(fclBridge -> {
                             boolean skip = repository.getVersionSetting(selectedVersion).isNotCheckMod();
-                            return checkMod(fclBridge, repository.getGameVersion(selectedVersion).orElse(""), skip, scannedMods);
+                            return checkMod(fclBridge, repository.getGameVersion(selectedVersion).orElse(""), skip, scannedModsRef.get());
                         }).thenComposeAsync(fclBridge -> {
                             GameOption gameOption = new GameOption(repository.getRunDirectory(selectedVersion).getAbsolutePath());
                             gameOption.set("preferredGraphicsBackend", setting.getGraphicsBackend());
@@ -309,91 +315,101 @@ public final class LauncherHelper {
                         }))
                         .withStage("launch.state.waiting_launching"))
                 .withStagesHint(Lang.immutableListOf(
+                        "launch.state.version",
+                        "launch.state.mods",
                         "launch.state.java",
                         "launch.state.dependencies",
                         "launch.state.rule",
                         "launch.state.logging_in",
                         "launch.state.waiting_launching"))
                 .executor();
-        launchingStepsPane.setExecutor(executor, false);
-        executor.addTaskListener(new TaskListener() {
+        // setExecutor 内部更新视图，且须先于 start 装配，整体切回主线程执行
+        Schedulers.androidUIThread().execute(() -> {
+            launchingStepsPane.setExecutor(executor, false);
+            executor.addTaskListener(new TaskListener() {
 
-            @Override
-            public void onStop(boolean success, TaskExecutor executor) {
-                launchingStepsPane.dismiss();
-                if (!success) {
-                    Exception ex = executor.getException();
-                    if (ex != null && !(ex instanceof CancellationException)) {
-                        Schedulers.androidUIThread().execute(() -> {
-                            String message;
-                            if (ex instanceof ModpackCompletionException) {
-                                if (ex.getCause() instanceof FileNotFoundException)
-                                    message = context.getString(R.string.modpack_type_curse_not_found);
-                                else
-                                    message = context.getString(R.string.modpack_type_curse_error);
-                            } else if (ex instanceof LibraryDownloadException) {
-                                message = context.getString(R.string.launch_failed_download_library, ((LibraryDownloadException) ex).getLibrary().getName()) + "\n";
-                                if (ex.getCause() instanceof ResponseCodeException rce) {
-                                    int responseCode = rce.getResponseCode();
-                                    URL url = rce.getUrl();
-                                    if (responseCode == 404)
-                                        message += context.getString(R.string.download_code_404, url);
-                                    else
-                                        message += context.getString(R.string.download_failed, url, responseCode);
-                                } else {
-                                    message += StringUtils.getStackTrace(ex.getCause());
-                                }
-                            } else if (ex instanceof DownloadException) {
-                                URL url = ((DownloadException) ex).getUrl();
-                                if (ex.getCause() instanceof SocketTimeoutException) {
-                                    message = context.getString(R.string.install_failed_downloading_timeout, url);
-                                } else if (ex.getCause() instanceof ResponseCodeException responseCodeException) {
-                                    if (hasStringId(context, "download_code_" + responseCodeException.getResponseCode())) {
-                                        message = getLocalizedText(context, "download_code_" + responseCodeException.getResponseCode(), url);
-                                    } else {
-                                        message = context.getString(R.string.install_failed_downloading_detail, url) + "\n" + StringUtils.getStackTrace(ex.getCause());
-                                    }
-                                } else {
-                                    message = context.getString(R.string.install_failed_downloading_detail, url) + "\n" + StringUtils.getStackTrace(ex.getCause());
-                                }
-                            } else if (ex instanceof GameAssetIndexDownloadTask.GameAssetIndexMalformedException) {
-                                message = context.getString(R.string.assets_index_malformed);
-                            } else if (ex instanceof AuthlibInjectorDownloadException) {
-                                message = context.getString(R.string.account_failed_injector_download_failure);
-                            } else if (ex instanceof CharacterDeletedException) {
-                                message = context.getString(R.string.account_failed_character_deleted);
-                            } else if (ex instanceof ResponseCodeException rce) {
-                                int responseCode = rce.getResponseCode();
-                                URL url = rce.getUrl();
-                                if (responseCode == 404)
-                                    message = context.getString(R.string.download_code_404, url);
-                                else
-                                    message = context.getString(R.string.download_failed, url, responseCode);
-                            } else if (ex instanceof AccessDeniedException) {
-                                message = context.getString(R.string.exception_access_denied, ((AccessDeniedException) ex).getFile());
-                            } else if (ex instanceof ModCheckException) {
-                                message = ((ModCheckException) ex).getReason();
-                            } else if (ex instanceof IllegalArgumentException) {
-                                message = context.getString(R.string.exception_no_suitable_java);
-                            } else {
-                                message = StringUtils.getStackTrace(ex);
-                            }
-
-                            FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context);
-                            builder.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT);
-                            builder.setCancelable(false);
-                            builder.setTitle(context.getString(R.string.launch_failed));
-                            builder.setMessage(message);
-                            builder.setNegativeButton(context.getString(com.tungsten.fcl.R.string.dialog_positive), null);
-                            builder.setPositiveButton("关闭应用", () -> System.exit(0));
-                            builder.create().show();
-                        });
+                @Override
+                public void onStop(boolean success, TaskExecutor executor) {
+                    launchingStepsPane.dismiss();
+                    if (!success) {
+                        Exception ex = executor.getException();
+                        if (ex != null && !(ex instanceof CancellationException)) {
+                            showLaunchErrorMessage(ex);
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        executor.start();
+            executor.start();
+        });
+    }
+
+    /** 主线程展示启动失败原因（按异常类型整理文案） */
+    private void showLaunchErrorMessage(Exception ex) {
+        Schedulers.androidUIThread().execute(() -> {
+            String message;
+            if (ex instanceof ModpackCompletionException) {
+                if (ex.getCause() instanceof FileNotFoundException)
+                    message = context.getString(R.string.modpack_type_curse_not_found);
+                else
+                    message = context.getString(R.string.modpack_type_curse_error);
+            } else if (ex instanceof LibraryDownloadException) {
+                message = context.getString(R.string.launch_failed_download_library, ((LibraryDownloadException) ex).getLibrary().getName()) + "\n";
+                if (ex.getCause() instanceof ResponseCodeException rce) {
+                    int responseCode = rce.getResponseCode();
+                    URL url = rce.getUrl();
+                    if (responseCode == 404)
+                        message += context.getString(R.string.download_code_404, url);
+                    else
+                        message += context.getString(R.string.download_failed, url, responseCode);
+                } else {
+                    message += StringUtils.getStackTrace(ex.getCause());
+                }
+            } else if (ex instanceof DownloadException) {
+                URL url = ((DownloadException) ex).getUrl();
+                if (ex.getCause() instanceof SocketTimeoutException) {
+                    message = context.getString(R.string.install_failed_downloading_timeout, url);
+                } else if (ex.getCause() instanceof ResponseCodeException responseCodeException) {
+                    if (hasStringId(context, "download_code_" + responseCodeException.getResponseCode())) {
+                        message = getLocalizedText(context, "download_code_" + responseCodeException.getResponseCode(), url);
+                    } else {
+                        message = context.getString(R.string.install_failed_downloading_detail, url) + "\n" + StringUtils.getStackTrace(ex.getCause());
+                    }
+                } else {
+                    message = context.getString(R.string.install_failed_downloading_detail, url) + "\n" + StringUtils.getStackTrace(ex.getCause());
+                }
+            } else if (ex instanceof GameAssetIndexDownloadTask.GameAssetIndexMalformedException) {
+                message = context.getString(R.string.assets_index_malformed);
+            } else if (ex instanceof AuthlibInjectorDownloadException) {
+                message = context.getString(R.string.account_failed_injector_download_failure);
+            } else if (ex instanceof CharacterDeletedException) {
+                message = context.getString(R.string.account_failed_character_deleted);
+            } else if (ex instanceof ResponseCodeException rce) {
+                int responseCode = rce.getResponseCode();
+                URL url = rce.getUrl();
+                if (responseCode == 404)
+                    message = context.getString(R.string.download_code_404, url);
+                else
+                    message = context.getString(R.string.download_failed, url, responseCode);
+            } else if (ex instanceof AccessDeniedException) {
+                message = context.getString(R.string.exception_access_denied, ((AccessDeniedException) ex).getFile());
+            } else if (ex instanceof ModCheckException) {
+                message = ((ModCheckException) ex).getReason();
+            } else if (ex instanceof IllegalArgumentException) {
+                message = context.getString(R.string.exception_no_suitable_java);
+            } else {
+                message = StringUtils.getStackTrace(ex);
+            }
+
+            FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(context);
+            builder.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT);
+            builder.setCancelable(false);
+            builder.setTitle(context.getString(R.string.launch_failed));
+            builder.setMessage(message);
+            builder.setNegativeButton(context.getString(com.tungsten.fcl.R.string.dialog_positive), null);
+            builder.setPositiveButton("关闭应用", () -> System.exit(0));
+            builder.create().show();
+        });
     }
 
     private Task<FCLBridge> checkPathValid(FCLBridge bridge, FCLGameRepository repository) {
@@ -437,7 +453,6 @@ public final class LauncherHelper {
             try {
                 CompletableFuture<Task<FCLBridge>> future = new CompletableFuture<>();
                 if (!version.isEmpty()) {
-                    if (rules != null && !rules.isEmpty() && findRule(rules, GLRender.class) != null) return Task.completed(bridge);
                     if (!renderer.getMinMCver().isEmpty()) {
                         if (GameVersionNumber.compare(version, renderer.getMinMCver()) < 0) {
                             Schedulers.androidUIThread().execute(() -> new FCLAlertDialog.Builder(context)
@@ -578,72 +593,75 @@ public final class LauncherHelper {
         });
     }
 
-    private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version, Java rule) {
+    private static Task<JavaVersion> checkGameState(Context context, VersionSetting setting, Version version) {
         LibraryAnalyzer analyzer = LibraryAnalyzer.analyze(version, null);
         boolean isCleanroom = analyzer.has(LibraryAnalyzer.LibraryType.CLEANROOM);
-        VersionNumber cleanroomVersion = null;
-        if(isCleanroom) {
+        VersionNumber cleanroomVersion;
+        if (isCleanroom) {
             Optional<String> optional = analyzer.getVersion(LibraryAnalyzer.LibraryType.CLEANROOM);
             cleanroomVersion = optional.map(s -> VersionNumber.asVersion(StringUtils.removeSuffix(s, "-alpha"))).orElse(null);
+        } else {
+            cleanroomVersion = null;
         }
-
-        final VersionNumber finalCleanroomVersion = cleanroomVersion;
         Task<JavaVersion> task = Task.supplyAsync(Schedulers.androidUIThread(), () -> {
-            if(setting.getJava().equals("Auto")) {
-                if(isCleanroom) {
-                    if(finalCleanroomVersion != null && finalCleanroomVersion.compareTo("0.5.0") >= 0) return JavaManager.getSuitableJavaVersion(25);
-                    else return JavaManager.getJavaFromVersionName("jre21");
-                }else return JavaManager.getSuitableJavaVersion(version);
-
-            }else return JavaManager.getJavaFromVersionName(setting.getJava());
+            if (setting.getJava().equals("Auto")) {
+                if (isCleanroom) {
+                    if (cleanroomVersion != null && cleanroomVersion.compareTo("0.5.0") >= 0) {
+                        return JavaManager.getSuitableJavaVersion(25);
+                    } else {
+                        return JavaManager.getJavaFromVersionName("jre21");
+                    }
+                } else {
+                    return JavaManager.getSuitableJavaVersion(version);
+                }
+            } else {
+                return JavaManager.getJavaFromVersionName(setting.getJava());
+            }
         });
 
-        if(setting.isNotCheckJVM()) return task.withStage("launch.state.java");
-
-        if(rule != null && rule.canDetectRule()) {
-            return task.thenComposeAsync(javaVersion -> Optional.ofNullable(rule.setRule(setting))
-                    .filter(RuleCheckState::isNormal)
-                    .map(r -> Task.completed("Auto".equals(setting.getJava()) ? JavaManager.getSuitableJavaVersion(version) : JavaManager.getJavaFromVersionName(setting.getJava())))
-                    .orElseGet(() -> {
-                        CompletableFuture<JavaVersion> future = new CompletableFuture<>();
-                        Schedulers.androidUIThread().execute(() -> errRuleDialog(context, rule.getTip(), rule.getDownloadURL(), future));
-                        return Task.fromCompletableFuture(future);
-                    })).withStage("launch.state.java");
-        }else {
-            return task.thenComposeAsync(Schedulers.androidUIThread(), javaVersion -> {
-                JavaVersion suggestedJavaVersion;
-                if(isCleanroom) {
-                    if(finalCleanroomVersion != null && finalCleanroomVersion.compareTo("0.5.0") >= 0) suggestedJavaVersion = JavaManager.getSuitableJavaVersion(25);
-                    else suggestedJavaVersion = JavaManager.getJavaFromVersionName("jre21");
-                }else suggestedJavaVersion = JavaManager.getSuitableJavaVersion(version);
-
-                if(suggestedJavaVersion.getVersion() != -1) {
-                    if(setting.getJava().equals("Auto") || javaVersion.getVersion() == suggestedJavaVersion.getVersion()) {
-                        return Task.completed(setting.getJava().equals("Auto") ? suggestedJavaVersion : javaVersion);
-                    }
-                }
-
-                CompletableFuture<JavaVersion> future = new CompletableFuture<>();
-                Runnable continueAction = () -> future.complete(javaVersion);
-                new FCLAlertDialog.Builder(context)
-                        .setCancelable(false)
-                        .setMessage(context.getString(R.string.launch_error_java))
-                        .setPositiveButton(context.getString(R.string.launch_error_java_auto), () -> {
-                            setting.setJava(JavaVersion.JAVA_AUTO.getName());
-                            if(suggestedJavaVersion == JavaManager.NO_JAVA_FOUND) future.completeExceptionally(new IllegalArgumentException("Failed to find a suitable Java!"));
-                            else future.complete(suggestedJavaVersion);
-
-                        })
-                        .setNegativeButton(context.getString(R.string.launch_error_java_continue), continueAction::run)
-                        .setNeutralButton(context.getString(R.string.launch_error_java_continue_disable), () -> {
-                            setting.setNotCheckJVM(true);
-                            continueAction.run();
-                        })
-                        .create()
-                        .show();
-                return Task.fromCompletableFuture(future);
-            }).withStage("launch.state.java");
+        if (setting.isNotCheckJVM()) {
+            return task.withStage("launch.state.java");
         }
+
+        return task.thenComposeAsync(Schedulers.androidUIThread(), javaVersion -> {
+            JavaVersion suggestedJavaVersion;
+            if (isCleanroom) {
+                if (cleanroomVersion != null && cleanroomVersion.compareTo("0.5.0") >= 0) {
+                    suggestedJavaVersion = JavaManager.getSuitableJavaVersion(25);
+                } else {
+                    suggestedJavaVersion = JavaManager.getJavaFromVersionName("jre21");
+                }
+            } else {
+                suggestedJavaVersion = JavaManager.getSuitableJavaVersion(version);
+            }
+            if (suggestedJavaVersion.getVersion() != -1) {
+                if (setting.getJava().equals("Auto") || javaVersion.getVersion() == suggestedJavaVersion.getVersion()) {
+                    return Task.completed(setting.getJava().equals("Auto") ? suggestedJavaVersion : javaVersion);
+                }
+            }
+
+            CompletableFuture<JavaVersion> future = new CompletableFuture<>();
+            Runnable continueAction = () -> future.complete(javaVersion);
+            new FCLAlertDialog.Builder(context)
+                    .setCancelable(false)
+                    .setMessage(context.getString(R.string.launch_error_java))
+                    .setPositiveButton(context.getString(R.string.launch_error_java_auto), () -> {
+                        setting.setJava(JavaVersion.JAVA_AUTO.getName());
+                        if (suggestedJavaVersion == JavaManager.NO_JAVA_FOUND) {
+                            future.completeExceptionally(new IllegalArgumentException("Failed to find a suitable Java!"));
+                        } else {
+                            future.complete(suggestedJavaVersion);
+                        }
+                    })
+                    .setNegativeButton(context.getString(R.string.launch_error_java_continue), continueAction::run)
+                    .setNeutralButton(context.getString(R.string.launch_error_java_continue_disable), () -> {
+                        setting.setNotCheckJVM(true);
+                        continueAction.run();
+                    })
+                    .create()
+                    .show();
+            return Task.fromCompletableFuture(future);
+        }).withStage("launch.state.java");
     }
 
     /**
@@ -683,59 +701,6 @@ public final class LauncherHelper {
                 }
             }
         });
-    }
-
-    private static Task<Boolean> setGameRule(@NonNull Context context, VersionSetting setting, Set<LaunchRule> rules) {
-        return Task.composeAsync(() -> {
-            if(rules == null || rules.isEmpty()) return Task.completed(true);
-
-            try {
-                for(LaunchRule rule : rules) {
-                    if(rule == null) continue;
-                    RuleCheckState state = rule.setRule(setting);
-
-                    if(!isNormal(state)) throw new RuleException(rule.getTip(), rule.getDownloadURL());
-                }
-                return Task.completed(true);
-            }catch(RuleException ex) {
-                CompletableFuture<Task<Boolean>> future = new CompletableFuture<>();
-                Schedulers.androidUIThread().execute(() -> errRuleDialog(context, ex.getMessage(), ex.getUrl(), future));
-                return Task.fromCompletableFuture(future).thenComposeAsync(task -> task);
-            }
-        });
-    }
-
-    private static void errRuleDialog(@NonNull Context context, String msg, URL url, @NonNull CompletableFuture<?> future) {
-        new FCLBaseAppCompatDialog.Builder<>(context, DialogRuleErrorBinding::inflate)
-                .setCancelOnBackPressed(false)
-                .setCancelOnTouchOutside(false)
-                .setHeightPercent(0.7F)
-                .setWidthPercent(0.7F)
-                .onInitView((dialog, dialogBind) -> {
-                    dialogBind.tips.setText(msg == null ? "当前设置规则不满足该版本要求，请根据提示修改！" : msg);
-                    if(url != null) {
-                        dialogBind.confirm.setText("下载");
-                        dialogBind.confirm.setOnClickListener(v -> {
-                            openLink(context, url.toString());
-                            future.completeExceptionally(new CancellationException("由于用户设置不满足规则，取消本次启动"));
-                            dialog.dismiss();
-                        });
-                    }else {
-                        dialogBind.confirm.setVisibility(GONE);
-
-                        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) dialogBind.cancel.getLayoutParams();
-                        params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
-                        params.endToStart = ConstraintLayout.LayoutParams.UNSET;
-                        dialogBind.cancel.setLayoutParams(params);
-                    }
-                    dialogBind.cancel.setOnClickListener(v -> {
-                        future.completeExceptionally(new CancellationException("用户强行终止了启动"));
-                        dialog.dismiss();
-                    });
-
-                    return Unit.INSTANCE;
-                })
-                .show();
     }
 
     static class SkipLoginDialog extends FCLDialog implements View.OnClickListener {
