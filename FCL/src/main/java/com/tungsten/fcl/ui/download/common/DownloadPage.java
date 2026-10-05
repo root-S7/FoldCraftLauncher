@@ -80,6 +80,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -106,6 +107,8 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
     private static final int SEARCH_PAGE_SIZE = 30;
 
     private int pageId = PAGE_ID_DOWNLOAD_MOD;
+    /** switchType 是否执行过：新建实例的 pageId 字段默认值（MOD 模式）不代表已完成初始化，仓库/回调仍为 null */
+    private boolean typeInitialized;
     protected RemoteModRepository repository;
     /** 聚合搜索使用的两个固定源仓库（仅本地化模式构建） */
     private LocalizedRepository aggregateCurseRepository;
@@ -171,6 +174,16 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
 
     public int getPageId() {
         return pageId;
+    }
+
+    /**
+     * 页面当前是否已就绪于指定模式（switchType 至少执行过一次且 pageId 一致）。
+     * 收藏页等外部入口跳转详情前据此判断是否需要先 switchType：
+     * 仅比较 pageId 会漏掉从未初始化的新实例（pageId 默认值恰为 MOD 模式），
+     * 此时 repository/callback 为 null，详情页构造即失败
+     */
+    public boolean isTypeReady(int pageId) {
+        return typeInitialized && this.pageId == pageId;
     }
 
     /**
@@ -274,6 +287,7 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
         } else {
             search(searchState.userGameVersion, searchState.category, searchState.pageOffset, searchState.searchFilter, searchState.sortType);
         }
+        typeInitialized = true;
     }
 
     /**
@@ -407,15 +421,36 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
     }
 
     /**
-     * 本地文件反查远程版本：聚合模式依次尝试 Modrinth 与 CurseForge 源（命中与未命中均有缓存），
-     * 其余模式使用当前仓库
+     * 本地文件反查远程版本：聚合模式同时反查 Modrinth 与 CurseForge 源并合并全部命中，
+     * 同一 mod 双平台都有收录时两个平台的项目 id 都能命中列表"已安装"标记，
+     * 不会因 Modrinth 命中短路而漏标 CurseForge 条目。
+     * 单源失败只记日志不丢另一源结果；两源均无命中且存在异常时抛出首个异常。
+     * 其余模式使用当前仓库（至多一个结果）
      */
-    Optional<RemoteMod.Version> getRemoteVersionByLocalFile(LocalModFile localModFile, Path file) throws IOException {
+    List<RemoteMod.Version> getRemoteVersionsByLocalFile(LocalModFile localModFile, Path file) throws IOException {
         if (isAggregate()) {
-            Optional<RemoteMod.Version> result = aggregateModrinthRepository.getRemoteVersionByLocalFile(localModFile, file);
-            return result.isPresent() ? result : aggregateCurseRepository.getRemoteVersionByLocalFile(localModFile, file);
+            List<RemoteMod.Version> result = new ArrayList<>(2);
+            IOException firstFailure = null;
+            try {
+                aggregateModrinthRepository.getRemoteVersionByLocalFile(localModFile, file).ifPresent(result::add);
+            } catch (IOException e) {
+                firstFailure = e;
+                Logging.LOG.log(Level.WARNING, "Failed to lookup local file on Modrinth " + file, e);
+            }
+            try {
+                aggregateCurseRepository.getRemoteVersionByLocalFile(localModFile, file).ifPresent(result::add);
+            } catch (IOException e) {
+                if (firstFailure == null) firstFailure = e;
+                Logging.LOG.log(Level.WARNING, "Failed to lookup local file on CurseForge " + file, e);
+            }
+            if (result.isEmpty() && firstFailure != null) {
+                throw firstFailure;
+            }
+            return result;
         }
-        return repository.getRemoteVersionByLocalFile(localModFile, file);
+        return repository.getRemoteVersionByLocalFile(localModFile, file)
+                .map(Collections::singletonList)
+                .orElseGet(Collections::emptyList);
     }
 
     public void setLoading(boolean loading) {
@@ -876,9 +911,11 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
         String version = profile.getSelectedVersion();
 
         Path runDirectory = version != null && profile.getRepository().hasVersion(version) ? profile.getRepository().getRunDirectory(version).toPath() : profile.getRepository().getBaseDirectory().toPath();
+        Path modsDirectory = runDirectory.resolve(subdirectoryName);
+        ModManager modManager = version == null ? null : profile.getRepository().getModManager(version);
 
         DownloadAddonDialog dialog = new DownloadAddonDialog(context, file.file().filename(), name -> {
-            Path dest = runDirectory.resolve(subdirectoryName).resolve(name);
+            Path dest = modsDirectory.resolve(name);
 
             FileDownloadTask fileTask = new FileDownloadTask(NetworkUtils.toURL(file.file().url()), dest.toFile());
             fileTask.setName(file.name());
@@ -899,6 +936,7 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
                     } else {
                         Toast.makeText(context, context.getString(R.string.install_success), Toast.LENGTH_SHORT).show();
                         refreshInstalledState();
+                        notifyModsChanged(modManager, modsDirectory, dest);
                     }
                 }).executor();
                 DownloadManager.submit(name, fileTask, executor);
@@ -917,6 +955,7 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
         if (version == null) version = profile.getSelectedVersion();
         Path runDirectory = profile.getRepository().hasVersion(version) ? profile.getRepository().getRunDirectory(version).toPath() : profile.getRepository().getBaseDirectory().toPath();
         Path modsDirectory = runDirectory.resolve(subdirectoryName);
+        ModManager modManager = profile.getRepository().getModManager(version);
 
         Toast.makeText(context, context.getString(R.string.mods_dependency_resolving), Toast.LENGTH_SHORT).show();
 
@@ -928,12 +967,12 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
                     if (exception != null || result == null)
                         return;
                     if (!result.rootInstalled()) {
-                        submitModDownload(context, file.file().filename(), file, modsDirectory);
+                        submitModDownload(context, file.file().filename(), file, modsDirectory, modManager);
                     } else {
                         Toast.makeText(context, context.getString(R.string.mods_already_installed), Toast.LENGTH_SHORT).show();
                     }
                     for (ModDependenciesResolver.ResolvedDependency dep : result.dependencies()) {
-                        submitModDownload(context, dep.version().file().filename(), dep.version(), modsDirectory);
+                        submitModDownload(context, dep.version().file().filename(), dep.version(), modsDirectory, modManager);
                     }
                     if (result.installedSkipped() > 0) {
                         Toast.makeText(context, context.getString(R.string.mods_installed_skipped_note, result.installedSkipped()), Toast.LENGTH_SHORT).show();
@@ -945,7 +984,7 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
     }
 
     /** 提交单个模组文件到下载队列：队列标题与保存文件均使用原始文件名；成功完成后刷新安装状态 */
-    private void submitModDownload(Context context, String filename, RemoteMod.Version version, Path modsDirectory) {
+    private void submitModDownload(Context context, String filename, RemoteMod.Version version, Path modsDirectory, ModManager modManager) {
         Path dest = modsDirectory.resolve(filename);
         FileDownloadTask fileTask = new FileDownloadTask(NetworkUtils.toURL(version.file().url()), dest.toFile(), version.file().getIntegrityCheck());
         fileTask.setName(filename);
@@ -961,10 +1000,26 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
                 builder.create().show();
             } else if (exception == null) {
                 refreshInstalledState();
+                notifyModsChanged(modManager, modsDirectory, dest);
             }
         }).executor();
         DownloadManager.submit(filename, fileTask, executor);
         executor.start();
+    }
+
+    /**
+     * 模组文件落地后同步进 ModManager 并广播事件，模组管理页可增量刷新；
+     * 下载目录不是该版本的 mods 目录（如资源包目录）时跳过
+     */
+    private void notifyModsChanged(@Nullable ModManager modManager, Path modsDirectory, Path dest) {
+        if (modManager == null || !modsDirectory.equals(modManager.getModsDirectory())) return;
+        Schedulers.io().execute(() -> {
+            try {
+                modManager.onModFileAdded(dest);
+            } catch (IOException e) {
+                Logging.LOG.log(Level.WARNING, "Failed to sync downloaded mod file " + dest, e);
+            }
+        });
     }
 
     /** 批量下载计划：去重后待入队的文件、因已安装跳过的模组数、解析失败的模组名 */
@@ -984,6 +1039,7 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
         if (version == null) version = profile.getSelectedVersion();
         Path runDirectory = profile.getRepository().hasVersion(version) ? profile.getRepository().getRunDirectory(version).toPath() : profile.getRepository().getBaseDirectory().toPath();
         Path modsDirectory = runDirectory.resolve(subdirectoryName);
+        ModManager modManager = profile.getRepository().getModManager(version);
         Task<BatchDownloadPlan> resolveTask = new Task<BatchDownloadPlan>() {
             @Override
             public void execute() throws Exception {
@@ -1021,7 +1077,7 @@ public class DownloadPage extends FCLPage implements View.OnClickListener {
                 return;
             }
             for (RemoteMod.Version file : plan.toSubmit()) {
-                submitModDownload(context, file.file().filename(), file, modsDirectory);
+                submitModDownload(context, file.file().filename(), file, modsDirectory, modManager);
             }
             if (callback != null) callback.onQueued(plan.toSubmit().size(), plan.installedSkipped(), plan.failedTitles().size());
         }).executor();

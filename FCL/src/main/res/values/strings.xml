@@ -550,6 +550,7 @@
     <string name="install_installer_install_offline">Install/Update from Local File</string>
     <string name="install_installer_install_offline_extension">Forge/OptiFine installer</string>
     <string name="installer_running_processor">Running installer (Java %s)…</string>
+    <string name="installer_running_processor_step">Running installer %1$d/%2$d: %3$s (Java %4$s)…</string>
     <string name="installer_recent_logs">Recent logs:</string>
     <string name="installer_process_retrying">Installer process timed out, retrying (%1$d/%2$d)…</string>
     <string name="installer_process_start_error">Failed to start installer process</string>
@@ -887,6 +888,12 @@
     <string name="mods_check_updates_target_version">Target Version</string>
     <string name="mods_check_updates_update">Update</string>
     <string name="mods_check_updates_update_without">Update(without retaining old versions)</string>
+    <string name="mods_sort">Sort</string>
+    <string name="mods_sort_default">Default</string>
+    <string name="mods_sort_name">Name</string>
+    <string name="mods_sort_file_name">Filename</string>
+    <string name="mods_sort_size">Size</string>
+    <string name="mods_sort_date">Date Modified</string>
     <string name="mods_choose_mod">Choose a mod</string>
     <string name="mods_curseforge">CurseForge</string>
     <string name="mods_dependency">Dependency</string>
@@ -1308,6 +1315,16 @@
     <string name="version_manage_remove_deep_hint">"Deep Delete" also cleans up libraries and assets referenced only by this version.</string>
     <string name="version_manage_remove_deep_done">Removed version %1$s, cleaned %2$d unreferenced library/asset files, freed %3$.1f MB</string>
     <string name="version_manage_remove_deep_failed">Failed to enumerate libraries and assets referenced by this version, only the version folder was removed</string>
+    <string name="version_manage_remove_deep_done_title">Deep Delete Finished</string>
+    <string name="version_manage_remove_deep_failed_title">Deep Delete Failed</string>
+    <string name="version_manage_remove_progress_title">Removing version %s</string>
+    <string name="version_deep_clean_parsing">Parsing version %s</string>
+    <string name="version_deep_clean_references">Collecting references of version %s</string>
+    <string name="version_deep_clean_folder">Deleting version folder %s</string>
+    <string name="version_deep_clean_library">Deleting library %s</string>
+    <string name="version_deep_clean_asset_index">Deleting asset index %s</string>
+    <string name="version_deep_clean_assets">Deleting %2$d asset files of %1$s</string>
+    <string name="version_deep_clean_virtual">Deleting virtual assets %s</string>
     <string name="version_manage_rename">Rename Instance</string>
     <string name="version_manage_rename_message">Rename version</string>
     <string name="version_manage_rename_new">New name</string>
@@ -1411,6 +1428,8 @@
     <string name="settings_fcl_vulkan_check">Check Vulkan</string>
     <string name="settings_fcl_vulkan_check_desc">Check whether the device supports the Vulkan rendering backend required by Minecraft 26.2 and later.</string>
     <string name="settings_fcl_vulkan_check_not_checked">Not checked</string>
+    <string name="settings_fcl_vulkan_check_disable">Disable Vulkan compatibility check</string>
+    <string name="settings_fcl_vulkan_check_disable_desc">Skip the Vulkan compatibility check and related prompts when launching Minecraft 26.2 and later.</string>
     <string name="vulkan_check_title">Vulkan Check</string>
     <string name="vulkan_check_running">Checking Vulkan support...</string>
     <string name="vulkan_check_failed">Vulkan check failed. The device may not support Vulkan, or the driver failed to load.</string>

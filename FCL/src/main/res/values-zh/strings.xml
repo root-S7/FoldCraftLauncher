@@ -486,6 +486,7 @@
     <string name="install_installer_install_offline">从本地文件安装/升级</string>
     <string name="install_installer_install_offline_extension">Forge/OptiFine 安装器</string>
     <string name="installer_running_processor">正在运行安装器（Java %s）…</string>
+    <string name="installer_running_processor_step">正在运行安装器 %1$d/%2$d：%3$s（Java %4$s）…</string>
     <string name="installer_recent_logs">最近日志：</string>
     <string name="installer_process_retrying">安装器进程超时，正在重试（%1$d/%2$d）…</string>
     <string name="installer_process_start_error">无法启动安装器进程</string>
@@ -795,6 +796,12 @@
     <string name="mods_check_updates_target_version">目标版本</string>
     <string name="mods_check_updates_update">更新</string>
     <string name="mods_check_updates_update_without">更新（不保留旧版本）</string>
+    <string name="mods_sort">排序</string>
+    <string name="mods_sort_default">默认</string>
+    <string name="mods_sort_name">名称</string>
+    <string name="mods_sort_file_name">文件名</string>
+    <string name="mods_sort_size">大小</string>
+    <string name="mods_sort_date">修改时间</string>
     <string name="mods_choose_mod">选择模组</string>
     <string name="mods_curseforge">CurseForge</string>
     <string name="mods_dependency">依赖</string>
@@ -1179,6 +1186,16 @@
     <string name="version_manage_remove_deep_hint">「深度删除」会在删除版本后，一并清理 libraries 和 assets 中仅被该版本引用的文件。</string>
     <string name="version_manage_remove_deep_done">已删除版本 %1$s，清理了 %2$d 个不再被共享的库/资源文件，释放 %3$.1f MB</string>
     <string name="version_manage_remove_deep_failed">未能枚举该版本引用的库与资源，仅删除了版本文件夹</string>
+    <string name="version_manage_remove_deep_done_title">深度删除完成</string>
+    <string name="version_manage_remove_deep_failed_title">深度删除失败</string>
+    <string name="version_manage_remove_progress_title">正在删除版本 %s</string>
+    <string name="version_deep_clean_parsing">正在解析版本 %s</string>
+    <string name="version_deep_clean_references">正在统计版本 %s 的引用</string>
+    <string name="version_deep_clean_folder">正在删除版本文件夹 %s</string>
+    <string name="version_deep_clean_library">正在删除库 %s</string>
+    <string name="version_deep_clean_asset_index">正在删除资产索引 %s</string>
+    <string name="version_deep_clean_assets">正在删除资产 %1$s 的 %2$d 个文件</string>
+    <string name="version_deep_clean_virtual">正在删除虚拟资产 %s</string>
     <string name="version_manage_rename">重命名版本</string>
     <string name="version_manage_rename_message">重命名版本</string>
     <string name="version_manage_rename_new">新名称</string>
@@ -1281,6 +1298,8 @@
     <string name="settings_fcl_vulkan_check">检测 Vulkan</string>
     <string name="settings_fcl_vulkan_check_desc">检测设备是否支持 Minecraft 26.2 及以后版本所需的 Vulkan 渲染后端。</string>
     <string name="settings_fcl_vulkan_check_not_checked">未检测</string>
+    <string name="settings_fcl_vulkan_check_disable">禁用 Vulkan 兼容性检测</string>
+    <string name="settings_fcl_vulkan_check_disable_desc">启动 Minecraft 26.2 及以后版本时跳过 Vulkan 兼容性检测及相关提示。</string>
     <string name="vulkan_check_title">Vulkan 支持检测</string>
     <string name="vulkan_check_running">正在检测 Vulkan 支持情况…</string>
     <string name="vulkan_check_failed">Vulkan 检测失败：设备可能不支持 Vulkan，或驱动加载失败。</string>
