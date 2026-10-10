@@ -11,6 +11,7 @@ import com.google.gson.JsonSerializer
 import com.google.gson.annotations.JsonAdapter
 import com.tungsten.fcl.control.GestureMode
 import com.tungsten.fcl.control.MouseMoveMode
+import com.tungsten.fclauncher.keycodes.FCLKeycodes
 import java.lang.reflect.Type
 
 /**
@@ -91,6 +92,14 @@ class MenuSetting {
             changed()
         }
 
+    /** 游戏运行时请求系统切到同分辨率最高刷新率档位（关闭则回落系统自适应刷新） */
+    var isRequestMaxRefreshRate: Boolean = true
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
     var menuPositionX: Double = 0.5
         set(value) {
             if (field == value) return
@@ -133,14 +142,50 @@ class MenuSetting {
             changed()
         }
 
-    var isInvertGyroscope: Boolean = false
+    var isInvertGyroscopeX: Boolean = false
         set(value) {
             if (field == value) return
             field = value
             changed()
         }
 
-    var gyroscopeSensitivity: Int = 10
+    var isInvertGyroscopeY: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    var gyroscopeSensitivityX: Int = 10
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    var gyroscopeSensitivityY: Int = 10
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    var isSlideAcceleration: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    var isDistanceAcceleration: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    /** 触控板与按键指针跟随是否可同时控制视角，关闭时先开始拖动的一方独占 */
+    var isSimultaneousViewControl: Boolean = false
         set(value) {
             if (field == value) return
             field = value
@@ -176,6 +221,28 @@ class MenuSetting {
         }
 
     var cursorOffset: Double = 0.0
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    /** 强制游戏以固定分辨率运行（游戏内菜单实时修改），开启后 windowScale 不参与窗口尺寸计算 */
+    var isForceResolution: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    var forceResolutionWidth: Int = 1920
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    var forceResolutionHeight: Int = 1080
         set(value) {
             if (field == value) return
             field = value
@@ -239,6 +306,44 @@ class MenuSetting {
             changed()
         }
 
+    companion object {
+        /** 快捷键修饰键编码：与修饰键选择器（无/Shift/Ctrl/Alt）的下标一致 */
+        const val HOTKEY_MOD_NONE = 0
+        const val HOTKEY_MOD_SHIFT = 1
+        const val HOTKEY_MOD_CTRL = 2
+        const val HOTKEY_MOD_ALT = 3
+    }
+
+    /** 指针捕获/释放切换快捷键（FCLKeycodes），0 表示未设置；配合修饰键使用 */
+    var capturePointerKey: Int = FCLKeycodes.KEY_F8
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    var capturePointerModifier: Int = HOTKEY_MOD_NONE
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    /** 输入法呼出/隐藏切换快捷键，默认右 Shift+Enter */
+    var imeToggleKey: Int = FCLKeycodes.KEY_ENTER
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
+    var imeToggleModifier: Int = HOTKEY_MOD_SHIFT
+        set(value) {
+            if (field == value) return
+            field = value
+            changed()
+        }
+
     /** 编辑吸附仅对齐相邻按键（关闭时同边与邻接全量吸附） */
     var isSnapAdjacentOnly: Boolean = false
         set(value) {
@@ -281,14 +386,20 @@ class MenuSetting {
                 addProperty("showLog", src.isShowLog)
                 addProperty("autoShowLog", src.isAutoShowLog)
                 addProperty("performanceMode", src.isPerformanceMode)
+                addProperty("requestMaxRefreshRate", src.isRequestMaxRefreshRate)
                 addProperty("menuPositionX", src.menuPositionX)
                 addProperty("menuPositionY", src.menuPositionY)
                 addProperty("disableGesture", src.isDisableGesture)
                 addProperty("gestureMode", src.gestureMode.id)
                 addProperty("disableLeftTouch", src.isDisableLeftTouch)
                 addProperty("enableGyroscope", src.isEnableGyroscope)
-                addProperty("invertGyroscope", src.isInvertGyroscope)
-                addProperty("gyroscopeSensitivity", src.gyroscopeSensitivity)
+                addProperty("invertGyroscopeX", src.isInvertGyroscopeX)
+                addProperty("invertGyroscopeY", src.isInvertGyroscopeY)
+                addProperty("gyroscopeSensitivityX", src.gyroscopeSensitivityX)
+                addProperty("gyroscopeSensitivityY", src.gyroscopeSensitivityY)
+                addProperty("slideAcceleration", src.isSlideAcceleration)
+                addProperty("distanceAcceleration", src.isDistanceAcceleration)
+                addProperty("simultaneousViewControl", src.isSimultaneousViewControl)
                 addProperty("mouseMoveMode", src.mouseMoveMode.id)
                 addProperty("mouseSensitivity", src.mouseSensitivity)
                 addProperty("mouseSensitivityCursor", src.mouseSensitivityCursor)
@@ -300,9 +411,16 @@ class MenuSetting {
                 addProperty("itemBarHeight", src.itemBarHeight)
                 addProperty("windowScale", src.windowScale)
                 addProperty("cursorOffset", src.cursorOffset)
+                addProperty("forceResolution", src.isForceResolution)
+                addProperty("forceResolutionWidth", src.forceResolutionWidth)
+                addProperty("forceResolutionHeight", src.forceResolutionHeight)
                 addProperty("gamepadDeadzone", src.gamepadDeadzone)
                 addProperty("controlsOpacity", src.controlsOpacity)
                 addProperty("snapAdjacentOnly", src.isSnapAdjacentOnly)
+                addProperty("capturePointerKey", src.capturePointerKey)
+                addProperty("capturePointerModifier", src.capturePointerModifier)
+                addProperty("imeToggleKey", src.imeToggleKey)
+                addProperty("imeToggleModifier", src.imeToggleModifier)
             }
         }
 
@@ -324,14 +442,27 @@ class MenuSetting {
                 ms.isShowLog = json["showLog"]?.asBoolean ?: false
                 ms.isAutoShowLog = json["autoShowLog"]?.asBoolean ?: false
                 ms.isPerformanceMode = json["performanceMode"]?.asBoolean ?: false
+                ms.isRequestMaxRefreshRate = json["requestMaxRefreshRate"]?.asBoolean ?: true
                 ms.menuPositionX = json["menuPositionX"]?.asDouble ?: 0.5
                 ms.menuPositionY = json["menuPositionY"]?.asDouble ?: 0.5
                 ms.isDisableGesture = json["disableGesture"]?.asBoolean ?: false
                 ms.gestureMode = GestureMode.getById(json["gestureMode"]?.asInt ?: 0)
                 ms.isDisableLeftTouch = json["disableLeftTouch"]?.asBoolean ?: false
                 ms.isEnableGyroscope = json["enableGyroscope"]?.asBoolean ?: false
-                ms.isInvertGyroscope = json["invertGyroscope"]?.asBoolean ?: false
-                ms.gyroscopeSensitivity = json["gyroscopeSensitivity"]?.asInt ?: 10
+                // 旧版本单开关同时反转双轴，迁移为独立开关时回落旧值
+                ms.isInvertGyroscopeX =
+                    json["invertGyroscopeX"]?.asBoolean ?: json["invertGyroscope"]?.asBoolean ?: false
+                ms.isInvertGyroscopeY =
+                    json["invertGyroscopeY"]?.asBoolean ?: json["invertGyroscope"]?.asBoolean ?: false
+                // 旧版本横向纵向共用一个灵敏度，迁移时回落旧值
+                ms.gyroscopeSensitivityX =
+                    json["gyroscopeSensitivityX"]?.asInt ?: json["gyroscopeSensitivity"]?.asInt ?: 10
+                ms.gyroscopeSensitivityY =
+                    json["gyroscopeSensitivityY"]?.asInt ?: json["gyroscopeSensitivity"]?.asInt ?: 10
+                ms.isSlideAcceleration = json["slideAcceleration"]?.asBoolean ?: false
+                ms.isDistanceAcceleration = json["distanceAcceleration"]?.asBoolean ?: false
+                ms.isSimultaneousViewControl =
+                    json["simultaneousViewControl"]?.asBoolean ?: false
                 ms.mouseMoveMode = MouseMoveMode.getById(json["mouseMoveMode"]?.asInt ?: 0)
                 ms.mouseSensitivity = json["mouseSensitivity"]?.asDouble ?: 1.0
                 ms.mouseSensitivityCursor = json["mouseSensitivityCursor"]?.asDouble ?: 2.0
@@ -343,9 +474,16 @@ class MenuSetting {
                 ms.itemBarHeight = json["itemBarHeight"]?.asInt ?: 0
                 ms.windowScale = json["windowScale"]?.asDouble ?: 1.0
                 ms.cursorOffset = json["cursorOffset"]?.asDouble ?: 0.0
+                ms.isForceResolution = json["forceResolution"]?.asBoolean ?: false
+                ms.forceResolutionWidth = json["forceResolutionWidth"]?.asInt ?: 1920
+                ms.forceResolutionHeight = json["forceResolutionHeight"]?.asInt ?: 1080
                 ms.gamepadDeadzone = json["gamepadDeadzone"]?.asDouble ?: 0.2
                 ms.controlsOpacity = json["controlsOpacity"]?.asInt ?: 100
                 ms.isSnapAdjacentOnly = json["snapAdjacentOnly"]?.asBoolean ?: false
+                ms.capturePointerKey = json["capturePointerKey"]?.asInt ?: FCLKeycodes.KEY_F8
+                ms.capturePointerModifier = json["capturePointerModifier"]?.asInt ?: HOTKEY_MOD_NONE
+                ms.imeToggleKey = json["imeToggleKey"]?.asInt ?: FCLKeycodes.KEY_ENTER
+                ms.imeToggleModifier = json["imeToggleModifier"]?.asInt ?: HOTKEY_MOD_SHIFT
             }
         }
     }

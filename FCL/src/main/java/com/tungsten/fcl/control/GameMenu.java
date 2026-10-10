@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.InputDevice;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -39,6 +41,7 @@ import com.mio.util.AndroidUtilKt;
 import com.mio.util.ImageUtil;
 import com.tungsten.fcl.BuildConfig;
 import com.tungsten.fcl.R;
+import com.tungsten.fcl.activity.JVMActivity;
 import com.tungsten.fcl.activity.JVMCrashActivity;
 import com.tungsten.fcl.control.data.ButtonStyles;
 import com.tungsten.fcl.control.data.ControlButtonData;
@@ -64,6 +67,7 @@ import com.tungsten.fcl.setting.GameOption;
 import com.tungsten.fcl.setting.MenuSetting;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.bridge.FCLBridgeCallback;
+import com.tungsten.fclauncher.keycodes.AndroidKeycodeMap;
 import com.tungsten.fclauncher.keycodes.FCLKeycodes;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.fakefx.beans.property.BooleanProperty;
@@ -78,6 +82,7 @@ import com.tungsten.fclcore.task.Schedulers;
 import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fclcore.util.io.FileUtils;
 import com.tungsten.fcllibrary.component.FCLActivity;
+import com.tungsten.fcllibrary.component.dialog.EditDialog;
 import com.tungsten.fcllibrary.component.dialog.FCLAlertDialog;
 import com.tungsten.fcllibrary.component.theme.ThemeEngine;
 import com.tungsten.fcllibrary.component.view.FCLProgressBar;
@@ -108,10 +113,10 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
     private FCLBridge fclBridge;
     private FCLInput fclInput;
     private MenuSetting menuSetting;
-    private int cursorX;
-    private int cursorY;
-    private int pointerX;
-    private int pointerY;
+    private float cursorX;
+    private float cursorY;
+    private float pointerX;
+    private float pointerY;
 
     private View layout;
     private RelativeLayout baseLayout;
@@ -171,35 +176,35 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         return cursorModeProperty.get();
     }
 
-    public int getCursorX() {
+    public float getCursorX() {
         return cursorX;
     }
 
-    public int getCursorY() {
+    public float getCursorY() {
         return cursorY;
     }
 
-    public int getPointerX() {
+    public float getPointerX() {
         return pointerX;
     }
 
-    public int getPointerY() {
+    public float getPointerY() {
         return pointerY;
     }
 
-    public void setCursorX(int cursorX) {
+    public void setCursorX(float cursorX) {
         this.cursorX = cursorX;
     }
 
-    public void setCursorY(int cursorY) {
+    public void setCursorY(float cursorY) {
         this.cursorY = cursorY;
     }
 
-    public void setPointerX(int pointerX) {
+    public void setPointerX(float pointerX) {
         this.pointerX = pointerX;
     }
 
-    public void setPointerY(int pointerY) {
+    public void setPointerY(float pointerY) {
         this.pointerY = pointerY;
     }
 
@@ -480,6 +485,8 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
 
         hideAllViewsProperty.addListener(i -> {
             if (isHideAllViews()) {
+                // 菜单视图隐藏后音量键用于唤回菜单，不再保留未完成的按键监听
+                cancelKeyBindListen();
                 Toast.makeText(activity, R.string.tip_hide_menu_view, Toast.LENGTH_LONG).show();
             }
         });
@@ -507,6 +514,11 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             @Override
             public void onSpinnerSelect(@NonNull RightMenuTag tag, int position) {
                 handleRightSpinnerSelect(tag, position);
+            }
+
+            @Override
+            public void onKeyBindClick(@NonNull RightMenuTag tag) {
+                startKeyBindListen(tag);
             }
 
             @Override
@@ -792,7 +804,7 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         touchPad.setOnGenericMotionListener((view, motionEvent) -> {
             if (motionEvent.isFromSource(InputDevice.SOURCE_MOUSE) && menuSetting.isPhysicalMouseMode()) {
                 if (getCursorMode() == FCLBridge.CursorEnabled && motionEvent.getAction() == MotionEvent.ACTION_HOVER_MOVE) {
-                    getInput().setPointer((int) motionEvent.getRawX(), (int) motionEvent.getRawY());
+                    getInput().setPointer(motionEvent.getRawX(), motionEvent.getRawY());
                     return true;
                 }
                 return fclInput.handleExternalMouseEvent(motionEvent);
@@ -817,7 +829,18 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
     public View getLayout() {
         if (layout == null) {
             layout = LayoutInflater.from(activity).inflate(R.layout.view_game_menu, null);
-            ((DrawerLayout) layout).setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            DrawerLayout drawerLayout = (DrawerLayout) layout;
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            // 右菜单收起即退出按键监听态：悬置的监听会吞掉所有按键（含唤回菜单的音量键），
+            // 并把下一个按下的键误绑定为快捷键
+            drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+                @Override
+                public void onDrawerClosed(@NonNull View drawerView) {
+                    if (isRightMenuDrawer(drawerView)) {
+                        cancelKeyBindListen();
+                    }
+                }
+            });
         }
         return layout;
     }
@@ -853,11 +876,15 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             fclInput.sendKeyEvent(FCLKeycodes.KEY_ESC, true);
             fclInput.sendKeyEvent(FCLKeycodes.KEY_ESC, false);
         }
+        fclInput.stopCaptureWatchdog();
+        fclInput.resetExternalMouseState();
+        cancelKeyBindListen();
         gyroscope.disableSensor();
     }
 
     @Override
     public void onResume() {
+        fclInput.startCaptureWatchdog();
         if (menuSetting != null && menuSetting.isEnableGyroscope() && gyroscope != null) {
             gyroscope.enableSensor();
         }
@@ -879,6 +906,10 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
                 return;
             lastCursorMode = mode;
             this.cursorModeProperty.set(mode);
+            // 模式切换点事件来源会丢失（捕获抢走触摸等），先复位鼠标键防卡键；
+            // 手动捕获接管同步回归自动管理
+            getInput().resetExternalMouseState();
+            getInput().resetManualCaptureControl();
             if (mode == FCLBridge.CursorEnabled) {
                 getCursor().setVisibility(View.VISIBLE);
                 gameItemBar.setVisibility(View.GONE);
@@ -886,6 +917,9 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
                 if (menuSetting.isPhysicalMouseMode()) {
                     getInput().getFocusableView().releasePointerCapture();
                     getInput().getFocusableView().clearFocus();
+                } else {
+                    // 游戏退出捕获时系统可能顺带释放 pointer capture，立即补回
+                    getInput().ensurePointerCapture();
                 }
             } else {
                 getCursor().setVisibility(View.GONE);
@@ -895,6 +929,8 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
                 if (menuSetting.isPhysicalMouseMode()) {
                     getInput().getFocusableView().requestFocus();
                     getInput().getFocusableView().requestPointerCapture();
+                } else {
+                    getInput().ensurePointerCapture();
                 }
             }
         });
@@ -1085,6 +1121,9 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
                     new GamepadMapDialog(getActivity(), fclInput).show();
                 }
                 break;
+            case FORCE_RESOLUTION_SIZE:
+                editForceResolutionSize();
+                break;
             case FORCE_EXIT: {
                 FCLAlertDialog.Builder builder = new FCLAlertDialog.Builder(activity);
                 builder.setAlertLevel(FCLAlertDialog.AlertLevel.ALERT);
@@ -1119,6 +1158,14 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             case SOFT_KEYBOARD_ADJUST:
                 menuSetting.setDisableSoftKeyAdjust(checked);
                 break;
+            case FORCE_RESOLUTION:
+                menuSetting.setForceResolution(checked);
+                if (checked) {
+                    // 实验性选项提示；默认 1920x1080 直接生效，宽高经"设置"按钮修改
+                    Toast.makeText(activity, R.string.settings_advanced_force_resolution_desc, Toast.LENGTH_LONG).show();
+                }
+                applyForceResolution();
+                break;
             case DISABLE_GESTURE:
                 menuSetting.setDisableGesture(checked);
                 break;
@@ -1133,11 +1180,36 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
                     gyroscope.disableSensor();
                 }
                 break;
-            case GYRO_INVERT:
-                menuSetting.setInvertGyroscope(checked);
+            case GYRO_INVERT_X:
+                menuSetting.setInvertGyroscopeX(checked);
+                break;
+            case GYRO_INVERT_Y:
+                menuSetting.setInvertGyroscopeY(checked);
                 break;
             case PHYSICAL_MOUSE:
                 menuSetting.setPhysicalMouseMode(checked);
+                // 模式切换即时生效：菜单态改用系统指针时释放捕获，改回虚拟指针时立即补回，不等看门狗轮询
+                if (checked) {
+                    if (getCursorMode() == FCLBridge.CursorEnabled) {
+                        View focusView = getInput().getFocusableView();
+                        if (focusView != null && focusView.hasPointerCapture()) {
+                            focusView.releasePointerCapture();
+                        }
+                    }
+                } else {
+                    getInput().ensurePointerCapture();
+                }
+                break;
+            case SLIDE_ACCELERATION:
+                menuSetting.setSlideAcceleration(checked);
+                break;
+            case DISTANCE_ACCELERATION:
+                menuSetting.setDistanceAcceleration(checked);
+                break;
+            case SIMULTANEOUS_VIEW_CONTROL:
+                menuSetting.setSimultaneousViewControl(checked);
+                // 切换后清空占用者，避免上一模式的占用残留阻塞另一来源
+                getInput().resetLookOwner();
                 break;
             case GAMEPAD_CONTROL:
                 setGamepadControl(checked);
@@ -1147,6 +1219,10 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             case PERFORMANCE_MODE:
                 menuSetting.setPerformanceMode(checked);
                 activity.getWindow().setSustainedPerformanceMode(checked);
+                break;
+            case REQUEST_MAX_REFRESH_RATE:
+                menuSetting.setRequestMaxRefreshRate(checked);
+                ((JVMActivity) getActivity()).applyMaxRefreshRatePolicy();
                 break;
             case SHOW_LOG:
                 menuSetting.setShowLog(checked);
@@ -1179,6 +1255,102 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             menuSetting.setMouseMoveMode(MouseMoveMode.getById(position));
         } else if (tag == RightMenuTag.GAMEPAD_INPUT_MODE) {
             SdlSettings.setGamepadInputMode(GamepadInputMode.values()[position]);
+        } else if (tag == RightMenuTag.CAPTURE_POINTER_MODIFIER) {
+            if (isHotkeyConflict(menuSetting.getCapturePointerKey(), position,
+                    menuSetting.getImeToggleKey(), menuSetting.getImeToggleModifier())) {
+                rejectHotkeyConflict();
+                return;
+            }
+            menuSetting.setCapturePointerModifier(position);
+        } else if (tag == RightMenuTag.IME_TOGGLE_MODIFIER) {
+            if (isHotkeyConflict(menuSetting.getImeToggleKey(), position,
+                    menuSetting.getCapturePointerKey(), menuSetting.getCapturePointerModifier())) {
+                rejectHotkeyConflict();
+                return;
+            }
+            menuSetting.setImeToggleModifier(position);
+        }
+    }
+
+    /** 两个快捷键的键码与修饰键完全一致时会同时触发，视为冲突 */
+    private static boolean isHotkeyConflict(int key, int modifier, int otherKey, int otherModifier) {
+        return key != 0 && key == otherKey && modifier == otherModifier;
+    }
+
+    /** 拒绝冲突的快捷键配置并还原菜单显示 */
+    private void rejectHotkeyConflict() {
+        Toast.makeText(activity, R.string.key_bind_conflict, Toast.LENGTH_SHORT).show();
+        if (rightMenuAdapter != null) {
+            rightMenuAdapter.rebuild();
+        }
+    }
+
+    /** 正在等待快捷键绑定按键时为对应菜单项，null 表示未监听 */
+    @Nullable
+    private RightMenuTag keyBindListeningTag;
+
+    /** 快捷键设置行点击：进入按键监听，下一个按下的物理键即被绑定 */
+    private void startKeyBindListen(@NonNull RightMenuTag tag) {
+        keyBindListeningTag = tag;
+        Toast.makeText(activity, R.string.key_bind_listening, Toast.LENGTH_SHORT).show();
+    }
+
+    /** 放弃按键监听（右菜单收起、菜单视图隐藏、页面暂停）：未完成的绑定不生效 */
+    private void cancelKeyBindListen() {
+        keyBindListeningTag = null;
+    }
+
+    /** 抽屉是否为右菜单，快捷键设置行位于其中 */
+    private static boolean isRightMenuDrawer(@NonNull View drawerView) {
+        ViewGroup.LayoutParams params = drawerView.getLayoutParams();
+        return params instanceof DrawerLayout.LayoutParams
+                && ((DrawerLayout.LayoutParams) params).gravity == GravityCompat.END;
+    }
+
+    public boolean isKeyBindListening() {
+        return keyBindListeningTag != null;
+    }
+
+    /**
+     * 按键监听期间由 FCLInput 在分发最前调用，消费所有按键；
+     * BACK 取消绑定，无法识别的键忽略继续等待
+     */
+    public void handleKeyBindCaptured(@NonNull KeyEvent event) {
+        if (event.getAction() != KeyEvent.ACTION_UP) {
+            return;
+        }
+        RightMenuTag tag = keyBindListeningTag;
+        keyBindListeningTag = null;
+        if (tag == null) {
+            return;
+        }
+        if (event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
+            return;
+        }
+        int fclKeycode = AndroidKeycodeMap.convertKeycode(event.getKeyCode());
+        if (fclKeycode == FCLKeycodes.KEY_UNKNOWN) {
+            Toast.makeText(activity, R.string.key_bind_unknown, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // 绑定键码配合当前修饰键后不得与另一快捷键完全一致，否则一次按键两个功能同时触发
+        if (tag == RightMenuTag.CAPTURE_POINTER_KEY && isHotkeyConflict(fclKeycode, menuSetting.getCapturePointerModifier(),
+                menuSetting.getImeToggleKey(), menuSetting.getImeToggleModifier())) {
+            Toast.makeText(activity, R.string.key_bind_conflict, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (tag == RightMenuTag.IME_TOGGLE_KEY && isHotkeyConflict(fclKeycode, menuSetting.getImeToggleModifier(),
+                menuSetting.getCapturePointerKey(), menuSetting.getCapturePointerModifier())) {
+            Toast.makeText(activity, R.string.key_bind_conflict, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (tag == RightMenuTag.CAPTURE_POINTER_KEY) {
+            menuSetting.setCapturePointerKey(fclKeycode);
+        } else if (tag == RightMenuTag.IME_TOGGLE_KEY) {
+            menuSetting.setImeToggleKey(fclKeycode);
+        }
+        Toast.makeText(activity, activity.getString(R.string.key_bind_done, RightMenuAdapter.keycodeName(fclKeycode)), Toast.LENGTH_SHORT).show();
+        if (rightMenuAdapter != null) {
+            rightMenuAdapter.rebuild();
         }
     }
 
@@ -1233,8 +1405,12 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             case GAMEPAD_DEADZONE:
                 menuSetting.setGamepadDeadzone(progress / 100d);
                 break;
-            case GYRO_SENSITIVITY:
-                menuSetting.setGyroscopeSensitivity(progress);
+            case GYRO_SENSITIVITY_X:
+                // 进度值按百分比显示（100% = 存储倍率 10）
+                menuSetting.setGyroscopeSensitivityX(progress / 10);
+                break;
+            case GYRO_SENSITIVITY_Y:
+                menuSetting.setGyroscopeSensitivityY(progress / 10);
                 break;
         }
     }
@@ -1316,6 +1492,43 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             fclBridge.getSurfaceTexture().setDefaultBufferSize(width, height);
             fclBridge.pushEventWindow(width, height);
         }
+    }
+
+    /** 强制分辨率实时应用：同步静态配置 → 重排 TextureView letterbox → 刷新渲染 buffer 与窗口事件 */
+    private void applyForceResolution() {
+        FCLBridge.initForceResolution(menuSetting);
+        if (fclBridge == null || isSimulated()) {
+            return;
+        }
+        ((JVMActivity) activity).applyForceResolutionLayout();
+        refreshWindowsSize(menuSetting.getWindowScale());
+    }
+
+    /** 强制分辨率宽高编辑：输入 "宽x高"，确认后实时应用（仅经"设置"按钮进入） */
+    private void editForceResolutionSize() {
+        EditDialog dialog = new EditDialog(activity,
+                menuSetting.getForceResolutionWidth() + "x" + menuSetting.getForceResolutionHeight(),
+                str -> {
+                    String[] split = str.toLowerCase().trim().split("x");
+                    if (split.length == 2) {
+                        try {
+                            int w = Integer.parseInt(split[0].trim());
+                            int h = Integer.parseInt(split[1].trim());
+                            if (w > 0 && h > 0) {
+                                menuSetting.setForceResolutionWidth(w);
+                                menuSetting.setForceResolutionHeight(h);
+                                if (menuSetting.isForceResolution()) {
+                                    applyForceResolution();
+                                }
+                                return;
+                            }
+                        } catch (NumberFormatException ignore) {
+                        }
+                    }
+                    Toast.makeText(activity, R.string.menu_settings_force_resolution_invalid, Toast.LENGTH_SHORT).show();
+                });
+        dialog.setTitle(R.string.menu_settings_force_resolution_size);
+        dialog.show();
     }
 
     @Nullable

@@ -41,21 +41,24 @@ enum class RightMenuTag {
     SOFT_KEYBOARD_ADJUST, ITEM_BAR_WIDTH, ITEM_BAR_HEIGHT, WINDOW_SCALE, CURSOR_OFFSET,
 
     // 手势
-    DISABLE_GESTURE, GESTURE_MODE, DISABLE_LEFT_TOUCH,
+    DISABLE_GESTURE, GESTURE_MODE, DISABLE_LEFT_TOUCH, SLIDE_ACCELERATION, DISTANCE_ACCELERATION,
+    SIMULTANEOUS_VIEW_CONTROL,
 
     // 鼠标
     MOUSE_MODE, MOUSE_SENSITIVITY, MOUSE_CURSOR_SENSITIVITY, MOUSE_SIZE,
     MOUSE_OFFSET_X, MOUSE_OFFSET_Y, PHYSICAL_MOUSE,
+    CAPTURE_POINTER_KEY, CAPTURE_POINTER_MODIFIER, IME_TOGGLE_KEY, IME_TOGGLE_MODIFIER,
 
     // 手柄
     GAMEPAD_CONTROL, GAMEPAD_RESET_MAPPER, GAMEPAD_BUTTON_BINDING, GAMEPAD_DEADZONE,
     GAMEPAD_INPUT_MODE,
 
     // 陀螺仪
-    GYRO, GYRO_INVERT, GYRO_SENSITIVITY,
+    GYRO, GYRO_INVERT_X, GYRO_INVERT_Y, GYRO_SENSITIVITY_X, GYRO_SENSITIVITY_Y,
 
     // 调试
-    SHOW_MEMORY, PERFORMANCE_MODE, SHOW_LOG, AUTO_SHOW_LOG, FORCE_EXIT,
+    SHOW_MEMORY, PERFORMANCE_MODE, REQUEST_MAX_REFRESH_RATE, FORCE_RESOLUTION, FORCE_RESOLUTION_SIZE,
+    SHOW_LOG, AUTO_SHOW_LOG, FORCE_EXIT,
 
     // SDL
     SDL_AUTO_SHOW_IME,
@@ -82,6 +85,9 @@ class RightMenuAdapter(
         fun onSwitchLongClick(tag: RightMenuTag)
         fun onSpinnerSelect(tag: RightMenuTag, position: Int)
         fun onSeekBarChange(tag: RightMenuTag, progress: Int)
+
+        /** 快捷键设置行：点击后进入按键监听，下一个按下的物理键即被绑定为该快捷键 */
+        fun onKeyBindClick(tag: RightMenuTag)
 
         /** 编辑模式控件组面板：点击组名切换当前编辑组 */
         fun onEditGroupSelect(group: ControlViewGroup)
@@ -115,6 +121,15 @@ class RightMenuAdapter(
     private val typeSpinner = 3
     private val typeSeekBar = 4
     private val typeControlGroup = 5
+    private val typeKeyBind = 6
+
+    /** 快捷键修饰键选项，下标与 MenuSetting 的 HOTKEY_MOD_* 一致 */
+    private val modifierOptions = listOf(
+        context.getString(R.string.key_modifier_none),
+        context.getString(R.string.key_modifier_shift),
+        context.getString(R.string.key_modifier_ctrl),
+        context.getString(R.string.key_modifier_alt)
+    )
 
     /** 当前显示的分类，由顶部标签栏切换 */
     private var currentCategory: RightMenuCategory = RightMenuCategory.FUNCTION
@@ -199,6 +214,21 @@ class RightMenuAdapter(
                 { menuSetting.isDisableLeftTouch },
                 RightMenuTag.DISABLE_LEFT_TOUCH
             ),
+            Row.SwitchRow(
+                R.string.menu_settings_slide_acceleration,
+                { menuSetting.isSlideAcceleration },
+                RightMenuTag.SLIDE_ACCELERATION
+            ),
+            Row.SwitchRow(
+                R.string.menu_settings_distance_acceleration,
+                { menuSetting.isDistanceAcceleration },
+                RightMenuTag.DISTANCE_ACCELERATION
+            ),
+            Row.SwitchRow(
+                R.string.menu_settings_simultaneous_view_control,
+                { menuSetting.isSimultaneousViewControl },
+                RightMenuTag.SIMULTANEOUS_VIEW_CONTROL
+            ),
             Row.SeekBarRow(
                 R.string.menu_settings_item_bar_scale_width, 100, 0,
                 { menuSetting.itemBarWidth * 100 / screenWidth }, RightMenuTag.ITEM_BAR_WIDTH, "%"
@@ -258,6 +288,28 @@ class RightMenuAdapter(
                 R.string.menu_settings_physical_mouse_mode,
                 { menuSetting.isPhysicalMouseMode },
                 RightMenuTag.PHYSICAL_MOUSE
+            ),
+            Row.KeyBindRow(
+                R.string.menu_settings_capture_pointer_key,
+                { menuSetting.capturePointerKey },
+                RightMenuTag.CAPTURE_POINTER_KEY
+            ),
+            Row.SpinnerRow(
+                R.string.menu_settings_key_modifier,
+                modifierOptions,
+                menuSetting.capturePointerModifier,
+                RightMenuTag.CAPTURE_POINTER_MODIFIER
+            ),
+            Row.KeyBindRow(
+                R.string.menu_settings_ime_toggle_key,
+                { menuSetting.imeToggleKey },
+                RightMenuTag.IME_TOGGLE_KEY
+            ),
+            Row.SpinnerRow(
+                R.string.menu_settings_key_modifier,
+                modifierOptions,
+                menuSetting.imeToggleModifier,
+                RightMenuTag.IME_TOGGLE_MODIFIER
             )
         )
 
@@ -298,13 +350,22 @@ class RightMenuAdapter(
                 RightMenuTag.GYRO
             ),
             Row.SwitchRow(
-                R.string.menu_settings_gyro_invert,
-                { menuSetting.isInvertGyroscope },
-                RightMenuTag.GYRO_INVERT
+                R.string.menu_settings_gyro_invert_x,
+                { menuSetting.isInvertGyroscopeX },
+                RightMenuTag.GYRO_INVERT_X
+            ),
+            Row.SwitchRow(
+                R.string.menu_settings_gyro_invert_y,
+                { menuSetting.isInvertGyroscopeY },
+                RightMenuTag.GYRO_INVERT_Y
             ),
             Row.SeekBarRow(
-                R.string.menu_settings_gyro_sensitivity, 1000, 0,
-                { menuSetting.gyroscopeSensitivity }, RightMenuTag.GYRO_SENSITIVITY
+                R.string.menu_settings_gyro_sensitivity_x, 1000, 0,
+                { menuSetting.gyroscopeSensitivityX * 10 }, RightMenuTag.GYRO_SENSITIVITY_X, "%"
+            ),
+            Row.SeekBarRow(
+                R.string.menu_settings_gyro_sensitivity_y, 1000, 0,
+                { menuSetting.gyroscopeSensitivityY * 10 }, RightMenuTag.GYRO_SENSITIVITY_Y, "%"
             )
         )
 
@@ -329,6 +390,20 @@ class RightMenuAdapter(
                 R.string.menu_settings_performance_mode,
                 { menuSetting.isPerformanceMode },
                 RightMenuTag.PERFORMANCE_MODE
+            ),
+            Row.SwitchRow(
+                R.string.menu_settings_max_refresh_rate,
+                { menuSetting.isRequestMaxRefreshRate },
+                RightMenuTag.REQUEST_MAX_REFRESH_RATE
+            ),
+            Row.SwitchRow(
+                R.string.settings_advanced_force_resolution,
+                { menuSetting.isForceResolution },
+                RightMenuTag.FORCE_RESOLUTION
+            ),
+            Row.ButtonRow(
+                R.string.menu_settings_force_resolution_size,
+                listOf(R.string.menu_settings_force_resolution_edit to RightMenuTag.FORCE_RESOLUTION_SIZE)
             ),
             Row.SwitchRow(
                 R.string.menu_settings_show_log,
@@ -386,6 +461,70 @@ class RightMenuAdapter(
             val tag: RightMenuTag,
             val suffix: String? = null
         ) : Row()
+
+        /** 快捷键设置行：label + 当前键名按钮，点击进入按键监听（下一个物理键绑定） */
+        data class KeyBindRow(
+            val labelRes: Int,
+            val keycode: () -> Int,
+            val tag: RightMenuTag
+        ) : Row()
+    }
+
+    companion object {
+        /** FCLKeycodes → 显示名，用于快捷键设置行；未收录的键显示编号 */
+        @JvmStatic
+        fun keycodeName(code: Int): String {
+            return when (code) {
+                0 -> "None"
+                1 -> "Esc"
+                in 2..11 -> (code - 1).toString()
+                12 -> "Minus"
+                13 -> "Equal"
+                14 -> "Backspace"
+                15 -> "Tab"
+                in 16..25 -> "${'Q' + (code - 16)}"
+                26 -> "LeftBrace"
+                27 -> "RightBrace"
+                28 -> "Enter"
+                29 -> "LCtrl"
+                in 30..38 -> "${'A' + (code - 30)}"
+                39 -> "Semicolon"
+                40 -> "Apostrophe"
+                41 -> "Grave"
+                42 -> "LShift"
+                43 -> "Backslash"
+                in 44..50 -> "${'Z' + (code - 44)}"
+                51 -> "Comma"
+                52 -> "Dot"
+                53 -> "Slash"
+                54 -> "RShift"
+                55 -> "KPAsterisk"
+                56 -> "LAlt"
+                57 -> "Space"
+                58 -> "CapsLock"
+                in 59..68 -> "F${code - 58}"
+                69 -> "NumLock"
+                70 -> "ScrollLock"
+                87 -> "F11"
+                88 -> "F12"
+                96 -> "KPEnter"
+                97 -> "RCtrl"
+                98 -> "KPSlash"
+                99 -> "SysRq"
+                100 -> "RAlt"
+                102 -> "Home"
+                103 -> "Up"
+                104 -> "PageUp"
+                105 -> "Left"
+                106 -> "Right"
+                107 -> "End"
+                108 -> "Down"
+                109 -> "PageDown"
+                110 -> "Insert"
+                111 -> "Delete"
+                else -> "Key#$code"
+            }
+        }
     }
 
     class Holder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -401,6 +540,7 @@ class RightMenuAdapter(
         is Row.SpinnerRow -> typeSpinner
         is Row.SeekBarRow -> typeSeekBar
         is Row.ControlGroupRow -> typeControlGroup
+        is Row.KeyBindRow -> typeKeyBind
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder {
@@ -410,6 +550,7 @@ class RightMenuAdapter(
             typeButton -> ItemMenuButtonBinding.inflate(inflater, parent, false).root
             typeSpinner -> ItemMenuSpinnerBinding.inflate(inflater, parent, false).root
             typeControlGroup -> ItemMenuControlGroupBinding.inflate(inflater, parent, false).root
+            typeKeyBind -> ItemMenuButtonBinding.inflate(inflater, parent, false).root
             else -> ItemMenuSeekbarBinding.inflate(inflater, parent, false).root
         }
         return Holder(view)
@@ -426,7 +567,21 @@ class RightMenuAdapter(
             is Row.SpinnerRow -> bindSpinner(holder, row)
             is Row.SeekBarRow -> bindSeekBar(holder, row)
             is Row.ControlGroupRow -> bindControlGroup(holder, row)
+            is Row.KeyBindRow -> bindKeyBind(holder, row)
         }
+    }
+
+    /** 快捷键设置行：按钮显示当前键名，点击进入按键监听 */
+    private fun bindKeyBind(holder: Holder, row: Row.KeyBindRow) {
+        val binding = ItemMenuButtonBinding.bind(holder.itemView)
+        binding.label.text = context.getString(row.labelRes)
+        binding.button1.text = keycodeName(row.keycode())
+        binding.button1.visibility = View.VISIBLE
+        binding.button1.setOnClickListener { listener.onKeyBindClick(row.tag) }
+        binding.button2.visibility = View.GONE
+        binding.button2.setOnClickListener(null)
+        binding.button3.visibility = View.GONE
+        binding.button3.setOnClickListener(null)
     }
 
     /** 控件组行：当前编辑组主题色高亮，组名点击切换，开关控制编辑画布显隐，按钮编辑/删除属性 */

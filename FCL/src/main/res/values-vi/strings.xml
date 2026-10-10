@@ -574,8 +574,6 @@
     <string name="menu_settings_gesture_mode_fight">Chiến đấu</string>
     <string name="menu_settings_gesture_current">Chế độ hiện tại là %s</string>
     <string name="menu_settings_gyro">Con quay hồi chuyển</string>
-    <string name="menu_settings_gyro_invert">Đảo ngược Con quay hồi chuyển</string>
-    <string name="menu_settings_gyro_sensitivity">Độ nhạy Con quay hồi chuyển</string>
     <string name="menu_settings_lock_view">Khóa Chế độ xem Menu</string>
     <string name="menu_settings_hide_view">Ẩn Chế độ xem Menu</string>
     <string name="menu_settings_show_fps">Hiển thị FPS</string>
@@ -609,6 +607,7 @@
     <string name="menu_settings_show_log">Hiển thị Nhật ký</string>
     <string name="menu_settings_show_log_auto">Tự động Hiển thị Nhật ký</string>
     <string name="menu_settings_performance_mode">Chế độ Hiệu suất Duy trì</string>
+    <string name="menu_settings_max_refresh_rate">Yêu cầu tần số quét tối đa</string>
     <string name="menu_settings_show_memory">Hiển thị Bộ nhớ</string>
     <string name="message_cancelled">Thao tác đã bị hủy</string>
     <string name="message_copy">Sao chép thành công!</string>

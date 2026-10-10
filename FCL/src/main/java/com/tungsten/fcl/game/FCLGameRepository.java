@@ -17,11 +17,9 @@
  */
 package com.tungsten.fcl.game;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.tungsten.fclcore.util.Logging.LOG;
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -74,7 +72,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
@@ -422,9 +419,13 @@ public class FCLGameRepository extends DefaultGameRepository {
             vs.setUsesGlobal(true);
     }
 
-    public LaunchOptions getLaunchOptions(String version, JavaVersion javaVersion, File gameDir, double scaleFactor) {
+    public LaunchOptions getLaunchOptions(String version, JavaVersion javaVersion, File gameDir, double scaleFactor, double cursorOffset) {
         VersionSetting vs = getVersionSetting(version);
-        initForceResolution(vs);
+        int maxMemory = (int) (getAllocatedMemory(
+                vs.getMaxMemory() * 1024L * 1024L,
+                MemoryUtils.getFreeDeviceMemory(FCLApp.getAppContext()) * 1024L * 1024L,
+                vs.isAutoMemory()
+        ) / 1024 / 1024);
         LaunchOptions.Builder builder = new LaunchOptions.Builder()
                 .setGameDir(gameDir)
                 .setJava(javaVersion)
@@ -433,14 +434,12 @@ public class FCLGameRepository extends DefaultGameRepository {
                 .setProfileName(FCLApp.getAppContext().getString(R.string.app_name))
                 .setGameArguments(StringUtils.tokenize(vs.getMinecraftArgs()))
                 .setJavaArguments(StringUtils.tokenize(vs.getJavaArgs()))
-                .setMaxMemory((int) (getAllocatedMemory(
-                        vs.getMaxMemory() * 1024L * 1024L,
-                        MemoryUtils.getFreeDeviceMemory(FCLApp.getAppContext()) * 1024L * 1024L,
-                        vs.isAutoMemory()
-                ) / 1024 / 1024))
-                .setMinMemory(vs.getMaxMemory())
-                .setWidth(vs.isForceResolution() ? FCLBridge.FORCE_RESOLUTION_WIDTH : (int) (AndroidUtilKt.getScreenWidth() * scaleFactor))
-                .setHeight(vs.isForceResolution() ? FCLBridge.FORCE_RESOLUTION_HEIGHT : (int) (AndroidUtilKt.getScreenHeight() * scaleFactor))
+                .setMaxMemory(maxMemory)
+                // Xms=Xmx 会让 G1 按峰值全量提交物理内存且不收缩堆，白占内存易触发系统杀进程与温控，故 Xms 取小值让堆按需增长
+                .setMinMemory(Math.min(512, maxMemory))
+                // 口径与 JVMActivity surface 回调、GameMenu.refreshWindowsSize 一致：宽度含 cursorOffset
+                .setWidth(FCLBridge.FORCE_RESOLUTION ? FCLBridge.FORCE_RESOLUTION_WIDTH : (int) ((AndroidUtilKt.getScreenWidth() + cursorOffset) * scaleFactor))
+                .setHeight(FCLBridge.FORCE_RESOLUTION ? FCLBridge.FORCE_RESOLUTION_HEIGHT : (int) (AndroidUtilKt.getScreenHeight() * scaleFactor))
                 .setServerIp(vs.getServerIp())
                 .setVkDriverSystem(vs.isVKDriverSystem())
                 .setRenderer(RendererManager.getRenderer(vs.getRenderer()))
@@ -523,23 +522,6 @@ public class FCLGameRepository extends DefaultGameRepository {
             return Math.max(minimum, suggested);
         } else {
             return minimum;
-        }
-    }
-
-    private void initForceResolution(VersionSetting vs) {
-        FCLBridge.FORCE_RESOLUTION = vs.isForceResolution();
-        if (FCLBridge.FORCE_RESOLUTION) {
-            try {
-                SharedPreferences preferences = Objects.requireNonNull(FCLApp.getActivity()).getSharedPreferences("launcher", MODE_PRIVATE);
-                String[] split = preferences.getString("force_resolution", "1920x1080").toLowerCase().split("x");
-                if (split.length == 2) {
-                    int w = Integer.parseInt(split[0]);
-                    int h = Integer.parseInt(split[1]);
-                    FCLBridge.FORCE_RESOLUTION_WIDTH = w;
-                    FCLBridge.FORCE_RESOLUTION_HEIGHT = h;
-                }
-            } catch (Exception ignore) {
-            }
         }
     }
 }
