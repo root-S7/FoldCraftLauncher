@@ -60,6 +60,7 @@ import com.tungsten.fcl.control.view.MenuView;
 import com.tungsten.fcl.control.view.TouchPad;
 import com.tungsten.fcl.control.view.ViewManager;
 import com.tungsten.fcl.game.sdl.GamepadInputMode;
+import com.tungsten.fcl.game.sdl.SdlBridge;
 import com.tungsten.fcl.game.sdl.SdlSettings;
 import com.tungsten.fcl.setting.Controller;
 import com.tungsten.fcl.setting.Controllers;
@@ -906,9 +907,10 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
                 return;
             lastCursorMode = mode;
             this.cursorModeProperty.set(mode);
-            // 模式切换点事件来源会丢失（捕获抢走触摸等），先复位鼠标键防卡键；
+            // 模式切换只重对齐来源，不补发鼠标键释放：按住中的键等来源自身抬起时再释放，
+            // 抢先释放会打断「按住某键」的交互（如机械动力数值设置界面松开右键才确认）；
             // 手动捕获接管同步回归自动管理
-            getInput().resetExternalMouseState();
+            getInput().onCursorModeChanged();
             getInput().resetManualCaptureControl();
             if (mode == FCLBridge.CursorEnabled) {
                 getCursor().setVisibility(View.VISIBLE);
@@ -1222,7 +1224,14 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
                 break;
             case REQUEST_MAX_REFRESH_RATE:
                 menuSetting.setRequestMaxRefreshRate(checked);
-                ((JVMActivity) getActivity()).applyMaxRefreshRatePolicy();
+                if (getActivity() instanceof JVMActivity jvmActivity) {
+                    jvmActivity.applyMaxRefreshRatePolicy();
+                }
+                break;
+            case FULLSCREEN:
+                // 与启动器设置页同一功能：更新主题持久化值并应用到当前窗口，
+                // 后续焦点恢复/onPostResume 会按主题值重放全屏标志
+                ThemeEngine.getInstance().applyAndSave(activity, activity.getWindow(), checked);
                 break;
             case SHOW_LOG:
                 menuSetting.setShowLog(checked);
@@ -1272,12 +1281,16 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         }
     }
 
-    /** 两个快捷键的键码与修饰键完全一致时会同时触发，视为冲突 */
+    /**
+     * 两个快捷键的键码与修饰键完全一致时会同时触发，视为冲突
+     */
     private static boolean isHotkeyConflict(int key, int modifier, int otherKey, int otherModifier) {
         return key != 0 && key == otherKey && modifier == otherModifier;
     }
 
-    /** 拒绝冲突的快捷键配置并还原菜单显示 */
+    /**
+     * 拒绝冲突的快捷键配置并还原菜单显示
+     */
     private void rejectHotkeyConflict() {
         Toast.makeText(activity, R.string.key_bind_conflict, Toast.LENGTH_SHORT).show();
         if (rightMenuAdapter != null) {
@@ -1285,22 +1298,30 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         }
     }
 
-    /** 正在等待快捷键绑定按键时为对应菜单项，null 表示未监听 */
+    /**
+     * 正在等待快捷键绑定按键时为对应菜单项，null 表示未监听
+     */
     @Nullable
     private RightMenuTag keyBindListeningTag;
 
-    /** 快捷键设置行点击：进入按键监听，下一个按下的物理键即被绑定 */
+    /**
+     * 快捷键设置行点击：进入按键监听，下一个按下的物理键即被绑定
+     */
     private void startKeyBindListen(@NonNull RightMenuTag tag) {
         keyBindListeningTag = tag;
         Toast.makeText(activity, R.string.key_bind_listening, Toast.LENGTH_SHORT).show();
     }
 
-    /** 放弃按键监听（右菜单收起、菜单视图隐藏、页面暂停）：未完成的绑定不生效 */
+    /**
+     * 放弃按键监听（右菜单收起、菜单视图隐藏、页面暂停）：未完成的绑定不生效
+     */
     private void cancelKeyBindListen() {
         keyBindListeningTag = null;
     }
 
-    /** 抽屉是否为右菜单，快捷键设置行位于其中 */
+    /**
+     * 抽屉是否为右菜单，快捷键设置行位于其中
+     */
     private static boolean isRightMenuDrawer(@NonNull View drawerView) {
         ViewGroup.LayoutParams params = drawerView.getLayoutParams();
         return params instanceof DrawerLayout.LayoutParams
@@ -1491,10 +1512,15 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
             }
             fclBridge.getSurfaceTexture().setDefaultBufferSize(width, height);
             fclBridge.pushEventWindow(width, height);
+            // SDL 窗口尺寸不消费 GLFW 窗口事件，调整缩放等不改视图尺寸的变化须显式同步 SDL 分辨率；
+            // 须在 pushEventWindow 更新 CallbackBridge.windowWidth/Height 之后调，surfaceChanged() 读的才是新值
+            SdlBridge.syncResolution(width, height);
         }
     }
 
-    /** 强制分辨率实时应用：同步静态配置 → 重排 TextureView letterbox → 刷新渲染 buffer 与窗口事件 */
+    /**
+     * 强制分辨率实时应用：同步静态配置 → 重排 TextureView letterbox → 刷新渲染 buffer 与窗口事件
+     */
     private void applyForceResolution() {
         FCLBridge.initForceResolution(menuSetting);
         if (fclBridge == null || isSimulated()) {
@@ -1504,7 +1530,9 @@ public class GameMenu implements MenuCallback, FCLBridgeCallback {
         refreshWindowsSize(menuSetting.getWindowScale());
     }
 
-    /** 强制分辨率宽高编辑：输入 "宽x高"，确认后实时应用（仅经"设置"按钮进入） */
+    /**
+     * 强制分辨率宽高编辑：输入 "宽x高"，确认后实时应用（仅经"设置"按钮进入）
+     */
     private void editForceResolutionSize() {
         EditDialog dialog = new EditDialog(activity,
                 menuSetting.getForceResolutionWidth() + "x" + menuSetting.getForceResolutionHeight(),

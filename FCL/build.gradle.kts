@@ -64,14 +64,20 @@ android {
             keyAlias = "FCL-Debug"
             keyPassword = "FCL-Debug"
         }
+        // minSdk 26 ≥ 24，v1 已无必要，统一启用 v2 + v3 签名方案
+        configureEach {
+            enableV1Signing = false
+            enableV2Signing = true
+            enableV3Signing = true
+        }
     }
 
     defaultConfig {
         applicationId = "com.tungsten.fcl.server"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1338
-        versionName = "1.3.3.8"
+        versionCode = 1340
+        versionName = "1.3.4.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -291,6 +297,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel)
+    implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.recyclerview)
     implementation(libs.coroutines.android)
     implementation(libs.glide)

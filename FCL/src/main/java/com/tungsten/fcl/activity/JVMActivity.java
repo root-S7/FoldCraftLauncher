@@ -43,7 +43,6 @@ import com.tungsten.fclcore.util.Logging;
 import com.tungsten.fcllibrary.component.FCLActivity;
 
 import org.libsdl.app.SDLActivity;
-import org.libsdl.app.SDLSurface;
 import org.lwjgl.glfw.CallbackBridge;
 
 import java.util.Objects;
@@ -93,6 +92,9 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
     private boolean isTranslated = false;
     private static boolean isRunning = false;
     private long volumeDownTime = 0;
+    /** 上次 letterbox 计算使用的窗口尺寸，布局回调据此判断窗口尺寸是否变化 */
+    private int lastLetterboxWidth = -1;
+    private int lastLetterboxHeight = -1;
 
     public static void setFCLBridge(FCLBridge fclBridge, MenuType menuType) {
         JVMActivity.fclBridge = fclBridge;
@@ -142,6 +144,24 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
                 textureView.setTranslationY(0);
             }
         });
+        // 布局回调驱动强制分辨率 letterbox:小窗/分屏/全屏切换等窗口尺寸变化后按当前窗口重算。
+        // onConfigurationChanged 等回调期窗口尺寸尚未稳定(还是过渡值),letterbox 以布局结果为准;
+        // 对比基准与计算基准同为 TextureView 父容器实测尺寸,保证输入换算与显示区域同源
+        getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(() -> {
+            if (!FCLBridge.FORCE_RESOLUTION) {
+                return;
+            }
+            ViewGroup container = (ViewGroup) textureView.getParent();
+            if (container == null) {
+                return;
+            }
+            int width = container.getWidth();
+            int height = container.getHeight();
+            if (width == 0 || (width == lastLetterboxWidth && height == lastLetterboxHeight)) {
+                return;
+            }
+            applyForceResolutionLayout();
+        });
     }
 
     /**
@@ -150,11 +170,30 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
      */
     public void applyForceResolutionLayout() {
         ViewGroup.LayoutParams params = textureView.getLayoutParams();
+        // letterbox 基准用 TextureView 父容器的实测尺寸,与视图布局落定区域同源,
+        // 吸收小窗等窗口形态的装饰 inset 差异;容器与本窗口均尚未布局时(onCreate 早期)
+        // 回退启动器快照,布局落定后由布局回调按实测重算
+        ViewGroup container = (ViewGroup) textureView.getParent();
+        View decorView = getWindow().getDecorView();
+        int screenWidth;
+        int screenHeight;
+        if (container.getWidth() > 0 && container.getHeight() > 0) {
+            screenWidth = container.getWidth();
+            screenHeight = container.getHeight();
+        } else if (decorView.getWidth() > 0 && decorView.getHeight() > 0) {
+            screenWidth = decorView.getWidth();
+            screenHeight = decorView.getHeight();
+        } else {
+            screenWidth = AndroidUtilKt.getScreenWidth();
+            screenHeight = AndroidUtilKt.getScreenHeight();
+        }
+        lastLetterboxWidth = screenWidth;
+        lastLetterboxHeight = screenHeight;
         if (FCLBridge.FORCE_RESOLUTION) {
-            FCLBridge.FORCE_RESOLUTION_SCALE = (float) AndroidUtilKt.getScreenHeight() / FCLBridge.FORCE_RESOLUTION_HEIGHT;
+            FCLBridge.FORCE_RESOLUTION_SCALE = (float) screenHeight / FCLBridge.FORCE_RESOLUTION_HEIGHT;
             params.width = (int) (FCLBridge.FORCE_RESOLUTION_WIDTH * FCLBridge.FORCE_RESOLUTION_SCALE);
             params.height = (int) (FCLBridge.FORCE_RESOLUTION_HEIGHT * FCLBridge.FORCE_RESOLUTION_SCALE);
-            FCLBridge.FORCE_RESOLUTION_START_SIZE = (AndroidUtilKt.getScreenWidth() - params.width) / 2;
+            FCLBridge.FORCE_RESOLUTION_START_SIZE = (screenWidth - params.width) / 2;
             textureView.setX(FCLBridge.FORCE_RESOLUTION_START_SIZE);
         } else {
             FCLBridge.FORCE_RESOLUTION_SCALE = -1;
@@ -164,6 +203,20 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
             textureView.setX(0);
         }
         textureView.setLayoutParams(params);
+    }
+
+    /** 按当前模式计算游戏渲染窗口尺寸：强制分辨率取固定值,普通模式 = 视图尺寸 × windowScale(宽含 cursorOffset),工具页用默认值 */
+    private int[] resolveWindowSize(int viewWidth, int viewHeight) {
+        if (menuType != MenuType.GAME) {
+            return new int[]{FCLBridge.DEFAULT_WIDTH, FCLBridge.DEFAULT_HEIGHT};
+        }
+        if (FCLBridge.FORCE_RESOLUTION) {
+            return new int[]{FCLBridge.FORCE_RESOLUTION_WIDTH, FCLBridge.FORCE_RESOLUTION_HEIGHT};
+        }
+        double factor = fclBridge.getScaleFactor();
+        int width = (int) ((viewWidth + ((GameMenu) menu).getMenuSetting().getCursorOffset()) * factor);
+        int height = (int) (viewHeight * factor);
+        return new int[]{width, height};
     }
 
     /**
@@ -256,18 +309,23 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
             fclBridge.setSurfaceTexture(surfaceTexture);
             CallbackBridge.setupBridgeWindow(nativeSurface);
             SdlBridge.prepareSurface(this, nativeSurface, (ViewGroup) textureView.getParent(), this);
+            // surface 重建后新 SurfaceTexture 的 buffer 回落视图尺寸,须按当前模式恢复渲染尺寸并
+            // 重发窗口状态,否则渲染 buffer 与游戏窗口尺寸错位(黑边、点击与 UI 不对齐)
+            int[] size = resolveWindowSize(i, i1);
+            surfaceTexture.setDefaultBufferSize(size[0], size[1]);
+            CallbackBridge.windowWidth = size[0];
+            CallbackBridge.windowHeight = size[1];
+            SdlBridge.syncResolution(size[0], size[1]);
+            fclBridge.pushEventWindow(size[0], size[1]);
             menu.onGraphicOutput();
             return;
         }
         isRunning = true;
         Logging.LOG.log(Level.INFO, "surface ready, start jvm now!");
         fclBridge.setSurfaceDestroyed(false);
-        int width = menuType == MenuType.GAME ? (int) ((i + ((GameMenu) menu).getMenuSetting().getCursorOffset()) * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_WIDTH;
-        int height = menuType == MenuType.GAME ? (int) (i1 * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_HEIGHT;
-        if (FCLBridge.FORCE_RESOLUTION) {
-            width = FCLBridge.FORCE_RESOLUTION_WIDTH;
-            height = FCLBridge.FORCE_RESOLUTION_HEIGHT;
-        }
+        int[] size = resolveWindowSize(i, i1);
+        int width = size[0];
+        int height = size[1];
         if (menuType == MenuType.GAME) {
             menu.getInput().initExternalController(textureView);
             GameOption gameOption = new GameOption(Objects.requireNonNull(menu.getBridge()).getGameDir());
@@ -288,23 +346,14 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
 
     @Override
     public void onSurfaceTextureSizeChanged(@NonNull SurfaceTexture surfaceTexture, int i, int i1) {
-        int width = menuType == MenuType.GAME ? (int) ((i + ((GameMenu) menu).getMenuSetting().getCursorOffset()) * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_WIDTH;
-        int height = menuType == MenuType.GAME ? (int) (i1 * fclBridge.getScaleFactor()) : FCLBridge.DEFAULT_HEIGHT;
-        if (FCLBridge.FORCE_RESOLUTION) {
-            width = FCLBridge.FORCE_RESOLUTION_WIDTH;
-            height = FCLBridge.FORCE_RESOLUTION_HEIGHT;
-        }
+        int[] size = resolveWindowSize(i, i1);
+        int width = size[0];
+        int height = size[1];
         surfaceTexture.setDefaultBufferSize(width, height);
         CallbackBridge.windowWidth = width;
         CallbackBridge.windowHeight = height;
         // SDL 侧同步分辨率
-        if (SdlBridge.getSdlEnabled()) {
-            SDLSurface sdlSurface = SDLActivity.getSDLSurface();
-            if (sdlSurface != null) {
-                sdlSurface.surfaceChanged();
-                sdlSurface.nativeResize(width, height);
-            }
-        }
+        SdlBridge.syncResolution(width, height);
         fclBridge.pushEventWindow(width, height);
     }
 
@@ -423,6 +472,8 @@ public class JVMActivity extends FCLActivity implements TextureView.SurfaceTextu
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        // 窗口尺寸变化(分屏、小窗、折叠屏等)后恢复渲染状态:buffer 与窗口事件按新视图尺寸重发,
+        // 强制分辨率 letterbox 由布局回调按稳定后的窗口尺寸重算(回调期 decorView 尺寸尚未稳定)
         if (textureView != null && textureView.getSurfaceTexture() != null) {
             textureView.post(() -> onSurfaceTextureSizeChanged(textureView.getSurfaceTexture(), textureView.getWidth(), textureView.getHeight()));
         }

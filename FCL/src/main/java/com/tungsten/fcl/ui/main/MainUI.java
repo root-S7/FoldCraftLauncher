@@ -150,12 +150,6 @@ public class MainUI extends FCLCommonUI implements View.OnClickListener {
         }
     }
 
-    @Override
-    public Task<?> refresh(Object... param) {
-        return Task.runAsync(() -> {
-
-        });
-    }
 
     private void checkAnnouncement() {
         if(!GENERAL_SETTING.getProperty("enable-announcement-component", "true").equals("true")) return;
