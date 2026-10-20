@@ -33,6 +33,8 @@ import com.tungsten.fcl.setting.ConfigHolder.getSelectedPath
 import com.tungsten.fcl.setting.ConfigHolder.initTempConfig
 import com.tungsten.fcl.setting.Controllers
 import com.tungsten.fcl.setting.rule.init.FileChecker.checkFiles
+import com.tungsten.fcl.util.LegalAgreement
+import com.tungsten.fcl.util.RegionUtils
 import com.tungsten.fcl.util.RuntimeUtils
 import com.tungsten.fclauncher.utils.FCLPath
 import com.tungsten.fclauncher.utils.FCLPath.GENERAL_SETTING
@@ -79,6 +81,27 @@ class SplashActivity : FCLActivity() {
         ImageUtil.loadInto(
             binding.background, ThemeEngine.getInstance().getTheme().getBackground(this)
         )
+        // 启动流程第一步：确认用户协议与隐私政策。同意前不申请权限、不联网
+        if (LegalAgreement.isAccepted(this)) {
+            showStorageNotice()
+        } else {
+            supportFragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
+                .replace(R.id.fragment, EulaFragment::class.java, null)
+                .commitAllowingStateLoss()
+        }
+    }
+
+    /** 确认页点击同意后由 EulaFragment 回调：移除确认页，继续权限申请与初始化 */
+    fun onLegalAgreementAccepted() {
+        supportFragmentManager.findFragmentById(R.id.fragment)?.let {
+            supportFragmentManager.beginTransaction().remove(it).commitAllowingStateLoss()
+        }
+        showStorageNotice()
+    }
+
+    /** 存储权限说明（仅首次）→ 权限检查 → 初始化 */
+    private fun showStorageNotice() {
         if (sharedPreferences.getBoolean("isAgree", false)) {
             checkPermission()
         } else {
@@ -116,6 +139,8 @@ class SplashActivity : FCLActivity() {
             async(Dispatchers.IO) {
                 FCLPath.loadPaths(this@SplashActivity)
                 Logging.start(Paths.get(FCLPath.LOG_DIR))
+                // 已同意用户协议与隐私政策：尽早发起网络地区检测（仅中国大陆设备联网），供下载、联机页面使用
+                RegionUtils.init()
                 initState()
             }.await()
             if (gameFiles && configFiles && lwjgl && cacio && cacio17 && java8 && java17 && java21 && java25 && jna) {
@@ -127,7 +152,8 @@ class SplashActivity : FCLActivity() {
     }
 
     fun start() {
-        // init 协程可能在 Activity 转后台（onSaveInstanceState 之后）才恢复，Splash 流程无需保留事务状态，允许状态丢失
+        // init 协程可能在 Activity 转后台（onSaveInstanceState 之后）才恢复，Splash 流程无需保留事务状态，允许状态丢失。
+        // 用户协议与隐私政策已在启动流程最前面确认，这里直接进入运行库安装
         if (sharedPreferences.getBoolean("isFirstLaunch", true)) {
             supportFragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
@@ -148,7 +174,8 @@ class SplashActivity : FCLActivity() {
                     waitDialog.dismiss()
                     supportFragmentManager.beginTransaction()
                         .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
-                        .replace(R.id.fragment, RuntimeFragment::class.java, null).commit()
+                        .replace(R.id.fragment, RuntimeFragment::class.java, null)
+                        .commitAllowingStateLoss()
                 }catch(e: CancellationException) {
                     waitDialog.dismiss()
                     throw e
