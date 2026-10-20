@@ -154,35 +154,29 @@ class SplashActivity : FCLActivity() {
     fun start() {
         // init 协程可能在 Activity 转后台（onSaveInstanceState 之后）才恢复，Splash 流程无需保留事务状态，允许状态丢失。
         // 用户协议与隐私政策已在启动流程最前面确认，这里直接进入运行库安装
-        if (sharedPreferences.getBoolean("isFirstLaunch", true)) {
-            supportFragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
-                .replace(R.id.fragment, EulaFragment::class.java, null).commitAllowingStateLoss()
-        } else {
-            lifecycleScope.launch {
-                val waitDialog = FCLBaseAppCompatDialog.Builder(this@SplashActivity) { DialogWaitBinding.inflate(it) }
-                    .setCancelOnBackPressed(false)
-                    .setCancelOnTouchOutside(false)
-                    .setHeightPercent(0.5F)
-                    .setWidthPercent(0.5F)
-                    .onInitView { dialogBind ->
-                        dialogBind.tips.text = "正在检测内部文件格式中，请稍等…"
-                    }
-                    .show()
-                try {
-                    checkFiles()
-                    waitDialog.dismiss()
-                    supportFragmentManager.beginTransaction()
-                        .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
-                        .replace(R.id.fragment, RuntimeFragment::class.java, null)
-                        .commitAllowingStateLoss()
-                }catch(e: CancellationException) {
-                    waitDialog.dismiss()
-                    throw e
-                }catch(e: Exception) {
-                    waitDialog.dismiss()
-                    showErrorTips(e.message ?: "未知错误")
+        lifecycleScope.launch {
+            val waitDialog = FCLBaseAppCompatDialog.Builder(this@SplashActivity) { DialogWaitBinding.inflate(it) }
+                .setCancelOnBackPressed(false)
+                .setCancelOnTouchOutside(false)
+                .setHeightPercent(0.5F)
+                .setWidthPercent(0.5F)
+                .onInitView { dialogBind ->
+                    dialogBind.tips.text = "正在检测内部文件格式中，请稍等…"
                 }
+                .show()
+            try {
+                checkFiles() // 内部自动切换IO线程
+                waitDialog.dismiss()
+                supportFragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.frag_start_anim, R.anim.frag_stop_anim)
+                    .replace(R.id.fragment, RuntimeFragment::class.java, null)
+                    .commitAllowingStateLoss()
+            }catch(e: CancellationException) {
+                waitDialog.dismiss()
+                throw e
+            }catch(e: Exception) {
+                waitDialog.dismiss()
+                showErrorTips(e.message ?: "未知错误")
             }
         }
     }
