@@ -387,6 +387,19 @@
 
     <string name="edit_view_clone">Clone View</string>
     <string name="edit_view_delete">Delete View</string>
+    <string name="edit_bar_cross_group">Cross-Group</string>
+    <string name="edit_bar_cross_group_title">Copy or Move to Another Group</string>
+    <string name="edit_cross_group">Cross-Group Editing</string>
+    <string name="dialog_copy">Copy</string>
+    <string name="dialog_move">Move</string>
+    <string name="select_target_group_title">Select Target Group</string>
+    <string name="edit_view_group_merge">Merge controls into another group</string>
+    <string name="edit_view_group_load_failed">Failed to load view group data</string>
+    <string name="bind_group_title">Bind View Groups</string>
+    <string name="bind_group_mode_none">None</string>
+    <string name="bind_group_mode_toggle">Toggle on Press</string>
+    <string name="bind_group_mode_show">Show on Press</string>
+    <string name="bind_group_mode_hide">Hide on Press</string>
     <string name="edit_view_event">View Event</string>
     <string name="edit_view_info">Base View Info</string>
     <string name="edit_view_no_group">Please add or select a view group first!</string>
@@ -692,6 +705,8 @@
     <string name="menu_settings_gamepad_input_mode_mapped">Mapped</string>
     <string name="menu_settings_gamepad_input_mode_sdl_direct">SDL Direct</string>
     <string name="menu_settings_sdl_auto_show_ime">Auto Show IME (SDL)</string>
+    <string name="menu_settings_ime_magnifier_auto_show">Show Magnifier by Default While Typing</string>
+    <string name="game_magnifier_show">Show Game Magnifier</string>
     <string name="gamepad_mode_prompt_title">Gamepad Input Mode</string>
     <string name="gamepad_mode_prompt_description">A gamepad input was detected. Choose how gamepad input should be handled:</string>
     <string name="gamepad_mode_prompt_mapped_summary">Map gamepad buttons and sticks to virtual keyboard and mouse. Suitable for older versions or games without native gamepad support.</string>
@@ -1077,11 +1092,36 @@
     <string name="settings_fcl_renderer">OpenGL Implementation</string>
     <string name="settings_fcl_renderer_desc">Choose the OpenGL renderer implementation.</string>
     <string name="settings_fcl_renderer_gl4es" translatable="false">Holy GL4ES (OpenGL 2.1)</string>
-    <string name="settings_fcl_renderer_virgl" translatable="false">VirGLRenderer (OpenGL 4.3)</string>
     <string name="settings_fcl_renderer_vgpu">VGPU (OpenGL 2.1+)</string>
     <string name="settings_fcl_renderer_zink" translatable="false">Kopper Zink (OpenGL 4.6)</string>
-    <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, only support adreno616-a660)</string>
     <string name="settings_fcl_renderer_nggl4es">Krypton Wrapper (OpenGL 3.1+)</string>
+    <string name="settings_fcl_renderer_mobileglues" translatable="false">MobileGlues (OpenGL 4.0)</string>
+    <string name="renderer_sfpew_advanced">Advanced</string>
+    <string name="renderer_version_all">All versions</string>
+    <string name="renderer_sfpew_plugin_layer">SFPEW compatibility layer (renderer plugins)</string>
+    <string name="renderer_sfpew_layer_desc">Overlay the SimpleFPEWrapper OpenGL compatibility layer on renderer plugins without a fixed-function pipeline, for legacy titles that use OpenGL 1.x/2.1-style rendering. Built-in renderers follow known behavior automatically</string>
+    <string name="renderer_config_mg_count_launch">MG_COUNT_LAUNCH</string>
+    <string name="renderer_config_mg_count_launch_desc">Report a launch session to MobileGlues only when the game is started from the launcher; benchmarks and tools are not counted</string>
+    <string name="renderer_config_mg_angle">enableANGLE</string>
+    <string name="renderer_config_mg_angle_desc">ANGLE (GLES-on-Vulkan) backend: 0=disable if possible, 1=enable if possible, 2=force disable, 3=force enable</string>
+    <string name="renderer_config_mg_noerror">enableNoError</string>
+    <string name="renderer_config_mg_noerror_desc">Ignore GL errors for compatibility and speed: 0=auto, 1=off, 2=ignore shader/program errors, 3=also ignore framebuffer errors</string>
+    <string name="renderer_config_mg_depthfix">angleDepthClearFixMode</string>
+    <string name="renderer_config_mg_depthfix_desc">Workaround for broken depth clears when the ANGLE backend is active; enable if the world renders through geometry</string>
+    <string name="renderer_config_mg_glversion">customGLVersion</string>
+    <string name="renderer_config_mg_glversion_desc">OpenGL version reported to the game: 0=decided by MobileGlues, otherwise fixed 4.6 down to 3.2</string>
+    <string name="renderer_config_mg_glslcache">maxGlslCacheSize</string>
+    <string name="renderer_config_mg_glslcache_desc">Shader translation cache limit in MiB; &lt;=0 disables caching. Larger values speed up repeated shader compilation</string>
+    <string name="renderer_config_mg_ext_timer">enableExtTimerQuery</string>
+    <string name="renderer_config_mg_ext_timer_desc">Expose the timer_query extension, required by some performance profiling mods</string>
+    <string name="renderer_config_mg_ext_compute">enableExtComputeShader</string>
+    <string name="renderer_config_mg_ext_compute_desc">Expose the compute shader extension, required by a few mods</string>
+    <string name="renderer_config_mg_ext_dsa">enableExtDirectStateAccess</string>
+    <string name="renderer_config_mg_ext_dsa_desc">Expose the GL_EXT_direct_state_access extension</string>
+    <string name="renderer_config_mg_fsr1">fsr1Setting</string>
+    <string name="renderer_config_mg_fsr1_desc">FSR1 upscaling preset that trades quality for FPS: 0=off, 1=UltraQuality, 2=Quality, 3=Balanced, 4=Performance</string>
+    <string name="renderer_config_sfpew_relaxed_context">SFPEW_RELAXED_CONTEXT</string>
+    <string name="renderer_config_sfpew_relaxed_context_desc">Assumes the game keeps one GL context per thread for its whole lifetime, skipping per-call context checks (strict mode is the default). Enable only after confirming the game\'s thread/context discipline</string>
 
     <string name="settings_fcl_driver">Vulkan Driver</string>
     <string name="settings_fcl_driver_desc">Choose the Vulkan driver implementation.</string>

@@ -339,6 +339,19 @@
     <string name="download_provider_mirror">尽量使用镜像源</string>
     <string name="edit_view_clone">复制控件</string>
     <string name="edit_view_delete">删除控件</string>
+    <string name="edit_bar_cross_group">跨组</string>
+    <string name="edit_bar_cross_group_title">复制或移动到其他控件组</string>
+    <string name="edit_cross_group">跨组编辑</string>
+    <string name="dialog_copy">复制</string>
+    <string name="dialog_move">移动</string>
+    <string name="select_target_group_title">选择目标控件组</string>
+    <string name="edit_view_group_merge">把该组控件合并到其他组</string>
+    <string name="edit_view_group_load_failed">控件组数据加载失败</string>
+    <string name="bind_group_title">绑定控件组显隐</string>
+    <string name="bind_group_mode_none">不绑定</string>
+    <string name="bind_group_mode_toggle">按下切换</string>
+    <string name="bind_group_mode_show">按下显示</string>
+    <string name="bind_group_mode_hide">按下隐藏</string>
     <string name="edit_view_event">控件事件</string>
     <string name="edit_view_info">控件基本信息</string>
     <string name="edit_view_no_group">请先添加或选择一个控件组！</string>
@@ -615,6 +628,8 @@
     <string name="menu_settings_gamepad_input_mode_mapped">映射（控制布局）</string>
     <string name="menu_settings_gamepad_input_mode_sdl_direct">SDL 直通</string>
     <string name="menu_settings_sdl_auto_show_ime">自动唤起输入法（SDL）</string>
+    <string name="menu_settings_ime_magnifier_auto_show">输入时默认弹出放大镜</string>
+    <string name="game_magnifier_show">显示游戏放大镜</string>
     <string name="gamepad_mode_prompt_title">手柄输入模式</string>
     <string name="gamepad_mode_prompt_description">检测到手柄输入，请选择手柄输入的处理方式：</string>
     <string name="gamepad_mode_prompt_mapped_summary">手柄按键/摇杆映射为虚拟键鼠，适合旧版本或无原生手柄支持的游戏</string>
@@ -964,8 +979,34 @@
     <string name="settings_fcl_renderer">OpenGL实现方式</string>
     <string name="settings_fcl_renderer_desc">选择 OpenGL 渲染器实现</string>
     <string name="settings_fcl_renderer_vgpu">VGPU (OpenGL 2.1+)</string>
-    <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, 仅支持 adreno616-a660)</string>
     <string name="settings_fcl_renderer_nggl4es">Krypton Wrapper (OpenGL 3.1+)</string>
+    <string name="settings_fcl_renderer_mobileglues" translatable="false">MobileGlues (OpenGL 4.0)</string>
+    <string name="renderer_sfpew_advanced">高级设置</string>
+    <string name="renderer_version_all">全部版本</string>
+    <string name="renderer_sfpew_plugin_layer">SFPEW 兼容层（渲染器插件）</string>
+    <string name="renderer_sfpew_layer_desc">为无固定管线能力的外部渲染器插件叠加 SimpleFPEWrapper OpenGL 兼容层，用于旧式 OpenGL 1.x/2.1 渲染的程序；内置渲染器按已知行为自动处理</string>
+    <string name="renderer_config_mg_count_launch">MG_COUNT_LAUNCH</string>
+    <string name="renderer_config_mg_count_launch_desc">仅统计经启动器启动的会话，基准测试与工具不计入</string>
+    <string name="renderer_config_mg_angle">enableANGLE</string>
+    <string name="renderer_config_mg_angle_desc">ANGLE（GLES on Vulkan）后端：0=可能时禁用 1=可能时启用 2=强制禁用 3=强制启用</string>
+    <string name="renderer_config_mg_noerror">enableNoError</string>
+    <string name="renderer_config_mg_noerror_desc">忽略 GL 错误以换取兼容性与速度：0=自动 1=不忽略 2=忽略着色器/程序错误 3=同时忽略帧缓冲错误</string>
+    <string name="renderer_config_mg_depthfix">angleDepthClearFixMode</string>
+    <string name="renderer_config_mg_depthfix_desc">ANGLE 后端下深度清除异常的修复；若世界渲染穿透可尝试开启</string>
+    <string name="renderer_config_mg_glversion">customGLVersion</string>
+    <string name="renderer_config_mg_glversion_desc">向游戏报告的 OpenGL 版本：0=由 MobileGlues 自行决定，其余固定 4.6–3.2</string>
+    <string name="renderer_config_mg_glslcache">maxGlslCacheSize</string>
+    <string name="renderer_config_mg_glslcache_desc">着色器翻译缓存上限（MiB），≤0 禁用；更大的值可加快重复启动时的着色器编译</string>
+    <string name="renderer_config_mg_ext_timer">enableExtTimerQuery</string>
+    <string name="renderer_config_mg_ext_timer_desc">暴露 timer_query 扩展，部分性能分析类模组需要</string>
+    <string name="renderer_config_mg_ext_compute">enableExtComputeShader</string>
+    <string name="renderer_config_mg_ext_compute_desc">暴露计算着色器扩展，少数模组需要</string>
+    <string name="renderer_config_mg_ext_dsa">enableExtDirectStateAccess</string>
+    <string name="renderer_config_mg_ext_dsa_desc">暴露 GL_EXT_direct_state_access 扩展</string>
+    <string name="renderer_config_mg_fsr1">fsr1Setting</string>
+    <string name="renderer_config_mg_fsr1_desc">FSR1 超分/降档预设，以画质换帧数：0=关闭 1=UltraQuality 2=Quality 3=Balanced 4=Performance</string>
+    <string name="renderer_config_sfpew_relaxed_context">SFPEW_RELAXED_CONTEXT</string>
+    <string name="renderer_config_sfpew_relaxed_context_desc">假定游戏每线程终生只用一个 GL 上下文，跳过每次调用的上下文核查（默认关闭，即严格模式）；确认游戏的线程-上下文使用方式后再开启</string>
     <string name="settings_fcl_driver">Vulkan驱动</string>
     <string name="settings_fcl_driver_desc">选择 Vulkan 驱动实现</string>
     <string name="settings_download_netdisk">网盘</string>

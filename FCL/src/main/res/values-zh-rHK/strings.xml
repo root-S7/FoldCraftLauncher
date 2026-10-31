@@ -553,6 +553,8 @@
     <string name="menu_settings_send_key">發送鍵值</string>
     <string name="menu_settings_send_key_button">發送</string>
     <string name="menu_settings_soft_keyboard_adjust">禁用軟鍵盤自適應</string>
+    <string name="menu_settings_ime_magnifier_auto_show">輸入時預設彈出放大鏡</string>
+    <string name="game_magnifier_show">顯示遊戲放大鏡</string>
     <string name="menu_settings_item_bar_scale">物品欄縮放</string>
     <string name="menu_settings_item_bar_scale_width">物品欄縮放（寬度）</string>
     <string name="menu_settings_item_bar_scale_height">物品欄縮放（高度）</string>
@@ -800,7 +802,6 @@
     <string name="settings_fcl_vulkan_driver_system">使用系統Vulkan驅動</string>
     <string name="settings_fcl_renderer">OpenGL實作方式 (渲染器)</string>
     <string name="settings_fcl_renderer_vgpu">VGPU (OpenGL 2.1+)</string>
-    <string name="settings_fcl_renderer_freedreno">Freedreno (OpenGL 4.6, 僅支持 adreno616-660)</string>
     <string name="settings_fcl_driver">Vulkan驅動</string>
     <string name="settings_download_netdisk">網盤</string>
     <string name="settings_game">遊戲設置</string>

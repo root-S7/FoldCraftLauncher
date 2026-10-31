@@ -18,6 +18,7 @@ import com.mio.device.VulkanCheckManager;
 import com.mio.plugin.DriverPlugin;
 import com.mio.plugin.FFmpegPlugin;
 import com.mio.plugin.NativeLibPlugin;
+import com.mio.plugin.RendererPlugin;
 import com.oracle.dalvik.VMLauncher;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.utils.Architecture;
@@ -25,10 +26,14 @@ import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.util.Logging;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,6 +41,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class FCLauncher {
 
@@ -180,6 +188,10 @@ public class FCLauncher {
     private static String[] rebaseArgs(FCLConfig config, String libraryPath) {
         ArrayList<String> argList = new ArrayList<>(Arrays.asList(config.getArgs()));
         argList.add(0, config.getJavaPath() + "/bin/java");
+        // SFPEW 兼容层开启时游戏 GL 符号经包装层句柄解析（LWJGL 按 libname 加载），底座渲染器只承担 EGL 与驱动
+        String glLibName = RendererPlugin.isSfpewLayerEnabled(config.getRenderer())
+                ? FCLPath.NATIVE_LIB_DIR + "/libSimpleFPEWrapper.so"
+                : config.getRenderer().getGLPath();
         String[] args = new String[argList.size()];
         for (int i = 0; i < argList.size(); i++) {
             String a = argList.get(i);
@@ -187,7 +199,7 @@ public class FCLauncher {
                 a = "-Djava.library.path=${natives_directory}";
             }
             a = a.replace("${natives_directory}", libraryPath);
-            args[i] = a.replace("${gl_lib_name}", config.getRenderer().getGLPath())
+            args[i] = a.replace("${gl_lib_name}", glLibName)
                     .replace("${egl_lib_name}", config.getRenderer().getEGLPath());
         }
         return args;
@@ -282,9 +294,21 @@ public class FCLauncher {
 
     private static void addRendererEnv(FCLConfig config, HashMap<String, String> envMap) {
         addRendererEnvInner(config, envMap);
+        Renderer renderer = config.getRenderer();
+        // SFPEW 兼容层（内置渲染器按 AAMC 硬编码规则默认启用、自带 FPE 者关闭；插件渲染器由高级设置开关控制）：
+        // 包装后端与底座 EGL 同源（SFPEW_EGL=POJAVEXEC_EGL），native 桥按 SFPEW_LAYER 路由 makeCurrent/swap 生命周期
+        if (RendererPlugin.isSfpewLayerEnabled(renderer)) {
+            envMap.put("SFPEW_LAYER", "1");
+            String sfpewEgl = envMap.get("POJAVEXEC_EGL");
+            if (sfpewEgl != null) {
+                envMap.put("SFPEW_EGL", sfpewEgl);
+            }
+            if (RendererPlugin.isSfpewRelaxedContextEnabled()) {
+                envMap.put("SFPEW_RELAXED_CONTEXT", "1");
+            }
+        }
         // SDL 需要独立的 GL/EGL 库绝对路径（GL 用渲染器 GL 库、EGL 用渲染器 EGL 库）。
         // 必须对所有渲染器路径生效（插件渲染器在 inner 中途 return）
-        Renderer renderer = config.getRenderer();
         String egl = envMap.get("POJAVEXEC_EGL");
         if (egl != null && !egl.startsWith("/")) {
             File candidate = new File(rendererLibPath(renderer), egl);
@@ -299,20 +323,26 @@ public class FCLauncher {
         if (egl != null) {
             envMap.put("SDL_EGL_LIBRARY", egl);
         }
-        String gl = renderer.getGlName();
-        if (!gl.isEmpty()) {
-            // v1 插件约定：glName 以 / 开头表示相对插件 nativeLibraryDir（与 eglName 一致），须拼上插件目录
-            if (gl.startsWith("/")) {
-                if (!renderer.getPath().isEmpty()) {
-                    gl = renderer.getPath() + gl;
+        String gl;
+        if (RendererPlugin.isSfpewLayerEnabled(renderer)) {
+            // 兼容层开启：GL 库固定为包装层（打包在主 APK native 目录），底座只承担 EGL
+            gl = FCLPath.NATIVE_LIB_DIR + "/libSimpleFPEWrapper.so";
+        } else {
+            gl = renderer.getGlName();
+            if (!gl.isEmpty()) {
+                // v1 插件约定：glName 以 / 开头表示相对插件 nativeLibraryDir（与 eglName 一致），须拼上插件目录
+                if (gl.startsWith("/")) {
+                    if (!renderer.getPath().isEmpty()) {
+                        gl = renderer.getPath() + gl;
+                    }
+                } else {
+                    gl = rendererLibPath(renderer) + "/" + gl;
                 }
-            } else {
-                gl = rendererLibPath(renderer) + "/" + gl;
             }
-            // 与 SDL_EGL_LIBRARY 同策略：路径不存在时不设置，交给 SDL 按自身默认解析
-            if (new File(gl).isFile()) {
-                envMap.put("SDL_OPENGL_LIBRARY", gl);
-            }
+        }
+        // 与 SDL_EGL_LIBRARY 同策略：路径不存在时不设置，交给 SDL 按自身默认解析
+        if (!gl.isEmpty() && new File(gl).isFile()) {
+            envMap.put("SDL_OPENGL_LIBRARY", gl);
         }
     }
 
@@ -352,6 +382,18 @@ public class FCLauncher {
                     }
                 });
             }
+            // 运行时才能确定的路径类 env 补全：只补缺，不覆盖插件显式设置的值
+            if (!envMap.containsKey("MESA_GLSL_CACHE_DIR")) {
+                envMap.put("MESA_GLSL_CACHE_DIR", config.getContext().getCacheDir().getAbsolutePath());
+            }
+            if ("gallium_virgl".equals(envMap.get("POJAV_RENDERER")) && !envMap.containsKey("VTEST_SOCKET_NAME")) {
+                envMap.put("VTEST_SOCKET_NAME", new File(config.getContext().getCacheDir(), ".virgl_test").getAbsolutePath());
+            }
+            // 插件目录内带 virgl test server 时交给原生侧从该绝对路径加载（原生默认只在主 APK 目录找）
+            File vts = new File(rendererLibPath(renderer), "libvirgl_test_server.so");
+            if (vts.isFile()) {
+                envMap.put("VIRGL_TEST_SERVER", vts.getAbsolutePath());
+            }
             return;
         }
         if (renderer.isEqual(Renderer.ID_GL4ES) || renderer.isEqual(Renderer.ID_VGPU)) {
@@ -377,22 +419,30 @@ public class FCLauncher {
             envMap.put("POJAV_RENDERER", "opengles3");
             envMap.put("POJAVEXEC_EGL", "libEGL.so");
         } else {
-            envMap.put("MESA_GLSL_CACHE_DIR", config.getContext().getCacheDir().getAbsolutePath());
-            envMap.put("MESA_GL_VERSION_OVERRIDE", renderer.isEqual(Renderer.ID_VIRGL) ? "4.3" : "4.6");
-            envMap.put("MESA_GLSL_VERSION_OVERRIDE", renderer.isEqual(Renderer.ID_VIRGL) ? "430" : "460");
-            envMap.put("force_glsl_extensions_warn", "true");
-            envMap.put("allow_higher_compat_version", "true");
-            envMap.put("allow_glsl_extension_directive_midshader", "true");
-            envMap.put("VTEST_SOCKET_NAME", new File(config.getContext().getCacheDir().getAbsolutePath(), ".virgl_test").getAbsolutePath());
-            if (renderer.isEqual(Renderer.ID_VIRGL)) {
-                envMap.put("POJAV_RENDERER", "gallium_virgl");
-                envMap.put("OSMESA_NO_FLUSH_FRONTBUFFER", "1");
-            } else if (renderer.isEqual(Renderer.ID_ZINK)) {
+            // VirGL/Freedreno 已剥离为插件（走上方提前返回）；此分支处理 ZINK 与 MobileGlues/SFPEW
+            if (renderer.isEqual(Renderer.ID_ZINK)) {
+                envMap.put("MESA_GLSL_CACHE_DIR", config.getContext().getCacheDir().getAbsolutePath());
+                envMap.put("MESA_GL_VERSION_OVERRIDE", "4.6");
+                envMap.put("MESA_GLSL_VERSION_OVERRIDE", "460");
+                envMap.put("force_glsl_extensions_warn", "true");
+                envMap.put("allow_higher_compat_version", "true");
+                envMap.put("allow_glsl_extension_directive_midshader", "true");
                 envMap.put("POJAV_RENDERER", "opengles3_desktopgl_zink_kopper");
                 envMap.put("LIBGL_ES", "3");
                 envMap.put("POJAVEXEC_EGL", renderer.getEglName());
-            } else if (renderer.isEqual(Renderer.ID_FREEDRENO)) {
-                envMap.put("POJAV_RENDERER", "gallium_freedreno");
+            } else if (renderer.isEqual(Renderer.ID_MOBILEGLUES)) {
+                envMap.put("POJAV_RENDERER", "opengles3_mobileglues");
+                envMap.put("LIBGL_ES", "3");
+                envMap.put("LIBGL_EGL", "libmobileglues.so");
+                envMap.put("POJAVEXEC_EGL", "libmobileglues.so");
+                // 内置版使用独立配置：不共用 /sdcard/MG，配置写在应用私有存储并经 MG_DIR_PATH 指向
+                Map<String, String> mgPrefs = RendererPlugin.builtinEnvPrefs(Renderer.ID_MOBILEGLUES);
+                File mgDir = new File(config.getContext().getFilesDir(), "mobileglues");
+                writeMobileGluesConfig(mgDir, mgPrefs);
+                envMap.put("MG_DIR_PATH", mgDir.getAbsolutePath());
+                if (RendererPlugin.toggleEnabled(mgPrefs, "MG_COUNT_LAUNCH", true)) {
+                    envMap.put("MG_COUNT_LAUNCH", "1");
+                }
             }
         }
     }
@@ -425,6 +475,92 @@ public class FCLauncher {
             }
         }
 
+    }
+
+    /**
+     * 把内置 MobileGlues 的用户配置合并进 MG/config.json（键名与默认值对齐官方 MGConfig）。
+     * 只覆盖启动器里显式配置过的键；未配置的已知键与原生侧写入的未知键（如 hideMGEnvLevel）
+     * 保留原值交给 MG 自管（MG 上游调整默认值时不受启动器钉死）。内容无变化时不重写。
+     */
+    private static void writeMobileGluesConfig(File mgDir, Map<String, String> prefs) {
+        if (prefs.isEmpty()) return;
+        File cfgFile = new File(mgDir, "config.json");
+        JSONObject json = new JSONObject();
+        String oldCfg = null;
+        if (cfgFile.isFile()) {
+            try {
+                oldCfg = new String(readFileBytes(cfgFile), StandardCharsets.UTF_8);
+                json = new JSONObject(oldCfg);
+            } catch (Throwable ignored) {
+                json = new JSONObject();
+            }
+        }
+        try {
+            mergeMobileGluesConfig(json, prefs);
+        } catch (JSONException ignored) {
+            return;
+        }
+        String newCfg = json.toString();
+        if (newCfg.equals(oldCfg)) return;
+        try {
+            mgDir.mkdirs();
+            try (FileOutputStream out = new FileOutputStream(cfgFile)) {
+                out.write(newCfg.getBytes(StandardCharsets.UTF_8));
+            }
+        } catch (IOException ignored) {
+        }
+    }
+
+    /** 仅合并用户显式配置过的键（开关型只写开关键，无值键）；默认值须与 RendererPlugin.builtinEnvSpecs 一致 */
+    private static void mergeMobileGluesConfig(JSONObject json, Map<String, String> prefs) throws JSONException {
+        if (RendererPlugin.isConfigured(prefs, "enableANGLE")) {
+            json.put("enableANGLE", mgPrefInt(prefs, "enableANGLE", 1));
+        }
+        if (RendererPlugin.isConfigured(prefs, "enableNoError")) {
+            json.put("enableNoError", mgPrefInt(prefs, "enableNoError", 0));
+        }
+        if (RendererPlugin.isConfigured(prefs, "angleDepthClearFixMode")) {
+            json.put("angleDepthClearFixMode", RendererPlugin.toggleEnabled(prefs, "angleDepthClearFixMode", false) ? 1 : 0);
+        }
+        if (RendererPlugin.isConfigured(prefs, "customGLVersion")) {
+            json.put("customGLVersion", mgPrefInt(prefs, "customGLVersion", 0));
+        }
+        if (RendererPlugin.isConfigured(prefs, "maxGlslCacheSize")) {
+            json.put("maxGlslCacheSize", mgPrefInt(prefs, "maxGlslCacheSize", 32));
+        }
+        if (RendererPlugin.isConfigured(prefs, "enableExtTimerQuery")) {
+            json.put("enableExtTimerQuery", RendererPlugin.toggleEnabled(prefs, "enableExtTimerQuery", true) ? 1 : 0);
+        }
+        if (RendererPlugin.isConfigured(prefs, "enableExtComputeShader")) {
+            json.put("enableExtComputeShader", RendererPlugin.toggleEnabled(prefs, "enableExtComputeShader", false) ? 1 : 0);
+        }
+        if (RendererPlugin.isConfigured(prefs, "enableExtDirectStateAccess")) {
+            json.put("enableExtDirectStateAccess", RendererPlugin.toggleEnabled(prefs, "enableExtDirectStateAccess", false) ? 1 : 0);
+        }
+        if (RendererPlugin.isConfigured(prefs, "fsr1Setting")) {
+            json.put("fsr1Setting", mgPrefInt(prefs, "fsr1Setting", 0));
+        }
+    }
+
+    /** 读取用户配置的整数值；未设置回落默认，显式清空视为 -1（MG 语义：≤0 关闭），非法值回落默认 */
+    private static int mgPrefInt(Map<String, String> prefs, String key, int def) {
+        String v = prefs.get(key);
+        if (v == null) return def;
+        v = v.trim();
+        if (v.isEmpty()) return -1;
+        try {
+            return Integer.parseInt(v);
+        } catch (NumberFormatException e) {
+            return def;
+        }
+    }
+
+    private static byte[] readFileBytes(File file) throws IOException {
+        byte[] data = new byte[(int) file.length()];
+        try (DataInputStream in = new DataInputStream(new FileInputStream(file))) {
+            in.readFully(data);
+        }
+        return data;
     }
 
     private static void setUpJavaRuntime(FCLConfig config, FCLBridge bridge) throws IOException {

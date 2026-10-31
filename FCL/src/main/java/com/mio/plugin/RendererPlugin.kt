@@ -6,6 +6,8 @@ import com.mio.data.Renderer
 import com.mio.datastore.appSettingsDataStore
 import com.mio.manager.RendererManager
 import com.tungsten.fcl.FCLApp
+import com.tungsten.fcl.R
+import com.tungsten.fclcore.mod.LocalModFile
 import com.tungsten.fclcore.util.Logging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,17 +40,20 @@ object RendererPlugin : AbstractPlugin<Renderer>() {
     data class EnvSpec(
         val key: String,
         val type: EnvType,
+        /** 标题（一般为变量名） */
         val title: String,
         /** selectable 候选值（含默认值），其他类型为空 */
-        val options: List<String>,
+        val options: List<String> = emptyList(),
         /** customizable 提示用默认值 */
-        val defaultValue: String?,
+        val defaultValue: String? = null,
         /** selectable 是否带启用开关（check 非 null 时） */
-        val checkable: Boolean,
+        val checkable: Boolean = false,
         /** 当前开关状态（selectable / toggleable） */
         val enabled: Boolean,
         /** 当前值（selectable 选中值 / customizable 输入文本） */
         val value: String,
+        /** 标题下的功能说明（可空；内置渲染器有，v2 插件暂无） */
+        val description: String? = null,
     )
 
     /** 对话框确认后单项的回传值；enabled/value 为 null 表示该项无此状态 */
@@ -245,23 +250,253 @@ object RendererPlugin : AbstractPlugin<Renderer>() {
             v.value?.let { flat[key] = it }
             v.enabled?.let { flat[key + ENABLED_SUFFIX] = it.toString() }
         }
-        envPrefs = envPrefs.toMutableMap().apply { put(packageName, flat) }
+        storeEnvPrefs(context, packageName, flat)
+        val entry = v2Entries[packageName] ?: return
+        val renderer = buildV2Renderer(packageName, entry)
+        addRenderer(renderer)
+        RendererManager.replaceRenderer(renderer)
+    }
+
+    /** 更新内存缓存并异步落盘某键的扁平环境变量配置（插件与内置渲染器共用） */
+    private fun storeEnvPrefs(context: Context, key: String, flat: Map<String, String>) {
+        envPrefs = envPrefs.toMutableMap().apply { put(key, flat) }
         saveScope.launch {
             runCatching {
                 context.appSettingsDataStore.updateData { pref ->
                     pref.copy(plugin = pref.plugin.copy(
                         rendererEnvPrefs = pref.plugin.rendererEnvPrefs.toMutableMap()
-                            .apply { put(packageName, flat) }
+                            .apply { put(key, flat) }
                     ))
                 }
             }.onFailure { e ->
                 Logging.LOG.log(Level.SEVERE, "保存插件环境变量配置失败", e)
             }
         }
-        val entry = v2Entries[packageName] ?: return
-        val renderer = buildV2Renderer(packageName, entry)
-        addRenderer(renderer)
-        RendererManager.replaceRenderer(renderer)
+    }
+
+    // ---------- 内置渲染器配置（MobileGlues）与 SFPEW 兼容层配置 ----------
+    // 内置渲染器没有插件包名，复用 envPrefs 存储并以 "builtin:" 前缀伪键区分；
+    // 配置入口为渲染器选择列表的齿轮图标，编辑用与插件页相同的 RendererEnvDialog。
+    // SFPEW 兼容层对内置渲染器按 AAMC 同款硬编码规则：默认启用，仅对自带 FPE/完整 GL 的内置渲染器关闭；
+    // 外部插件渲染器行为未知，由渲染器选择对话框"高级设置"里的全局开关控制（默认关闭，用户显式开启）
+
+    @JvmField
+    val BUILTIN_MOBILEGLUES_KEY = "builtin:mobileglues"
+
+    /** SFPEW 兼容层配置伪键：插件层开关与层全局项（SFPEW_RELAXED_CONTEXT） */
+    private const val SFPEW_LAYER_KEY = "layer:sfpew"
+
+    /** SFPEW 兼容层配置键名（高级设置读写） */
+    const val SFPEW_LAYER_PLUGINS = "SFPEW_LAYER_PLUGINS"
+    const val SFPEW_LAYER_RELAXED_CONTEXT = "SFPEW_RELAXED_CONTEXT"
+
+    /** 自带 FPE/完整 GL 的内置渲染器：叠加层对其硬编码关闭（上游 AAMC 同款规则） */
+    private val FPE_CAPABLE_BUILTIN_IDS = setOf(
+        Renderer.ID_NGGL4ES, Renderer.ID_GL4ES, Renderer.ID_VGPU, Renderer.ID_ZINK
+    )
+
+    /** 自实现 FPE 模拟的模组 id（上游 AAMC 同款检测）：这类模组接管旧版渲染链，层只剩透传开销 */
+    private val FPE_EMULATOR_MOD_IDS = setOf("angelica", "actinium")
+
+    /** 本次启动是否装了自实现 FPE 的模组（LauncherHelper mods 扫描后写入，仅进程内有效） */
+    @Volatile
+    private var fpeEmulatorModPresent = false
+
+    /**
+     * 启动链 mods 扫描后调用：检测是否装了自实现 FPE 模拟的模组（Angelica/Actinium 等）。
+     * 检测到即整层跳过（含内置渲染器），仅对活跃模组生效。
+     */
+    @JvmStatic
+    fun setFpeEmulatorModsPresent(mods: List<LocalModFile>?) {
+        val present = mods != null && mods.any { it.isActive && it.id in FPE_EMULATOR_MOD_IDS }
+        fpeEmulatorModPresent = present
+        if (present) {
+            val ids = mods!!.filter { it.isActive && it.id in FPE_EMULATOR_MOD_IDS }
+                .joinToString(", ") { it.id }
+            Logging.LOG.info("FPE emulator mod detected ($ids), SFPEW compatibility layer disabled")
+        }
+    }
+
+    private fun builtinKey(rendererId: String): String? = when (rendererId) {
+        Renderer.ID_MOBILEGLUES -> BUILTIN_MOBILEGLUES_KEY
+        else -> null
+    }
+
+    /** 兼容层伪键下的扁平配置读取（未初始化时懒初始化插件扫描） */
+    private fun sfpewLayerPrefs(): Map<String, String> {
+        ensureInit()
+        return envPrefs[SFPEW_LAYER_KEY].orEmpty()
+    }
+
+    /**
+     * 该渲染器启动时是否叠加 SFPEW 兼容层（启动链路注入 env 的依据）。
+     * 装有自实现 FPE 的模组时整层跳过；
+     * 内置渲染器行为已知：默认启用，仅自带 FPE 的内置渲染器硬编码关闭；
+     * 外部插件渲染器行为未知：由高级设置里的全局开关控制，默认关闭（用户显式开启）。
+     */
+    @JvmStatic
+    fun isSfpewLayerEnabled(renderer: Renderer): Boolean {
+        if (fpeEmulatorModPresent) return false
+        if (renderer.path.isEmpty()) {
+            return renderer.id !in FPE_CAPABLE_BUILTIN_IDS
+        }
+        return toggleEnabled(sfpewLayerPrefs(), SFPEW_LAYER_PLUGINS, false)
+    }
+
+    /** 插件渲染器兼容层全局开关（高级设置读写；默认关闭） */
+    fun isSfpewPluginLayerEnabled(): Boolean =
+        toggleEnabled(sfpewLayerPrefs(), SFPEW_LAYER_PLUGINS, false)
+
+    fun setSfpewPluginLayerEnabled(context: Context, enabled: Boolean) {
+        val flat = sfpewLayerPrefs().toMutableMap()
+        flat[SFPEW_LAYER_PLUGINS + ENABLED_SUFFIX] = enabled.toString()
+        storeEnvPrefs(context, SFPEW_LAYER_KEY, flat)
+    }
+
+    /** 兼容层 relaxed context 全局开关（高级设置读写；strict 为默认，仅启动链路注入 env 用） */
+    @JvmStatic
+    fun isSfpewRelaxedContextEnabled(): Boolean =
+        toggleEnabled(sfpewLayerPrefs(), SFPEW_LAYER_RELAXED_CONTEXT, false)
+
+    fun setSfpewRelaxedContextEnabled(context: Context, enabled: Boolean) {
+        val flat = sfpewLayerPrefs().toMutableMap()
+        flat[SFPEW_LAYER_RELAXED_CONTEXT + ENABLED_SUFFIX] = enabled.toString()
+        storeEnvPrefs(context, SFPEW_LAYER_KEY, flat)
+    }
+
+    /** 内置渲染器是否提供可配置环境变量（渲染器列表齿轮图标的显隐依据） */
+    fun hasBuiltinEnvConfig(rendererId: String): Boolean = builtinKey(rendererId) != null
+
+    /** 内置渲染器的可配置环境变量列表（已应用用户配置的当前值） */
+    fun builtinEnvSpecs(context: Context, rendererId: String): List<EnvSpec> {
+        val key = builtinKey(rendererId) ?: return emptyList()
+        ensureInit()
+        val prefs = envPrefs[key].orEmpty()
+        return when (rendererId) {
+            Renderer.ID_MOBILEGLUES -> listOf(
+                EnvSpec(
+                    key = "MG_COUNT_LAUNCH",
+                    type = EnvType.TOGGLEABLE,
+                    title = "MG_COUNT_LAUNCH",
+                    description = context.getString(R.string.renderer_config_mg_count_launch_desc),
+                    enabled = prefs["MG_COUNT_LAUNCH$ENABLED_SUFFIX"]?.toBooleanStrictOrNull() ?: true,
+                    value = "1"
+                ),
+                EnvSpec(
+                    key = "enableANGLE",
+                    type = EnvType.SELECTABLE,
+                    title = "enableANGLE",
+                    description = context.getString(R.string.renderer_config_mg_angle_desc),
+                    options = listOf("0", "1", "2", "3"),
+                    checkable = false,
+                    enabled = true,
+                    value = prefs["enableANGLE"] ?: "1"
+                ),
+                EnvSpec(
+                    key = "enableNoError",
+                    type = EnvType.SELECTABLE,
+                    title = "enableNoError",
+                    description = context.getString(R.string.renderer_config_mg_noerror_desc),
+                    options = listOf("0", "1", "2", "3"),
+                    checkable = false,
+                    enabled = true,
+                    value = prefs["enableNoError"] ?: "0"
+                ),
+                EnvSpec(
+                    key = "angleDepthClearFixMode",
+                    type = EnvType.TOGGLEABLE,
+                    title = "angleDepthClearFixMode",
+                    description = context.getString(R.string.renderer_config_mg_depthfix_desc),
+                    enabled = prefs["angleDepthClearFixMode$ENABLED_SUFFIX"]?.toBooleanStrictOrNull() ?: false,
+                    value = "1"
+                ),
+                EnvSpec(
+                    key = "customGLVersion",
+                    type = EnvType.SELECTABLE,
+                    title = "customGLVersion",
+                    description = context.getString(R.string.renderer_config_mg_glversion_desc),
+                    options = listOf("0", "46", "45", "44", "43", "42", "41", "40", "33", "32"),
+                    checkable = false,
+                    enabled = true,
+                    value = prefs["customGLVersion"] ?: "0"
+                ),
+                EnvSpec(
+                    key = "maxGlslCacheSize",
+                    type = EnvType.CUSTOMIZABLE,
+                    title = "maxGlslCacheSize",
+                    description = context.getString(R.string.renderer_config_mg_glslcache_desc),
+                    defaultValue = "32",
+                    enabled = true,
+                    value = prefs["maxGlslCacheSize"] ?: "32"
+                ),
+                EnvSpec(
+                    key = "enableExtTimerQuery",
+                    type = EnvType.TOGGLEABLE,
+                    title = "enableExtTimerQuery",
+                    description = context.getString(R.string.renderer_config_mg_ext_timer_desc),
+                    enabled = prefs["enableExtTimerQuery$ENABLED_SUFFIX"]?.toBooleanStrictOrNull() ?: true,
+                    value = "1"
+                ),
+                EnvSpec(
+                    key = "enableExtComputeShader",
+                    type = EnvType.TOGGLEABLE,
+                    title = "enableExtComputeShader",
+                    description = context.getString(R.string.renderer_config_mg_ext_compute_desc),
+                    enabled = prefs["enableExtComputeShader$ENABLED_SUFFIX"]?.toBooleanStrictOrNull() ?: false,
+                    value = "1"
+                ),
+                EnvSpec(
+                    key = "enableExtDirectStateAccess",
+                    type = EnvType.TOGGLEABLE,
+                    title = "enableExtDirectStateAccess",
+                    description = context.getString(R.string.renderer_config_mg_ext_dsa_desc),
+                    enabled = prefs["enableExtDirectStateAccess$ENABLED_SUFFIX"]?.toBooleanStrictOrNull() ?: false,
+                    value = "1"
+                ),
+                EnvSpec(
+                    key = "fsr1Setting",
+                    type = EnvType.SELECTABLE,
+                    title = "fsr1Setting",
+                    description = context.getString(R.string.renderer_config_mg_fsr1_desc),
+                    options = listOf("0", "1", "2", "3", "4"),
+                    checkable = false,
+                    enabled = true,
+                    value = prefs["fsr1Setting"] ?: "0"
+                )
+            )
+
+            else -> emptyList()
+        }
+    }
+
+    /** 启动链路读取内置渲染器的扁平配置（FCLauncher 注入 env 用） */
+    @JvmStatic
+    fun builtinEnvPrefs(rendererId: String): Map<String, String> {
+        val key = builtinKey(rendererId) ?: return emptyMap()
+        ensureInit()
+        return envPrefs[key].orEmpty()
+    }
+
+    /** 开关型配置的启用状态读取（键名后缀约定收口于此，供 Java 侧注入 env / 写 MG 配置用；未配置回落默认值） */
+    @JvmStatic
+    fun toggleEnabled(prefs: Map<String, String>, key: String, def: Boolean): Boolean =
+        prefs[key + ENABLED_SUFFIX]?.toBooleanStrictOrNull() ?: def
+
+    /** 配置键是否被用户显式配置过（值键或开关键任一存在；未配置的键交由渲染器自管默认值） */
+    @JvmStatic
+    fun isConfigured(prefs: Map<String, String>, key: String): Boolean =
+        prefs.containsKey(key) || prefs.containsKey(key + ENABLED_SUFFIX)
+
+    /** 内置渲染器配置对话框确认后保存（无 v2 渲染器重建） */
+    fun updateBuiltinEnvConfigs(context: Context, rendererId: String, values: Map<String, EnvValue>) {
+        val key = builtinKey(rendererId) ?: return
+        ensureInit()
+        val flat = mutableMapOf<String, String>()
+        values.forEach { (k, v) ->
+            v.value?.let { flat[k] = it }
+            v.enabled?.let { flat[k + ENABLED_SUFFIX] = it.toString() }
+        }
+        storeEnvPrefs(context, key, flat)
     }
 
     /** 触发 AbstractPlugin 的懒初始化（插件扫描 + v1/v2 解析） */

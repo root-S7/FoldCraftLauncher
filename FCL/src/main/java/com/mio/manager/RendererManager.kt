@@ -9,11 +9,10 @@ import com.tungsten.fcl.R
 
 object RendererManager {
     lateinit var RENDERER_GL4ES: Renderer
-    lateinit var RENDERER_VIRGL: Renderer
     lateinit var RENDERER_VGPU: Renderer
     lateinit var RENDERER_ZINK: Renderer
-    lateinit var RENDERER_FREEDRENO: Renderer
     lateinit var RENDERER_NGGL4ES: Renderer
+    lateinit var RENDERER_MOBILEGLUES: Renderer
     private var isInit = false
 
     @JvmStatic
@@ -40,20 +39,6 @@ object RendererManager {
             Renderer.ID_GL4ES,
             "",
             "1.21.4"
-        )
-
-        RENDERER_VIRGL = Renderer(
-            "VirGLRenderer",
-            context.getString(R.string.settings_fcl_renderer_virgl),
-            "libOSMesa_81.so",
-            "libEGL.so",
-            "",
-            null,
-            null,
-            Renderer.ID_VIRGL,
-            "",
-            "26.3-snapshot-3",
-            displayMaxMCver = "26.2"
         )
 
         RENDERER_VGPU = Renderer(
@@ -83,20 +68,6 @@ object RendererManager {
             displayMaxMCver = "26.2"
         )
 
-        RENDERER_FREEDRENO = Renderer(
-            "Freedreno",
-            context.getString(R.string.settings_fcl_renderer_freedreno),
-            "libOSMesa_8.so",
-            "libEGL.so",
-            "",
-            null,
-            null,
-            Renderer.ID_FREEDRENO,
-            "",
-            "26.3-snapshot-3",
-            displayMaxMCver = "26.2"
-        )
-
         RENDERER_NGGL4ES = Renderer(
             "Krypton Wrapper",
             context.getString(R.string.settings_fcl_renderer_nggl4es),
@@ -106,6 +77,22 @@ object RendererManager {
             null,
             null,
             Renderer.ID_NGGL4ES,
+            "",
+            "26.3-snapshot-3",
+            displayMaxMCver = "26.2"
+        )
+
+        // SFPEW 兼容层对内置 MG 硬编码启用，组合后无 MC 版本下界（旧版固定管线由层补齐），
+        // 故注册信息不再声明 minMCver（版本门控与列表展示均按无下界处理）
+        RENDERER_MOBILEGLUES = Renderer(
+            "MobileGlues",
+            context.getString(R.string.settings_fcl_renderer_mobileglues),
+            "libmobileglues.so",
+            "libmobileglues.so",
+            "",
+            null,
+            null,
+            Renderer.ID_MOBILEGLUES,
             "",
             "26.3-snapshot-3",
             displayMaxMCver = "26.2"
@@ -122,10 +109,9 @@ object RendererManager {
 
         rendererList.add(RENDERER_NGGL4ES)
         rendererList.add(RENDERER_GL4ES)
-        rendererList.add(RENDERER_VIRGL)
         rendererList.add(RENDERER_VGPU)
         rendererList.add(RENDERER_ZINK)
-        rendererList.add(RENDERER_FREEDRENO)
+        rendererList.add(RENDERER_MOBILEGLUES)
         rendererList.addAll(RendererPlugin.rendererList)
         rendererList.addAll(CRendererManager.cRenderer)
 
