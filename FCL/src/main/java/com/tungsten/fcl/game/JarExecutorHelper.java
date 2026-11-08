@@ -6,13 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.mio.manager.JavaManager;
+import com.mio.JavaManager;
 import com.mio.manager.RendererManager;
 import com.tungsten.fcl.activity.JVMActivity;
 import com.tungsten.fcl.control.MenuType;
 import com.tungsten.fcl.setting.Profile;
 import com.tungsten.fcl.setting.Profiles;
-import com.mio.util.AndroidUtilKt;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fclauncher.utils.FCLPath;
 import com.tungsten.fclcore.game.JavaVersion;

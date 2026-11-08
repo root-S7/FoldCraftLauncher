@@ -24,7 +24,7 @@ import static com.tungsten.fclcore.util.Pair.pair;
 import android.content.Context;
 import android.os.Build;
 
-import com.mio.manager.JavaManager;
+import com.mio.JavaManager;
 import com.mio.data.Renderer;
 import com.mio.plugin.MioLibPatcherManager;
 import com.mio.plugin.NativeLibPlugin;

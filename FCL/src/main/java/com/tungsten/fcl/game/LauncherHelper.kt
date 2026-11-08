@@ -42,8 +42,12 @@ import com.tungsten.fcl.setting.GameOption
 import com.tungsten.fcl.setting.MenuSetting
 import com.tungsten.fcl.setting.Profile
 import com.tungsten.fcl.setting.VersionSetting
+import com.tungsten.fcl.setting.rule.core.LaunchRule
 import com.tungsten.fcl.ui.TaskDialog
 import com.tungsten.fcl.ui.UIManager
+import com.tungsten.fcl.util.GameRuleUtils
+import com.tungsten.fcl.util.GameRuleUtils.fromJson
+import com.tungsten.fcl.util.GameRuleUtils.getVersionRules
 import com.tungsten.fcl.util.JnaNatives
 import com.tungsten.fcl.util.TaskCancellationAction
 import com.tungsten.fclauncher.bridge.FCLBridge
@@ -70,7 +74,6 @@ import com.tungsten.fclcore.task.DownloadException
 import com.tungsten.fclcore.task.Task
 import com.tungsten.fclcore.task.TaskExecutor
 import com.tungsten.fclcore.task.TaskListener
-import com.tungsten.fclcore.util.DigestUtils
 import com.tungsten.fclcore.util.LibFilter
 import com.tungsten.fclcore.util.Logging.LOG
 import com.tungsten.fclcore.util.StringUtils
@@ -114,6 +117,7 @@ class LauncherHelper(
     private val profile: Profile,
     private val account: Account,
     private val selectedVersion: String,
+    private val rules: MutableSet<LaunchRule> = fromJson(context).getVersionRules(selectedVersion)
 ) {
 
     private val setting: VersionSetting = profile.getVersionSetting(selectedVersion)
@@ -131,6 +135,7 @@ class LauncherHelper(
         "launch.state.mods",
         "launch.state.java",
         "launch.state.dependencies",
+        "launch.state.rule",
         "launch.state.logging_in",
         "launch.state.waiting_launching",
     )
@@ -216,6 +221,10 @@ class LauncherHelper(
             completeDependencies(dependencyManager, version, integrityCheck)
         }
 
+        // 应用游戏规则
+        enterStage("launch.state.rule")
+        runTracked(GameRuleUtils.setGameRule(context, setting, rules))
+
         unpackBuiltinJars()
 
         if (gameVersion.isPresent) {
@@ -276,8 +285,7 @@ class LauncherHelper(
                     if (!proceed)
                         return@let
                 }
-                // HMCL / MultiMC 整合包无补全任务，provider 返回 null 时不加入
-                provider.createCompletionTask(dependencyManager, selectedVersion)?.let { tasks.add(it) }
+                tasks.add(provider.createCompletionTask(dependencyManager, selectedVersion))
             }
         } catch (_: IOException) {
         }
@@ -760,26 +768,15 @@ class LauncherHelper(
             }
         }
 
-    /** 解包内置补丁 jar 到目标路径，本地文件与包内 .sha1 记录一致时跳过，失败仅记录警告不阻断启动 */
+    /** 解包内置补丁 jar 到目标路径，失败仅记录警告不阻断启动 */
     private fun unpackJar(resourcePath: String, targetPath: String, logName: String) {
         try {
-            if (isBuiltinJarUpToDate(resourcePath, targetPath)) return
             LauncherHelper::class.java.getResourceAsStream(resourcePath).use { input ->
                 Files.copy(input, File(targetPath).toPath(), StandardCopyOption.REPLACE_EXISTING)
             }
         } catch (e: IOException) {
             LOG.log(Level.WARNING, "Unable to unpack $logName", e)
         }
-    }
-
-    /** 本地 jar 已存在且 SHA-1 与安装包内同名 .sha1 记录一致时视为无需更新（.sha1 缺失则回退为总是解包） */
-    private fun isBuiltinJarUpToDate(resourcePath: String, targetPath: String): Boolean {
-        val expectedSha1 = LauncherHelper::class.java.getResourceAsStream("$resourcePath.sha1")
-            ?.use { it.readBytes().decodeToString() }
-            ?.trim()
-            ?: return false
-        val target = File(targetPath)
-        return target.isFile && DigestUtils.digestToString("SHA-1", target.toPath()) == expectedSha1
     }
 
     /** 主线程展示启动失败原因（按异常类型整理文案，兜底分支直接打印堆栈） */

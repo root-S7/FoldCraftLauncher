@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.edit
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.mio.manager.JavaManager
+import com.mio.JavaManager
 import com.mio.ui.adapter.ManageJavaItemAdapter
 import com.mio.ui.adapter.SpacingItemDecoration
 import com.mio.util.checkElfIsAndroid
