@@ -94,8 +94,7 @@ object RendererManager {
             null,
             Renderer.ID_MOBILEGLUES,
             "",
-            "26.3-snapshot-3",
-            displayMaxMCver = "26.2"
+            ""
         )
 
         RendererPlugin.init(context)
@@ -130,6 +129,10 @@ object RendererManager {
         rendererList.removeIf { it.id == renderer.id }
         rendererList.add(renderer)
     }
+
+    /** 按 id 查找渲染器，不存在时返回 null（区别于 [getRenderer] 的 NGGL4ES 兜底） */
+    @JvmStatic
+    fun findRenderer(id: String): Renderer? = rendererList.find { it.id == id }
 
     @JvmStatic
     fun getRenderer(id: String): Renderer {

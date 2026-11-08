@@ -1,8 +1,10 @@
 import com.android.build.api.variant.FilterConfiguration.FilterType.ABI
 import com.android.build.gradle.tasks.MergeSourceSetFolders
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.HexFormat
 import java.util.Properties
 
 plugins {
@@ -76,8 +78,8 @@ android {
         applicationId = "com.tungsten.fcl.server"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 1343
-        versionName = "1.3.4.3"
+        versionCode = 1345
+        versionName = "1.3.4.5"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         externalNativeBuild {
             cmake {
@@ -182,6 +184,30 @@ val filterJreAssets = tasks.register<FilterJreAssets>("filterJreAssets") {
     if (arch != "all") {
         exclude { it.name.startsWith("bin-") && it.name != "bin-$arch.tar.xz" }
     }
+}
+
+/**
+ * 为 assets/game 下随启动解包的内置 jar 生成同名 .sha1 校验文件（内容为小写十六进制哈希），
+ * 运行时与本地已释放文件比对，一致则跳过重复解包。
+ * 产物位于 src/main/assets 源目录内，故不声明输入输出——声明输出会让 lintVitalAnalyze 等隐式消费方
+ * 触发 Gradle 依赖校验错误；无输出任务每次构建都执行，内容不变时不落盘。
+ */
+val updateBuiltinJarSha1 = tasks.register("updateBuiltinJarSha1") {
+    val gameAssetsDir = layout.projectDirectory.dir("src/main/assets/game")
+    val builtinJars = listOf("MioLibPatcher.jar", "MioLaunchWrapper.jar")
+    doLast {
+        builtinJars.forEach { name ->
+            val sha1File = gameAssetsDir.file("$name.sha1").asFile
+            val sha1 = HexFormat.of()
+                .formatHex(MessageDigest.getInstance("SHA-1").digest(gameAssetsDir.file(name).asFile.readBytes()))
+            if (sha1File.takeIf { it.isFile }?.readText() != sha1) sha1File.writeText(sha1)
+        }
+    }
+}
+
+// 内置 jar 更新后自动续期 .sha1，避免包内校验值过期导致比对恒不一致、每次启动都重复解包
+tasks.matching { it.name.matches(Regex("merge.*Assets")) }.configureEach {
+    dependsOn(updateBuiltinJarSha1)
 }
 
 androidComponents {
@@ -304,7 +330,6 @@ dependencies {
     implementation(libs.touchcontroller)
     implementation(libs.palette.ktx)
     implementation(libs.gamepad.remapper)
-    implementation(libs.segmented.button)
     implementation(libs.datastore)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.room.runtime)

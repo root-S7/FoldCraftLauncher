@@ -584,6 +584,11 @@
     <string name="install_new_game_malformed">Invalid Name</string>
     <string name="install_success">Installed successfully.</string>
 
+    <string name="modpack_completion_confirm">The following modpack files are missing and will be restored automatically. If you deleted or updated them on purpose, skip this time or disable auto-restore.\n%s</string>
+    <string name="modpack_completion_continue">Restore</string>
+    <string name="modpack_completion_skip">Skip this time</string>
+    <string name="modpack_completion_disable">Disable auto-restore</string>
+
     <string name="jar_execute">Execute Jar</string>
     <string name="jar_execute_custom_args">Execute with custom args</string>
     <string name="jar_executor_crash_title">Jar Executor Crashed</string>
@@ -723,6 +728,7 @@
     <string name="menu_settings_item_bar_scale_width">ItemBarScale (Width)</string>
     <string name="menu_settings_item_bar_scale_height">ItemBarScale (Height)</string>
     <string name="menu_settings_controls_opacity">Controls Opacity</string>
+    <string name="menu_settings_show_launch_progress">Show Launch Progress Overlay</string>
     <string name="menu_settings_show_log">Show Log</string>
     <string name="menu_settings_show_log_auto">Show Log Automatically</string>
     <string name="menu_settings_performance_mode">Sustained Performance Mode</string>
@@ -808,7 +814,6 @@
     <string name="modpack_type_curseforge">CurseForge</string>
     <string name="modpack_type_curseforge_export">Can be imported by the CurseForge app and most launchers</string>
     <string name="modpack_type_multimc">MultiMC</string>
-    <string name="modpack_type_multimc_export">Can be imported by FCL, HMCL and MultiMC</string>
     <string name="modpack_type_server">Auto-Update Modpack from Server</string>
     <string name="modpack_type_server_export">Allows server owner to update the game instance remotely</string>
     <string name="modpack_type_server_malformed">Invalid modpack manifest, please refer to the server modpack maker to fix this issue.</string>
@@ -1062,6 +1067,8 @@
 
     <string name="settings_advanced_dont_check_game_completeness">Do not check game integrity</string>
     <string name="settings_advanced_dont_check_game_completeness_desc">Skip the game file integrity check to speed up startup.</string>
+    <string name="settings_advanced_dont_restore_modpack">Do not restore modpack files</string>
+    <string name="settings_advanced_dont_restore_modpack_desc">Modpack versions automatically restore missing modpack files (including mods) at launch. When enabled, missing files will be left untouched.</string>
     <string name="settings_advanced_dont_check_jvm_validity">Do not check JVM compatibility</string>
     <string name="settings_advanced_dont_check_jvm_validity_desc">Skip the JVM validity check.</string>
     <string name="settings_advanced_dont_check_mod">Do not check Mod compatibility</string>
@@ -1106,6 +1113,18 @@
     <string name="renderer_config_mg_angle_desc">ANGLE (GLES-on-Vulkan) backend: 0=disable if possible, 1=enable if possible, 2=force disable, 3=force enable</string>
     <string name="renderer_config_mg_noerror">enableNoError</string>
     <string name="renderer_config_mg_noerror_desc">Ignore GL errors for compatibility and speed: 0=auto, 1=off, 2=ignore shader/program errors, 3=also ignore framebuffer errors</string>
+    <!-- Title of the global MultiDraw backend order in MobileGlues renderer settings (MG 2.0.1+) -->
+    <string name="renderer_config_mg_multidraw_order_desc">Higher strategies are preferred; failed strategies fall back in this order</string>
+    <!-- Description of the checkbox enabling a function-specific MultiDraw order -->
+    <string name="renderer_config_mg_multidraw_exception_desc">Enable to use an independent strategy order instead of the global order</string>
+    <!-- MultiDraw strategy matching a native GLES core or extension function -->
+    <string name="renderer_config_mg_multidraw_native">Native / Native EXT</string>
+    <!-- Description of the native MultiDraw strategy -->
+    <string name="renderer_config_mg_multidraw_native_desc">Matches the equivalent GLES core or extension function when available</string>
+    <!-- MultiDraw backend that submits every draw separately -->
+    <string name="renderer_config_mg_multidraw_unroll">Draw One by One</string>
+    <!-- MultiDraw backend using compute shaders -->
+    <string name="renderer_config_mg_multidraw_compute">Compute Shader</string>
     <string name="renderer_config_mg_depthfix">angleDepthClearFixMode</string>
     <string name="renderer_config_mg_depthfix_desc">Workaround for broken depth clears when the ANGLE backend is active; enable if the world renders through geometry</string>
     <string name="renderer_config_mg_glversion">customGLVersion</string>
@@ -1492,6 +1511,7 @@
     <string name="modpack_download_warn_msg">Before installation, you should understand that most modpacks are designed for PC, so there is a high probability that you will encounter crashes or other issues when trying to launch. This is often not a problem that can be solved at the launcher level. Therefore, you need to understand the relevant knowledge and try to solve the problem yourself or seek help from others (do not ask the launcher developer!).</string>
     <string name="guide_theme2">If you find the color of the text on the right side is not clear, you can click here, then click \"Launcher Settings\", and select \"Secondary Theme Color\"</string>
     <string name="guide_share_log">Long press here to share the game log (latest_game.log).</string>
+    <string name="guide_skin_model">Tap with two fingers on the skin model to open its settings.</string>
     <string name="guide_version_card">Tap the version card to open the version list and manage your versions. Long press to quickly select a version.</string>
     <string name="guide_account">No account yet? Tap here to add one.</string>
     <string name="guide_start">Tap to launch the selected version, long-press to pick a renderer and launch directly.</string>
@@ -1577,6 +1597,13 @@
     <string name="tip_hide_menu_view">The menu view is hidden. Press the volume key to open the menu.</string>
     <string name="modloader">ModLoader</string>
     <string name="message_warn_renderer_global_setting">The version you have currently selected has enabled per-instance settings, so the renderer selected here cannot be applied to the current version. Suggest long pressing the "Launch" button to select the renderer.</string>
+    <string name="renderer_override_title">Renderer Overrides</string>
+    <string name="renderer_override_desc">Assign a renderer to each version individually; versions left as "Follow Settings" use the renderer from global/per-version settings.</string>
+    <string name="renderer_follow_settings">Follow Settings</string>
+    <string name="renderer_clear_override">Clear Override</string>
+    <string name="renderer_update_override">Update Override</string>
+    <string name="renderer_keep_override">Keep Override</string>
+    <string name="message_warn_renderer_override_shadow">Version %1$s has a per-version renderer override (currently %2$s), so the renderer you just selected will NOT take effect for it.</string>
     <string name="message_select_url">Please select a link to download (it will open in your browser).</string>
     <string name="supported_mc_version">Supported MC version:</string>
     <string name="renderer_source">Source:</string>
@@ -1669,6 +1696,7 @@
     <string name="version_list_refreshing">Fetching remote version list…</string>
     <string name="skin_settings">Skin Settings</string>
     <string name="skin_solid_layer">3D Skin Layer</string>
+    <string name="skin_tap_sound">Tap Sound Effect</string>
     <string name="animation_idle">Idle</string>
     <string name="animation_walking">Walking</string>
     <string name="animation_running">Running</string>

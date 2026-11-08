@@ -515,6 +515,11 @@
     <string name="install_new_game_already_exists">当前版本已存在，请换一个名称。</string>
     <string name="install_new_game_malformed">无效的名称</string>
     <string name="install_success">安装成功</string>
+
+    <string name="modpack_completion_confirm">检测到以下整合包文件缺失，启动时将自动补全恢复。如属主动删除或更新，可跳过本次，或直接关闭自动补全。\n%s</string>
+    <string name="modpack_completion_continue">继续补全</string>
+    <string name="modpack_completion_skip">跳过本次</string>
+    <string name="modpack_completion_disable">不再自动补全</string>
     <string name="jar_execute">执行Jar文件</string>
     <string name="jar_execute_custom_args">使用自定义参数执行</string>
     <string name="jar_executor_crash_title">Jar Executor 意外退出</string>
@@ -646,6 +651,7 @@
     <string name="menu_settings_item_bar_scale_width">物品栏缩放（宽度）</string>
     <string name="menu_settings_item_bar_scale_height">物品栏缩放（高度）</string>
     <string name="menu_settings_controls_opacity">控件不透明度</string>
+    <string name="menu_settings_show_launch_progress">显示启动进度遮罩</string>
     <string name="menu_settings_show_log">显示日志</string>
     <string name="menu_settings_show_log_auto">自动显示日志</string>
     <string name="menu_settings_performance_mode">持续性能模式</string>
@@ -729,7 +735,6 @@
     <string name="modpack_type_curseforge">CurseForge</string>
     <string name="modpack_type_curseforge_export">可被 CurseForge 启动器与常见启动器导入</string>
     <string name="modpack_type_multimc">MultiMC</string>
-    <string name="modpack_type_multimc_export">可以被 FCL，HMCL 和 MultiMC 导入</string>
     <string name="modpack_type_server">服务器自动更新整合包</string>
     <string name="modpack_type_server_export">允许服务器管理员远程更新游戏客户端</string>
     <string name="modpack_type_server_malformed">服务器整合包配置格式错误，请联系服务器管理员解决此问题</string>
@@ -950,6 +955,8 @@
     <string name="search_last_page">最后一页</string>
     <string name="settings_advanced_dont_check_game_completeness">不检查游戏完整性</string>
     <string name="settings_advanced_dont_check_game_completeness_desc">跳过游戏文件完整性检查以加快启动</string>
+    <string name="settings_advanced_dont_restore_modpack">不自动恢复整合包文件</string>
+    <string name="settings_advanced_dont_restore_modpack_desc">整合包版本启动时会自动补全缺失的整合包文件（包括模组）。开启后不再自动补全，被删除或更新的文件将保持原样。</string>
     <string name="settings_advanced_dont_check_jvm_validity">不检查 JVM 兼容性</string>
     <string name="settings_advanced_dont_check_jvm_validity_desc">跳过 JVM 有效性检查</string>
     <string name="settings_advanced_dont_check_mod">不检查模组兼容性</string>
@@ -991,6 +998,18 @@
     <string name="renderer_config_mg_angle_desc">ANGLE（GLES on Vulkan）后端：0=可能时禁用 1=可能时启用 2=强制禁用 3=强制启用</string>
     <string name="renderer_config_mg_noerror">enableNoError</string>
     <string name="renderer_config_mg_noerror_desc">忽略 GL 错误以换取兼容性与速度：0=自动 1=不忽略 2=忽略着色器/程序错误 3=同时忽略帧缓冲错误</string>
+    <!-- MG 2.0.1+ 渲染器设置中的全局 MultiDraw 方案排序 -->
+    <string name="renderer_config_mg_multidraw_order_desc">越靠前越优先；运行中某方案失效时会按此顺序向后回退</string>
+    <!-- 启用函数级 MultiDraw 独立排序的开关说明 -->
+    <string name="renderer_config_mg_multidraw_exception_desc">启用后为此函数使用独立方案排序，不再跟随全局排序</string>
+    <!-- 匹配 GLES 核心或扩展中原生函数的 MultiDraw 方案 -->
+    <string name="renderer_config_mg_multidraw_native">原生 / 原生 EXT</string>
+    <!-- 原生 MultiDraw 方案说明 -->
+    <string name="renderer_config_mg_multidraw_native_desc">自动匹配 GLES 核心或扩展中同形的函数（若存在）</string>
+    <!-- 逐条提交每次绘制的 MultiDraw 后端 -->
+    <string name="renderer_config_mg_multidraw_unroll">逐条绘制</string>
+    <!-- 使用计算着色器的 MultiDraw 后端 -->
+    <string name="renderer_config_mg_multidraw_compute">计算着色器</string>
     <string name="renderer_config_mg_depthfix">angleDepthClearFixMode</string>
     <string name="renderer_config_mg_depthfix_desc">ANGLE 后端下深度清除异常的修复；若世界渲染穿透可尝试开启</string>
     <string name="renderer_config_mg_glversion">customGLVersion</string>
@@ -1350,6 +1369,7 @@
     <string name="modpack_download_warn_msg">在安装前，你需要明白，绝大多数整合包都是给电脑端制作的，所以当你尝试启动时会有极大概率出现崩溃或是其他问题，这往往不是在启动器层面上能解决的问题。所以你需要自己了解相关知识后尝试自己解决，或是寻求其他人帮忙（不要询问启动器开发者！）。</string>
     <string name="guide_theme2">如果你发现右侧的文字颜色看不清可以在点击这里，再点击“启动器设置”，设置里面的“次要主题色”即可</string>
     <string name="guide_share_log">长按这里分享游戏日志（latest_game.log）。</string>
+    <string name="guide_skin_model">双指点击皮肤模型打开设置菜单</string>
     <string name="guide_version_card">点击版本卡片打开版本列表，管理你的版本。长按快速选择版本。</string>
     <string name="guide_account">还没有账户？点击这里添加。</string>
     <string name="guide_start">点击启动选中的版本，长按可以选择指定渲染器然后直接启动。</string>
@@ -1426,6 +1446,13 @@
     <string name="tip_hide_menu_view">菜单按键已隐藏，按下音量键打开菜单。</string>
     <string name="modloader">模组加载器</string>
     <string name="message_warn_renderer_global_setting">你当前选择的版本已启用游戏特定设置，所以在此处修改的渲染器无法应用于当前版本。建议长按“启动”按钮选择渲染器。</string>
+    <string name="renderer_override_title">渲染器覆盖</string>
+    <string name="renderer_override_desc">为每个版本单独指定渲染器；保持“跟随设置”的版本使用全局/特定版本设置中的渲染器。</string>
+    <string name="renderer_follow_settings">跟随设置</string>
+    <string name="renderer_clear_override">清除覆盖</string>
+    <string name="renderer_update_override">更新覆盖</string>
+    <string name="renderer_keep_override">保留覆盖</string>
+    <string name="message_warn_renderer_override_shadow">版本 %1$s 已设置独立渲染器覆盖（当前生效：%2$s），刚才选择的渲染器不会应用到该版本。</string>
     <string name="message_select_url">请选择一个链接进行下载（将会跳转至浏览器）</string>
     <string name="supported_mc_version">MC版本：</string>
     <string name="renderer_source">来源：</string>
@@ -1516,6 +1543,7 @@
     <string name="version_list_refreshing">正在获取远程版本列表…</string>
     <string name="skin_settings">皮肤设置</string>
     <string name="skin_solid_layer">3D 皮肤层</string>
+    <string name="skin_tap_sound">点击音效</string>
     <string name="animation_idle">待机</string>
     <string name="animation_walking">走路</string>
     <string name="animation_running">奔跑</string>
@@ -1525,7 +1553,7 @@
     <string name="animation_crouch">潜行</string>
     <string name="animation_swim">游泳</string>
     <string name="animation_hands_up_running">举手奔跑</string>
-    <string name="animation_hands_up_jumping">举手蹦跳</string>
+    <string name="animation_hands_up_jumping">举手蹦跳 \\😭/</string>
     <string name="animation_spin_jump">邦友的酒</string>
     <string name="quark_promo_title">支持 FCL</string>
     <string name="quark_promo_message">这是你第 %1$d 次启动游戏！\n\n如果 FCL 对你有帮助，欢迎动动手指打开夸克网盘，注册或登录后点击保存到网盘（不用下载），就是对我们最大的支持，十分感谢～</string>
