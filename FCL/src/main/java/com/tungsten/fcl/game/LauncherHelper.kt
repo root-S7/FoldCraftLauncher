@@ -112,7 +112,7 @@ import kotlin.coroutines.resumeWithException
  * 替代原先的 Task 任务链；弹窗以任务列表形式展示各启动阶段并随协程推进打勾，
  * fclcore 子任务（依赖补全等）仍经 [runTracked] 接入 TaskExecutor 以复用进度展示。
  */
-class LauncherHelper(
+class LauncherHelper @JvmOverloads constructor(
     private val context: Context,
     private val profile: Profile,
     private val account: Account,
