@@ -20,10 +20,12 @@ package com.tungsten.fcl.game;
 import android.content.Context;
 
 import com.mio.data.Renderer;
+import com.mio.device.VulkanCheckManager;
 import com.mio.manager.RendererManager;
 import com.mio.util.LauncherUtilKt;
 import com.tungsten.fcl.R;
 import com.tungsten.fcl.setting.GameOption;
+import com.tungsten.fcl.setting.VersionSetting;
 import com.tungsten.fcl.util.RuntimeUtils;
 import com.tungsten.fclauncher.bridge.FCLBridge;
 import com.tungsten.fcl.FCLApp;
@@ -47,8 +49,11 @@ import java.util.logging.Level;
 
 public final class FCLGameLauncher extends DefaultLauncher {
 
-    public FCLGameLauncher(Context context, GameRepository repository, Version version, AuthInfo authInfo, LaunchOptions options) {
+    private final VersionSetting setting;
+
+    public FCLGameLauncher(Context context, GameRepository repository, Version version, AuthInfo authInfo, LaunchOptions options, VersionSetting setting) {
         super(context, repository, version, authInfo, options);
+        this.setting = setting;
     }
 
     @Override
@@ -72,35 +77,16 @@ public final class FCLGameLauncher extends DefaultLauncher {
         } catch (IOException e) {
             Logging.LOG.log(Level.WARNING, "Unable to disable forge animation", e);
         }
-        // 仅对 MC 26.3+ 关闭 FML 早期加载屏：其 ANGLE/Vulkan 渲染在启动期反复分配 gralloc 缓冲，
-        // 会与启动器 UI 的 present 在 vendor gralloc 锁上互堵（UI 冻死直至 ANR）。
-        // 更早版本无此冲突，须清掉残留的关闭键，保留模组加载进度动画。
-        // 键置于文件头部，不会落入任何表作用域；FML 加载后会按 spec 回写补全注释与其余键。
+        // FML 早期加载屏在 Vulkan 后端下会崩或冻死：26.2 的早期窗口先以 OpenGL 渲染，游戏复用该窗口
+        // 创建 Vulkan surface 时在 vkCreateAndroidSurfaceKHR 处崩溃；26.3+ 的 ANGLE/Vulkan 渲染线程还会
+        // 在启动扫描期反复分配 gralloc 缓冲，与启动器 UI 的 present 在 vendor gralloc 锁上互堵（冻死直至 ANR）。
+        // 26.2+ 仅在显式选择 OpenGL 后端时保留早期加载屏，default 无法判断游戏实际后端、与 Vulkan 一并关闭；
+        // 更早版本无此冲突，清掉残留的关闭键以恢复模组加载动画。
         File fmlToml = new File(configFolder, "fml.toml");
-        GameVersionNumber gameVersion = GameVersionNumber.asGameVersion(repository.getGameVersion(version).orElse("0.0"));
-        boolean disableEarlyWindow = gameVersion.compareTo("26.3") >= 0;
-        if (fmlToml.isFile()) {
-            try (BufferedReader bfr = new BufferedReader(new FileReader(fmlToml))) {
-                StringBuilder str = new StringBuilder(disableEarlyWindow ? "earlyWindowControl = false\n" : "");
-                String line;
-                while ((line = bfr.readLine()) != null) {
-                    if (!line.strip().startsWith("earlyWindowControl")) {
-                        str.append(line).append('\n');
-                    }
-                }
-                try (FileWriter fw = new FileWriter(fmlToml)) {
-                    fw.write(str.toString());
-                }
-            } catch (IOException e) {
-                Logging.LOG.log(Level.WARNING, "Unable to write fml.toml", e);
-            }
-        } else if (disableEarlyWindow) {
-            try {
-                FileUtils.writeText(fmlToml, "earlyWindowControl = false\n");
-            } catch (IOException e) {
-                Logging.LOG.log(Level.WARNING, "Unable to write fml.toml", e);
-            }
-        }
+        boolean hasVulkanBackend = VulkanCheckManager.INSTANCE.hasVulkanBackend(
+                repository.getGameVersion(version).orElse(null));
+        boolean disableEarlyWindow = hasVulkanBackend && !setting.getGraphicsBackend().equals("opengl");
+        applyFmlEarlyWindowControl(fmlToml, disableEarlyWindow);
         GameOption gameOption = null;
         if (!optionsFile.exists()) {
             try {
@@ -113,6 +99,7 @@ public final class FCLGameLauncher extends DefaultLauncher {
         }
         if (gameOption == null)
             gameOption = new GameOption(optionsFile.getParent());
+        GameVersionNumber gameVersion = GameVersionNumber.asGameVersion(repository.getGameVersion(version).orElse("0.0"));
         // 13w16a~13w23b 快照缺少非英语语言的外部语言资源，即使格式正确，选了不可用语言也会卡在 Mojang 加载界面，
         // 历史已写入的 lang 一并重置为默认英语；置于 fixLang 之前，随其规范成该时代的 en_US 格式
         if (isLangUnavailableSnapshot(gameVersion))
@@ -120,6 +107,78 @@ public final class FCLGameLauncher extends DefaultLauncher {
         fixLang(gameOption);
         fixOptions(gameOption);
         gameOption.save();
+    }
+
+    /**
+     * 读取 fml.toml 并合并 earlyWindowControl 键，内容没有变化时不写盘。
+     * FML 加载后会按 spec 回写补全注释与其余键。
+     */
+    private static void applyFmlEarlyWindowControl(File fmlToml, boolean disableEarlyWindow) {
+        if (!fmlToml.isFile()) {
+            if (!disableEarlyWindow) {
+                return;
+            }
+            try {
+                FileUtils.writeText(fmlToml, "earlyWindowControl = false\n");
+            } catch (IOException e) {
+                Logging.LOG.log(Level.WARNING, "Unable to write fml.toml", e);
+            }
+            return;
+        }
+        try {
+            String content = FileUtils.readText(fmlToml);
+            String merged = buildFmlTomlContent(content, disableEarlyWindow);
+            if (!merged.equals(content)) {
+                FileUtils.writeText(fmlToml, merged);
+            }
+        } catch (IOException e) {
+            Logging.LOG.log(Level.WARNING, "Unable to write fml.toml", e);
+        }
+    }
+
+    /**
+     * 生成合并后的 fml.toml 内容：需要关闭时把关闭键写到文件头部（不落入任何表作用域），
+     * 并移除文件中已有的同名键；无需关闭时只移除残留的关闭键。
+     * 文件中已有唯一位于根作用域的关闭键时原样返回，避免改动用户的文件排版。
+     */
+    static String buildFmlTomlContent(String content, boolean disableEarlyWindow) {
+        String[] lines = content.split("\n", -1);
+        int lineCount = lines.length;
+        if (lineCount > 0 && lines[lineCount - 1].isEmpty()) {
+            lineCount--;
+        }
+        if (disableEarlyWindow && hasRootDisabledKey(lines, lineCount)) {
+            return content;
+        }
+        StringBuilder str = new StringBuilder(disableEarlyWindow ? "earlyWindowControl = false\n" : "");
+        for (int i = 0; i < lineCount; i++) {
+            if (!lines[i].strip().startsWith("earlyWindowControl")) {
+                str.append(lines[i]).append('\n');
+            }
+        }
+        return str.toString();
+    }
+
+    /**
+     * 文件中是否存在唯一的、表作用域之外的 earlyWindowControl = false 键
+     */
+    private static boolean hasRootDisabledKey(String[] lines, int lineCount) {
+        boolean inTable = false;
+        boolean found = false;
+        for (int i = 0; i < lineCount; i++) {
+            String stripped = lines[i].strip();
+            if (stripped.startsWith("[")) {
+                inTable = true;
+            } else if (stripped.startsWith("earlyWindowControl")) {
+                int equals = stripped.indexOf('=');
+                if (found || inTable || equals < 0
+                        || !stripped.substring(equals + 1).strip().equals("false")) {
+                    return false;
+                }
+                found = true;
+            }
+        }
+        return found;
     }
 
     private void fixOptions(GameOption gameOption) {
@@ -138,7 +197,7 @@ public final class FCLGameLauncher extends DefaultLauncher {
 
     private void fixLang(GameOption gameOption) {
         GameVersionNumber gameVersion = GameVersionNumber.asGameVersion(repository.getGameVersion(version).orElse("0.0"));
-        if (gameVersion.compareTo("1.1") < 0) {
+        if (gameVersion.compareTo("11w49a") < 0) {
             return;
         }
         boolean toUpper = gameVersion.compareTo("1.11") < 0;

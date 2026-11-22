@@ -335,7 +335,7 @@ class LauncherHelper @JvmOverloads constructor(
                 scaleFactor,
                 cursorOffset
             )
-        val launcher = FCLGameLauncher(context, repository, version, authInfo, launchOptions)
+        val launcher = FCLGameLauncher(context, repository, version, authInfo, launchOptions, setting)
 
         var jnaVersion: String? = null
         var lwjglVersion: String? = null
